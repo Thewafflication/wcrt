@@ -1,0 +1,65 @@
+# Build directories
+/build/
+/out/
+/dist/
+/bin/
+/lib/
+
+# CMake-generated files
+/CMakeFiles/
+/CMakeCache.txt
+/cmake_install.cmake
+/CTestTestfile.cmake
+/Testing/
+/compile_commands.json
+/*.cmake.user
+
+# Compiled objects and libraries
+*.o
+*.obj
+*.a
+*.lib
+*.dll
+*.dll.a
+*.exp
+*.def.tmp
+
+# Executables and debugging data
+*.exe
+*.com
+*.pdb
+*.ilk
+*.map
+*.dmp
+
+# Test, coverage, and profiling output
+*.gcda
+*.gcno
+*.gcov
+*.profraw
+*.profdata
+/test-results/
+/coverage/
+
+# Generated dependencies and temporary files
+*.d
+*.tmp
+*.temp
+*.bak
+*.swp
+*~
+
+# Editor and IDE state
+/.vs/
+/.vscode/
+/.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Operating-system metadata
+.DS_Store
+Thumbs.db
+Desktop.ini
+
