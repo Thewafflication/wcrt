@@ -1,0 +1,39 @@
+# C89 Requirements Index
+
+WCRT assigns one independently numbered requirement document to each public
+C89 header. Clause numbers annotate Clause 4 of the late ANSI X3J11 C89 draft:
+
+<https://bohr.wlu.ca/hfan/cp264/references/c89-draft.html>
+
+Any difference from ANSI X3.159-1989 or ISO/IEC 9899:1990 shall be resolved in
+`docs/c89-deviations.md` before a conformance claim is made.
+
+| Requirement | Header | Draft clause | Scope |
+| --- | --- | --- | --- |
+| [REQ-0001](req-0001-assert.md) | `<assert.h>` | §4.2 | Diagnostics |
+| [REQ-0002](req-0002-ctype.md) | `<ctype.h>` | §4.3 | Character handling |
+| [REQ-0003](req-0003-errno.md) | `<errno.h>` | §4.1.3 | Error reporting |
+| [REQ-0004](req-0004-float.md) | `<float.h>` | §4.1.4 | Floating-point limits |
+| [REQ-0005](req-0005-limits.md) | `<limits.h>` | §4.1.4 | Integer limits |
+| [REQ-0006](req-0006-locale.md) | `<locale.h>` | §4.4 | Localization |
+| [REQ-0007](req-0007-math.md) | `<math.h>` | §4.5 | Mathematics |
+| [REQ-0008](req-0008-setjmp.md) | `<setjmp.h>` | §4.6 | Non-local jumps |
+| [REQ-0009](req-0009-signal.md) | `<signal.h>` | §4.7 | Signals |
+| [REQ-0010](req-0010-stdarg.md) | `<stdarg.h>` | §4.8 | Variable arguments |
+| [REQ-0011](req-0011-stddef.md) | `<stddef.h>` | §4.1.5 | Common definitions |
+| [REQ-0012](req-0012-stdio.md) | `<stdio.h>` | §4.9 | Input/output |
+| [REQ-0013](req-0013-stdlib.md) | `<stdlib.h>` | §4.10 | General utilities |
+| [REQ-0014](req-0014-string.md) | `<string.h>` | §4.11 | String handling |
+| [REQ-0015](req-0015-time.md) | `<time.h>` | §4.12 | Date and time |
+
+## Shared acceptance gates
+
+Every requirement is complete only when its header and implementation files
+exist; all named functions, macros, types, objects, and structure members are
+tested; TinyCC builds do not silently use a host CRT; tests map back to the
+cited draft clauses; Windows 2000 x86 import checks pass where applicable; and
+implementation-defined choices and deviations are documented.
+
+Shared runtime requirements—startup, ABI, Windows adaptation, imports, and
+test-manifest structure—will receive subsequent requirement numbers rather than
+being nested beneath a header requirement.
