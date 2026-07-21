@@ -31,7 +31,7 @@ Establish a runtime that can be built and tested before making a standards
 conformance claim.
 
 - [ ] Adopt a GPL-3.0-or-later source-file notice policy.
-- [ ] Create the `include`, `src`, `tests`, `tools`, and `docs` structure.
+- [ ] Create the `include`, `wcrt`, `tests`, `tools`, and `docs` structure.
 - [ ] Define supported TinyCC versions and acquire compiler capability probes.
 - [ ] Add deterministic static-library and test-executable builds.
 - [ ] Define 32-bit x86 calling conventions, object format, symbol naming, and
