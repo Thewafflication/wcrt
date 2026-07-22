@@ -1,0 +1,20 @@
+% TC-0004 fragment; included by c89-test-report.tex.
+\def\TCID{TC-0004}
+\def\TCTitle{C89 floating-point limits API presence}
+\def\TCPurpose{Verify that \texttt{float.h} supplies every C89 floating-point model and limit macro in a usable context.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0004}
+\def\TCDesignRef{ANSI X3J11 C89 draft 4.1.4.}
+\def\TCFeatureRef{\texttt{include/float.h}; \texttt{tests/c89/presence/float.c}.}
+\def\TCPreconditions{TinyCC is available in \texttt{PATH}; WCRT public headers exist under \texttt{include}.}
+\def\TCEnvironment{Compile-only C89 test using TinyCC with host include fallback disabled.}
+\def\TCAssumptions{Presence and type usability are tested; target-representation accuracy is deferred.}
+\def\TCInputData{All \texttt{FLT}, \texttt{DBL}, and \texttt{LDBL} model and limit macros named by REQ-0004.}
+\def\TCInitialState{No floating-point environment state is required.}
+\def\TCProcedure{\par\begin{enumerate}
+\item Compile \texttt{tests/c89/presence/float.c} as C89 without linking.
+\item Treat a missing macro or invalid initializer or constant expression as failure.
+\end{enumerate}}
+\def\TCExpectedResult{Compilation succeeds and every required macro is usable in its expected integer or floating context.}
+\def\TCPostConditions{Only \texttt{build/tests/c89/presence/float.o} may be created.}
+\TCTemplate

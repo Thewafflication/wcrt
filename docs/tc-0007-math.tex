@@ -1,0 +1,20 @@
+% TC-0007 fragment; included by c89-test-report.tex.
+\def\TCID{TC-0007}
+\def\TCTitle{C89 mathematics API presence}
+\def\TCPurpose{Verify that \texttt{math.h} declares all 22 C89 mathematical functions and defines \texttt{HUGE\_VAL}.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0007}
+\def\TCDesignRef{ANSI X3J11 C89 draft 4.5 through 4.5.6.}
+\def\TCFeatureRef{\texttt{include/math.h}; \texttt{tests/c89/presence/math.c}.}
+\def\TCPreconditions{TinyCC is available in \texttt{PATH}; WCRT public headers exist under \texttt{include}.}
+\def\TCEnvironment{Compile-only C89 test using TinyCC with host include fallback disabled.}
+\def\TCAssumptions{Mathematical accuracy and error behavior are outside this presence case.}
+\def\TCInputData{Typed references to all functions in REQ-0007 and a \texttt{double} initializer using \texttt{HUGE\_VAL}.}
+\def\TCInitialState{No floating environment or \texttt{errno} state is required.}
+\def\TCProcedure{\par\begin{enumerate}
+\item Compile \texttt{tests/c89/presence/math.c} as C89 without linking.
+\item Treat a missing name, incompatible declaration, or missing constant as failure.
+\end{enumerate}}
+\def\TCExpectedResult{Compilation succeeds and all 22 functions plus \texttt{HUGE\_VAL} are usable.}
+\def\TCPostConditions{Only \texttt{build/tests/c89/presence/math.o} may be created.}
+\TCTemplate

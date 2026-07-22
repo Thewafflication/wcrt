@@ -1,0 +1,20 @@
+% TC-0011 fragment; included by c89-test-report.tex.
+\def\TCID{TC-0011}
+\def\TCTitle{C89 common definitions API presence}
+\def\TCPurpose{Verify that \texttt{stddef.h} supplies three types, \texttt{NULL}, and \texttt{offsetof} as a constant-expression macro.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0011}
+\def\TCDesignRef{ANSI X3J11 C89 draft 4.1.5.}
+\def\TCFeatureRef{\texttt{include/stddef.h}; \texttt{tests/c89/presence/stddef.c}.}
+\def\TCPreconditions{TinyCC is available in \texttt{PATH}; WCRT public headers exist under \texttt{include}.}
+\def\TCEnvironment{Compile-only C89 test using TinyCC with host include fallback disabled.}
+\def\TCAssumptions{ABI size and signedness correctness are deferred.}
+\def\TCInputData{Declarations using \texttt{ptrdiff\_t}, \texttt{size\_t}, and \texttt{wchar\_t}; \texttt{NULL}; and three \texttt{offsetof} expressions.}
+\def\TCInitialState{No runtime state is required.}
+\def\TCProcedure{\par\begin{enumerate}
+\item Compile \texttt{tests/c89/presence/stddef.c} as C89 without linking.
+\item Treat missing facilities or nonconstant \texttt{offsetof} expressions as failure.
+\end{enumerate}}
+\def\TCExpectedResult{Compilation succeeds and all C89 common-definition facilities are usable.}
+\def\TCPostConditions{Only \texttt{build/tests/c89/presence/stddef.o} may be created.}
+\TCTemplate

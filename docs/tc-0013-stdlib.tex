@@ -1,0 +1,20 @@
+% TC-0013 fragment; included by c89-test-report.tex.
+\def\TCID{TC-0013}
+\def\TCTitle{C89 general utilities API presence}
+\def\TCPurpose{Verify that \texttt{stdlib.h} exposes 29 C89 functions, four required types, and five required macros.}
+\def\TCPriority{\TCPriorityCritical}
+\def\TCRequirementRef{REQ-0013}
+\def\TCDesignRef{ANSI X3J11 C89 draft 4.10 and 4.10.1 through 4.10.8.}
+\def\TCFeatureRef{\texttt{include/stdlib.h}; \texttt{tests/c89/presence/stdlib.c}.}
+\def\TCPreconditions{TinyCC is available in \texttt{PATH}; WCRT public headers exist under \texttt{include}.}
+\def\TCEnvironment{Compile-only C89 test using TinyCC with host include fallback disabled.}
+\def\TCAssumptions{No allocation, termination, environment, sorting, or conversion operation is executed.}
+\def\TCInputData{Typed references to 29 functions, declarations using four types, and expressions using five macros.}
+\def\TCInitialState{No heap, environment, locale, or termination state is modified.}
+\def\TCProcedure{\par\begin{enumerate}
+\item Compile \texttt{tests/c89/presence/stdlib.c} as C89 without linking.
+\item Treat missing names, incompatible prototypes, or unusable public facilities as failure.
+\end{enumerate}}
+\def\TCExpectedResult{Compilation succeeds and the complete C89 \texttt{stdlib.h} surface is visible.}
+\def\TCPostConditions{Only \texttt{build/tests/c89/presence/stdlib.o} may be created.}
+\TCTemplate

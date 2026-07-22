@@ -1,0 +1,20 @@
+% TC-0015 fragment; included by c89-test-report.tex.
+\def\TCID{TC-0015}
+\def\TCTitle{C89 date and time API presence}
+\def\TCPurpose{Verify that \texttt{time.h} exposes nine C89 functions, required types and macros, and every \texttt{struct tm} member.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0015}
+\def\TCDesignRef{ANSI X3J11 C89 draft 4.12, 4.12.2, and 4.12.3.}
+\def\TCFeatureRef{\texttt{include/time.h}; \texttt{tests/c89/presence/time.c}.}
+\def\TCPreconditions{TinyCC is available in \texttt{PATH}; WCRT public headers exist under \texttt{include}.}
+\def\TCEnvironment{Compile-only C89 test using TinyCC with host include fallback disabled.}
+\def\TCAssumptions{No system clock or timezone service is invoked.}
+\def\TCInputData{Typed references to nine functions; three types; two macros; and assignments to all nine \texttt{struct tm} members.}
+\def\TCInitialState{No clock, calendar, locale, or timezone state is required.}
+\def\TCProcedure{\par\begin{enumerate}
+\item Compile \texttt{tests/c89/presence/time.c} as C89 without linking.
+\item Treat missing names, members, macros, or incompatible prototypes as failure.
+\end{enumerate}}
+\def\TCExpectedResult{Compilation succeeds and the complete C89 \texttt{time.h} declaration surface is visible.}
+\def\TCPostConditions{Only \texttt{build/tests/c89/presence/time.o} may be created.}
+\TCTemplate

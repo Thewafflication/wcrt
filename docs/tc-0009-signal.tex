@@ -1,0 +1,20 @@
+% TC-0009 fragment; included by c89-test-report.tex.
+\def\TCID{TC-0009}
+\def\TCTitle{C89 signal API presence}
+\def\TCPurpose{Verify that \texttt{signal.h} supplies two functions, \texttt{sig\_atomic\_t}, handler actions, and six required signals.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0009}
+\def\TCDesignRef{ANSI X3J11 C89 draft 4.7, 4.7.1.1, and 4.7.2.1.}
+\def\TCFeatureRef{\texttt{include/signal.h}; \texttt{tests/c89/presence/signal.c}.}
+\def\TCPreconditions{TinyCC is available in \texttt{PATH}; WCRT public headers exist under \texttt{include}.}
+\def\TCEnvironment{Compile-only C89 test using TinyCC with host include fallback disabled.}
+\def\TCAssumptions{No signal is delivered and Windows signal mapping is outside this presence test.}
+\def\TCInputData{Typed function references; \texttt{sig\_atomic\_t}; three handler actions; and six required signal constants.}
+\def\TCInitialState{No handler is installed.}
+\def\TCProcedure{\par\begin{enumerate}
+\item Compile \texttt{tests/c89/presence/signal.c} as C89 without linking.
+\item Treat missing or incompatible public facilities as failure.
+\end{enumerate}}
+\def\TCExpectedResult{Compilation succeeds and every required C89 signal facility is visible and usable.}
+\def\TCPostConditions{Only \texttt{build/tests/c89/presence/signal.o} may be created.}
+\TCTemplate

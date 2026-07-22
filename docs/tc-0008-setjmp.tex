@@ -1,0 +1,20 @@
+% TC-0008 fragment; included by c89-test-report.tex.
+\def\TCID{TC-0008}
+\def\TCTitle{C89 non-local jump API presence}
+\def\TCPurpose{Verify that \texttt{setjmp.h} defines \texttt{jmp\_buf} and exposes usable \texttt{setjmp} and \texttt{longjmp} interfaces.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0008}
+\def\TCDesignRef{ANSI X3J11 C89 draft 4.6, 4.6.1.1, and 4.6.2.1.}
+\def\TCFeatureRef{\texttt{include/setjmp.h}; \texttt{tests/c89/presence/setjmp.c}.}
+\def\TCPreconditions{TinyCC is available in \texttt{PATH}; WCRT public headers exist under \texttt{include}.}
+\def\TCEnvironment{Compile-only C89 test using TinyCC with host include fallback disabled.}
+\def\TCAssumptions{\texttt{setjmp} may be a macro; the context is never executed.}
+\def\TCInputData{A \texttt{jmp\_buf} object, a \texttt{setjmp} call expression, and a typed \texttt{longjmp} reference.}
+\def\TCInitialState{The jump buffer contains no saved environment.}
+\def\TCProcedure{\par\begin{enumerate}
+\item Compile \texttt{tests/c89/presence/setjmp.c} as C89 without linking.
+\item Treat missing types, interfaces, or incompatible declarations as failure.
+\end{enumerate}}
+\def\TCExpectedResult{Compilation succeeds and all three public facilities are usable in their C89 declaration contexts.}
+\def\TCPostConditions{Only \texttt{build/tests/c89/presence/setjmp.o} may be created.}
+\TCTemplate

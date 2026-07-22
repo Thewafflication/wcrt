@@ -1,0 +1,20 @@
+% TC-0006 fragment; included by c89-test-report.tex.
+\def\TCID{TC-0006}
+\def\TCTitle{C89 localization API presence}
+\def\TCPurpose{Verify that \texttt{locale.h} supplies two functions, six category constants, \texttt{NULL}, and every C89 \texttt{struct lconv} member.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0006}
+\def\TCDesignRef{ANSI X3J11 C89 draft 4.4, 4.4.1, and 4.4.2.}
+\def\TCFeatureRef{\texttt{include/locale.h}; \texttt{tests/c89/presence/locale.c}.}
+\def\TCPreconditions{TinyCC is available in \texttt{PATH}; WCRT public headers exist under \texttt{include}.}
+\def\TCEnvironment{Compile-only C89 test using TinyCC with host include fallback disabled.}
+\def\TCAssumptions{No locale data needs to be linked because functions are not called.}
+\def\TCInputData{Typed function references, all \texttt{LC} categories, \texttt{NULL}, and all 18 \texttt{struct lconv} fields.}
+\def\TCInitialState{No active locale state is required.}
+\def\TCProcedure{\par\begin{enumerate}
+\item Compile \texttt{tests/c89/presence/locale.c} as C89 without linking.
+\item Treat missing identifiers, members, or incompatible declarations as failure.
+\end{enumerate}}
+\def\TCExpectedResult{Compilation succeeds and the complete C89 localization surface is visible.}
+\def\TCPostConditions{Only \texttt{build/tests/c89/presence/locale.o} may be created.}
+\TCTemplate

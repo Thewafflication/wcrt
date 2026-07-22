@@ -95,12 +95,15 @@ static long double wcrt_long_double_values[] = {
     LDBL_MIN, LDBL_MAX, LDBL_EPSILON
 };
 
-enum {
-    wcrt_float_integer_macros_present =
-        FLT_RADIX + FLT_ROUNDS + FLT_DIG + DBL_DIG + LDBL_DIG +
-        FLT_MANT_DIG + DBL_MANT_DIG + LDBL_MANT_DIG +
-        FLT_MIN_EXP + DBL_MIN_EXP + LDBL_MIN_EXP +
-        FLT_MAX_EXP + DBL_MAX_EXP + LDBL_MAX_EXP +
-        FLT_MIN_10_EXP + DBL_MIN_10_EXP + LDBL_MIN_10_EXP +
-        FLT_MAX_10_EXP + DBL_MAX_10_EXP + LDBL_MAX_10_EXP
-};
+static void wcrt_use_float_integer_macros(void)
+{
+    int values[] = {
+        FLT_RADIX, FLT_ROUNDS, FLT_DIG, DBL_DIG, LDBL_DIG,
+        FLT_MANT_DIG, DBL_MANT_DIG, LDBL_MANT_DIG,
+        FLT_MIN_EXP, DBL_MIN_EXP, LDBL_MIN_EXP,
+        FLT_MAX_EXP, DBL_MAX_EXP, LDBL_MAX_EXP,
+        FLT_MIN_10_EXP, DBL_MIN_10_EXP, LDBL_MIN_10_EXP,
+        FLT_MAX_10_EXP, DBL_MAX_10_EXP, LDBL_MAX_10_EXP
+    };
+    (void)values;
+}

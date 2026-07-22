@@ -82,7 +82,11 @@ static ldiv_t wcrt_ldiv_value;
 static size_t wcrt_stdlib_size;
 static wchar_t wcrt_stdlib_wchar;
 
-enum {
-    wcrt_stdlib_constants_present =
-        EXIT_FAILURE + EXIT_SUCCESS + RAND_MAX + MB_CUR_MAX
-};
+static void wcrt_use_stdlib_macros(void)
+{
+    size_t values[] = {
+        (size_t)EXIT_FAILURE, (size_t)EXIT_SUCCESS,
+        (size_t)RAND_MAX, (size_t)MB_CUR_MAX
+    };
+    (void)values;
+}

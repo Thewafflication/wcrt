@@ -4,6 +4,8 @@
 /dist/
 /bin/
 /lib/
+/tmp/
+/output/
 
 # CMake-generated files
 /CMakeFiles/
@@ -62,4 +64,3 @@
 .DS_Store
 Thumbs.db
 Desktop.ini
-

@@ -1,0 +1,20 @@
+% TC-0012 fragment; included by c89-test-report.tex.
+\def\TCID{TC-0012}
+\def\TCTitle{C89 input and output API presence}
+\def\TCPurpose{Verify that \texttt{stdio.h} exposes 41 C89 functions, required types and constants, and three standard streams.}
+\def\TCPriority{\TCPriorityCritical}
+\def\TCRequirementRef{REQ-0012}
+\def\TCDesignRef{ANSI X3J11 C89 draft 4.9 and 4.9.4 through 4.9.10.}
+\def\TCFeatureRef{\texttt{include/stdio.h}; \texttt{tests/c89/presence/stdio.c}.}
+\def\TCPreconditions{TinyCC is available in \texttt{PATH}; WCRT public headers exist under \texttt{include}.}
+\def\TCEnvironment{Compile-only C89 test using TinyCC with host include fallback disabled.}
+\def\TCAssumptions{Macro-shadowed functions have addressable forms; obsolete \texttt{gets} remains required by C89.}
+\def\TCInputData{Typed references to 41 functions; declarations using three types; 13 required macros; and three standard streams.}
+\def\TCInitialState{No stream is opened or accessed.}
+\def\TCProcedure{\par\begin{enumerate}
+\item Compile \texttt{tests/c89/presence/stdio.c} as C89 without linking.
+\item Treat missing identifiers, incompatible prototypes, or invalid public facilities as failure.
+\end{enumerate}}
+\def\TCExpectedResult{Compilation succeeds and the complete C89 \texttt{stdio.h} surface is available independently.}
+\def\TCPostConditions{Only \texttt{build/tests/c89/presence/stdio.o} may be created.}
+\TCTemplate

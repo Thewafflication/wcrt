@@ -1,0 +1,20 @@
+% TC-0010 fragment; included by c89-test-report.tex.
+\def\TCID{TC-0010}
+\def\TCTitle{C89 variable arguments API presence}
+\def\TCPurpose{Verify that \texttt{stdarg.h} supplies \texttt{va\_list}, \texttt{va\_start}, \texttt{va\_arg}, and \texttt{va\_end}.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0010}
+\def\TCDesignRef{ANSI X3J11 C89 draft 4.8 and 4.8.1.1 through 4.8.1.3.}
+\def\TCFeatureRef{\texttt{include/stdarg.h}; \texttt{tests/c89/presence/stdarg.c}.}
+\def\TCPreconditions{TinyCC is available in \texttt{PATH}; WCRT public headers exist under \texttt{include}.}
+\def\TCEnvironment{Compile-only C89 test using TinyCC with host include fallback disabled.}
+\def\TCAssumptions{Macro expansion is compiler and ABI specific; execution correctness is deferred.}
+\def\TCInputData{A variadic function that traverses an \texttt{int} and a \texttt{double}.}
+\def\TCInitialState{No variable-argument traversal is active.}
+\def\TCProcedure{\par\begin{enumerate}
+\item Compile \texttt{tests/c89/presence/stdarg.c} as C89 without linking.
+\item Treat missing types, macros, or invalid expansions as failure.
+\end{enumerate}}
+\def\TCExpectedResult{Compilation succeeds and all four facilities are usable in a valid C89 variadic function.}
+\def\TCPostConditions{Only \texttt{build/tests/c89/presence/stdarg.o} may be created.}
+\TCTemplate

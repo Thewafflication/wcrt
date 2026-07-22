@@ -1,0 +1,20 @@
+% TC-0014 fragment; included by c89-test-report.tex.
+\def\TCID{TC-0014}
+\def\TCTitle{C89 string handling API presence}
+\def\TCPurpose{Verify that \texttt{string.h} exposes 22 C89 byte and string functions, \texttt{size\_t}, and \texttt{NULL}.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0014}
+\def\TCDesignRef{ANSI X3J11 C89 draft 4.11 and 4.11.2 through 4.11.6.}
+\def\TCFeatureRef{\texttt{include/string.h}; \texttt{tests/c89/presence/string.c}.}
+\def\TCPreconditions{TinyCC is available in \texttt{PATH}; WCRT public headers exist under \texttt{include}.}
+\def\TCEnvironment{Compile-only C89 test using TinyCC with host include fallback disabled.}
+\def\TCAssumptions{Declaration shape is checked without reading or modifying memory.}
+\def\TCInputData{Typed references to all functions in REQ-0014 plus \texttt{size\_t} and \texttt{NULL}.}
+\def\TCInitialState{No source or destination buffer is required.}
+\def\TCProcedure{\par\begin{enumerate}
+\item Compile \texttt{tests/c89/presence/string.c} as C89 without linking.
+\item Treat missing names, incompatible prototypes, or missing common facilities as failure.
+\end{enumerate}}
+\def\TCExpectedResult{Compilation succeeds and all 22 functions plus \texttt{size\_t} and \texttt{NULL} are usable.}
+\def\TCPostConditions{Only \texttt{build/tests/c89/presence/string.o} may be created.}
+\TCTemplate

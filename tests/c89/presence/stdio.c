@@ -71,6 +71,7 @@ typedef int (*wcrt_vsprintf_fn)(char *, const char *, va_list);
 typedef int (*wcrt_fgetc_fn)(FILE *);
 typedef char *(*wcrt_fgets_fn)(char *, int, FILE *);
 typedef int (*wcrt_fputc_fn)(int, FILE *);
+typedef int (*wcrt_ungetc_fn)(int, FILE *);
 typedef int (*wcrt_fputs_fn)(const char *, FILE *);
 typedef int (*wcrt_getchar_fn)(void);
 typedef char *(*wcrt_gets_fn)(char *);
@@ -107,8 +108,9 @@ static wcrt_vfprintf_fn wcrt_vfprintf_address = (vfprintf);
 static wcrt_vprintf_fn wcrt_vprintf_address = (vprintf);
 static wcrt_vsprintf_fn wcrt_vsprintf_address = (vsprintf);
 static wcrt_fgetc_fn wcrt_fgetc_functions[] = {
-    (fgetc), (getc), (ungetc)
+    (fgetc), (getc)
 };
+static wcrt_ungetc_fn wcrt_ungetc_address = (ungetc);
 static wcrt_fgets_fn wcrt_fgets_address = (fgets);
 static wcrt_fputc_fn wcrt_fputc_functions[] = { (fputc), (putc) };
 static wcrt_fputs_fn wcrt_fputs_address = (fputs);
@@ -126,12 +128,16 @@ static wcrt_rewind_fn wcrt_rewind_address = (rewind);
 static wcrt_clearerr_fn wcrt_clearerr_address = (clearerr);
 static wcrt_perror_fn wcrt_perror_address = (perror);
 
-static FILE *wcrt_standard_streams[] = { stdin, stdout, stderr };
 static fpos_t wcrt_file_position;
 static size_t wcrt_io_size;
 
-enum {
-    wcrt_stdio_constants_present =
-        EOF + FOPEN_MAX + FILENAME_MAX + BUFSIZ + _IOFBF + _IOLBF + _IONBF +
-        SEEK_SET + SEEK_CUR + SEEK_END + TMP_MAX + L_tmpnam
-};
+static void wcrt_use_stdio_macros_and_streams(void)
+{
+    FILE *streams[] = { stdin, stdout, stderr };
+    int values[] = {
+        EOF, FOPEN_MAX, FILENAME_MAX, BUFSIZ, _IOFBF, _IOLBF, _IONBF,
+        SEEK_SET, SEEK_CUR, SEEK_END, TMP_MAX, L_tmpnam
+    };
+    (void)streams;
+    (void)values;
+}

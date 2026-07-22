@@ -1,0 +1,20 @@
+% TC-0001 fragment; included by c89-test-report.tex.
+\def\TCID{TC-0001}
+\def\TCTitle{C89 assert API presence}
+\def\TCPurpose{Verify that \texttt{assert.h} provides the C89 \texttt{assert} macro and responds to \texttt{NDEBUG} when included again.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0001}
+\def\TCDesignRef{ANSI X3J11 C89 draft 4.2 and 4.2.1.1.}
+\def\TCFeatureRef{\texttt{include/assert.h}; \texttt{tests/c89/presence/assert.c}.}
+\def\TCPreconditions{TinyCC is available in \texttt{PATH}; WCRT public headers exist under \texttt{include}.}
+\def\TCEnvironment{Compile-only C89 test using TinyCC with host include fallback disabled.}
+\def\TCAssumptions{The compiler supports repeated inclusion of \texttt{assert.h} for the \texttt{NDEBUG} contract.}
+\def\TCInputData{Enabled \texttt{assert(value)} and disabled \texttt{assert(0)} uses.}
+\def\TCInitialState{No object from an earlier test run is used.}
+\def\TCProcedure{\par\begin{enumerate}
+\item Compile \texttt{tests/c89/presence/assert.c} as C89 without linking.
+\item Treat any preprocessing warning or compilation diagnostic as failure.
+\end{enumerate}}
+\def\TCExpectedResult{Compilation succeeds and \texttt{assert} is a usable function-like macro in both inclusion states.}
+\def\TCPostConditions{Only \texttt{build/tests/c89/presence/assert.o} may be created.}
+\TCTemplate

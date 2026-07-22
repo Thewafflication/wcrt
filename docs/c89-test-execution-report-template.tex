@@ -1,0 +1,61 @@
+\documentclass[letterpaper]{article}
+\usepackage[letterpaper,margin=0.8in]{geometry}
+\usepackage{xcolor}
+
+\definecolor{WcrtPassText}{HTML}{1B5E20}
+\definecolor{WcrtPassBackground}{HTML}{E8F5E9}
+\definecolor{WcrtFailText}{HTML}{B71C1C}
+\definecolor{WcrtFailBackground}{HTML}{FFEBEE}
+\definecolor{WcrtLink}{HTML}{0B57A3}
+\newcommand{\PassResult}{\colorbox{WcrtPassBackground}{\textcolor{WcrtPassText}{\strut\textbf{PASS}}}}
+\newcommand{\FailResult}{\colorbox{WcrtFailBackground}{\textcolor{WcrtFailText}{\strut\textbf{FAIL}}}}
+\usepackage[
+    colorlinks=true,
+    linkcolor=WcrtLink,
+    linktoc=all,
+    pdfborder={0 0 0}
+]{hyperref}
+\hypersetup{
+    pdftitle={WCRT C89 API Presence Test Execution Report},
+    pdfauthor={WCRT Project},
+    pdfsubject={C89 API presence test evidence and results}
+}
+
+\title{Waughtal C Run Time\\C89 API Presence Test Execution Report}
+\author{WCRT Project}
+\date{@@REPORT_DATE@@}
+
+\begin{document}
+\maketitle
+
+\section*{Executive Summary}
+\begin{description}
+\item[Test Run] @@TEST_RUN_ID@@
+\item[Overall Result] @@OVERALL_RESULT@@
+\item[Results] @@PASSED_COUNT@@ passed; @@FAILED_COUNT@@ failed; @@TOTAL_COUNT@@ total.
+\item[Test Date] @@TEST_DATE@@
+\item[Total Duration] @@TOTAL_DURATION@@ seconds
+\item[Compiler] @@COMPILER_INFORMATION@@
+\item[Library Under Test] @@LIBRARY_INFORMATION@@
+\item[Operating System] @@OPERATING_SYSTEM@@
+\item[Architecture] @@ARCHITECTURE@@
+\item[Test Plan] \texttt{docs/c89-test-report.tex}
+\end{description}
+
+\subsection*{Result Summary}
+\begin{center}
+\small
+\begin{tabular}{llllr}
+\textbf{Test Case} & \textbf{Requirement} & \textbf{Header} & \textbf{Result} & \textbf{Seconds} \\
+\hline
+@@SUMMARY_ROWS@@
+\end{tabular}
+\end{center}
+
+\clearpage
+\tableofcontents
+\clearpage
+
+@@DETAIL_SECTIONS@@
+
+\end{document}

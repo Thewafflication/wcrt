@@ -1,0 +1,20 @@
+% TC-0003 fragment; included by c89-test-report.tex.
+\def\TCID{TC-0003}
+\def\TCTitle{C89 error API presence}
+\def\TCPurpose{Verify that \texttt{errno.h} supplies a modifiable \texttt{errno} lvalue and distinct positive \texttt{EDOM} and \texttt{ERANGE} constants.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0003}
+\def\TCDesignRef{ANSI X3J11 C89 draft 4.1.3.}
+\def\TCFeatureRef{\texttt{include/errno.h}; \texttt{tests/c89/presence/errno.c}.}
+\def\TCPreconditions{TinyCC is available in \texttt{PATH}; WCRT public headers exist under \texttt{include}.}
+\def\TCEnvironment{Compile-only C89 test using TinyCC with host include fallback disabled.}
+\def\TCAssumptions{The test does not require \texttt{errno} storage to be linked.}
+\def\TCInputData{Macro references, integer constant expressions, and read/assignment expressions for \texttt{errno}.}
+\def\TCInitialState{No runtime error state is required.}
+\def\TCProcedure{\par\begin{enumerate}
+\item Compile \texttt{tests/c89/presence/errno.c} as C89 without linking.
+\item Treat missing macros, invalid constants, or a nonmodifiable \texttt{errno} as failure.
+\end{enumerate}}
+\def\TCExpectedResult{Compilation succeeds; \texttt{errno} is modifiable and both error constants are positive and distinct.}
+\def\TCPostConditions{Only \texttt{build/tests/c89/presence/errno.o} may be created.}
+\TCTemplate

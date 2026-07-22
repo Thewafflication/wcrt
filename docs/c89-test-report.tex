@@ -1,0 +1,54 @@
+\def\StandaloneLibrary{}
+\input{iso_iec_ieee29119-3_2021.tex}
+
+\documentclass[letterpaper]{article}
+\usepackage[letterpaper,margin=1in]{geometry}
+
+\title{Waughtal C Run Time\\C89 API Presence Test Specification}
+\author{WCRT Project}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This report specifies the compile-only API presence tests for the WCRT C89
+hosted-library milestone. Test cases TC-0001 through TC-0015 map one-to-one to
+requirements REQ-0001 through REQ-0015 and the corresponding public C89
+headers. Functional, ABI, boundary, and platform behavior are deferred to later
+test cases.
+\end{abstract}
+
+\section*{Test case specifications}
+
+\input{tc-0001-assert.tex}
+\clearpage
+\input{tc-0002-ctype.tex}
+\clearpage
+\input{tc-0003-errno.tex}
+\clearpage
+\input{tc-0004-float.tex}
+\clearpage
+\input{tc-0005-limits.tex}
+\clearpage
+\input{tc-0006-locale.tex}
+\clearpage
+\input{tc-0007-math.tex}
+\clearpage
+\input{tc-0008-setjmp.tex}
+\clearpage
+\input{tc-0009-signal.tex}
+\clearpage
+\input{tc-0010-stdarg.tex}
+\clearpage
+\input{tc-0011-stddef.tex}
+\clearpage
+\input{tc-0012-stdio.tex}
+\clearpage
+\input{tc-0013-stdlib.tex}
+\clearpage
+\input{tc-0014-string.tex}
+\clearpage
+\input{tc-0015-time.tex}
+
+\end{document}

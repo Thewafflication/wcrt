@@ -1,0 +1,20 @@
+% TC-0002 fragment; included by c89-test-report.tex.
+\def\TCID{TC-0002}
+\def\TCTitle{C89 character handling API presence}
+\def\TCPurpose{Verify that \texttt{ctype.h} declares every C89 character classification and case-mapping function with a usable \texttt{int (int)} form.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0002}
+\def\TCDesignRef{ANSI X3J11 C89 draft 4.3, 4.3.1, and 4.3.2.}
+\def\TCFeatureRef{\texttt{include/ctype.h}; \texttt{tests/c89/presence/ctype.c}.}
+\def\TCPreconditions{TinyCC is available in \texttt{PATH}; WCRT public headers exist under \texttt{include}.}
+\def\TCEnvironment{Compile-only C89 test using TinyCC with host include fallback disabled.}
+\def\TCAssumptions{Parenthesizing a macro-shadowed name selects its addressable function form under draft 4.1.6.}
+\def\TCInputData{References to all 13 functions required by REQ-0002.}
+\def\TCInitialState{No locale or runtime state is required.}
+\def\TCProcedure{\par\begin{enumerate}
+\item Compile \texttt{tests/c89/presence/ctype.c} as C89 without linking.
+\item Treat missing names or incompatible declarations as failure.
+\end{enumerate}}
+\def\TCExpectedResult{Compilation succeeds and all 13 names initialize pointers of type \texttt{int (*)(int)}.}
+\def\TCPostConditions{Only \texttt{build/tests/c89/presence/ctype.o} may be created.}
+\TCTemplate
