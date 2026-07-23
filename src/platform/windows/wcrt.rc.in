@@ -1,0 +1,39 @@
+#define VS_FFI_FILEFLAGSMASK 0x0000003fL
+#define VS_FF_DEBUG 0x00000001L
+#define VOS_NT_WINDOWS32 0x00040004L
+#define VFT_DLL 0x00000002L
+#define VFT2_UNKNOWN 0x00000000L
+
+1 VERSIONINFO
+ FILEVERSION @FILE_VERSION@
+ PRODUCTVERSION @FILE_VERSION@
+ FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
+ FILEFLAGS @FILE_FLAGS@
+ FILEOS VOS_NT_WINDOWS32
+ FILETYPE VFT_DLL
+ FILESUBTYPE VFT2_UNKNOWN
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "CompanyName", "The WCRT contributors\0"
+            VALUE "FileDescription", "Waughtal C Run Time (@ARCHITECTURE@ @CONFIGURATION@)\0"
+            VALUE "FileVersion", "@PACKAGE_VERSION@\0"
+            VALUE "InternalName", "wcrt\0"
+            VALUE "LegalCopyright", "GPL-3.0-or-later\0"
+            VALUE "OriginalFilename", "wcrt.dll\0"
+            VALUE "ProductName", "Waughtal C Run Time\0"
+            VALUE "ProductVersion", "@PACKAGE_VERSION@\0"
+            VALUE "PackageName", "wcrt\0"
+            VALUE "PackageArchitecture", "@ARCHITECTURE@\0"
+            VALUE "PackageConfiguration", "@CONFIGURATION@\0"
+            VALUE "SourceRevision", "@GIT_HASH@\0"
+            VALUE "Repository", "https://github.com/Thewafflication/wcrt\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0409, 1200
+    END
+END

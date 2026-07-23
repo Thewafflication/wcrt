@@ -109,7 +109,13 @@ Debug builds also require `cv2pdb.exe` in `PATH`:
 GitHub Actions builds and tests x86, x64, and ARM64 independently. TC-0016 is
 always run first. Each job publishes the debug DLL, PDB, and a TeX test-results
 table. A `vMAJOR.MINOR.PATCH` tag additionally gates a Release build and creates
-an architecture-specific WPM package whose version is taken from the tag.
+an architecture-specific WPM package whose base version is taken from the tag.
+As with the TinyCC package, WPM versions normalize a tag suffix, add a
+development commit distance when applicable, append the eight-character Git
+revision as build metadata, and add `.dirty` for modified working trees.
+The DLL contains a Windows `VERSIONINFO` resource with this package version,
+its numeric file version, architecture, configuration, source revision,
+package name, license, and repository information.
 
 ## Conformance
 

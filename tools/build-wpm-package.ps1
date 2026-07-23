@@ -14,10 +14,11 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path -Parent $PSScriptRoot
-$normalizedVersion = $Version -replace '^v', ''
-if ($normalizedVersion -notmatch '^[0-9]+\.[0-9]+\.[0-9]+(?:[-+][0-9A-Za-z.-]+)?$') {
-    throw "The GitHub tag '$Version' is not a supported semantic version tag."
-}
+. (Join-Path $PSScriptRoot 'wcrt-version.ps1')
+$versionInfo = Get-WcrtVersion -RepositoryRoot $repoRoot -SourceVersion $Version
+$sourceVersion = $versionInfo.SourceVersion
+$packageVersion = $versionInfo.PackageVersion
+$gitHash = $versionInfo.GitHash
 
 $releaseDirectory = Join-Path $repoRoot "$BuildRoot/$Architecture/Release"
 $dll = Join-Path $releaseDirectory 'wcrt.dll'
@@ -40,7 +41,7 @@ Copy-Item -LiteralPath (Join-Path $repoRoot 'README.md') -Destination $staging
 
 $metadata = @(
     'name=wcrt'
-    "version=$normalizedVersion"
+    "version=$packageVersion"
     "arch=$Architecture"
     'debug=false'
     'description=Waughtal C Run Time for Windows'
@@ -48,10 +49,12 @@ $metadata = @(
     'homepage=https://github.com/Thewafflication/wcrt'
     'repository=https://github.com/Thewafflication/wcrt'
     'license=GPL-3.0-or-later'
+    "source-version=$sourceVersion"
+    "source-revision=$gitHash"
 )
 Set-Content -LiteralPath (Join-Path $staging '.wpm/package.txt') -Value $metadata -Encoding ascii
 
-$installDirectory = "%ProgramFiles%\WCRT\$normalizedVersion"
+$installDirectory = "%ProgramFiles%\WCRT\$packageVersion"
 $installScript = @(
     '@echo off'
     'setlocal'
@@ -79,8 +82,8 @@ Set-Content -LiteralPath (Join-Path $staging '.wpm/remove.cmd') -Value $removeSc
 if ($LASTEXITCODE -ne 0) {
     throw 'WPM failed to create the WCRT package.'
 }
-$package = Get-ChildItem -LiteralPath $packageOutput -Filter "wcrt-$Architecture-$normalizedVersion.zip" -File
+$package = Get-ChildItem -LiteralPath $packageOutput -Filter "wcrt-$Architecture-$packageVersion.zip" -File
 if (@($package).Count -ne 1) {
-    throw "Expected one WCRT package for $Architecture $normalizedVersion."
+    throw "Expected one WCRT package for $Architecture $packageVersion."
 }
 $package.FullName
