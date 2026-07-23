@@ -1,4 +1,8 @@
-/* REQ-0009: <signal.h> presence. Compile only; do not link. */
+/**
+ * @file signal.c
+ * @brief Verifies the compile-time C89 signal.h interface.
+ * @details File-scope declarations are typed API presence probes.
+ */
 #include <signal.h>
 
 #ifndef SIG_DFL

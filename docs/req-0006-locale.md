@@ -40,3 +40,16 @@ The header shall define `struct lconv`, `NULL`, `LC_ALL`, `LC_COLLATE`,
 Tests shall cover startup state, query/update/restore, each category, invalid
 names, `struct lconv` fields, and interactions with `ctype`, `strcoll`,
 `strxfrm`, numeric conversion, and `strftime`. Shared gates apply.
+
+## Implementation record
+
+- `include/locale.h` declares all C89 categories, `struct lconv`, `setlocale`,
+  and `localeconv`.
+- `src/locale.c` implements the mandatory startup `C` locale. The empty locale
+  name also selects `C`; unsupported names fail without changing state.
+- `src/internal/locale.h` contains private category and locale-name validation
+  contracts.
+- `tests/c89/locale.c` covers startup, every category, queries, invalid
+  requests, every convention member, and the implemented ctype interaction.
+- Collation, numeric conversion, and time-format integration checks execute
+  with REQ-0014, REQ-0013, and REQ-0015 respectively.

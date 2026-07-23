@@ -39,3 +39,16 @@ The header shall define `jmp_buf`.
 Tests shall cover zero/nonzero values, nested calls, repeated jumps where valid,
 callee-saved integer and floating state, stack restoration, and `volatile`
 objects at optimization levels supported by TinyCC. Shared gates apply.
+
+## Implementation record
+
+- `include/setjmp.h` defines WCRT-owned x86 and x64 context layouts and maps
+  `setjmp` to the WCRT context capture routine.
+- `src/platform/windows/setjmp.S` saves and restores x86 nonvolatile integer
+  state and x64 RBX, RBP, RSI, RDI, R12-R15, RSP, RIP, and XMM6-XMM15.
+- TinyCC's assembler cannot name XMM8-XMM15, so their standard x64 instruction
+  encodings are emitted explicitly rather than omitting required state.
+- No signal mask is saved. Cross-thread jumps, expired frames, and jumps into
+  unwound contexts are undefined and excluded from tests.
+- `tests/c89/setjmp.c` covers direct return, zero conversion, nonzero values,
+  nested environments, cross-frame restoration, and volatile objects.

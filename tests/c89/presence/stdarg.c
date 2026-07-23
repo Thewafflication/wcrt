@@ -1,6 +1,15 @@
-/* REQ-0010: <stdarg.h> presence. Compile only; do not link. */
+/**
+ * @file stdarg.c
+ * @brief Verifies the compile-time C89 stdarg.h interface.
+ * @details File-scope declarations are typed API presence probes.
+ */
 #include <stdarg.h>
 
+/**
+ * @brief Exercises all C89 variable-argument macros.
+ * @param count Number of following double arguments.
+ * @return Sum of the supplied arguments.
+ */
 static double wcrt_read_arguments(int count, ...)
 {
     va_list arguments;

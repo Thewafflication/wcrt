@@ -1,7 +1,8 @@
 # C89 Requirements Index
 
-WCRT assigns one independently numbered requirement document to each public
-C89 header. Clause numbers annotate Clause 4 of the late ANSI X3J11 C89 draft:
+WCRT assigns independently numbered requirement documents to each public C89
+header and to project-wide quality or platform requirements. Clause numbers
+annotate Clause 4 of the late ANSI X3J11 C89 draft where applicable:
 
 <https://bohr.wlu.ca/hfan/cp264/references/c89-draft.html>
 
@@ -25,6 +26,7 @@ Any difference from ANSI X3.159-1989 or ISO/IEC 9899:1990 shall be resolved in
 | [REQ-0013](req-0013-stdlib.md) | [TC-0013](tc-0013-stdlib.tex) | `<stdlib.h>` | §4.10 | General utilities |
 | [REQ-0014](req-0014-string.md) | [TC-0014](tc-0014-string.tex) | `<string.h>` | §4.11 | String handling |
 | [REQ-0015](req-0015-time.md) | [TC-0015](tc-0015-time.tex) | `<time.h>` | §4.12 | Date and time |
+| [REQ-0016](req-0016-source-documentation.md) | [TC-0016](tc-0016-source-documentation.tex) | All project-owned C sources | N/A | Doxygen documentation and 80-column limit |
 
 ## Shared acceptance gates
 

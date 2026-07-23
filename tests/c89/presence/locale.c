@@ -1,4 +1,8 @@
-/* REQ-0006: <locale.h> presence. Compile only; do not link. */
+/**
+ * @file locale.c
+ * @brief Verifies the compile-time C89 locale.h interface.
+ * @details File-scope declarations are typed API presence probes.
+ */
 #include <locale.h>
 
 #ifndef NULL
@@ -30,6 +34,7 @@ static wcrt_setlocale_fn wcrt_setlocale_address = (setlocale);
 static wcrt_localeconv_fn wcrt_localeconv_address = (localeconv);
 static struct lconv wcrt_lconv_value;
 
+/** @brief Assigns every member required in the C89 lconv structure. */
 static void wcrt_lconv_members(void)
 {
     wcrt_lconv_value.decimal_point = (char *)0;

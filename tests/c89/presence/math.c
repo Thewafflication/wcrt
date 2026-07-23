@@ -1,4 +1,8 @@
-/* REQ-0007: <math.h> presence. Compile only; do not link. */
+/**
+ * @file math.c
+ * @brief Verifies the compile-time C89 math.h interface.
+ * @details File-scope declarations are typed API presence probes.
+ */
 #include <math.h>
 
 #ifndef HUGE_VAL

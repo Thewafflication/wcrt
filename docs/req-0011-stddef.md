@@ -31,3 +31,10 @@ No public function is introduced by this header.
 Tests shall cover type sizes/signedness, pointer subtraction, `sizeof` result
 assignment, wide-character storage, `NULL` conversions, nested structures,
 arrays, padding, and `offsetof` constant-expression use. Shared gates apply.
+
+## C89 milestone design
+
+The public types use TinyCC's `__SIZE_TYPE__`, `__PTRDIFF_TYPE__`, and
+`__WCHAR_TYPE__` ABI definitions. `NULL` is the integer constant zero, making
+it usable for both object and function pointers, and `offsetof` uses
+TinyCC's constant-expression `__builtin_offsetof` facility.

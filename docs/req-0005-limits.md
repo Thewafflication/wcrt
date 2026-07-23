@@ -32,3 +32,13 @@ No runtime source file or public function is required by this header.
 Tests shall verify macro presence, constant-expression usability, signedness,
 range ordering, arithmetic relationships without overflowing test expressions,
 and agreement with `sizeof`. The shared gates in `REQUIREMENTS.md` apply.
+
+## Implementation record
+
+- `include/limits.h` defines the Windows TinyCC ABI: 8-bit signed plain char,
+  16-bit short, 32-bit int, and 32-bit long.
+- `MB_LEN_MAX` is one because the currently supported `C` locale uses
+  single-byte execution characters; REQ-0006 must update it before adding a
+  wider multibyte encoding.
+- `tests/c89/limits.c` verifies storage widths, signedness, unsigned wrap
+  maxima, signed range relationships, and value round trips.

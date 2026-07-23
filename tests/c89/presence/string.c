@@ -1,4 +1,8 @@
-/* REQ-0014: <string.h> presence. Compile only; do not link. */
+/**
+ * @file string.c
+ * @brief Verifies the compile-time C89 string.h interface.
+ * @details File-scope declarations are typed API presence probes.
+ */
 #include <string.h>
 
 #ifndef NULL

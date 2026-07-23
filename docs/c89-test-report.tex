@@ -2,9 +2,44 @@
 \input{iso_iec_ieee29119-3_2021.tex}
 
 \documentclass[letterpaper]{article}
-\usepackage[letterpaper,margin=1in]{geometry}
+\usepackage[letterpaper,margin=0.8in]{geometry}
+\usepackage{xcolor}
+\definecolor{WcrtPassText}{HTML}{1B5E20}
+\definecolor{WcrtPassBackground}{HTML}{E8F5E9}
+\definecolor{WcrtFailText}{HTML}{B71C1C}
+\definecolor{WcrtFailBackground}{HTML}{FFEBEE}
+\definecolor{WcrtNotRunText}{HTML}{424242}
+\definecolor{WcrtNotRunBackground}{HTML}{EEEEEE}
+\definecolor{WcrtNotImplementedText}{HTML}{8A4B00}
+\definecolor{WcrtNotImplementedBackground}{HTML}{FFF3E0}
+\definecolor{WcrtNotApplicableText}{HTML}{37474F}
+\definecolor{WcrtNotApplicableBackground}{HTML}{ECEFF1}
+\definecolor{WcrtLink}{HTML}{0B57A3}
+\newcommand{\TestPass}{\colorbox{WcrtPassBackground}{\textcolor{WcrtPassText}{\strut\textbf{PASS}}}}
+\newcommand{\TestIdentical}{\colorbox{WcrtPassBackground}{\textcolor{WcrtPassText}{\strut\textbf{IDENTICAL TEST INPUT}}}}
+\newcommand{\TestFail}{\colorbox{WcrtFailBackground}{\textcolor{WcrtFailText}{\strut\textbf{FAIL}}}}
+\newcommand{\TestNotRun}{\colorbox{WcrtNotRunBackground}{\textcolor{WcrtNotRunText}{\strut\textbf{NOT RUN}}}}
+\newcommand{\TestNotImplemented}{\colorbox{WcrtNotImplementedBackground}{\textcolor{WcrtNotImplementedText}{\strut\textbf{NOT IMPLEMENTED}}}}
+\newcommand{\TestNotApplicable}{\colorbox{WcrtNotApplicableBackground}{\textcolor{WcrtNotApplicableText}{\strut\textbf{N/A}}}}
+\usepackage{url}
+\usepackage[
+    colorlinks=true,
+    linkcolor=WcrtLink,
+    linktoc=all,
+    pdfborder={0 0 0}
+]{hyperref}
+\hypersetup{
+    pdftitle={WCRT C89 Master Test Report},
+    pdfauthor={WCRT Project},
+    pdfsubject={C89 test specifications, evidence, and results}
+}
+\newcommand{\TestCaseAnchor}[2]{%
+    \hypertarget{#1}{}%
+    \phantomsection%
+    \addcontentsline{toc}{subsection}{#1 -- #2}%
+}
 
-\title{Waughtal C Run Time\\C89 API Presence Test Specification}
+\title{Waughtal C Run Time\\C89 Master Test Report}
 \author{WCRT Project}
 \date{\today}
 
@@ -12,43 +47,84 @@
 \maketitle
 
 \begin{abstract}
-This report specifies the compile-only API presence tests for the WCRT C89
-hosted-library milestone. Test cases TC-0001 through TC-0015 map one-to-one to
-requirements REQ-0001 through REQ-0015 and the corresponding public C89
-headers. Functional, ABI, boundary, and platform behavior are deferred to later
-test cases.
+This master report specifies the WCRT C89 tests and includes available execution
+results and evidence. Test cases TC-0001 through TC-0016 map one-to-one to
+requirements REQ-0001 through REQ-0016. Every test is executed for WCRT even
+when its requirement is not yet implemented. Microsoft UCRT API-presence runs
+provide a comparison baseline; project source lint is not applicable to UCRT.
 \end{abstract}
 
-\section*{Test case specifications}
+\section*{Result Summary}
+\input{test-summary.tex}
 
+\clearpage
+\tableofcontents
+\clearpage
+
+\section{Test case specifications}
+
+\TestCaseAnchor{tc-0001}{C89 assertion diagnostics}
 \input{tc-0001-assert.tex}
+\input{tc-0001-results.tex}
 \clearpage
+\TestCaseAnchor{tc-0002}{C89 character handling API presence}
 \input{tc-0002-ctype.tex}
+\input{tc-0002-results.tex}
 \clearpage
+\TestCaseAnchor{tc-0003}{C89 error API presence}
 \input{tc-0003-errno.tex}
+\input{tc-0003-results.tex}
 \clearpage
+\TestCaseAnchor{tc-0004}{C89 floating-point limits presence}
 \input{tc-0004-float.tex}
+\input{tc-0004-results.tex}
 \clearpage
+\TestCaseAnchor{tc-0005}{C89 integer limits presence}
 \input{tc-0005-limits.tex}
+\input{tc-0005-results.tex}
 \clearpage
+\TestCaseAnchor{tc-0006}{C89 localization API presence}
 \input{tc-0006-locale.tex}
+\input{tc-0006-results.tex}
 \clearpage
+\TestCaseAnchor{tc-0007}{C89 mathematics API presence}
 \input{tc-0007-math.tex}
+\input{tc-0007-results.tex}
 \clearpage
+\TestCaseAnchor{tc-0008}{C89 non-local jump API presence}
 \input{tc-0008-setjmp.tex}
+\input{tc-0008-results.tex}
 \clearpage
+\TestCaseAnchor{tc-0009}{C89 signal API presence}
 \input{tc-0009-signal.tex}
+\input{tc-0009-results.tex}
 \clearpage
+\TestCaseAnchor{tc-0010}{C89 variable arguments API presence}
 \input{tc-0010-stdarg.tex}
+\input{tc-0010-results.tex}
 \clearpage
+\TestCaseAnchor{tc-0011}{C89 common definitions API presence}
 \input{tc-0011-stddef.tex}
+\input{tc-0011-results.tex}
 \clearpage
+\TestCaseAnchor{tc-0012}{C89 input and output API presence}
 \input{tc-0012-stdio.tex}
+\input{tc-0012-results.tex}
 \clearpage
+\TestCaseAnchor{tc-0013}{C89 general utilities API presence}
 \input{tc-0013-stdlib.tex}
+\input{tc-0013-results.tex}
 \clearpage
+\TestCaseAnchor{tc-0014}{C89 string handling API presence}
 \input{tc-0014-string.tex}
+\input{tc-0014-results.tex}
 \clearpage
+\TestCaseAnchor{tc-0015}{C89 date and time API presence}
 \input{tc-0015-time.tex}
+\input{tc-0015-results.tex}
+\clearpage
+\TestCaseAnchor{tc-0016}{Source documentation and line-length compliance}
+\input{tc-0016-source-documentation.tex}
+\input{tc-0016-results.tex}
 
 \end{document}

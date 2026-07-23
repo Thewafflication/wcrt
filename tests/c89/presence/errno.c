@@ -1,4 +1,8 @@
-/* REQ-0003: <errno.h> presence. Compile only; do not link. */
+/**
+ * @file errno.c
+ * @brief Verifies the compile-time C89 errno.h interface.
+ * @details File-scope declarations are typed API presence probes.
+ */
 #include <errno.h>
 
 #ifndef errno
@@ -17,6 +21,7 @@ enum {
     wcrt_error_values_are_distinct = 1 / (EDOM != ERANGE)
 };
 
+/** @brief Verifies that errno is a modifiable integer lvalue. */
 static void wcrt_errno_is_modifiable(void)
 {
     int value = errno;

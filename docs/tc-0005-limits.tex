@@ -1,20 +1,23 @@
 % TC-0005 fragment; included by c89-test-report.tex.
 \def\TCID{TC-0005}
-\def\TCTitle{C89 integer limits API presence}
-\def\TCPurpose{Verify that \texttt{limits.h} supplies all C89 character and integer limit macros in usable constant contexts.}
+\def\TCTitle{C89 integer limits}
+\def\TCPurpose{Verify all C89 integer-limit macros against the target ABI's storage widths, signedness, and conversion behavior.}
 \def\TCPriority{\TCPriorityHigh}
 \def\TCRequirementRef{REQ-0005}
 \def\TCDesignRef{ANSI X3J11 C89 draft 4.1.4.}
-\def\TCFeatureRef{\texttt{include/limits.h}; \texttt{tests/c89/presence/limits.c}.}
+\def\TCFeatureRef{\texttt{include/limits.h};\par
+\texttt{tests/c89/presence/limits.c}; \texttt{tests/c89/limits.c};\par
+\texttt{tests/c89/run-tc-0005.ps1}.}
 \def\TCPreconditions{TinyCC is available in \texttt{PATH}; WCRT public headers exist under \texttt{include}.}
-\def\TCEnvironment{Compile-only C89 test using TinyCC with host include fallback disabled.}
-\def\TCAssumptions{Presence and assignability are tested; ABI-value accuracy is deferred.}
+\def\TCEnvironment{C89 presence compilation and behavioral execution against WCRT and Microsoft UCRT on Windows.}
+\def\TCAssumptions{The supported \texttt{C} locale has a maximum multibyte length of one.}
 \def\TCInputData{All character, multibyte, short, integer, and long limit macros named by REQ-0005.}
 \def\TCInitialState{No runtime state is required.}
 \def\TCProcedure{\par\begin{enumerate}
 \item Compile \texttt{tests/c89/presence/limits.c} as C89 without linking.
-\item Treat a missing macro, invalid constant, or incompatible initializer as failure.
+\item Build and execute \texttt{tests/c89/limits.c} against both targets.
+\item Verify widths, signedness, range identities, unsigned maxima, and stored values.
 \end{enumerate}}
-\def\TCExpectedResult{Compilation succeeds and all required limit macros are usable with their corresponding C89 types.}
-\def\TCPostConditions{Only \texttt{build/tests/c89/presence/limits.o} may be created.}
+\def\TCExpectedResult{All macros are usable constant expressions and agree with actual target representations.}
+\def\TCPostConditions{Generated objects, executables, and evidence remain under ignored output directories.}
 \TCTemplate

@@ -1,4 +1,8 @@
-/* REQ-0012: <stdio.h> presence. Compile only; do not link. */
+/**
+ * @file stdio.c
+ * @brief Verifies the compile-time C89 stdio.h interface.
+ * @details File-scope declarations are typed API presence probes.
+ */
 #include <stdio.h>
 
 #ifndef NULL
@@ -131,6 +135,7 @@ static wcrt_perror_fn wcrt_perror_address = (perror);
 static fpos_t wcrt_file_position;
 static size_t wcrt_io_size;
 
+/** @brief References the required stream objects and integer macros. */
 static void wcrt_use_stdio_macros_and_streams(void)
 {
     FILE *streams[] = { stdin, stdout, stderr };

@@ -1,4 +1,8 @@
-/* REQ-0005: <limits.h> presence. Compile only; do not link. */
+/**
+ * @file limits.c
+ * @brief Verifies the compile-time C89 limits.h interface.
+ * @details File-scope declarations are typed API presence probes.
+ */
 #include <limits.h>
 
 #ifndef CHAR_BIT

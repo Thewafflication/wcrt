@@ -35,3 +35,15 @@
 Tests shall cover `EOF`, every value from 0 through `UCHAR_MAX`, class
 relationships, case round trips, argument side effects for macros, and all
 supported locales. The shared gates in `REQUIREMENTS.md` apply.
+
+## Implementation record
+
+- `include/ctype.h` declares all 13 addressable C89 functions. Function forms
+  avoid macro multiple-evaluation hazards.
+- `src/ctype.c` implements the complete required execution-character-set
+  classification and mapping for the `C` locale.
+- WCRT currently supports only the `C` locale, so it is the complete active
+  `LC_CTYPE` domain until REQ-0006 adds further locales.
+- `tests/c89/ctype.c` checks `EOF`, every value from 0 through 255, all class
+  relationships, and both case mappings.
+- `tests/c89/run-tc-0002.ps1` builds and executes TC-0002 with TinyCC.

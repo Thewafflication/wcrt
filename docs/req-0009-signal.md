@@ -38,3 +38,17 @@ Tests shall cover every required signal where safely inducible, handler return,
 ignore/default behavior, previous-handler returns, `raise`, and invalid signal
 numbers. Destructive default actions shall run in child processes. Shared gates
 in `REQUIREMENTS.md` apply.
+
+## C89 milestone design
+
+WCRT assigns the Microsoft-compatible values 2, 4, 8, 11, 15, and 22 to
+`SIGINT`, `SIGILL`, `SIGFPE`, `SIGSEGV`, `SIGTERM`, and `SIGABRT`. A call to
+`raise` delivers the signal synchronously in the calling thread. Before a user
+handler is invoked, its disposition is reset to `SIG_DFL`; the handler may
+install another disposition explicitly.
+
+The initial C89 implementation does not translate Windows console control
+events or structured exceptions into C signals, so no signal arrives
+asynchronously. Only assignment to an object declared `volatile sig_atomic_t`
+is promised to be handler-safe. A default action terminates the process with
+`ExitProcess(128 + signal_number)`, an API present on Windows 2000 and later.

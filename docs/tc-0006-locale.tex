@@ -1,20 +1,23 @@
 % TC-0006 fragment; included by c89-test-report.tex.
 \def\TCID{TC-0006}
-\def\TCTitle{C89 localization API presence}
-\def\TCPurpose{Verify that \texttt{locale.h} supplies two functions, six category constants, \texttt{NULL}, and every C89 \texttt{struct lconv} member.}
+\def\TCTitle{C89 localization}
+\def\TCPurpose{Verify C89 locale selection, queries, failure behavior, convention data, and character-classification interaction.}
 \def\TCPriority{\TCPriorityHigh}
 \def\TCRequirementRef{REQ-0006}
 \def\TCDesignRef{ANSI X3J11 C89 draft 4.4, 4.4.1, and 4.4.2.}
-\def\TCFeatureRef{\texttt{include/locale.h}; \texttt{tests/c89/presence/locale.c}.}
+\def\TCFeatureRef{\texttt{include/locale.h}; \texttt{src/locale.c};\par
+\texttt{src/internal/locale.h}; \texttt{tests/c89/locale.c};\par
+\texttt{tests/c89/run-tc-0006.ps1}.}
 \def\TCPreconditions{TinyCC is available in \texttt{PATH}; WCRT public headers exist under \texttt{include}.}
-\def\TCEnvironment{Compile-only C89 test using TinyCC with host include fallback disabled.}
-\def\TCAssumptions{No locale data needs to be linked because functions are not called.}
-\def\TCInputData{Typed function references, all \texttt{LC} categories, \texttt{NULL}, and all 18 \texttt{struct lconv} fields.}
+\def\TCEnvironment{C89 presence compilation and behavioral execution against WCRT and Microsoft UCRT.}
+\def\TCAssumptions{The mandatory \texttt{C} locale is WCRT's only currently supported locale.}
+\def\TCInputData{All categories, queries, \texttt{C}, invalid requests, every convention member, and representative ctype input.}
 \def\TCInitialState{No active locale state is required.}
 \def\TCProcedure{\par\begin{enumerate}
 \item Compile \texttt{tests/c89/presence/locale.c} as C89 without linking.
-\item Treat missing identifiers, members, or incompatible declarations as failure.
+\item Build and execute \texttt{tests/c89/locale.c} against both targets.
+\item Verify startup, categories, queries, invalid requests, conventions, and ctype behavior.
 \end{enumerate}}
-\def\TCExpectedResult{Compilation succeeds and the complete C89 localization surface is visible.}
-\def\TCPostConditions{Only \texttt{build/tests/c89/presence/locale.o} may be created.}
+\def\TCExpectedResult{Both targets expose the complete API and satisfy all mandatory \texttt{C}-locale checks.}
+\def\TCPostConditions{Generated objects, executables, and evidence remain under ignored output directories.}
 \TCTemplate

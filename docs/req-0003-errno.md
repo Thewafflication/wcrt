@@ -35,3 +35,15 @@ No public function is introduced by this header.
 Tests shall assign both required error values, provoke representative math and
 conversion errors, and verify that success is not tested by assuming `errno`
 became zero. The shared gates in `REQUIREMENTS.md` apply.
+
+## Implementation record
+
+- `include/errno.h` defines distinct positive `EDOM` and `ERANGE` constants and
+  exposes `errno` as a modifiable lvalue.
+- `src/errno.c` supplies process-global storage without importing host CRT
+  error storage. Later threading support may replace the backing expression
+  without changing the public macro.
+- `tests/c89/errno.c` verifies assignment, reads, stable address, non-aliasing,
+  and both required constants.
+- Math and conversion producer checks remain integration gates for REQ-0007
+  and REQ-0013; those functions do not exist before those requirements.

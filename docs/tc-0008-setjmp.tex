@@ -1,20 +1,23 @@
 % TC-0008 fragment; included by c89-test-report.tex.
 \def\TCID{TC-0008}
-\def\TCTitle{C89 non-local jump API presence}
-\def\TCPurpose{Verify that \texttt{setjmp.h} defines \texttt{jmp\_buf} and exposes usable \texttt{setjmp} and \texttt{longjmp} interfaces.}
+\def\TCTitle{C89 non-local jumps}
+\def\TCPurpose{Verify saved contexts, direct and resumed values, stack restoration, nested environments, and volatile state.}
 \def\TCPriority{\TCPriorityHigh}
 \def\TCRequirementRef{REQ-0008}
 \def\TCDesignRef{ANSI X3J11 C89 draft 4.6, 4.6.1.1, and 4.6.2.1.}
-\def\TCFeatureRef{\texttt{include/setjmp.h}; \texttt{tests/c89/presence/setjmp.c}.}
+\def\TCFeatureRef{\texttt{include/setjmp.h};\par
+\texttt{src/platform/windows/setjmp.S};\par
+\texttt{tests/c89/setjmp.c}; \texttt{tests/c89/run-tc-0008.ps1}.}
 \def\TCPreconditions{TinyCC is available in \texttt{PATH}; WCRT public headers exist under \texttt{include}.}
-\def\TCEnvironment{Compile-only C89 test using TinyCC with host include fallback disabled.}
-\def\TCAssumptions{\texttt{setjmp} may be a macro; the context is never executed.}
-\def\TCInputData{A \texttt{jmp\_buf} object, a \texttt{setjmp} call expression, and a typed \texttt{longjmp} reference.}
+\def\TCEnvironment{C89 presence compilation and behavioral execution against WCRT assembly and Microsoft UCRT.}
+\def\TCAssumptions{Tests use live same-thread contexts and do not depend on modified nonvolatile automatic objects.}
+\def\TCInputData{Zero and nonzero values, nested contexts, an additional stack frame, and a volatile object.}
 \def\TCInitialState{The jump buffer contains no saved environment.}
 \def\TCProcedure{\par\begin{enumerate}
 \item Compile \texttt{tests/c89/presence/setjmp.c} as C89 without linking.
-\item Treat missing types, interfaces, or incompatible declarations as failure.
+\item Build and execute \texttt{tests/c89/setjmp.c} against both targets.
+\item Verify values, zero conversion, nesting, stack restoration, and volatile state.
 \end{enumerate}}
-\def\TCExpectedResult{Compilation succeeds and all three public facilities are usable in their C89 declaration contexts.}
-\def\TCPostConditions{Only \texttt{build/tests/c89/presence/setjmp.o} may be created.}
+\def\TCExpectedResult{Both targets complete every defined-lifetime non-local control-flow check.}
+\def\TCPostConditions{Generated objects, executables, and evidence remain under ignored output directories.}
 \TCTemplate

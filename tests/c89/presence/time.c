@@ -1,4 +1,8 @@
-/* REQ-0015: <time.h> presence. Compile only; do not link. */
+/**
+ * @file time.c
+ * @brief Verifies the compile-time C89 time.h interface.
+ * @details File-scope declarations are typed API presence probes.
+ */
 #include <time.h>
 
 #ifndef NULL
@@ -31,6 +35,7 @@ static time_t wcrt_time_value;
 static size_t wcrt_time_size;
 static struct tm wcrt_tm_value;
 
+/** @brief Assigns every member required in the C89 tm structure. */
 static void wcrt_tm_members(void)
 {
     wcrt_tm_value.tm_sec = 0;

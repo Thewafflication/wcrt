@@ -32,3 +32,18 @@
 The shared gates in `REQUIREMENTS.md` apply. Tests shall additionally validate both
 `NDEBUG` states in separate translation units and capture the failure exit and
 diagnostic fields.
+
+## Implementation record
+
+- `include/assert.h` implements the repeatable C89 macro definition.
+- `src/assert.c` reports through `stderr`, flushes it, and calls `abort`.
+- `tests/c89/presence/assert.c` verifies the standalone public surface.
+- `tests/c89/assert.c` and `tests/c89/assert_disabled.c` verify enabled,
+  disabled, repeated-inclusion, diagnostic, and termination behavior.
+- `tests/c89/run-tc-0001.ps1` runs TC-0001 with TinyCC, beginning with the
+  standalone presence check and then executing the behavioral checks.
+
+The assertion implementation is complete. Its current behavioral harness uses
+TinyCC's runtime to supply `stderr`, formatted output, flushing, and `abort`.
+The final no-host-CRT integration gate will be re-run when REQ-0012 and
+REQ-0013 supply those dependencies from WCRT.

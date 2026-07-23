@@ -1,4 +1,8 @@
-/* REQ-0013: <stdlib.h> presence. Compile only; do not link. */
+/**
+ * @file stdlib.c
+ * @brief Verifies the compile-time C89 stdlib.h interface.
+ * @details File-scope declarations are typed API presence probes.
+ */
 #include <stdlib.h>
 
 #ifndef NULL
@@ -82,6 +86,7 @@ static ldiv_t wcrt_ldiv_value;
 static size_t wcrt_stdlib_size;
 static wchar_t wcrt_stdlib_wchar;
 
+/** @brief References every required general-utility macro. */
 static void wcrt_use_stdlib_macros(void)
 {
     size_t values[] = {

@@ -1,20 +1,24 @@
 % TC-0002 fragment; included by c89-test-report.tex.
 \def\TCID{TC-0002}
-\def\TCTitle{C89 character handling API presence}
-\def\TCPurpose{Verify that \texttt{ctype.h} declares every C89 character classification and case-mapping function with a usable \texttt{int (int)} form.}
+\def\TCTitle{C89 character handling}
+\def\TCPurpose{Verify the complete C89 character-classification and case-mapping API over \texttt{EOF} and the full unsigned-character domain.}
 \def\TCPriority{\TCPriorityHigh}
 \def\TCRequirementRef{REQ-0002}
 \def\TCDesignRef{ANSI X3J11 C89 draft 4.3, 4.3.1, and 4.3.2.}
-\def\TCFeatureRef{\texttt{include/ctype.h}; \texttt{tests/c89/presence/ctype.c}.}
+\def\TCFeatureRef{\texttt{include/ctype.h}; \texttt{src/ctype.c};\par
+\texttt{tests/c89/presence/ctype.c}; \texttt{tests/c89/ctype.c};\par
+\texttt{tests/c89/run-tc-0002.ps1}.}
 \def\TCPreconditions{TinyCC is available in \texttt{PATH}; WCRT public headers exist under \texttt{include}.}
-\def\TCEnvironment{Compile-only C89 test using TinyCC with host include fallback disabled.}
-\def\TCAssumptions{Parenthesizing a macro-shadowed name selects its addressable function form under draft 4.1.6.}
-\def\TCInputData{References to all 13 functions required by REQ-0002.}
+\def\TCEnvironment{C89 presence compilation plus behavioral execution against WCRT with TinyCC and against Microsoft UCRT with MSVC.}
+\def\TCAssumptions{WCRT currently supports only the required \texttt{C} locale; function forms guarantee single evaluation.}
+\def\TCInputData{Typed references to all 13 functions, \texttt{EOF}, and every integer from 0 through 255.}
 \def\TCInitialState{No locale or runtime state is required.}
 \def\TCProcedure{\par\begin{enumerate}
 \item Compile \texttt{tests/c89/presence/ctype.c} as C89 without linking.
-\item Treat missing names or incompatible declarations as failure.
+\item Build \texttt{tests/c89/ctype.c} against WCRT and Microsoft UCRT.
+\item Execute classification and case-mapping checks for \texttt{EOF} and every value from 0 through 255.
+\item Verify required class relationships and unchanged unmapped values.
 \end{enumerate}}
-\def\TCExpectedResult{Compilation succeeds and all 13 names initialize pointers of type \texttt{int (*)(int)}.}
-\def\TCPostConditions{Only \texttt{build/tests/c89/presence/ctype.o} may be created.}
+\def\TCExpectedResult{Both targets expose all 13 addressable functions and produce the required \texttt{C}-locale result for every tested input.}
+\def\TCPostConditions{Generated executables and objects remain under ignored build and evidence directories.}
 \TCTemplate

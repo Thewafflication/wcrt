@@ -1,4 +1,8 @@
-/* REQ-0002: <ctype.h> presence. Compile only; do not link. */
+/**
+ * @file ctype.c
+ * @brief Verifies the compile-time C89 ctype.h interface.
+ * @details File-scope declarations are typed API presence probes.
+ */
 #include <ctype.h>
 
 typedef int (*wcrt_ctype_fn)(int);

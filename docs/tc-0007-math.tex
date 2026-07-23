@@ -1,20 +1,24 @@
 % TC-0007 fragment; included by c89-test-report.tex.
 \def\TCID{TC-0007}
-\def\TCTitle{C89 mathematics API presence}
-\def\TCPurpose{Verify that \texttt{math.h} declares all 22 C89 mathematical functions and defines \texttt{HUGE\_VAL}.}
+\def\TCTitle{C89 mathematics}
+\def\TCPurpose{Verify all 22 C89 mathematics functions, numerical identities, quadrants, output pointers, and error behavior.}
 \def\TCPriority{\TCPriorityHigh}
 \def\TCRequirementRef{REQ-0007}
 \def\TCDesignRef{ANSI X3J11 C89 draft 4.5 through 4.5.6.}
-\def\TCFeatureRef{\texttt{include/math.h}; \texttt{tests/c89/presence/math.c}.}
+\def\TCFeatureRef{\texttt{include/math.h}; \texttt{src/math.c};\par
+\texttt{tests/c89/presence/math.c}; \texttt{tests/c89/math.c};\par
+\texttt{tests/c89/run-tc-0007.ps1}.}
 \def\TCPreconditions{TinyCC is available in \texttt{PATH}; WCRT public headers exist under \texttt{include}.}
-\def\TCEnvironment{Compile-only C89 test using TinyCC with host include fallback disabled.}
-\def\TCAssumptions{Mathematical accuracy and error behavior are outside this presence case.}
-\def\TCInputData{Typed references to all functions in REQ-0007 and a \texttt{double} initializer using \texttt{HUGE\_VAL}.}
+\def\TCEnvironment{C89 presence compilation and behavioral execution against WCRT and Microsoft UCRT.}
+\def\TCAssumptions{Tests use finite binary64 inputs and scaled tolerances from \texttt{1e-12} through \texttt{1e-10}.}
+\def\TCInputData{Ordinary values, identities, all quadrants, pointer outputs, domain errors, range errors, and \texttt{HUGE\_VAL}.}
 \def\TCInitialState{No floating environment or \texttt{errno} state is required.}
 \def\TCProcedure{\par\begin{enumerate}
 \item Compile \texttt{tests/c89/presence/math.c} as C89 without linking.
-\item Treat a missing name, incompatible declaration, or missing constant as failure.
+\item Build and execute \texttt{tests/c89/math.c} against both targets.
+\item Verify numerical values, identities, quadrants, output pointers, and rounding functions.
+\item Provoke domain and range errors and verify the C89 error indicator.
 \end{enumerate}}
-\def\TCExpectedResult{Compilation succeeds and all 22 functions plus \texttt{HUGE\_VAL} are usable.}
-\def\TCPostConditions{Only \texttt{build/tests/c89/presence/math.o} may be created.}
+\def\TCExpectedResult{WCRT passes all 35 checks without host math delegation. Target differences remain explicit in comparison evidence.}
+\def\TCPostConditions{Generated objects, executables, and evidence remain under ignored output directories.}
 \TCTemplate

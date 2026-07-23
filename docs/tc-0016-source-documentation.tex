@@ -1,0 +1,25 @@
+% TC-0016 fragment; included by c89-test-report.tex.
+\def\TCID{TC-0016}
+\def\TCTitle{Source documentation and line-length compliance}
+\def\TCPurpose{Verify that all project-owned C source and header files use Doxygen-style documentation and contain no physical line longer than 80 characters.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0016}
+\def\TCDesignRef{WCRT project quality policy; no C89 draft clause.}
+\def\TCFeatureRef{Project-owned \texttt{*.c} and \texttt{*.h} files;
+\texttt{Doxyfile};\par
+\texttt{tests/c89/run-tc-0016.ps1}.}
+\def\TCPreconditions{The project source tree is available. Doxygen is available in \texttt{PATH} or at the ignored portable-tool location.}
+\def\TCEnvironment{Static source-quality analysis; no target executable or host CRT is required.}
+\def\TCAssumptions{Generated files and third-party source trees are identified and excluded from the scan.}
+\def\TCInputData{Every project-owned C translation unit and header, including implementation, platform, and test code.}
+\def\TCInitialState{The source tree contains the complete revision under test.}
+\def\TCProcedure{\par\begin{enumerate}
+\item Enumerate all in-scope \texttt{.c} and \texttt{.h} files.
+\item Reject every physical line containing more than 80 characters.
+\item Run Doxygen with warnings treated as errors.
+\item Verify file comments and documentation for functions, public macros, constants, types, objects, aggregate types, and members.
+\item Report each violation with its source file and line number.
+\end{enumerate}}
+\def\TCExpectedResult{The scan finds no line longer than 80 characters, Doxygen reports no documentation warnings, and every required source entity is documented.}
+\def\TCPostConditions{Only generated documentation and test evidence may be created under ignored output directories.}
+\TCTemplate

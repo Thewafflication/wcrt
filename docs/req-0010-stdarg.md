@@ -36,3 +36,10 @@ Tests shall pass integers before and after promotion, floating arguments,
 pointers, supported aggregate cases, alignment transitions, empty variadic
 tails where valid, and multiple calls. Each supported architecture/calling
 convention requires execution tests. Shared gates apply.
+
+## C89 milestone design
+
+WCRT exposes TinyCC's `__builtin_va_list`, `__builtin_va_start`,
+`__builtin_va_arg`, and `__builtin_va_end` through the standard C89 names.
+TinyCC therefore owns the architecture-specific register, stack, size, and
+alignment traversal rules for each target ABI; WCRT adds no host CRT helper.

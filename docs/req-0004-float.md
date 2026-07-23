@@ -36,3 +36,14 @@ No runtime source file or public function is required by this header.
 Tests shall verify macro presence, types where observable, ordering constraints,
 radix/exponent relationships, epsilon behavior, and consistency with actual
 storage formats. The shared gates in `REQUIREMENTS.md` apply.
+
+## Implementation record
+
+- `include/float.h` defines the complete C89 model for TinyCC targets.
+- On x64 Windows, runtime tests establish binary32 `float`, binary64 `double`,
+  and binary64 `long double`; WCRT intentionally does not copy TinyCC's bundled
+  header claim of x87 extended precision on that ABI.
+- On 32-bit x86, TinyCC's x87 extended model is retained. Other target branches
+  document their compiler model in the header.
+- `tests/c89/float.c` validates environmental minima, ordering, exponent signs,
+  positive ranges, and stored epsilon behavior.

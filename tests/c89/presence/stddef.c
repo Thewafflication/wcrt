@@ -1,4 +1,8 @@
-/* REQ-0011: <stddef.h> presence. Compile only; do not link. */
+/**
+ * @file stddef.c
+ * @brief Verifies the compile-time C89 stddef.h interface.
+ * @details File-scope declarations are typed API presence probes.
+ */
 #include <stddef.h>
 
 #ifndef NULL

@@ -1,20 +1,33 @@
 % TC-0009 fragment; included by c89-test-report.tex.
 \def\TCID{TC-0009}
-\def\TCTitle{C89 signal API presence}
-\def\TCPurpose{Verify that \texttt{signal.h} supplies two functions, \texttt{sig\_atomic\_t}, handler actions, and six required signals.}
+\def\TCTitle{C89 signal handling}
+\def\TCPurpose{Verify declarations, disposition changes, synchronous delivery,
+handler reset, ignored signals, invalid requests, and default termination.}
 \def\TCPriority{\TCPriorityHigh}
 \def\TCRequirementRef{REQ-0009}
 \def\TCDesignRef{ANSI X3J11 C89 draft 4.7, 4.7.1.1, and 4.7.2.1.}
-\def\TCFeatureRef{\texttt{include/signal.h}; \texttt{tests/c89/presence/signal.c}.}
-\def\TCPreconditions{TinyCC is available in \texttt{PATH}; WCRT public headers exist under \texttt{include}.}
-\def\TCEnvironment{Compile-only C89 test using TinyCC with host include fallback disabled.}
-\def\TCAssumptions{No signal is delivered and Windows signal mapping is outside this presence test.}
-\def\TCInputData{Typed function references; \texttt{sig\_atomic\_t}; three handler actions; and six required signal constants.}
-\def\TCInitialState{No handler is installed.}
+\def\TCFeatureRef{\texttt{include/signal.h}; \texttt{src/signal.c};\par
+\texttt{src/platform/windows/signal.c}; \texttt{tests/c89/signal.c};\par
+\texttt{tests/c89/signal\_default.c};
+\texttt{tests/c89/run-tc-0009.ps1}.}
+\def\TCPreconditions{TinyCC is available in \texttt{PATH}; WCRT public headers
+exist under \texttt{include}.}
+\def\TCEnvironment{C89 presence compilation and behavioral execution against
+WCRT and Microsoft UCRT.}
+\def\TCAssumptions{Delivery is synchronous; Windows events and exceptions are
+not automatically translated.}
+\def\TCInputData{Six signal numbers, three standard dispositions, a user
+handler, and an unsupported signal number.}
+\def\TCInitialState{Every supported signal has its default disposition.}
 \def\TCProcedure{\par\begin{enumerate}
 \item Compile \texttt{tests/c89/presence/signal.c} as C89 without linking.
-\item Treat missing or incompatible public facilities as failure.
+\item Register and replace a handler for every supported signal.
+\item Raise each signal and verify delivery, reset, and ignore behavior.
+\item Verify invalid requests fail without changing valid state.
+\item Run the WCRT default action in a child and verify exit code 143.
 \end{enumerate}}
-\def\TCExpectedResult{Compilation succeeds and every required C89 signal facility is visible and usable.}
-\def\TCPostConditions{Only \texttt{build/tests/c89/presence/signal.o} may be created.}
+\def\TCExpectedResult{Both targets pass safe behavior; WCRT also proves
+deterministic default termination in a child process.}
+\def\TCPostConditions{Generated objects, executables, and evidence remain under
+ignored output directories.}
 \TCTemplate

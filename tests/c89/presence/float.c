@@ -1,4 +1,8 @@
-/* REQ-0004: <float.h> presence. Compile only; do not link. */
+/**
+ * @file float.c
+ * @brief Verifies the compile-time C89 float.h interface.
+ * @details File-scope declarations are typed API presence probes.
+ */
 #include <float.h>
 
 #ifndef FLT_RADIX
@@ -95,6 +99,7 @@ static long double wcrt_long_double_values[] = {
     LDBL_MIN, LDBL_MAX, LDBL_EPSILON
 };
 
+/** @brief References the integer-valued floating-point model macros. */
 static void wcrt_use_float_integer_macros(void)
 {
     int values[] = {

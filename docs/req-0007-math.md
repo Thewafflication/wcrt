@@ -38,3 +38,23 @@ Tests shall cover ordinary values, identities, quadrant behavior, boundaries,
 output pointers, domain/range errors, rounding-sensitive values, and supported
 special representations. Accuracy tolerances shall be justified per function.
 The shared gates in `REQUIREMENTS.md` apply.
+
+## Implementation record
+
+- `include/math.h` declares all 22 C89 functions and a finite binary64
+  `HUGE_VAL`.
+- `src/math.c` is self-contained and does not call host CRT math functions. It
+  uses exact binary64 splitting, range reduction, convergent series, and Newton
+  iteration.
+- Ordinary finite arguments target approximately 12 significant decimal
+  digits. TC-0007 uses scaled tolerances from `1e-12` to `1e-10`, depending on
+  accumulated range-reduction and composition error.
+- Large trigonometric arguments can lose reduction precision. C89 finite-value
+  behavior is primary; NaN, infinity, and signed-zero handling are supported
+  where they naturally follow binary64 operations but are not claimed as C99
+  Annex F conformance.
+- Domain failures return zero except `log`, which returns `-HUGE_VAL`, and set
+  `EDOM`. Overflow returns signed `HUGE_VAL`; underflow returns signed zero;
+  both set `ERANGE`.
+- `tests/c89/math.c` contains 35 ordinary, identity, quadrant, pointer, domain,
+  and range checks. Microsoft UCRT differs by reporting `ERANGE` for `log(0)`.

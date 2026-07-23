@@ -1,20 +1,24 @@
 % TC-0001 fragment; included by c89-test-report.tex.
 \def\TCID{TC-0001}
-\def\TCTitle{C89 assert API presence}
-\def\TCPurpose{Verify that \texttt{assert.h} provides the C89 \texttt{assert} macro and responds to \texttt{NDEBUG} when included again.}
+\def\TCTitle{C89 assertion diagnostics}
+\def\TCPurpose{Verify that \texttt{assert.h} is standalone, evaluates enabled expressions once, suppresses disabled expressions, responds to repeated inclusion after \texttt{NDEBUG} changes, and reports and terminates on failure.}
 \def\TCPriority{\TCPriorityHigh}
 \def\TCRequirementRef{REQ-0001}
 \def\TCDesignRef{ANSI X3J11 C89 draft 4.2 and 4.2.1.1.}
-\def\TCFeatureRef{\texttt{include/assert.h}; \texttt{tests/c89/presence/assert.c}.}
+\def\TCFeatureRef{\texttt{include/assert.h}; \texttt{src/assert.c};\par
+\texttt{tests/c89/presence/assert.c}; \texttt{tests/c89/assert.c};\par
+\texttt{tests/c89/assert\_disabled.c}; \texttt{tests/c89/run-tc-0001.ps1}.}
 \def\TCPreconditions{TinyCC is available in \texttt{PATH}; WCRT public headers exist under \texttt{include}.}
 \def\TCEnvironment{Compile-only C89 test using TinyCC with host include fallback disabled.}
-\def\TCAssumptions{The compiler supports repeated inclusion of \texttt{assert.h} for the \texttt{NDEBUG} contract.}
-\def\TCInputData{Enabled \texttt{assert(value)} and disabled \texttt{assert(0)} uses.}
+\def\TCAssumptions{Until REQ-0012 and REQ-0013 are implemented by WCRT, TinyCC's runtime supplies the \texttt{stderr}, formatted output, flushing, and \texttt{abort} dependencies used by \texttt{src/assert.c}.}
+\def\TCInputData{Enabled assertions with side effects, disabled assertions with side effects, repeated header inclusion, a true assertion, and a false \texttt{assert(0)} expression.}
 \def\TCInitialState{No object from an earlier test run is used.}
 \def\TCProcedure{\par\begin{enumerate}
-\item Compile \texttt{tests/c89/presence/assert.c} as C89 without linking.
-\item Treat any preprocessing warning or compilation diagnostic as failure.
+\item Compile \texttt{tests/c89/presence/assert.c} as C89 with host standard headers disabled.
+\item Build \texttt{src/assert.c}, \texttt{tests/c89/assert.c}, and \texttt{tests/c89/assert\_disabled.c} with TinyCC.
+\item Run the normal path and verify enabled, disabled, and repeated-inclusion evaluation counts.
+\item Run the failure path, capture standard error and exit status, and verify expression, filename, line number, and abnormal termination.
 \end{enumerate}}
-\def\TCExpectedResult{Compilation succeeds and \texttt{assert} is a usable function-like macro in both inclusion states.}
-\def\TCPostConditions{Only \texttt{build/tests/c89/presence/assert.o} may be created.}
+\def\TCExpectedResult{All compilation and normal-path checks pass. The failure path exits nonzero after writing a diagnostic containing \texttt{0}, \texttt{assert.c}, and a decimal source line.}
+\def\TCPostConditions{TC-0001 build artifacts remain only under \texttt{build/tests/c89/tc-0001}.}
 \TCTemplate
