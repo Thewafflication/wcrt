@@ -50,6 +50,12 @@ $tests = @(
         'tests\c89\stdarg.c') },
     @{ Id = '0011'; Name = 'stddef'; Sources = @(
         'tests\c89\stddef.c') },
+    @{ Id = '0012'; Name = 'stdio'; Sources = @(
+        'src\ctype.c', 'src\errno.c', 'src\string.c', 'src\stdlib.c',
+        'src\stdio.c', 'src\stdio_format.c', 'src\stdio_scan.c',
+        'src\platform\windows\heap.c',
+        'src\platform\windows\process.c',
+        'src\platform\windows\file.c', 'tests\c89\stdio.c') },
     @{ Id = '0013'; Name = 'stdlib'; Sources = @(
         'src\ctype.c', 'src\errno.c', 'src\string.c', 'src\stdlib.c',
         'src\platform\windows\heap.c',

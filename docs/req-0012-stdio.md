@@ -50,3 +50,18 @@ Tests shall cover every function and conversion, boundary sizes, short I/O,
 EOF/error distinctions, buffering modes, update sequencing, text/binary
 translation, positioning, temporary files, standard streams, and cleanup.
 Shared gates apply.
+
+## C89 milestone design
+
+Streams use Windows handles and Windows 2000-era file APIs without host CRT
+delegation. Text streams translate CR-LF on input and output; binary streams
+preserve bytes. A stream records requested full, line, or unbuffered mode;
+transfers currently use immediate Windows I/O, so `fflush` has no pending WCRT
+bytes to commit. Temporary streams use the Windows temporary directory and are
+deleted at close. `gets` is present only for C89 compatibility and is unsafe;
+new code must use `fgets`.
+
+Formatting and scanning share internal parsers covering C89 flags, dynamic and
+literal widths, precision, length modifiers, assignment suppression, scansets,
+and `%n`. Stream scanning uses a bounded 4096-byte staging record. This limit
+is an implementation constraint to remove in a later hardening pass.

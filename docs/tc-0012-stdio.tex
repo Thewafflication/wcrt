@@ -1,20 +1,30 @@
 % TC-0012 fragment; included by c89-test-report.tex.
 \def\TCID{TC-0012}
-\def\TCTitle{C89 input and output API presence}
-\def\TCPurpose{Verify that \texttt{stdio.h} exposes 41 C89 functions, required types and constants, and three standard streams.}
-\def\TCPriority{\TCPriorityCritical}
+\def\TCTitle{C89 input and output}
+\def\TCPurpose{Verify all 41 functions across files, temporary streams,
+text translation, positioning, indicators, formatting, and scanning.}
+\def\TCPriority{\TCPriorityHigh}
 \def\TCRequirementRef{REQ-0012}
-\def\TCDesignRef{ANSI X3J11 C89 draft 4.9 and 4.9.4 through 4.9.10.}
-\def\TCFeatureRef{\texttt{include/stdio.h}; \texttt{tests/c89/presence/stdio.c}.}
-\def\TCPreconditions{TinyCC is available in \texttt{PATH}; WCRT public headers exist under \texttt{include}.}
-\def\TCEnvironment{Compile-only C89 test using TinyCC with host include fallback disabled.}
-\def\TCAssumptions{Macro-shadowed functions have addressable forms; obsolete \texttt{gets} remains required by C89.}
-\def\TCInputData{Typed references to 41 functions; declarations using three types; 13 required macros; and three standard streams.}
-\def\TCInitialState{No stream is opened or accessed.}
+\def\TCDesignRef{ANSI X3J11 C89 draft 4.9.}
+\def\TCFeatureRef{\texttt{include/stdio.h}; \texttt{src/stdio.c};
+\texttt{src/stdio\_format.c}; \texttt{src/stdio\_scan.c};\par
+\texttt{src/platform/windows/file.c}; \texttt{tests/c89/stdio.c}.}
+\def\TCPreconditions{TinyCC and WCRT ctype, errno, string, and stdlib are
+available.}
+\def\TCEnvironment{x64 behavioral execution and Windows ARM64 cross-build.
+Current Microsoft UCRT headers omit the removed C89 \texttt{gets} declaration.}
+\def\TCAssumptions{Tests use bounded records and do not call unsafe
+\texttt{gets}.}
+\def\TCInputData{Text and binary files, temporary names, CR-LF, pushed-back
+bytes, all conversion families, widths, precision, modifiers, and scansets.}
+\def\TCInitialState{No dynamic WCRT stream slot is open.}
 \def\TCProcedure{\par\begin{enumerate}
-\item Compile \texttt{tests/c89/presence/stdio.c} as C89 without linking.
-\item Treat missing identifiers, incompatible prototypes, or invalid public facilities as failure.
+\item Compile all required declarations without host standard headers.
+\item Exercise file lifecycle, direct I/O, positioning, and indicators.
+\item Exercise formatted output, input, suppression, scansets, and counts.
+\item Cross-link the complete subsystem as PE/COFF ARM64.
 \end{enumerate}}
-\def\TCExpectedResult{Compilation succeeds and the complete C89 \texttt{stdio.h} surface is available independently.}
-\def\TCPostConditions{Only \texttt{build/tests/c89/presence/stdio.o} may be created.}
+\def\TCExpectedResult{All 41 WCRT functions pass behavioral checks and the
+complete subsystem cross-builds with ARM64 machine type AA64.}
+\def\TCPostConditions{All test streams close and named test files are removed.}
 \TCTemplate
