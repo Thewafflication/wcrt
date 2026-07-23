@@ -24,10 +24,12 @@ jobs:
             runner: windows-2025
           - arch: arm64
             runner: windows-11-arm
-    env:
-      WPM_DATA_DIR: ${{ runner.temp }}\wpm-data
     steps:
       - uses: actions/checkout@v4
+
+      - name: Use isolated WPM data directory
+        shell: pwsh
+        run: '"WPM_DATA_DIR=$env:RUNNER_TEMP\wpm-data" >> $env:GITHUB_ENV'
 
       - name: Install WPM
         shell: pwsh
