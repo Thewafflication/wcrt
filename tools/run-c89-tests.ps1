@@ -26,20 +26,13 @@ function ConvertTo-TexText {
 }
 
 function Invoke-TestCase {
-    param([string]$Id)
+    param([string]$Id, [string]$Description)
     $runner = Join-Path $repoRoot "tests/c89/run-tc-$Id.ps1"
     $started = Get-Date
     $status = 'Pass'
     $details = ''
     try {
-        if ($Id -eq '0016') {
-            $result = & $runner
-            if ($result.Status -ne 'Pass') {
-                throw $result.Output
-            }
-        } else {
-            $result = & $runner -TinyCc $TinyCc
-        }
+        $result = & $runner -TinyCc $TinyCc
         $details = ($result | Format-List | Out-String).Trim()
     } catch {
         $status = 'Fail'
@@ -47,6 +40,7 @@ function Invoke-TestCase {
     }
     [PSCustomObject]@{
         TestCase = "TC-$Id"
+        Description = $Description
         Status = $status
         Started = $started.ToString('o')
         Finished = (Get-Date).ToString('o')
@@ -54,14 +48,29 @@ function Invoke-TestCase {
     }
 }
 
-# The source/documentation gate deliberately precedes every compiled test.
-$ids = @('0016') + (1..15 | ForEach-Object { $_.ToString('0000') })
-$results = @($ids | ForEach-Object { Invoke-TestCase $_ })
+$tests = @(
+    @('0001', 'Assertions'),
+    @('0002', 'Character handling'),
+    @('0003', 'Error numbers'),
+    @('0004', 'Floating-point characteristics'),
+    @('0005', 'Integer limits'),
+    @('0006', 'Localization'),
+    @('0007', 'Mathematics'),
+    @('0008', 'Non-local jumps'),
+    @('0009', 'Signals'),
+    @('0010', 'Variadic arguments'),
+    @('0011', 'Common definitions'),
+    @('0012', 'Input and output'),
+    @('0013', 'General utilities'),
+    @('0014', 'String handling'),
+    @('0015', 'Date and time')
+)
+$results = @($tests | ForEach-Object { Invoke-TestCase $_[0] $_[1] })
 $results | ConvertTo-Json -Depth 4 |
     Set-Content -LiteralPath $jsonPath -Encoding utf8NoBOM
 
 $rows = foreach ($result in $results) {
-    "$(ConvertTo-TexText $result.TestCase) & $(ConvertTo-TexText $result.Status) \\"
+    "$(ConvertTo-TexText $result.TestCase) & $(ConvertTo-TexText $result.Description) & $(ConvertTo-TexText $result.Status) \\"
 }
 $document = @(
     '\documentclass{article}'
@@ -70,8 +79,8 @@ $document = @(
     '\begin{document}'
     "\section*{WCRT C89 Test Results: $(ConvertTo-TexText $Architecture)}"
     "Generated: $(ConvertTo-TexText (Get-Date).ToString('o'))\\"
-    '\begin{longtable}{ll}'
-    '\textbf{Test case} & \textbf{Result} \\'
+    '\begin{longtable}{lll}'
+    '\textbf{Test case} & \textbf{Description} & \textbf{Result} \\'
     '\hline'
 ) + $rows + @(
     '\end{longtable}'
@@ -79,7 +88,7 @@ $document = @(
 )
 Set-Content -LiteralPath $texPath -Value $document -Encoding utf8NoBOM
 
-$results | Format-Table TestCase, Status
+$results | Format-Table TestCase, Description, Status
 if ($results.Status -contains 'Fail') {
     throw "One or more $Architecture test cases failed. Results: $texPath"
 }

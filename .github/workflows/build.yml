@@ -11,8 +11,58 @@ permissions:
   contents: read
 
 jobs:
+  source-quality:
+    name: TC-0016 source quality
+    runs-on: windows-2025
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Doxygen
+        shell: pwsh
+        run: choco install doxygen.install --no-progress -y
+
+      - name: Run TC-0016
+        id: tc0016
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force output/test-results/source-quality | Out-Null
+          try {
+            $result = ./tests/c89/run-tc-0016.ps1
+            if ($result.Status -ne 'Pass') { throw $result.Output }
+          } catch {
+            $result = [PSCustomObject]@{
+              TestCase = 'TC-0016'
+              Status = 'Fail'
+              Output = $_.Exception.Message
+            }
+          }
+          $result | ConvertTo-Json -Depth 4 | Set-Content output/test-results/source-quality/tc-0016.json -Encoding utf8NoBOM
+          if ($result.Status -ne 'Pass') { exit 1 }
+
+      - name: Publish source-quality summary
+        if: always()
+        shell: pwsh
+        run: |
+          $result = Get-Content output/test-results/source-quality/tc-0016.json -Raw | ConvertFrom-Json
+          $status = $result.Status.ToUpperInvariant()
+          $indicator = if ($status -eq 'PASS') { '🟢' } else { '🔴' }
+          @"
+          # WCRT Test Report
+
+          | Test Case | Result |
+          | --- | --- |
+          | TC-0016 Source documentation and physical line length | $indicator **$status** |
+          "@ | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+
+      - name: Enforce source-quality result
+        if: steps.tc0016.outcome != 'success'
+        shell: pwsh
+        run: throw 'TC-0016 failed. See the source-quality summary.'
+
   build:
     name: ${{ matrix.arch }}
+    needs: source-quality
     runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
@@ -77,15 +127,11 @@ jobs:
           if (-not $cv2pdb) { throw 'cv2pdb.exe was not found in the release archive.' }
           $cv2pdb.DirectoryName >> $env:GITHUB_PATH
 
-      - name: Install Doxygen
-        shell: pwsh
-        run: choco install doxygen.install --no-progress -y
-
       - name: Build debug DLL and PDB
         shell: pwsh
         run: ./tools/build-wcrt.ps1 -Architecture '${{ matrix.arch }}' -Configuration Debug -TinyCc $env:TINYCC
 
-      - name: Run C89 tests (TC-0016 first)
+      - name: Run C89 tests
         shell: pwsh
         run: ./tools/run-c89-tests.ps1 -Architecture '${{ matrix.arch }}' -TinyCc $env:TINYCC
 
@@ -95,9 +141,24 @@ jobs:
         run: |
           $json = 'output/test-results/${{ matrix.arch }}/c89-test-results.json'
           if (Test-Path $json) {
-            "### ${{ matrix.arch }} C89 tests`n" >> $env:GITHUB_STEP_SUMMARY
-            "| Test case | Result |`n|---|---|" >> $env:GITHUB_STEP_SUMMARY
-            Get-Content $json -Raw | ConvertFrom-Json | ForEach-Object { "| $($_.TestCase) | $($_.Status) |" >> $env:GITHUB_STEP_SUMMARY }
+            @"
+            # WCRT Test Report
+
+            ## ${{ matrix.arch }} Debug
+
+            | Test Case | Result |
+            | --- | --- |
+            "@ | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+            Get-Content $json -Raw | ConvertFrom-Json | ForEach-Object {
+              $status = $_.Status.ToUpperInvariant()
+              $indicator = if ($status -eq 'PASS') { '🟢' } else { '🔴' }
+              "| $($_.TestCase) $($_.Description) | $indicator **$status** |" |
+                Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+            }
+            @"
+
+            The DLL, debug symbols, JSON evidence, and TeX test table are attached to this workflow run as the architecture-specific debug artifact.
+            "@ | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
           }
 
       - name: Upload debug artifacts and TeX report
