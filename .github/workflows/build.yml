@@ -1,0 +1,128 @@
+name: Build and test WCRT
+
+on:
+  push:
+    branches: ["**"]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: ${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86
+            runner: windows-2025
+          - arch: x64
+            runner: windows-2025
+          - arch: arm64
+            runner: windows-11-arm
+    env:
+      WPM_DATA_DIR: ${{ runner.temp }}\wpm-data
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install WPM
+        shell: pwsh
+        run: |
+          $installer = Join-Path $env:RUNNER_TEMP 'install-wpm.cmd'
+          Invoke-WebRequest -UseBasicParsing 'https://github.com/Thewafflication/wpm/releases/latest/download/install.cmd' -OutFile $installer
+          & $installer
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $wpmDirectory = Join-Path $env:ProgramFiles 'WPM'
+          if (-not (Test-Path (Join-Path $wpmDirectory 'wpm.exe'))) { throw 'WPM installation failed.' }
+          $wpmDirectory >> $env:GITHUB_PATH
+
+      - name: Install TinyCC WPM package
+        shell: pwsh
+        run: |
+          $key = Join-Path $env:RUNNER_TEMP 'tcc-wpm-release.public'
+          Invoke-WebRequest -UseBasicParsing 'https://github.com/Thewafflication/tcc_package/releases/latest/download/wpm-release.public' -OutFile $key
+          wpm trust add $key
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          wpm repo add 'https://github.com/Thewafflication/tcc_package/releases/latest/download'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          wpm update
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          wpm install tinycc --arch '${{ matrix.arch }}'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $tccHome = [Environment]::GetEnvironmentVariable('TCC_HOME', 'Machine')
+          $tcc = Join-Path $tccHome 'tcc.exe'
+          if (-not (Test-Path -LiteralPath $tcc)) { throw "TinyCC was not installed at $tcc." }
+          "TINYCC=$tcc" >> $env:GITHUB_ENV
+          $tccHome >> $env:GITHUB_PATH
+
+      - name: Install debug-symbol converter
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $directory = Join-Path $env:RUNNER_TEMP 'cv2pdb'
+          New-Item -ItemType Directory -Force $directory | Out-Null
+          gh release download --repo rainers/cv2pdb --pattern '*.zip' --dir $directory
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Get-ChildItem $directory -Filter '*.zip' | ForEach-Object { Expand-Archive $_.FullName -DestinationPath $directory -Force }
+          $cv2pdb = Get-ChildItem $directory -Filter cv2pdb.exe -Recurse | Select-Object -First 1
+          if (-not $cv2pdb) { throw 'cv2pdb.exe was not found in the release archive.' }
+          $cv2pdb.DirectoryName >> $env:GITHUB_PATH
+
+      - name: Install Doxygen
+        shell: pwsh
+        run: choco install doxygen.install --no-progress -y
+
+      - name: Build debug DLL and PDB
+        shell: pwsh
+        run: ./tools/build-wcrt.ps1 -Architecture '${{ matrix.arch }}' -Configuration Debug -TinyCc $env:TINYCC
+
+      - name: Run C89 tests (TC-0016 first)
+        shell: pwsh
+        run: ./tools/run-c89-tests.ps1 -Architecture '${{ matrix.arch }}' -TinyCc $env:TINYCC
+
+      - name: Add test table to job summary
+        if: always()
+        shell: pwsh
+        run: |
+          $json = 'output/test-results/${{ matrix.arch }}/c89-test-results.json'
+          if (Test-Path $json) {
+            "### ${{ matrix.arch }} C89 tests`n" >> $env:GITHUB_STEP_SUMMARY
+            "| Test case | Result |`n|---|---|" >> $env:GITHUB_STEP_SUMMARY
+            Get-Content $json -Raw | ConvertFrom-Json | ForEach-Object { "| $($_.TestCase) | $($_.Status) |" >> $env:GITHUB_STEP_SUMMARY }
+          }
+
+      - name: Upload debug artifacts and TeX report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wcrt-${{ matrix.arch }}-debug
+          path: |
+            output/build/${{ matrix.arch }}/Debug/wcrt.dll
+            output/build/${{ matrix.arch }}/Debug/wcrt.pdb
+            output/test-results/${{ matrix.arch }}/c89-test-results.tex
+            output/test-results/${{ matrix.arch }}/c89-test-results.json
+          if-no-files-found: error
+
+      - name: Build release DLL
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        run: ./tools/build-wcrt.ps1 -Architecture '${{ matrix.arch }}' -Configuration Release -TinyCc $env:TINYCC
+
+      - name: Build release WPM package
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        run: ./tools/build-wpm-package.ps1 -Architecture '${{ matrix.arch }}' -Version '${{ github.ref_name }}'
+
+      - name: Upload release WPM package
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: actions/upload-artifact@v4
+        with:
+          name: wcrt-${{ matrix.arch }}-release
+          path: output/packages/wcrt-${{ matrix.arch }}-*.zip
+          if-no-files-found: error
+          compression-level: 0

@@ -98,9 +98,18 @@ before the first release.
 
 ## Building
 
-Build instructions will be added when the bootstrap build exists. The intended
-developer workflow will require only a Windows command shell, TinyCC, and the
-files in this repository.
+The build requires PowerShell and an architecture-matched TinyCC installation.
+Debug builds also require `cv2pdb.exe` in `PATH`:
+
+```powershell
+./tools/build-wcrt.ps1 -Architecture x64 -Configuration Debug -TinyCc $env:TCC_HOME/tcc.exe
+./tools/run-c89-tests.ps1 -Architecture x64 -TinyCc $env:TCC_HOME/tcc.exe
+```
+
+GitHub Actions builds and tests x86, x64, and ARM64 independently. TC-0016 is
+always run first. Each job publishes the debug DLL, PDB, and a TeX test-results
+table. A `vMAJOR.MINOR.PATCH` tag additionally gates a Release build and creates
+an architecture-specific WPM package whose version is taken from the tag.
 
 ## Conformance
 
