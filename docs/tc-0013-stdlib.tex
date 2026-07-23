@@ -1,20 +1,33 @@
 % TC-0013 fragment; included by c89-test-report.tex.
 \def\TCID{TC-0013}
-\def\TCTitle{C89 general utilities API presence}
-\def\TCPurpose{Verify that \texttt{stdlib.h} exposes 29 C89 functions, four required types, and five required macros.}
-\def\TCPriority{\TCPriorityCritical}
+\def\TCTitle{C89 general utilities}
+\def\TCPurpose{Verify all 29 conversion, random, allocation, process,
+algorithm, arithmetic, and C-locale multibyte functions.}
+\def\TCPriority{\TCPriorityHigh}
 \def\TCRequirementRef{REQ-0013}
-\def\TCDesignRef{ANSI X3J11 C89 draft 4.10 and 4.10.1 through 4.10.8.}
-\def\TCFeatureRef{\texttt{include/stdlib.h}; \texttt{tests/c89/presence/stdlib.c}.}
-\def\TCPreconditions{TinyCC is available in \texttt{PATH}; WCRT public headers exist under \texttt{include}.}
-\def\TCEnvironment{Compile-only C89 test using TinyCC with host include fallback disabled.}
-\def\TCAssumptions{No allocation, termination, environment, sorting, or conversion operation is executed.}
-\def\TCInputData{Typed references to 29 functions, declarations using four types, and expressions using five macros.}
-\def\TCInitialState{No heap, environment, locale, or termination state is modified.}
+\def\TCDesignRef{ANSI X3J11 C89 draft 4.10.}
+\def\TCFeatureRef{\texttt{include/stdlib.h}; \texttt{src/stdlib.c};\par
+\texttt{src/platform/windows/heap.c};
+\texttt{src/platform/windows/process.c};\par
+\texttt{tests/c89/stdlib.c}; \texttt{tests/c89/stdlib\_exit.c}.}
+\def\TCPreconditions{TinyCC and the WCRT ctype, errno, and string facilities
+are available.}
+\def\TCEnvironment{x64 behavioral execution, child-process termination proof,
+Microsoft UCRT comparison, and Windows ARM64 cross-build.}
+\def\TCAssumptions{Multibyte conversion uses the mandatory single-byte C
+locale. Zero-size allocation returns a freeable unique allocation.}
+\def\TCInputData{Signed, based, decimal, and overflowing conversions; heap
+sizes; arrays; division; environment names; and multibyte strings.}
+\def\TCInitialState{Random state is implementation-defined and no exit
+callbacks are registered.}
 \def\TCProcedure{\par\begin{enumerate}
-\item Compile \texttt{tests/c89/presence/stdlib.c} as C89 without linking.
-\item Treat missing names, incompatible prototypes, or unusable public facilities as failure.
+\item Compile the presence source without host standard headers.
+\item Execute conversions, allocation, algorithm, and multibyte checks.
+\item Run reverse-order exit callbacks in a child and require status 23.
+\item Cross-link the implementation as PE/COFF ARM64.
 \end{enumerate}}
-\def\TCExpectedResult{Compilation succeeds and the complete C89 \texttt{stdlib.h} surface is visible.}
-\def\TCPostConditions{Only \texttt{build/tests/c89/presence/stdlib.o} may be created.}
+\def\TCExpectedResult{Every function meets its tested C89 contract, the child
+exits with status 23, and the ARM64 artifact has machine type AA64.}
+\def\TCPostConditions{All test allocations are freed and child state is
+discarded at process termination.}
 \TCTemplate

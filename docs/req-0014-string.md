@@ -41,3 +41,11 @@ Tests shall cover zero and one lengths, alignment variations, overlap, embedded
 zero bytes, high-bit bytes, empty strings, terminators, padding, locale
 collation, `strtok` sequences, side effects, and large-size boundaries feasible
 on each target. Shared gates apply.
+
+## C89 milestone design
+
+The implementation is self-contained and uses unsigned bytes for memory and
+lexicographic comparisons. `strcoll` and `strxfrm` implement the mandatory C
+locale as bytewise collation. `strtok` uses one process-wide continuation
+pointer and is intentionally non-reentrant. `strerror` provides stable static
+messages for `EDOM`, `ERANGE`, and unknown values.

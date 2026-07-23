@@ -16,9 +16,9 @@
 | REQ-0010 | [TC-0010](../../docs/tc-0010-stdarg.tex) | `presence/stdarg.c`, `stdarg.c` | Builtins, promotions, pointer, aggregate, repeated calls, empty tail |
 | REQ-0011 | [TC-0011](../../docs/tc-0011-stddef.tex) | `presence/stddef.c`, `stddef.c` | ABI types, signedness, nulls, pointer subtraction, nested constant offsets |
 | REQ-0012 | [TC-0012](../../docs/tc-0012-stdio.tex) | `presence/stdio.c` | 41 functions, 3 types, 13 macros, 3 streams |
-| REQ-0013 | [TC-0013](../../docs/tc-0013-stdlib.tex) | `presence/stdlib.c` | 29 functions, 4 types, 5 macros |
-| REQ-0014 | [TC-0014](../../docs/tc-0014-string.tex) | `presence/string.c` | 22 functions, `size_t`, `NULL` |
-| REQ-0015 | [TC-0015](../../docs/tc-0015-time.tex) | `presence/time.c` | 9 functions, 3 types, 2 macros, `struct tm` and all members |
+| REQ-0013 | [TC-0013](../../docs/tc-0013-stdlib.tex) | `presence/stdlib.c`, `stdlib.c`, `stdlib_exit.c` | 29 functions; conversions, heap, process, algorithms, arithmetic, multibyte |
+| REQ-0014 | [TC-0014](../../docs/tc-0014-string.tex) | `presence/string.c`, `string.c` | 22 functions; overlap, bounds, searches, C collation, tokens, errors |
+| REQ-0015 | [TC-0015](../../docs/tc-0015-time.tex) | `presence/time.c`, `time.c` | 9 functions; epoch, local round-trip, normalization, formatting, clocks |
 
 These tests establish declaration presence only. Behavioral, link, ABI, error,
 boundary, and platform tests remain future work.

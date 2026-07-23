@@ -52,3 +52,13 @@ Tests shall cover each function, conversion boundaries, allocation failure and
 alignment, termination in child processes, environment lookup, sort/search
 edge cases, integer overflow boundaries allowed by the contract, repeatable
 random sequences, and multibyte state. Shared gates apply.
+
+## C89 milestone design
+
+Allocation uses the Windows process heap and treats zero-size requests as a
+one-byte allocation that remains safe to free. Normal termination supports 32
+reverse-order callbacks. Environment access and command execution use
+`GetEnvironmentVariableA` and `CreateProcessA`; termination uses `ExitProcess`.
+These APIs are available on Windows 2000. The mandatory C locale treats each
+non-null byte as one multibyte character. Sorting uses an in-place stable
+insertion algorithm; its complexity is secondary to the C89 contract.

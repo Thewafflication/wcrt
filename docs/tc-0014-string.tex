@@ -1,20 +1,28 @@
 % TC-0014 fragment; included by c89-test-report.tex.
 \def\TCID{TC-0014}
-\def\TCTitle{C89 string handling API presence}
-\def\TCPurpose{Verify that \texttt{string.h} exposes 22 C89 byte and string functions, \texttt{size\_t}, and \texttt{NULL}.}
+\def\TCTitle{C89 byte and string handling}
+\def\TCPurpose{Verify all 22 functions across overlap, boundaries, high-bit
+bytes, searches, C-locale collation, token state, and error messages.}
 \def\TCPriority{\TCPriorityHigh}
 \def\TCRequirementRef{REQ-0014}
-\def\TCDesignRef{ANSI X3J11 C89 draft 4.11 and 4.11.2 through 4.11.6.}
-\def\TCFeatureRef{\texttt{include/string.h}; \texttt{tests/c89/presence/string.c}.}
-\def\TCPreconditions{TinyCC is available in \texttt{PATH}; WCRT public headers exist under \texttt{include}.}
-\def\TCEnvironment{Compile-only C89 test using TinyCC with host include fallback disabled.}
-\def\TCAssumptions{Declaration shape is checked without reading or modifying memory.}
-\def\TCInputData{Typed references to all functions in REQ-0014 plus \texttt{size\_t} and \texttt{NULL}.}
-\def\TCInitialState{No source or destination buffer is required.}
+\def\TCDesignRef{ANSI X3J11 C89 draft 4.11.}
+\def\TCFeatureRef{\texttt{include/string.h}; \texttt{src/string.c};
+\texttt{tests/c89/string.c}; \texttt{tests/c89/run-tc-0014.ps1}.}
+\def\TCPreconditions{TinyCC and the WCRT errno implementation are available.}
+\def\TCEnvironment{Behavioral execution on x64 plus Windows ARM64 cross-build;
+comparison execution uses Microsoft UCRT.}
+\def\TCAssumptions{The active collation locale is the mandatory C locale and
+\texttt{strtok} is intentionally non-reentrant.}
+\def\TCInputData{Zero lengths, overlapping regions, padded buffers, high-bit
+bytes, empty strings, delimiters, terminators, and error numbers.}
+\def\TCInitialState{The token continuation pointer has no active sequence.}
 \def\TCProcedure{\par\begin{enumerate}
-\item Compile \texttt{tests/c89/presence/string.c} as C89 without linking.
-\item Treat missing names, incompatible prototypes, or missing common facilities as failure.
+\item Compile the declaration-presence source without host headers.
+\item Execute copying, comparison, search, transform, token, and error checks.
+\item Cross-link the same implementation as PE/COFF ARM64.
 \end{enumerate}}
-\def\TCExpectedResult{Compilation succeeds and all 22 functions plus \texttt{size\_t} and \texttt{NULL} are usable.}
-\def\TCPostConditions{Only \texttt{build/tests/c89/presence/string.o} may be created.}
+\def\TCExpectedResult{All 22 functions meet their tested C89 boundary and
+return-value contracts on x64 and cross-build cleanly for ARM64.}
+\def\TCPostConditions{Only static \texttt{strtok} continuation state may have
+changed.}
 \TCTemplate

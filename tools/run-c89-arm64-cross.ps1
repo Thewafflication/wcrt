@@ -49,7 +49,16 @@ $tests = @(
     @{ Id = '0010'; Name = 'stdarg'; Sources = @(
         'tests\c89\stdarg.c') },
     @{ Id = '0011'; Name = 'stddef'; Sources = @(
-        'tests\c89\stddef.c') }
+        'tests\c89\stddef.c') },
+    @{ Id = '0013'; Name = 'stdlib'; Sources = @(
+        'src\ctype.c', 'src\errno.c', 'src\string.c', 'src\stdlib.c',
+        'src\platform\windows\heap.c',
+        'src\platform\windows\process.c', 'tests\c89\stdlib.c') },
+    @{ Id = '0014'; Name = 'string'; Sources = @(
+        'src\errno.c', 'src\string.c', 'tests\c89\string.c') },
+    @{ Id = '0015'; Name = 'time'; Sources = @(
+        'src\string.c', 'src\time.c',
+        'src\platform\windows\clock.c', 'tests\c89\time.c') }
 )
 
 function Get-PeMachine {

@@ -44,3 +44,14 @@ Tests shall cover epoch/range boundaries, leap years, month lengths,
 normalization, weekday/year-day calculation, daylight transitions where stable,
 static result buffers, all `strftime` conversions, insufficient buffers, and
 clock progression. Shared gates apply.
+
+## C89 milestone design
+
+`time_t` is a signed 64-bit count of seconds since the Unix epoch and
+`clock_t` is a signed millisecond count with `CLOCKS_PER_SEC` equal to 1000.
+Wall and processor clocks use `GetSystemTimeAsFileTime` and `GetProcessTimes`.
+Local conversion uses `FileTimeToLocalFileTime` and its inverse, all available
+on Windows 2000. Calendar arithmetic uses the proleptic Gregorian calendar.
+Conversion results share one `struct tm`; text results share one 26-byte
+buffer. Daylight status is reported as indeterminate (`tm_isdst == -1`) while
+Windows still applies its timezone rules during UTC/local conversion.
