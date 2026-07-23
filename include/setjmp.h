@@ -6,7 +6,13 @@
 #ifndef WCRT_SETJMP_H
 #define WCRT_SETJMP_H
 
-#if defined(__x86_64__)
+#if defined(__aarch64__)
+/** @brief Saved Windows ARM64 nonvolatile execution context. */
+struct wcrt_jump_context {
+    unsigned long long integer[13]; /**< X19-X30 and stack pointer. */
+    unsigned long long vector[8];   /**< Low halves of V8 through V15. */
+};
+#elif defined(__x86_64__)
 /** @brief Saved x64 nonvolatile execution context. */
 struct wcrt_jump_context {
     unsigned long long integer[10]; /**< Integer context. */

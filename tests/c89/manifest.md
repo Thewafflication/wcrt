@@ -11,7 +11,7 @@
 | REQ-0005 | [TC-0005](../../docs/tc-0005-limits.tex) | `presence/limits.c`, `limits.c` | All macros; widths, signedness, and range relationships |
 | REQ-0006 | [TC-0006](../../docs/tc-0006-locale.tex) | `presence/locale.c`, `locale.c` | API; C-locale categories, failures, conventions, and ctype interaction |
 | REQ-0007 | [TC-0007](../../docs/tc-0007-math.tex) | `presence/math.c`, `math.c` | 22 functions; accuracy, identities, pointers, domain and range errors |
-| REQ-0008 | [TC-0008](../../docs/tc-0008-setjmp.tex) | `presence/setjmp.c`, `setjmp.c` | Values, nesting, stack restoration, volatile state |
+| REQ-0008 | [TC-0008](../../docs/tc-0008-setjmp.tex) | `presence/setjmp.c`, `setjmp.c` | x86, x64, and ARM64 contexts; values, nesting, stack restoration, volatile state |
 | REQ-0009 | [TC-0009](../../docs/tc-0009-signal.tex) | `presence/signal.c`, `signal.c`, `signal_default.c` | 2 functions, 6 signals, dispositions, delivery, reset, invalid requests, default termination |
 | REQ-0010 | [TC-0010](../../docs/tc-0010-stdarg.tex) | `presence/stdarg.c`, `stdarg.c` | Builtins, promotions, pointer, aggregate, repeated calls, empty tail |
 | REQ-0011 | [TC-0011](../../docs/tc-0011-stddef.tex) | `presence/stddef.c`, `stddef.c` | ABI types, signedness, nulls, pointer subtraction, nested constant offsets |

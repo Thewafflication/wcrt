@@ -1,9 +1,51 @@
 /*
- * WCRT x86 and x64 non-local control transfer.
+ * WCRT x86, x64, and ARM64 non-local control transfer.
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#if defined(__x86_64__)
+#if defined(__aarch64__)
+
+    .text
+    .globl __wcrt_setjmp
+__wcrt_setjmp:
+    stp x19, x20, [x0, #0]
+    stp x21, x22, [x0, #16]
+    stp x23, x24, [x0, #32]
+    stp x25, x26, [x0, #48]
+    stp x27, x28, [x0, #64]
+    str x29, [x0, #80]
+    mov x9, sp
+    str x9, [x0, #88]
+    str x30, [x0, #96]
+    stp d8, d9, [x0, #104]
+    stp d10, d11, [x0, #120]
+    stp d12, d13, [x0, #136]
+    stp d14, d15, [x0, #152]
+    mov w0, #0
+    ret
+
+    .globl longjmp
+longjmp:
+    cbnz w1, 1f
+    mov w1, #1
+1:
+    ldr x16, [x0, #96]
+    ldr x17, [x0, #88]
+    ldp d8, d9, [x0, #104]
+    ldp d10, d11, [x0, #120]
+    ldp d12, d13, [x0, #136]
+    ldp d14, d15, [x0, #152]
+    ldp x19, x20, [x0, #0]
+    ldp x21, x22, [x0, #16]
+    ldp x23, x24, [x0, #32]
+    ldp x25, x26, [x0, #48]
+    ldp x27, x28, [x0, #64]
+    ldr x29, [x0, #80]
+    mov sp, x17
+    mov w0, w1
+    br x16
+
+#elif defined(__x86_64__)
 
     .text
     .globl __wcrt_setjmp

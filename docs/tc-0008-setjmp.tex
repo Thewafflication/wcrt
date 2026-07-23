@@ -7,7 +7,8 @@
 \def\TCDesignRef{ANSI X3J11 C89 draft 4.6, 4.6.1.1, and 4.6.2.1.}
 \def\TCFeatureRef{\texttt{include/setjmp.h};\par
 \texttt{src/platform/windows/setjmp.S};\par
-\texttt{tests/c89/setjmp.c}; \texttt{tests/c89/run-tc-0008.ps1}.}
+\texttt{tests/c89/setjmp.c}; \texttt{tests/c89/run-tc-0008.ps1};\par
+\texttt{tests/c89/run-tc-0008-arm64.ps1}.}
 \def\TCPreconditions{TinyCC is available in \texttt{PATH}; WCRT public headers exist under \texttt{include}.}
 \def\TCEnvironment{C89 presence compilation and behavioral execution against WCRT assembly and Microsoft UCRT.}
 \def\TCAssumptions{Tests use live same-thread contexts and do not depend on modified nonvolatile automatic objects.}
@@ -17,6 +18,8 @@
 \item Compile \texttt{tests/c89/presence/setjmp.c} as C89 without linking.
 \item Build and execute \texttt{tests/c89/setjmp.c} against both targets.
 \item Verify values, zero conversion, nesting, stack restoration, and volatile state.
+\item Cross-compile the same source for Windows ARM64 and execute it when the
+host architecture is ARM64.
 \end{enumerate}}
 \def\TCExpectedResult{Both targets complete every defined-lifetime non-local control-flow check.}
 \def\TCPostConditions{Generated objects, executables, and evidence remain under ignored output directories.}

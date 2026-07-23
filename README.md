@@ -69,6 +69,11 @@ feature detection with a compatible fallback.
 The phrase “Windows 2000–11” describes the supported operating-system family,
 not one identical architecture matrix: Windows 2000 is a 32-bit target, while
 64-bit builds apply only to Windows versions and toolchains that support them.
+Windows ARM64 is a Windows 10/11 target; WCRT does not associate ARM64 with the
+legacy Windows 2000 compatibility tier.
+
+The current ARM64 support boundary and cross-build procedure are documented in
+[`docs/arm64-support.md`](docs/arm64-support.md).
 
 ### TinyCC
 

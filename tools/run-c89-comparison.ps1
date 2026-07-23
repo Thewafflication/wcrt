@@ -225,6 +225,14 @@ function Invoke-WcrtTest {
                 $runnerResult = & $runner -TinyCc $TinyCc
                 $output += "`n`nSupplemental WCRT behavioral phase:`n"
                 $output += ($runnerResult | Format-List | Out-String).Trim()
+                if ($Test.Id -eq '0008') {
+                    $arm64Runner = Join-Path $repoRoot `
+                        'tests\c89\run-tc-0008-arm64.ps1'
+                    $arm64Result = & $arm64Runner
+                    $output += "`n`nSupplemental WCRT ARM64 phase:`n"
+                    $output += ($arm64Result | Format-List |
+                        Out-String).Trim()
+                }
             } catch {
                 $status = 'Fail'
                 $exitCode = 1

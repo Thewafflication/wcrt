@@ -151,6 +151,9 @@ classifies every omitted, optional, or compiler-blocked facility.
 
 ## Platform validation matrix
 
+- [x] Cross-build implemented C89 requirements as PE/COFF ARM64 with TinyCC.
+- [ ] Execute the C89 behavioral suite on a Windows ARM64 GitHub runner.
+
 The exact matrix will be fixed during bootstrap. The intended tiers are:
 
 | Target | Architecture | Validation level |
@@ -158,7 +161,7 @@ The exact matrix will be fixed during bootstrap. The intended tiers are:
 | Windows 2000 | x86 | Baseline compatibility |
 | Windows XP / Server 2003 | x86 | Legacy regression |
 | Windows Vista / 7 / 8.x | x86 and applicable x64 | Compatibility regression |
-| Windows 10 / 11 | x86 where supported, x64 | Primary development and release |
+| Windows 10 / 11 | x86 where supported, x64, ARM64 | Primary development and release |
 
 Native testing is preferred. Emulators and virtual machines may supplement but
 must not silently replace platform validation. Windows editions that cannot run

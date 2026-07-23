@@ -42,12 +42,17 @@ objects at optimization levels supported by TinyCC. Shared gates apply.
 
 ## Implementation record
 
-- `include/setjmp.h` defines WCRT-owned x86 and x64 context layouts and maps
+- `include/setjmp.h` defines WCRT-owned x86, x64, and ARM64 context layouts and
+  maps
   `setjmp` to the WCRT context capture routine.
 - `src/platform/windows/setjmp.S` saves and restores x86 nonvolatile integer
   state and x64 RBX, RBP, RSI, RDI, R12-R15, RSP, RIP, and XMM6-XMM15.
 - TinyCC's assembler cannot name XMM8-XMM15, so their standard x64 instruction
   encodings are emitted explicitly rather than omitting required state.
+- The Windows ARM64 path saves X19-X28, X29, SP, X30, and the ABI-preserved
+  low 64-bit halves D8-D15. Its `jmp_buf` occupies 168 bytes.
+- `tests/c89/run-tc-0008-arm64.ps1` cross-compiles a PE/COFF ARM64 executable
+  and executes it when the host operating-system architecture is ARM64.
 - No signal mask is saved. Cross-thread jumps, expired frames, and jumps into
   unwound contexts are undefined and excluded from tests.
 - `tests/c89/setjmp.c` covers direct return, zero conversion, nonzero values,

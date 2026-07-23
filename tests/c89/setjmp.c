@@ -5,6 +5,13 @@
 
 #include <setjmp.h>
 
+#if defined(__aarch64__)
+/** @brief Compile-time check of the Windows ARM64 jump-buffer ABI size. */
+typedef char wcrt_arm64_jmp_buf_size[
+    sizeof(jmp_buf) == 168 ? 1 : -1
+];
+#endif
+
 /** @brief Outer environment used by nested jump checks. */
 static jmp_buf outer_environment;
 
