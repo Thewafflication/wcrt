@@ -47,13 +47,13 @@ jobs:
           $result = Get-Content output/test-results/source-quality/tc-0016.json -Raw | ConvertFrom-Json
           $status = $result.Status.ToUpperInvariant()
           $indicator = if ($status -eq 'PASS') { '🟢' } else { '🔴' }
-          @"
-          # WCRT Test Report
-
-          | Test Case | Result |
-          | --- | --- |
-          | TC-0016 Source documentation and physical line length | $indicator **$status** |
-          "@ | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+          @(
+            '# WCRT Test Report'
+            ''
+            '| Test Case | Result |'
+            '| --- | --- |'
+            "| TC-0016 Source documentation and physical line length | $indicator **$status** |"
+          ) | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
 
       - name: Enforce source-quality result
         if: steps.tc0016.outcome != 'success'
@@ -141,24 +141,24 @@ jobs:
         run: |
           $json = 'output/test-results/${{ matrix.arch }}/c89-test-results.json'
           if (Test-Path $json) {
-            @"
-            # WCRT Test Report
-
-            ## ${{ matrix.arch }} Debug
-
-            | Test Case | Result |
-            | --- | --- |
-            "@ | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+            @(
+              '# WCRT Test Report'
+              ''
+              '## ${{ matrix.arch }} Debug'
+              ''
+              '| Test Case | Result |'
+              '| --- | --- |'
+            ) | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
             Get-Content $json -Raw | ConvertFrom-Json | ForEach-Object {
               $status = $_.Status.ToUpperInvariant()
               $indicator = if ($status -eq 'PASS') { '🟢' } else { '🔴' }
               "| $($_.TestCase) $($_.Description) | $indicator **$status** |" |
                 Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
             }
-            @"
-
-            The DLL, debug symbols, JSON evidence, and TeX test table are attached to this workflow run as the architecture-specific debug artifact.
-            "@ | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+            @(
+              ''
+              'The DLL, debug symbols, JSON evidence, and TeX test table are attached to this workflow run as the architecture-specific debug artifact.'
+            ) | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
           }
 
       - name: Upload debug artifacts and TeX report
