@@ -107,8 +107,8 @@ longjmp:
 #else
 
     .text
-    .globl ___wcrt_setjmp
-___wcrt_setjmp:
+    .globl __wcrt_setjmp
+__wcrt_setjmp:
     movl 4(%esp), %eax
     movl %ebx, 0(%eax)
     leal 4(%esp), %edx
@@ -121,8 +121,8 @@ ___wcrt_setjmp:
     xorl %eax, %eax
     ret
 
-    .globl _longjmp
-_longjmp:
+    .globl longjmp
+longjmp:
     movl 4(%esp), %ecx
     movl 8(%esp), %eax
     testl %eax, %eax

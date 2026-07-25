@@ -90,7 +90,12 @@ $sources = @(
 ) | ForEach-Object { Join-Path $repoRoot $_ }
 
 $dllPath = Join-Path $outputDirectory 'wcrt.dll'
-$arguments = @('-std=c89', '-Wall', '-Werror', '-shared', '-I',
+$definitionPath = Join-Path $outputDirectory 'wcrt.def'
+$staticLibrary = Join-Path $outputDirectory 'libwcrt.a'
+$staticObjectDirectory = Join-Path $outputDirectory 'static-objects'
+$includeOutput = Join-Path $outputDirectory 'include'
+$arguments = @('-std=c89', '-Wall', '-Werror', '-shared',
+    '-Wl,-export-all-symbols', '-I',
     (Join-Path $repoRoot 'include'))
 if ($Configuration -eq 'Debug') {
     # TinyCC invokes cv2pdb.exe from PATH for this option.
@@ -108,6 +113,9 @@ if ($LASTEXITCODE -ne 0) {
 if (-not (Test-Path -LiteralPath $dllPath -PathType Leaf)) {
     throw "TinyCC did not produce $dllPath."
 }
+if (-not (Test-Path -LiteralPath $definitionPath -PathType Leaf)) {
+    throw "TinyCC did not produce the import definition $definitionPath."
+}
 & (Join-Path $PSScriptRoot 'add-win32-resources.ps1') -Binary $dllPath `
     -CompiledResource $compiledResource
 if ($Configuration -eq 'Debug') {
@@ -117,6 +125,38 @@ if ($Configuration -eq 'Debug') {
     }
 }
 
+New-Item -ItemType Directory -Force -Path $staticObjectDirectory | Out-Null
+$staticObjects = foreach ($source in $sources) {
+    $relativeSource = [IO.Path]::GetRelativePath($repoRoot, $source)
+    $objectName = ($relativeSource -replace '[\\/.]', '_') + '.o'
+    $object = Join-Path $staticObjectDirectory $objectName
+    $staticArguments = @('-std=c89', '-Wall', '-Werror', '-c', '-I',
+        (Join-Path $repoRoot 'include'))
+    if ($Configuration -eq 'Debug') {
+        $staticArguments += '-g'
+    } else {
+        $staticArguments += '-O2'
+    }
+    $staticArguments += @($source, '-o', $object)
+    & $tinyCcPath @staticArguments
+    if ($LASTEXITCODE -ne 0) {
+        throw "TinyCC failed to compile static-library source $relativeSource."
+    }
+    $object
+}
+if (Test-Path -LiteralPath $staticLibrary) {
+    Remove-Item -LiteralPath $staticLibrary -Force
+}
+& $tinyCcPath -ar rcs $staticLibrary @staticObjects
+if ($LASTEXITCODE -ne 0 -or
+    -not (Test-Path -LiteralPath $staticLibrary -PathType Leaf)) {
+    throw "TinyCC failed to create $staticLibrary."
+}
+
+New-Item -ItemType Directory -Force -Path $includeOutput | Out-Null
+Copy-Item -Path (Join-Path $repoRoot 'include/*') -Destination $includeOutput `
+    -Recurse -Force
+
 [PSCustomObject]@{
     Architecture = $Architecture
     Configuration = $Configuration
@@ -124,4 +164,7 @@ if ($Configuration -eq 'Debug') {
     Version = $versionInfo.PackageVersion
     Dll = $dllPath
     Pdb = if ($Configuration -eq 'Debug') { $pdbPath } else { $null }
+    ImportDefinition = $definitionPath
+    StaticLibrary = $staticLibrary
+    IncludeDirectory = $includeOutput
 }

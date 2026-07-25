@@ -117,6 +117,10 @@ The DLL contains a Windows `VERSIONINFO` resource with this package version,
 its numeric file version, architecture, configuration, source revision,
 package name, license, and repository information.
 
+Each build produces the shared `wcrt.dll`, its TinyCC import definition
+`wcrt.def`, the static TinyCC archive `libwcrt.a`, and a copy of the public
+headers. WPM packages install these beneath `bin`, `lib`, and `include`.
+
 ## Conformance
 
 WCRT will publish a conformance matrix for every milestone. A milestone is not

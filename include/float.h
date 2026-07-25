@@ -40,7 +40,8 @@
 
 /** @name TinyCC long-double model and limits */
 /** @{ */
-#if defined(_WIN64)
+#if defined(_WIN32)
+/* TinyCC uses the Windows binary64 ABI for long double on every target. */
 #define LDBL_MANT_DIG 53
 #define LDBL_DIG 15
 #define LDBL_EPSILON 2.2204460492503131e-16L

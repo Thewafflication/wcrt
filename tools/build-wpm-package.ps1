@@ -32,9 +32,14 @@ if (Test-Path -LiteralPath $staging) {
     Remove-Item -LiteralPath $staging -Recurse -Force
 }
 New-Item -ItemType Directory -Force -Path $staging, (Join-Path $staging '.wpm'),
-    (Join-Path $staging 'bin'), (Join-Path $staging 'include'), $packageOutput |
+    (Join-Path $staging 'bin'), (Join-Path $staging 'lib'),
+    (Join-Path $staging 'include'), $packageOutput |
     Out-Null
 Copy-Item -LiteralPath $dll -Destination (Join-Path $staging 'bin/wcrt.dll')
+Copy-Item -LiteralPath (Join-Path $releaseDirectory 'libwcrt.a') `
+    -Destination (Join-Path $staging 'lib/libwcrt.a')
+Copy-Item -LiteralPath (Join-Path $releaseDirectory 'wcrt.def') `
+    -Destination (Join-Path $staging 'lib/wcrt.def')
 Copy-Item -Path (Join-Path $repoRoot 'include/*') -Destination (Join-Path $staging 'include') -Recurse
 Copy-Item -LiteralPath (Join-Path $repoRoot 'LICENSE.txt') -Destination $staging
 Copy-Item -LiteralPath (Join-Path $repoRoot 'README.md') -Destination $staging

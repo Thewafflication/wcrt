@@ -131,6 +131,10 @@ jobs:
         shell: pwsh
         run: ./tools/build-wcrt.ps1 -Architecture '${{ matrix.arch }}' -Configuration Debug -TinyCc $env:TINYCC
 
+      - name: Verify DLL and static-library consumers
+        shell: pwsh
+        run: ./tools/test-built-libraries.ps1 -Architecture '${{ matrix.arch }}' -Configuration Debug -TinyCc $env:TINYCC
+
       - name: Run C89 tests
         shell: pwsh
         run: ./tools/run-c89-tests.ps1 -Architecture '${{ matrix.arch }}' -TinyCc $env:TINYCC
@@ -169,6 +173,9 @@ jobs:
           path: |
             output/build/${{ matrix.arch }}/Debug/wcrt.dll
             output/build/${{ matrix.arch }}/Debug/wcrt.pdb
+            output/build/${{ matrix.arch }}/Debug/wcrt.def
+            output/build/${{ matrix.arch }}/Debug/libwcrt.a
+            output/build/${{ matrix.arch }}/Debug/include/
             output/test-results/${{ matrix.arch }}/c89-test-results.tex
             output/test-results/${{ matrix.arch }}/c89-test-results.json
           if-no-files-found: error
@@ -177,6 +184,11 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/v')
         shell: pwsh
         run: ./tools/build-wcrt.ps1 -Architecture '${{ matrix.arch }}' -Configuration Release -TinyCc $env:TINYCC -Version '${{ github.ref_name }}'
+
+      - name: Verify release libraries
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        run: ./tools/test-built-libraries.ps1 -Architecture '${{ matrix.arch }}' -Configuration Release -TinyCc $env:TINYCC
 
       - name: Build release WPM package
         if: startsWith(github.ref, 'refs/tags/v')
