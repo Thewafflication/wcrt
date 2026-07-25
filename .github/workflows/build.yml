@@ -15,7 +15,7 @@ jobs:
     name: TC-0016 source quality
     runs-on: windows-2025
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install Doxygen
         shell: pwsh
@@ -75,7 +75,7 @@ jobs:
           - arch: arm64
             runner: windows-11-arm
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Use isolated WPM data directory
         shell: pwsh
@@ -167,7 +167,7 @@ jobs:
 
       - name: Upload debug artifacts and TeX report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: wcrt-${{ matrix.arch }}-debug
           path: |
@@ -197,7 +197,7 @@ jobs:
 
       - name: Upload release WPM package
         if: startsWith(github.ref, 'refs/tags/v')
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: wcrt-${{ matrix.arch }}-release
           path: output/packages/wcrt-${{ matrix.arch }}-*.zip
