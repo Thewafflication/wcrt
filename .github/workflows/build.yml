@@ -262,8 +262,6 @@ jobs:
       - name: Verify signed WPM package
         shell: pwsh
         run: |
-          wpm trust add release_keys/wpm-release.public
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           $package = @(Get-ChildItem output/packages/wcrt-${{ matrix.arch }}-*.zip -File)
           if ($package.Count -ne 1) { throw "Expected one package, found $($package.Count)." }
           wpm verify $package[0].FullName
