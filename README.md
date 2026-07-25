@@ -120,6 +120,10 @@ package name, license, and repository information.
 Each build produces the shared `wcrt.dll`, its TinyCC import definition
 `wcrt.def`, the static TinyCC archive `libwcrt.a`, and a copy of the public
 headers. WPM packages install these beneath `bin`, `lib`, and `include`.
+After all Debug architecture jobs pass, a `v*` tag builds signed Release
+artifacts for x86, x64, and ARM64. The workflow publishes the DLLs, static
+libraries, import definitions, WPM packages, public signing key, and WPM
+repository `index.json` to the corresponding GitHub Release.
 
 ## Conformance
 

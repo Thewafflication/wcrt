@@ -180,26 +180,162 @@ jobs:
             output/test-results/${{ matrix.arch }}/c89-test-results.json
           if-no-files-found: error
 
-      - name: Build release DLL
-        if: startsWith(github.ref, 'refs/tags/v')
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    name: ${{ matrix.arch }} release
+    needs: build
+    runs-on: ${{ matrix.runner }}
+    environment: release
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86
+            runner: windows-2025
+          - arch: x64
+            runner: windows-2025
+          - arch: arm64
+            runner: windows-11-arm
+    env:
+      WPM_PRIVATE_KEY: ${{ secrets.WPM_RELEASE_PRIVATE_KEY }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Use isolated WPM data directory
+        shell: pwsh
+        run: '"WPM_DATA_DIR=$env:RUNNER_TEMP\wpm-data" >> $env:GITHUB_ENV'
+
+      - name: Install WPM
+        shell: pwsh
+        run: |
+          $installer = Join-Path $env:RUNNER_TEMP 'install-wpm.cmd'
+          Invoke-WebRequest -UseBasicParsing 'https://github.com/Thewafflication/wpm/releases/latest/download/install.cmd' -OutFile $installer
+          & $installer
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $wpmDirectory = Join-Path $env:ProgramFiles 'WPM'
+          if (-not (Test-Path (Join-Path $wpmDirectory 'wpm.exe'))) { throw 'WPM installation failed.' }
+          $wpmDirectory >> $env:GITHUB_PATH
+
+      - name: Install TinyCC WPM package
+        shell: pwsh
+        run: |
+          $key = Join-Path $env:RUNNER_TEMP 'tcc-wpm-release.public'
+          Invoke-WebRequest -UseBasicParsing 'https://github.com/Thewafflication/tcc_package/releases/latest/download/wpm-release.public' -OutFile $key
+          wpm trust add $key
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          wpm repo add 'https://github.com/Thewafflication/tcc_package/releases/latest/download'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          wpm config set prerelease true --package tinycc
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          wpm update
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          wpm install tinycc --arch '${{ matrix.arch }}'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $tccHome = [Environment]::GetEnvironmentVariable('TCC_HOME', 'Machine')
+          $tcc = Join-Path $tccHome 'tcc.exe'
+          if (-not (Test-Path -LiteralPath $tcc)) { throw "TinyCC was not installed at $tcc." }
+          "TINYCC=$tcc" >> $env:GITHUB_ENV
+
+      - name: Prepare WPM signing key
+        id: signing
+        shell: pwsh
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:WPM_PRIVATE_KEY)) { throw 'The release environment must define WPM_RELEASE_PRIVATE_KEY.' }
+          $keyPath = Join-Path $env:RUNNER_TEMP 'wcrt-release.private'
+          [IO.File]::WriteAllText($keyPath, $env:WPM_PRIVATE_KEY)
+          "path=$keyPath" >> $env:GITHUB_OUTPUT
+
+      - name: Build release DLL and static library
         shell: pwsh
         run: ./tools/build-wcrt.ps1 -Architecture '${{ matrix.arch }}' -Configuration Release -TinyCc $env:TINYCC -Version '${{ github.ref_name }}'
 
       - name: Verify release libraries
-        if: startsWith(github.ref, 'refs/tags/v')
         shell: pwsh
         run: ./tools/test-built-libraries.ps1 -Architecture '${{ matrix.arch }}' -Configuration Release -TinyCc $env:TINYCC
 
-      - name: Build release WPM package
-        if: startsWith(github.ref, 'refs/tags/v')
+      - name: Build signed WPM package
         shell: pwsh
-        run: ./tools/build-wpm-package.ps1 -Architecture '${{ matrix.arch }}' -Version '${{ github.ref_name }}'
+        run: ./tools/build-wpm-package.ps1 -Architecture '${{ matrix.arch }}' -Version '${{ github.ref_name }}' -SigningKey '${{ steps.signing.outputs.path }}'
 
-      - name: Upload release WPM package
-        if: startsWith(github.ref, 'refs/tags/v')
-        uses: actions/upload-artifact@v6
+      - name: Verify signed WPM package
+        shell: pwsh
+        run: |
+          wpm trust add release_keys/wpm-release.public
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $package = @(Get-ChildItem output/packages/wcrt-${{ matrix.arch }}-*.zip -File)
+          if ($package.Count -ne 1) { throw "Expected one package, found $($package.Count)." }
+          wpm verify $package[0].FullName
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Stage release assets
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force output/release-assets | Out-Null
+          Copy-Item output/build/${{ matrix.arch }}/Release/wcrt.dll output/release-assets/wcrt-${{ matrix.arch }}.dll
+          Copy-Item output/build/${{ matrix.arch }}/Release/libwcrt.a output/release-assets/libwcrt-${{ matrix.arch }}.a
+          Copy-Item output/build/${{ matrix.arch }}/Release/wcrt.def output/release-assets/wcrt-${{ matrix.arch }}.def
+          Copy-Item output/packages/wcrt-${{ matrix.arch }}-*.zip output/release-assets/
+
+      - name: Remove private signing key
+        if: always()
+        shell: pwsh
+        run: Remove-Item (Join-Path $env:RUNNER_TEMP 'wcrt-release.private') -Force -ErrorAction SilentlyContinue
+
+      - uses: actions/upload-artifact@v6
         with:
           name: wcrt-${{ matrix.arch }}-release
-          path: output/packages/wcrt-${{ matrix.arch }}-*.zip
+          path: output/release-assets/*
           if-no-files-found: error
           compression-level: 0
+
+  publish:
+    if: startsWith(github.ref, 'refs/tags/v')
+    name: Publish GitHub release
+    needs: release
+    runs-on: windows-2025
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/download-artifact@v6
+        with:
+          pattern: wcrt-*-release
+          path: release-assets
+          merge-multiple: true
+
+      - name: Create WPM repository index
+        shell: pwsh
+        run: |
+          $tag = '${{ github.ref_name }}'
+          if ($tag -notmatch '^v[0-9][0-9A-Za-z.+-]*$') { throw "Invalid release tag: $tag" }
+          $assets = (Resolve-Path release-assets).Path
+          Copy-Item release_keys/wpm-release.public (Join-Path $assets 'wpm-release.public')
+          $packages = foreach ($file in Get-ChildItem $assets -Filter 'wcrt-*.zip' -File) {
+            if ($file.Name -notmatch '^wcrt-(x86|x64|arm64)-(.+)\.zip$') { throw "Unexpected package filename: $($file.Name)" }
+            [ordered]@{
+              name = 'wcrt'
+              version = $Matches[2]
+              arch = $Matches[1]
+              url = "https://github.com/${{ github.repository }}/releases/download/$tag/$($file.Name)"
+            }
+          }
+          if (@($packages).Count -ne 3) { throw 'Expected exactly three WCRT packages.' }
+          [ordered]@{ version = 1; packages = @($packages) } | ConvertTo-Json -Depth 4 | Set-Content (Join-Path $assets 'index.json') -Encoding utf8NoBOM
+
+      - name: Create release and upload assets
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = '${{ github.ref_name }}'
+          gh release view $tag --repo '${{ github.repository }}' *> $null
+          if ($LASTEXITCODE -ne 0) {
+            gh release create $tag --repo '${{ github.repository }}' --target '${{ github.sha }}' --generate-notes --title $tag
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+          $assets = @(Get-ChildItem release-assets -File)
+          gh release upload $tag --repo '${{ github.repository }}' --clobber @($assets.FullName)
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

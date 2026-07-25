@@ -8,6 +8,7 @@ param(
     [string]$Version,
 
     [string]$Wpm = 'wpm.exe',
+    [string]$SigningKey,
     [string]$BuildRoot = 'output/build',
     [string]$PackageRoot = 'output/packages'
 )
@@ -83,7 +84,12 @@ $removeScript = @(
 Set-Content -LiteralPath (Join-Path $staging '.wpm/install.cmd') -Value $installScript -Encoding ascii
 Set-Content -LiteralPath (Join-Path $staging '.wpm/remove.cmd') -Value $removeScript -Encoding ascii
 
-& $Wpm build $staging $packageOutput
+$wpmArguments = @('build', $staging, $packageOutput)
+if (-not [string]::IsNullOrWhiteSpace($SigningKey)) {
+    $resolvedSigningKey = (Resolve-Path -LiteralPath $SigningKey).Path
+    $wpmArguments += @('--sign', $resolvedSigningKey)
+}
+& $Wpm @wpmArguments
 if ($LASTEXITCODE -ne 0) {
     throw 'WPM failed to create the WCRT package.'
 }
