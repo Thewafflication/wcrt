@@ -5,6 +5,7 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 $buildDirectory = Join-Path $repoRoot 'build\tests\c89\tc-0012'
 $executable = Join-Path $buildDirectory 'stdio-test.exe'
+$stdinExecutable = Join-Path $buildDirectory 'stdio-stdin-test.exe'
 if ([string]::IsNullOrWhiteSpace($TinyCc)) {
     $TinyCc = Join-Path (Split-Path -Parent $repoRoot) `
         'tcc_package\out\build\x64-debug\package\tcc.exe'
@@ -22,6 +23,17 @@ $output = & $TinyCc @arguments 2>&1
 if ($LASTEXITCODE -ne 0) {
     throw "TC-0012 build failed:`n$($output | Out-String)"
 }
+$stdinSources = @(
+    'src\errno.c', 'src\string.c', 'src\stdio.c',
+    'src\platform\windows\file.c',
+    'tests\c89\stdio_stdin.c'
+) | ForEach-Object { Join-Path $repoRoot $_ }
+$stdinArguments = @('-std=c89', '-Wall', '-Werror', '-I',
+    (Join-Path $repoRoot 'include')) + $stdinSources + @('-o', $stdinExecutable)
+$stdinOutput = & $TinyCc @stdinArguments 2>&1
+if ($LASTEXITCODE -ne 0) {
+    throw "TC-0012 standard-input build failed:`n$($stdinOutput | Out-String)"
+}
 Push-Location $buildDirectory
 try {
     & $executable
@@ -31,6 +43,14 @@ try {
 }
 if ($exitCode -ne 0) {
     throw "TC-0012 behavior failed with code $exitCode."
+}
+@('n') | & $stdinExecutable redirected
+if ($LASTEXITCODE -ne 0) {
+    throw "TC-0012 redirected standard input failed with code $LASTEXITCODE."
+}
+& $stdinExecutable console
+if ($LASTEXITCODE -ne 0) {
+    throw "TC-0012 console standard input failed with code $LASTEXITCODE."
 }
 [PSCustomObject]@{
     TestCase = 'TC-0012'
@@ -43,5 +63,7 @@ if ($exitCode -ne 0) {
     FormattedOutput = 'Pass'
     FormattedInput = 'Pass'
     TextTranslation = 'Pass'
+    RedirectedStandardInput = 'Pass'
+    ConsoleStandardInput = 'Pass'
     ExitCode = 0
 }

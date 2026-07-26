@@ -2,13 +2,15 @@
 \def\TCID{TC-0012}
 \def\TCTitle{C89 input and output}
 \def\TCPurpose{Verify all 41 functions across files, temporary streams,
-text translation, positioning, indicators, formatting, and scanning.}
+text translation, redirected and Windows console input, positioning,
+indicators, formatting, and scanning.}
 \def\TCPriority{\TCPriorityHigh}
 \def\TCRequirementRef{REQ-0012}
 \def\TCDesignRef{ANSI X3J11 C89 draft 4.9.}
 \def\TCFeatureRef{\texttt{include/stdio.h}; \texttt{src/stdio.c};
 \texttt{src/stdio\_format.c}; \texttt{src/stdio\_scan.c};\par
-\texttt{src/platform/windows/file.c}; \texttt{tests/c89/stdio.c}.}
+\texttt{src/platform/windows/file.c}; \texttt{tests/c89/stdio.c};
+\texttt{tests/c89/stdio\_stdin.c}.}
 \def\TCTestTechnique{Equivalence partitioning, boundary-value analysis, and state-transition testing across streams, files, buffering, formatting, and scanning.}
 \def\TCPreconditions{TinyCC and WCRT ctype, errno, string, and stdlib are
 available.}
@@ -16,12 +18,15 @@ available.}
 Current Microsoft UCRT headers omit the removed C89 \texttt{gets} declaration.}
 \def\TCAssumptions{Tests use bounded records and do not call unsafe
 \texttt{gets}.}
-\def\TCInputData{Text and binary files, temporary names, CR-LF, pushed-back
-bytes, all conversion families, widths, precision, modifiers, and scansets.}
+\def\TCInputData{Text and binary files, temporary names, redirected input,
+injected Windows console key events, CR-LF, pushed-back bytes, all conversion
+families, widths, precision, modifiers, and scansets.}
 \def\TCInitialState{No dynamic WCRT stream slot is open.}
 \def\TCProcedure{\par\begin{enumerate}
 \item Compile all required declarations without host standard headers.
 \item Exercise file lifecycle, direct I/O, positioning, and indicators.
+\item Exercise \texttt{fgets} using redirected stdin and a genuine Windows
+console input handle.
 \item Exercise formatted output, input, suppression, scansets, and counts.
 \item Cross-link the complete subsystem as PE/COFF ARM64.
 \end{enumerate}}
