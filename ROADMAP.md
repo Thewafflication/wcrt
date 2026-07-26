@@ -31,19 +31,20 @@ Establish a runtime that can be built and tested before making a standards
 conformance claim.
 
 - [ ] Adopt a GPL-3.0-or-later source-file notice policy.
-- [ ] Create the `include`, `wcrt`, `tests`, `tools`, and `docs` structure.
+- [x] Create the `include`, `wcrt`, `tests`, `tools`, and `docs` structure.
 - [ ] Define supported TinyCC versions and acquire compiler capability probes.
-- [ ] Add deterministic static-library and test-executable builds.
+- [x] Add deterministic static-library and test-executable builds.
 - [ ] Define 32-bit x86 calling conventions, object format, symbol naming, and
       ABI boundaries.
 - [ ] Define the strategy for x64 builds separately from the Windows 2000 x86
       compatibility target.
-- [ ] Add a minimal process startup/termination path and platform abstraction.
-- [ ] Provide the optional, separately selected WCRT console startup specified
+- [x] Add a minimal process startup/termination path and platform abstraction.
+- [x] Provide the optional, separately selected WCRT console startup specified
       by REQ-0017 and verify it through TC-0017.
-- [ ] Provide the optional, separately selected WCRT GUI startup specified by
+- [x] Provide the optional, separately selected WCRT GUI startup specified by
       REQ-0018 and verify it through TC-0018.
-- [ ] Add CI or repeatable local test scripts for supported Windows tiers.
+- [x] Add CI and repeatable local test scripts for supported Windows
+      architectures.
 - [ ] Add import-table inspection to catch accidental dependencies on newer
       Windows APIs.
 - [ ] Create conformance, implementation-defined behavior, and deviation
@@ -57,19 +58,19 @@ WCRT, started, tested, and terminated on the baseline x86 target.
 Deliver the first usable hosted-library baseline. Work should be divided into
 independently testable header/function families.
 
-- [ ] Fundamental headers and types: `stddef.h`, `limits.h`, `float.h`,
+- [x] Fundamental headers and types: `stddef.h`, `limits.h`, `float.h`,
       `stdarg.h`, `errno.h`, `assert.h`.
-- [ ] Character handling: `ctype.h`.
-- [ ] String and byte operations: `string.h`.
-- [ ] General utilities: `stdlib.h`, including conversion, allocation, search,
+- [x] Character handling: `ctype.h`.
+- [x] String and byte operations: `string.h`.
+- [x] General utilities: `stdlib.h`, including conversion, allocation, search,
       sorting, environment, and process-control functions.
-- [ ] Input and output: `stdio.h`, including files, buffering, formatted I/O,
+- [x] Input and output: `stdio.h`, including files, buffering, formatted I/O,
       and temporary files.
-- [ ] Time and date: `time.h`.
-- [ ] Localization: `locale.h`.
-- [ ] Signals: `signal.h`.
-- [ ] Non-local jumps: `setjmp.h`.
-- [ ] Mathematical functions and error behavior: `math.h`.
+- [x] Time and date: `time.h`.
+- [x] Localization: `locale.h`.
+- [x] Signals: `signal.h`.
+- [x] Non-local jumps: `setjmp.h`.
+- [x] Mathematical functions and error behavior: `math.h`.
 - [ ] Document text/binary stream mapping, newline behavior, path rules,
       locale scope, floating-point assumptions, and signal support on Windows.
 
@@ -83,8 +84,9 @@ Extend the C89 base without regressing its compatibility mode.
 - [ ] Add C99 headers and types, including `stdint.h`, `inttypes.h`,
       `stdbool.h`, `complex.h`, `fenv.h`, and `tgmath.h` as supported.
 - [ ] Add `long long`, extended integer conversion, and integer format macros.
-- [ ] Add C99 formatted-I/O behavior, including `snprintf`/`vsnprintf` and new
-      conversion requirements.
+- [ ] Add C99 formatted-I/O behavior and new conversion requirements.
+  - [x] Implement and test `snprintf` and `vsnprintf` bounded output
+        (REQ-0019 / TC-0019).
 - [ ] Add wide-character and multibyte facilities from `wchar.h` and
       `wctype.h`.
 - [ ] Define and verify the `wchar_t` ABI and Windows UTF-16 interoperability
@@ -161,7 +163,7 @@ classifies every omitted, optional, or compiler-blocked facility.
 ## Platform validation matrix
 
 - [x] Cross-build implemented C89 requirements as PE/COFF ARM64 with TinyCC.
-- [ ] Execute the C89 behavioral suite on a Windows ARM64 GitHub runner.
+- [x] Execute the C89 behavioral suite on a native Windows ARM64 GitHub runner.
 
 The exact matrix will be fixed during bootstrap. The intended tiers are:
 

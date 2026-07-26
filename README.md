@@ -19,8 +19,16 @@ your option) any later version.
 
 ## Project status
 
-WCRT is in its initial design and bootstrap phase. It is not yet suitable for
-production use. The first implementation milestone is a usable C89 runtime.
+WCRT has a working C89 library baseline and is beginning its C99 extension
+work. The C89 headers and runtime are covered by requirement-linked presence
+and behavioral tests (TC-0001 through TC-0015), while source quality and the
+optional console and GUI startup paths are covered by TC-0016 through TC-0018.
+`snprintf` and `vsnprintf` are the first implemented C99 additions.
+
+Continuous integration builds and tests x86, x64, and ARM64 on native Windows
+runners. WCRT is still pre-release and is not yet suitable for production use;
+the remaining C89 release gates and compatibility documentation must be closed
+before the project makes an unqualified C89 conformance claim.
 
 See [ROADMAP.md](ROADMAP.md) for planned work and milestone completion criteria.
 
@@ -82,7 +90,7 @@ runtime sources, build scripts, and the conformance test harness must remain
 usable with the supported TinyCC versions. Compiler limitations will be
 recorded separately from runtime limitations.
 
-## Planned repository layout
+## Repository layout
 
 ```text
 include/          Public standard and WCRT headers
@@ -93,8 +101,8 @@ tools/            Build and test utilities
 docs/             Design notes and compatibility documentation
 ```
 
-This layout will be introduced during the bootstrap milestone and may evolve
-before the first release.
+The standards-facing implementation currently lives directly under `src/`,
+with Windows-specific code under `src/platform/windows/`.
 
 ## Building
 
@@ -110,6 +118,7 @@ git submodule update --init tools/wsp
 ```powershell
 ./tools/build-wcrt.ps1 -Architecture x64 -Configuration Debug -TinyCc $env:TCC_HOME/tcc.exe
 ./tools/run-c89-tests.ps1 -Architecture x64 -TinyCc $env:TCC_HOME/tcc.exe
+./tools/run-extension-tests.ps1 -Architecture x64 -TinyCc $env:TCC_HOME/tcc.exe
 ```
 
 GitHub Actions builds and tests x86, x64, and ARM64 independently. TC-0016 is
