@@ -23,6 +23,14 @@ jobs:
         shell: pwsh
         run: choco install doxygen.install --no-progress -y
 
+      - name: Verify pinned WSP common tools
+        shell: pwsh
+        run: ./tools/wsp/tools/tests/run-tests.ps1
+
+      - name: Verify requirements traceability
+        shell: pwsh
+        run: ./tests/verify-traceability.ps1
+
       - name: Run TC-0016
         id: tc0016
         continue-on-error: true
@@ -326,6 +334,15 @@ jobs:
           }
           if (@($packages).Count -ne 3) { throw 'Expected exactly three WCRT packages.' }
           [ordered]@{ version = 1; packages = @($packages) } | ConvertTo-Json -Depth 4 | Set-Content (Join-Path $assets 'index.json') -Encoding utf8NoBOM
+
+      - name: Generate release checksums
+        shell: pwsh
+        run: |
+          $assets = (Resolve-Path release-assets).Path
+          $files = @(Get-ChildItem $assets -File | Select-Object -ExpandProperty FullName)
+          ./tools/wsp/tools/New-ArtifactChecksum.ps1 `
+            -Path $files `
+            -OutputPath (Join-Path $assets 'SHA256SUMS')
 
       - name: Create release and upload assets
         shell: pwsh

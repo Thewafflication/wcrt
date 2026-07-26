@@ -36,7 +36,7 @@
 | CMake style | No | WCRT does not currently use CMake. |
 | Windows version resources | Yes | Project-owned release DLLs |
 | Windows code signing and Defender | Yes | Publicly distributed Windows DLLs and WPM packages |
-| Common tools | No | WCRT does not yet invoke tools supplied by the WSP submodule. |
+| Common tools | Yes | Pinned traceability, source-quality, self-test, and checksum tools |
 
 ## Requirement Dispositions
 
@@ -176,6 +176,19 @@
 | `WSP-SIGN-0016` | Deferred | Future release documentation | Publisher identity and verification guidance require completion. |
 | `WSP-SIGN-0017` | Deferred | Future release signing plan | Certificate lifecycle and compromise response require documentation. |
 | `WSP-SIGN-0018` | Deferred | Future release-trust record | Trust-evidence retention is not yet defined. |
+
+### Common tools
+
+| WSP requirement | Disposition | Project artifact | Rationale or notes |
+| --- | --- | --- | --- |
+| `WSP-TOOL-0001` | Applicable | `.github/workflows/build.yml` | CI invokes tools from the pinned WSP submodule. |
+| `WSP-TOOL-0002` | Applicable | WSP tool invocations | WCRT passes explicit project-owned paths. |
+| `WSP-TOOL-0003` | Applicable | WSP common-tool self-tests | Selected tools have deterministic file-based inputs. |
+| `WSP-TOOL-0004` | Applicable | WSP common-tool self-tests | Positive and negative exit behavior is tested. |
+| `WSP-TOOL-0005` | Applicable | WSP validation output | Diagnostics identify affected artifacts and rules. |
+| `WSP-TOOL-0006` | Applicable | `output/` and `release-assets/` | Generated files remain outside the submodule. |
+| `WSP-TOOL-0007` | Applicable | Selected tool interfaces | No selected invocation receives or emits secrets. |
+| `WSP-TOOL-0008` | Applicable | `tools/wsp/tools/tests/run-tests.ps1` | Pinned common-tool self-tests run in CI. |
 
 ## Tailoring Decisions
 
