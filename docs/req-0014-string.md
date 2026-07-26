@@ -49,3 +49,4 @@ lexicographic comparisons. `strcoll` and `strxfrm` implement the mandatory C
 locale as bytewise collation. `strtok` uses one process-wide continuation
 pointer and is intentionally non-reentrant. `strerror` provides stable static
 messages for `EDOM`, `ERANGE`, and unknown values.
+**Verification:** `tests/c89/run-tc-0014.ps1` builds and executes TC-0014.

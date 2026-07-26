@@ -38,3 +38,4 @@ The public types use TinyCC's `__SIZE_TYPE__`, `__PTRDIFF_TYPE__`, and
 `__WCHAR_TYPE__` ABI definitions. `NULL` is the integer constant zero, making
 it usable for both object and function pointers, and `offsetof` uses
 TinyCC's constant-expression `__builtin_offsetof` facility.
+**Verification:** `tests/c89/run-tc-0011.ps1` builds and executes TC-0011.

@@ -5,7 +5,9 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $docs = Join-Path $RepositoryRoot 'docs'
-$cmake = Get-Content -Raw -LiteralPath (Join-Path $RepositoryRoot 'wpm/CMakeLists.txt')
+$testRoot = Join-Path $RepositoryRoot 'tests/c89'
+$manifestPath = Join-Path $testRoot 'manifest.md'
+$manifest = Get-Content -Raw -LiteralPath $manifestPath
 $failures = [System.Collections.Generic.List[string]]::new()
 
 $requirements = Get-ChildItem -LiteralPath $docs -Filter 'req-*.md' |
@@ -22,16 +24,21 @@ foreach ($id in $requirements) {
     }
     $requirement = Get-Content -Raw -LiteralPath $requirementFile.FullName
     $tex = Get-ChildItem -LiteralPath $docs -Filter "$slug-*.tex"
-    $script = Get-ChildItem -LiteralPath (Join-Path $RepositoryRoot 'tests') -Filter "$slug-*.ps1"
+    $runnerPath = Join-Path $testRoot "run-$slug.ps1"
 
     if ($requirement -notmatch [regex]::Escape($testId)) { $failures.Add("REQ-$id does not reference $testId.") }
     if ($tex.Count -ne 1) { $failures.Add("REQ-$id must have exactly one $slug test specification.") }
-    if ($script.Count -ne 1) { $failures.Add("REQ-$id must have exactly one $slug automated test.") }
+    if (-not (Test-Path -LiteralPath $runnerPath -PathType Leaf)) {
+        $failures.Add("REQ-$id must have the automated runner tests/c89/run-$slug.ps1.")
+    }
     if ($tex.Count -eq 1) {
         $contents = Get-Content -Raw -LiteralPath $tex.FullName
         if ($contents -notmatch [regex]::Escape("REQ-$id")) { $failures.Add("$($tex.Name) does not reference REQ-$id.") }
     }
-    if ($cmake -notmatch [regex]::Escape("wpm_add_test_case($testId")) { $failures.Add("$testId is not registered with CTest.") }
+    $manifestRow = "(?m)^\|\s*REQ-$id\s*\|\s*\[TC-$id\]"
+    if ($manifest -notmatch $manifestRow) {
+        $failures.Add("REQ-$id and $testId must have one row in tests/c89/manifest.md.")
+    }
 }
 
 if ($failures.Count) {

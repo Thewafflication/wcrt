@@ -47,3 +47,7 @@ became zero. The shared gates in `REQUIREMENTS.md` apply.
   and both required constants.
 - Math and conversion producer checks remain integration gates for REQ-0007
   and REQ-0013; those functions do not exist before those requirements.
+
+## Verification
+
+`tests/c89/run-tc-0003.ps1` builds and executes TC-0003 with TinyCC.

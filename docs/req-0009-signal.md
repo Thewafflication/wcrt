@@ -52,3 +52,4 @@ events or structured exceptions into C signals, so no signal arrives
 asynchronously. Only assignment to an object declared `volatile sig_atomic_t`
 is promised to be handler-safe. A default action terminates the process with
 `ExitProcess(128 + signal_number)`, an API present on Windows 2000 and later.
+**Verification:** `tests/c89/run-tc-0009.ps1` builds and executes TC-0009.

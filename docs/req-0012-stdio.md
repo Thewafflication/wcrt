@@ -65,3 +65,4 @@ Formatting and scanning share internal parsers covering C89 flags, dynamic and
 literal widths, precision, length modifiers, assignment suppression, scansets,
 and `%n`. Stream scanning uses a bounded 4096-byte staging record. This limit
 is an implementation constraint to remove in a later hardening pass.
+**Verification:** `tests/c89/run-tc-0012.ps1` builds and executes TC-0012.

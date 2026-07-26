@@ -43,3 +43,4 @@ WCRT exposes TinyCC's `__builtin_va_list`, `__builtin_va_start`,
 `__builtin_va_arg`, and `__builtin_va_end` through the standard C89 names.
 TinyCC therefore owns the architecture-specific register, stack, size, and
 alignment traversal rules for each target ABI; WCRT adds no host CRT helper.
+**Verification:** `tests/c89/run-tc-0010.ps1` builds and executes TC-0010.

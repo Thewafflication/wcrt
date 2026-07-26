@@ -53,3 +53,4 @@ names, `struct lconv` fields, and interactions with `ctype`, `strcoll`,
   requests, every convention member, and the implemented ctype interaction.
 - Collation, numeric conversion, and time-format integration checks execute
   with REQ-0014, REQ-0013, and REQ-0015 respectively.
+**Verification:** `tests/c89/run-tc-0006.ps1` builds and executes TC-0006.

@@ -1,0 +1,3 @@
+[submodule "tools/wsp"]
+	path = tools/wsp
+	url = https://github.com/Thewafflication/wsp

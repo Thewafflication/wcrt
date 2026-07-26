@@ -25,6 +25,16 @@ function Get-WcrtVersion {
     }
     $gitDescribe = ($gitDescribe | Select-Object -First 1).ToString().Trim()
     $gitHash = ($gitHash | Select-Object -First 1).ToString().Trim()
+    $exactTag = (& git -C $RepositoryRoot describe --tags --exact-match HEAD `
+        2>$null | Select-Object -First 1)
+    $exactTagResult = $LASTEXITCODE
+    $exactTagText = if ($null -eq $exactTag) {
+        ''
+    } else {
+        $exactTag.ToString().Trim()
+    }
+    $isExactReleaseTag = $exactTagResult -eq 0 -and
+        (($exactTagText -replace '^v', '') -eq $sourceVersion)
 
     $distance = 0
     if ($gitDescribe -match '-([0-9]+)-g[0-9A-Fa-f]+(?:-dirty)?$') {
@@ -41,7 +51,9 @@ function Get-WcrtVersion {
     } elseif ($distance -gt 0) {
         $packageVersion += "-dev.$distance"
     }
-    $packageVersion += "+$gitHash"
+    if (-not $isExactReleaseTag) {
+        $packageVersion += "+$gitHash"
+    }
     if ($gitDescribe.EndsWith('-dirty')) {
         $packageVersion += '.dirty'
     }

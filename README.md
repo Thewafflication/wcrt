@@ -101,6 +101,12 @@ before the first release.
 The build requires PowerShell and an architecture-matched TinyCC installation.
 Debug builds also require `cv2pdb.exe` in `PATH`:
 
+Initialize the pinned Waughtal Software Process (WSP) submodule after cloning:
+
+```powershell
+git submodule update --init tools/wsp
+```
+
 ```powershell
 ./tools/build-wcrt.ps1 -Architecture x64 -Configuration Debug -TinyCc $env:TCC_HOME/tcc.exe
 ./tools/run-c89-tests.ps1 -Architecture x64 -TinyCc $env:TCC_HOME/tcc.exe
@@ -113,7 +119,8 @@ Release build and creates an architecture-specific WPM package whose base
 version is taken from the tag.
 As with the TinyCC package, WPM versions normalize a tag suffix, add a
 development commit distance when applicable, append the eight-character Git
-revision as build metadata, and add `.dirty` for modified working trees.
+revision as build metadata, and add `.dirty` for modified working trees. An
+exact tagged build uses the tag version without commit metadata.
 The DLL contains a Windows `VERSIONINFO` resource with this package version,
 its numeric file version, architecture, configuration, source revision,
 package name, license, and repository information.
@@ -122,9 +129,42 @@ Each build produces the shared `wcrt.dll`, its TinyCC import definition
 `wcrt.def`, the static TinyCC archive `libwcrt.a`, and a copy of the public
 headers. WPM packages install these beneath `bin`, `lib`, and `include`.
 After all Debug architecture jobs pass, a semantic-version tag builds signed
-Release artifacts for x86, x64, and ARM64. The workflow publishes the DLLs,
-static libraries, import definitions, WPM packages, public signing key, and
-WPM repository `index.json` to the corresponding GitHub Release.
+Release artifacts for x86, x64, and ARM64. The workflow publishes only the
+WPM packages, public signing key, and WPM repository `index.json` to the
+corresponding GitHub Release. The libraries and headers are inside each WPM
+package.
+
+## Installing with WPM
+
+Trust the WCRT release key once, add the GitHub Release as a WPM repository,
+refresh its index, and install the package for the native architecture:
+
+```powershell
+Invoke-WebRequest `
+  https://github.com/Thewafflication/wcrt/releases/latest/download/wpm-release.public `
+  -OutFile wpm-release.public
+wpm trust add wpm-release.public
+wpm repo add https://github.com/Thewafflication/wcrt/releases/latest/download
+wpm update
+wpm install wcrt
+```
+
+Select a different architecture explicitly when needed:
+
+```powershell
+wpm install wcrt --arch x86
+wpm install wcrt --arch x64
+wpm install wcrt --arch arm64
+```
+
+To install a prerelease version, enable prereleases only for WCRT before
+updating the repository:
+
+```powershell
+wpm config set prerelease true --package wcrt
+wpm update
+wpm install wcrt
+```
 
 ## Conformance
 

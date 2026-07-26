@@ -55,3 +55,4 @@ on Windows 2000. Calendar arithmetic uses the proleptic Gregorian calendar.
 Conversion results share one `struct tm`; text results share one 26-byte
 buffer. Daylight status is reported as indeterminate (`tm_isdst == -1`) while
 Windows still applies its timezone rules during UTC/local conversion.
+**Verification:** `tests/c89/run-tc-0015.ps1` builds and executes TC-0015.

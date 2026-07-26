@@ -97,4 +97,29 @@ $package = Get-ChildItem -LiteralPath $packageOutput -Filter "wcrt-$Architecture
 if (@($package).Count -ne 1) {
     throw "Expected one WCRT package for $Architecture $packageVersion."
 }
+
+# Keep the shared and static distributions atomic: a release package is not
+# valid unless consumers receive both libraries and the files needed to use
+# them.
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+$archive = [IO.Compression.ZipFile]::OpenRead($package.FullName)
+try {
+    $entries = @{}
+    foreach ($entry in $archive.Entries) {
+        $entries[$entry.FullName.Replace('\', '/')] = $entry.Length
+    }
+    $requiredEntries = @(
+        'bin/wcrt.dll'
+        'lib/libwcrt.a'
+        'lib/wcrt.def'
+        'include/stdio.h'
+    )
+    foreach ($entry in $requiredEntries) {
+        if (-not $entries.ContainsKey($entry) -or $entries[$entry] -eq 0) {
+            throw "WCRT package is missing required non-empty entry: $entry"
+        }
+    }
+} finally {
+    $archive.Dispose()
+}
 $package.FullName

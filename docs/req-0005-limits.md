@@ -42,3 +42,4 @@ and agreement with `sizeof`. The shared gates in `REQUIREMENTS.md` apply.
   wider multibyte encoding.
 - `tests/c89/limits.c` verifies storage widths, signedness, unsigned wrap
   maxima, signed range relationships, and value round trips.
+**Verification:** `tests/c89/run-tc-0005.ps1` builds and executes TC-0005.

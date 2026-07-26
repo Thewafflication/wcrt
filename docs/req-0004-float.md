@@ -47,3 +47,4 @@ storage formats. The shared gates in `REQUIREMENTS.md` apply.
   document their compiler model in the header.
 - `tests/c89/float.c` validates environmental minima, ordering, exponent signs,
   positive ranges, and stored epsilon behavior.
+**Verification:** `tests/c89/run-tc-0004.ps1` builds and executes TC-0004.

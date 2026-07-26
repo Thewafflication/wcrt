@@ -62,3 +62,4 @@ reverse-order callbacks. Environment access and command execution use
 These APIs are available on Windows 2000. The mandatory C locale treats each
 non-null byte as one multibyte character. Sorting uses an in-place stable
 insertion algorithm; its complexity is secondary to the C89 contract.
+**Verification:** `tests/c89/run-tc-0013.ps1` builds and executes TC-0013.
