@@ -1,0 +1,97 @@
+# WCRT Test Strategy
+
+**Content type:** Project test strategy
+
+**Status:** Implemented baseline with identified deferred controls
+
+**Source:** WSP test strategy at the pinned WSP baseline
+
+## Scope
+
+This strategy applies to verification used for WCRT requirement completion,
+continuous integration, release readiness, and C89 conformance claims. It
+covers project-owned source, generated libraries, supported architectures, and
+WPM packages. Developer-only exploratory checks are not release evidence.
+
+## Test Levels and Verification Methods
+
+| Level | Method | Controlled artifacts |
+| --- | --- | --- |
+| Source quality | Automated inspection and Doxygen analysis | `REQ-0016`, `TC-0016` |
+| API presence | C89 compile-time verification without host-header fallback | `TC-0001`–`TC-0015`, `tests/c89/presence/` |
+| Component behavior | Dynamic functional and boundary testing | `tests/c89/*.c`, PowerShell runners |
+| Library integration | DLL and static-library consumer builds and execution | `tools/test-built-libraries.ps1` |
+| Compatibility comparison | Equivalent test input against Microsoft UCRT | `tools/run-c89-comparison.ps1` |
+| Release verification | Release builds, consumer checks, package signing, and package verification | `.github/workflows/build.yml` |
+
+The authoritative procedure and pass criteria for each controlled test are in
+the corresponding `docs/tc-NNNN-*.tex` specification.
+
+## Supported Verification Matrix
+
+| Architecture | CI operating environment | Configuration | Toolchain |
+| --- | --- | --- | --- |
+| x86 | `windows-2025` | Debug and tagged Release | TinyCC WPM package |
+| x64 | `windows-2025` | Debug and tagged Release | TinyCC WPM package |
+| ARM64 | `windows-11-arm` | Debug and tagged Release | TinyCC WPM package |
+
+TC-0016 is architecture independent and runs once on `windows-2025`. The
+comparison workflow uses the locally available Microsoft compiler and UCRT and
+is supporting evidence rather than the WCRT release gate.
+
+## Environments and Preconditions
+
+CI provisions TinyCC from its signed WPM repository and obtains the debug-
+symbol converter from its published GitHub release. Test runners receive the
+target architecture and compiler path explicitly. Outputs are isolated below
+`output/` and build intermediates below `build/` or `tmp/`; runners shall not
+reuse prior-run results as current evidence.
+
+## Identifiers and Locations
+
+- Requirements use `REQ-NNNN` and reside in `docs/req-NNNN-*.md`.
+- Test cases use `TC-NNNN` and reside in `docs/tc-NNNN-*.tex`.
+- Automated implementations reside in `tests/c89/run-tc-NNNN.ps1`.
+- The controlled inventory is `tests/c89/manifest.md`.
+- Machine-readable results reside below `output/test-results/`.
+- Generated reports reside below `output/pdf/`.
+
+## CI and Release Gates
+
+Every change runs pinned WSP tool self-tests, traceability validation,
+TC-0016, architecture-specific builds, consumer verification, and the C89 test
+suite. A required non-Pass result fails its job. Tagged releases additionally
+build Release artifacts, create and verify signed WPM packages, generate
+SHA-256 checksums, and publish only after every architecture succeeds.
+
+## Evidence and Reporting
+
+Architecture jobs retain JSON results, TeX test tables, binaries, symbols,
+headers, and build artifacts in GitHub Actions. Job summaries expose the final
+status of each test case. Project report tools can combine controlled
+specifications and execution results into the C89 report.
+
+Failure output from an execution must remain available in its original CI run.
+A later passing run is separate evidence and does not reclassify the failure.
+
+## Retention
+
+CI evidence is retained for the repository-configured GitHub Actions artifact
+and log retention period. Published release packages, checksums, and release
+metadata are retained with the GitHub Release. A durable policy binding all
+release test evidence to a defined retention period remains deferred in the
+WSP adoption record.
+
+## Known Exclusions
+
+- Manual tests are not currently used as requirement-verification evidence.
+- PAdES documentation signing is not selected.
+- Full Authenticode and Defender release evidence remains deferred.
+- Microsoft UCRT comparison results do not substitute for WCRT results.
+
+## Responsibilities
+
+WCRT maintainers own requirement and test approval, CI configuration, release
+decisions, failure disposition, and updates to this strategy. Pull-request
+reviewers verify that changed behavior has corresponding controlled
+requirements, specifications, implementations, and evidence.

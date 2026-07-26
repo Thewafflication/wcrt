@@ -1,15 +1,20 @@
 # REQ-0007 — `<math.h>`
 
-**Index:** [C89 Requirements](REQUIREMENTS.md)  
-**Draft annotation:** §4.5 Mathematics
+**Content type:** Project requirement
 
-## Required files
+**Status:** Implemented
+
+**Source:** §4.5 Mathematics
+
+## Scope
+
+### Required files
 
 - `include/math.h` — declarations and `HUGE_VAL`.
 - `src/math.c` or `src/math/` — mathematical implementation.
 - `tests/c89/math.c` — accuracy, boundary, domain, and range tests.
 
-## Functions
+### Functions
 
 | Draft clause | Required functions |
 | --- | --- |
@@ -19,7 +24,7 @@
 | §4.5.5 Power | `pow`, `sqrt` |
 | §4.5.6 Nearest integer, absolute value, remainder | `ceil`, `fabs`, `floor`, `fmod` |
 
-## Requirements
+## Requirement
 
 - The header shall define `HUGE_VAL` with the type and use required by §4.5.1.
 - Each function shall implement its specified principal result, special cases,
@@ -32,14 +37,34 @@
   zero behavior, and non-C89 NaN/infinity extensions shall be documented.
 - Implementation shall not delegate claimed functions to a host CRT.
 
-## Acceptance
+## Rationale
+
+WCRT must provide its own `<math.h>` contract to supply C89-conforming behavior without depending on a host C runtime.
+
+## Verification
+
+**Method:** Automated test and inspection
+
+**References:** `TC-0007`
 
 Tests shall cover ordinary values, identities, quadrant behavior, boundaries,
 output pointers, domain/range errors, rounding-sensitive values, and supported
 special representations. Accuracy tolerances shall be justified per function.
 The shared gates in `REQUIREMENTS.md` apply.
 
-## Implementation record
+## Relationships
+
+- **Derived from:** §4.5 Mathematics
+- **Depends on:** Shared build, ABI, and quality gates in `docs/REQUIREMENTS.md`
+- **Conflicts with:** None known
+
+## Tailoring
+
+WCRT groups the related obligations for this C89 conformance unit under one
+stable requirement identifier. Each observable obligation remains explicit in
+this record and is verified collectively by `TC-0007`.
+
+## Implementation Record
 
 - `include/math.h` declares all 22 C89 functions and a finite binary64
   `HUGE_VAL`.

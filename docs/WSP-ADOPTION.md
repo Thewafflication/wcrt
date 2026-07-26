@@ -45,7 +45,7 @@
 | WSP requirement | Disposition | Project artifact | Rationale or notes |
 | --- | --- | --- | --- |
 | `WSP-REQM-0001` | Applicable | `docs/REQUIREMENTS.md`, `docs/req-*.md` | Stable project requirement identifiers are used. |
-| `WSP-REQM-0002` | Applicable | `docs/req-*.md` | Requirements include normative behavior and verification material. |
+| `WSP-REQM-0002` | Tailored | `docs/req-*.md` | Each stable C89 conformance-unit record enumerates multiple related observable obligations. |
 | `WSP-REQM-0003` | Applicable | `docs/req-*.md` | Requirement documents record scope, dependencies, and rationale. |
 | `WSP-REQM-0004` | Applicable | `docs/tc-*.tex`, `tests/c89/manifest.md` | Verification is planned by requirement and test case. |
 | `WSP-REQM-0005` | Applicable | `tests/verify-traceability.ps1` | Traceability is checked automatically. |
@@ -106,7 +106,7 @@
 | `WSP-TEST-0012` | Applicable | `.github/workflows/build.yml` | Supported configurations are continuously tested. |
 | `WSP-TEST-0013` | Applicable | `.github/workflows/build.yml` | Release jobs cover x86, x64, and ARM64 artifacts. |
 | `WSP-TEST-0014` | Deferred | Future evidence-retention policy | CI and release artifacts exist, but retention is not formally defined. |
-| `WSP-TEST-0015` | Deferred | Future test-strategy record | Technique selection rationale is not consistently documented. |
+| `WSP-TEST-0015` | Applicable | `docs/tc-*.tex`, `docs/TEST-STRATEGY.md` | Every controlled test identifies its selected technique or explains non-applicability. |
 
 ### Security and DFS
 
@@ -191,6 +191,21 @@
 | `WSP-TOOL-0008` | Applicable | `tools/wsp/tools/tests/run-tests.ps1` | Pinned common-tool self-tests run in CI. |
 
 ## Tailoring Decisions
+
+### WSP-REQM-0002 — Requirement atomicity
+
+- **Disposition:** Tailored
+- **Rationale:** WCRT's established identifiers represent complete public C89
+  conformance units, normally one standard header, with their observable
+  obligations enumerated in a single controlled record.
+- **Impact:** A requirement may map to multiple behaviors and checks rather
+  than one normative sentence.
+- **Compensating control:** Every obligation is explicit in the singular
+  Requirement section, each record traces to a controlled test case, and the
+  runners exercise the complete conformance unit.
+- **Owner:** WCRT maintainer
+- **Completion condition:** N/A
+- **Approval:** Review and merge of the `wsp_inclusion` branch
 
 ### Submodule location — WSP repository convention
 

@@ -20,8 +20,14 @@
 | REQ-0014 | [TC-0014](../../docs/tc-0014-string.tex) | `presence/string.c`, `string.c` | 22 functions; overlap, bounds, searches, C collation, tokens, errors |
 | REQ-0015 | [TC-0015](../../docs/tc-0015-time.tex) | `presence/time.c`, `time.c` | 9 functions; epoch, local round-trip, normalization, formatting, clocks |
 
-These tests establish declaration presence only. Behavioral, link, ABI, error,
-boundary, and platform tests remain future work.
+The presence sources establish declaration independence from host headers. The
+additional sources and controlled PowerShell runners provide the behavioral,
+link, ABI, error, boundary, and platform coverage stated in each test case.
+
+Test-design techniques and objective pass criteria are recorded in the linked
+WSP-format test-case specifications. The project-level environment, matrix,
+evidence, and retention rules are defined in
+[`docs/TEST-STRATEGY.md`](../../docs/TEST-STRATEGY.md).
 
 ## Source quality suite
 

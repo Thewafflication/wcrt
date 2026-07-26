@@ -1,15 +1,20 @@
 # REQ-0014 — `<string.h>`
 
-**Index:** [C89 Requirements](REQUIREMENTS.md)  
-**Draft annotation:** §4.11 String handling
+**Content type:** Project requirement
 
-## Required files
+**Status:** Implemented
+
+**Source:** §4.11 String handling
+
+## Scope
+
+### Required files
 
 - `include/string.h` — public declarations, `size_t`, and `NULL`.
 - `src/string.c` or `src/string/` — byte and string operations.
 - `tests/c89/string.c` — exhaustive boundary and overlap tests.
 
-## Functions
+### Functions
 
 | Draft clause | Required functions |
 | --- | --- |
@@ -19,7 +24,7 @@
 | §4.11.5 Search | `memchr`, `strchr`, `strcspn`, `strpbrk`, `strrchr`, `strspn`, `strstr`, `strtok` |
 | §4.11.6 Miscellaneous | `memset`, `strerror`, `strlen` |
 
-## Requirements
+## Requirement
 
 - Byte comparisons shall use values interpreted as `unsigned char`.
 - `memmove` shall handle every overlap direction; functions whose contracts
@@ -35,18 +40,37 @@
 - `strerror` shall provide a valid message for supported error values and the
   draft-permitted result for unknown values.
 
-## Acceptance
+## Rationale
+
+WCRT must provide its own `<string.h>` contract to supply C89-conforming behavior without depending on a host C runtime.
+
+## Verification
+
+**Method:** Automated test and inspection
+
+**References:** `TC-0014`
 
 Tests shall cover zero and one lengths, alignment variations, overlap, embedded
 zero bytes, high-bit bytes, empty strings, terminators, padding, locale
 collation, `strtok` sequences, side effects, and large-size boundaries feasible
 on each target. Shared gates apply.
 
-## C89 milestone design
+## Relationships
+
+- **Derived from:** §4.11 String handling
+- **Depends on:** Shared build, ABI, and quality gates in `docs/REQUIREMENTS.md`
+- **Conflicts with:** None known
+
+## Tailoring
+
+WCRT groups the related obligations for this C89 conformance unit under one
+stable requirement identifier. Each observable obligation remains explicit in
+this record and is verified collectively by `TC-0014`.
+
+## Implementation Record
 
 The implementation is self-contained and uses unsigned bytes for memory and
 lexicographic comparisons. `strcoll` and `strxfrm` implement the mandatory C
 locale as bytewise collation. `strtok` uses one process-wide continuation
 pointer and is intentionally non-reentrant. `strerror` provides stable static
 messages for `EDOM`, `ERANGE`, and unknown values.
-**Verification:** `tests/c89/run-tc-0014.ps1` builds and executes TC-0014.

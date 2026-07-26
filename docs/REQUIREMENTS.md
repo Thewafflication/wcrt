@@ -9,6 +9,12 @@ annotate Clause 4 of the late ANSI X3J11 C89 draft where applicable:
 Any difference from ANSI X3.159-1989 or ISO/IEC 9899:1990 shall be resolved in
 `docs/c89-deviations.md` before a conformance claim is made.
 
+Requirement records follow the pinned WSP requirement format. WCRT tailors
+WSP's atomic-record convention by treating each public C89 conformance unit as
+one stable requirement whose individually verifiable obligations are listed in
+its singular **Requirement** section. See the [WSP adoption record](WSP-ADOPTION.md)
+and [project test strategy](TEST-STRATEGY.md).
+
 | Requirement | Test case | Header | Draft clause | Scope |
 | --- | --- | --- | --- | --- |
 | [REQ-0001](req-0001-assert.md) | [TC-0001](tc-0001-assert.tex) | `<assert.h>` | §4.2 | Diagnostics |

@@ -8,6 +8,7 @@
 \def\TCFeatureRef{\texttt{include/ctype.h}; \texttt{src/ctype.c};\par
 \texttt{tests/c89/presence/ctype.c}; \texttt{tests/c89/ctype.c};\par
 \texttt{tests/c89/run-tc-0002.ps1}.}
+\def\TCTestTechnique{Exhaustive input-domain testing over \texttt{EOF} and every unsigned-character value, with equivalence partitioning by character class.}
 \def\TCPreconditions{TinyCC is available in \texttt{PATH}; WCRT public headers exist under \texttt{include}.}
 \def\TCEnvironment{C89 presence compilation plus behavioral execution against WCRT with TinyCC and against Microsoft UCRT with MSVC.}
 \def\TCAssumptions{WCRT currently supports only the required \texttt{C} locale; function forms guarantee single evaluation.}

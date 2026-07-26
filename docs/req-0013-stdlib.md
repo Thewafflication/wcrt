@@ -1,9 +1,14 @@
 # REQ-0013 — `<stdlib.h>`
 
-**Index:** [C89 Requirements](REQUIREMENTS.md)  
-**Draft annotation:** §4.10 General utilities
+**Content type:** Project requirement
 
-## Required files
+**Status:** Implemented
+
+**Source:** §4.10 General utilities
+
+## Scope
+
+### Required files
 
 - `include/stdlib.h` — public types, macros, and declarations.
 - `src/stdlib.c` or `src/stdlib/` — conversion and utility families.
@@ -12,7 +17,7 @@
 - `src/internal/mbstate.h` — C89 multibyte conversion state.
 - `tests/c89/stdlib.c` plus focused allocation/conversion/process tests.
 
-## Functions
+### Functions
 
 | Draft clause | Required functions |
 | --- | --- |
@@ -25,12 +30,12 @@
 | §4.10.7 Multibyte character | `mblen`, `mbtowc`, `wctomb` |
 | §4.10.8 Multibyte string | `mbstowcs`, `wcstombs` |
 
-## Other public surface
+### Other public surface
 
 Types `div_t`, `ldiv_t`, `size_t`, and `wchar_t`; macros `NULL`,
 `EXIT_FAILURE`, `EXIT_SUCCESS`, `RAND_MAX`, and `MB_CUR_MAX`.
 
-## Requirements
+## Requirement
 
 - Numeric conversion shall implement subject sequence, whitespace/sign/base,
   end pointer, overflow, return value, and `errno` requirements.
@@ -46,14 +51,34 @@ Types `div_t`, `ldiv_t`, `size_t`, and `wchar_t`; macros `NULL`,
 - Multibyte facilities shall support at least the `C` locale and share state
   only as the draft permits.
 
-## Acceptance
+## Rationale
+
+WCRT must provide its own `<stdlib.h>` contract to supply C89-conforming behavior without depending on a host C runtime.
+
+## Verification
+
+**Method:** Automated test and inspection
+
+**References:** `TC-0013`
 
 Tests shall cover each function, conversion boundaries, allocation failure and
 alignment, termination in child processes, environment lookup, sort/search
 edge cases, integer overflow boundaries allowed by the contract, repeatable
 random sequences, and multibyte state. Shared gates apply.
 
-## C89 milestone design
+## Relationships
+
+- **Derived from:** §4.10 General utilities
+- **Depends on:** Shared build, ABI, and quality gates in `docs/REQUIREMENTS.md`
+- **Conflicts with:** None known
+
+## Tailoring
+
+WCRT groups the related obligations for this C89 conformance unit under one
+stable requirement identifier. Each observable obligation remains explicit in
+this record and is verified collectively by `TC-0013`.
+
+## Implementation Record
 
 Allocation uses the Windows process heap and treats zero-size requests as a
 one-byte allocation that remains safe to free. Normal termination supports 32
@@ -62,4 +87,3 @@ reverse-order callbacks. Environment access and command execution use
 These APIs are available on Windows 2000. The mandatory C locale treats each
 non-null byte as one multibyte character. Sorting uses an in-place stable
 insertion algorithm; its complexity is secondary to the C89 contract.
-**Verification:** `tests/c89/run-tc-0013.ps1` builds and executes TC-0013.

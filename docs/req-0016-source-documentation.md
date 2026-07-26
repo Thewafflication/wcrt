@@ -1,7 +1,10 @@
 # REQ-0016 — Source documentation and line length
 
-**Index:** [C89 Requirements](REQUIREMENTS.md)  
-**Draft annotation:** Project quality requirement; not specified by C89
+**Content type:** Project requirement
+
+**Status:** Implemented
+
+**Source:** Project quality requirement; not specified by C89
 
 ## Scope
 
@@ -9,12 +12,12 @@ This requirement applies to every project-owned C source file and header,
 including implementation, platform, and test code. Generated files and
 third-party code are excluded.
 
-## Required files
+### Required files
 
 - `Doxyfile` — Doxygen configuration for project-owned C sources and headers.
 - `tests/c89/run-tc-0016.ps1` — TC-0016 test runner.
 
-## Requirements
+## Requirement
 
 - Every project-owned `.c` and `.h` file shall contain a Doxygen-style file
   comment using `/** ... */` or `/*! ... */` syntax and an `@file` command.
@@ -33,13 +36,33 @@ third-party code are excluded.
 - Source-quality checks shall report the file and line number for each
   violation and shall return a nonzero exit status when any violation exists.
 
-## Acceptance
+## Rationale
+
+Consistent API documentation and bounded line length make project-owned source reviewable, maintainable, and suitable for automated quality enforcement.
+
+## Verification
+
+**Method:** Automated test and inspection
+
+**References:** `TC-0016`
 
 TC-0016 shall scan every in-scope `.c` and `.h` file, reject lines longer than
 80 characters, run Doxygen with warnings treated as errors, and fail when a
 required documented entity is missing or incompletely documented.
 
-## Implementation record
+## Relationships
+
+- **Derived from:** Project quality requirement; not specified by C89
+- **Depends on:** Shared build, ABI, and quality gates in `docs/REQUIREMENTS.md`
+- **Conflicts with:** None known
+
+## Tailoring
+
+WCRT groups the related obligations for this C89 conformance unit under one
+stable requirement identifier. Each observable obligation remains explicit in
+this record and is verified collectively by `TC-0016`.
+
+## Implementation Record
 
 - `Doxyfile` enables strict C extraction, static-entity extraction, complete
   parameter checks, and warnings-as-errors.

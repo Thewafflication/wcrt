@@ -1,16 +1,21 @@
 # REQ-0009 — `<signal.h>`
 
-**Index:** [C89 Requirements](REQUIREMENTS.md)  
-**Draft annotation:** §4.7 Signals
+**Content type:** Project requirement
 
-## Required files
+**Status:** Implemented
+
+**Source:** §4.7 Signals
+
+## Scope
+
+### Required files
 
 - `include/signal.h` — public types, macros, and declarations.
 - `src/signal.c` — handler registration and signal generation.
 - `src/platform/windows/signal.c` — Windows exception/control-event mapping.
 - `tests/c89/signal.c` — registration, delivery, reset, and error tests.
 
-## Public surface
+### Public surface
 
 | Draft clause | Functions |
 | --- | --- |
@@ -20,7 +25,7 @@
 The header shall define `sig_atomic_t`, `SIG_DFL`, `SIG_ERR`, `SIG_IGN`, and
 `SIGABRT`, `SIGFPE`, `SIGILL`, `SIGINT`, `SIGSEGV`, and `SIGTERM`.
 
-## Requirements
+## Requirement
 
 - `signal` shall install permitted default, ignore, or user-handler actions and
   return the previous action or `SIG_ERR` on failure.
@@ -32,14 +37,34 @@ The header shall define `sig_atomic_t`, `SIG_DFL`, `SIG_ERR`, `SIG_IGN`, and
   events can arrive asynchronously, and which operations are safe in handlers.
 - Unsupported signal numbers shall fail without corrupting handler state.
 
-## Acceptance
+## Rationale
+
+WCRT must provide its own `<signal.h>` contract to supply C89-conforming behavior without depending on a host C runtime.
+
+## Verification
+
+**Method:** Automated test and inspection
+
+**References:** `TC-0009`
 
 Tests shall cover every required signal where safely inducible, handler return,
 ignore/default behavior, previous-handler returns, `raise`, and invalid signal
 numbers. Destructive default actions shall run in child processes. Shared gates
 in `REQUIREMENTS.md` apply.
 
-## C89 milestone design
+## Relationships
+
+- **Derived from:** §4.7 Signals
+- **Depends on:** Shared build, ABI, and quality gates in `docs/REQUIREMENTS.md`
+- **Conflicts with:** None known
+
+## Tailoring
+
+WCRT groups the related obligations for this C89 conformance unit under one
+stable requirement identifier. Each observable obligation remains explicit in
+this record and is verified collectively by `TC-0009`.
+
+## Implementation Record
 
 WCRT assigns the Microsoft-compatible values 2, 4, 8, 11, 15, and 22 to
 `SIGINT`, `SIGILL`, `SIGFPE`, `SIGSEGV`, `SIGTERM`, and `SIGABRT`. A call to
@@ -52,4 +77,3 @@ events or structured exceptions into C signals, so no signal arrives
 asynchronously. Only assignment to an object declared `volatile sig_atomic_t`
 is promised to be handler-safe. A default action terminates the process with
 `ExitProcess(128 + signal_number)`, an API present on Windows 2000 and later.
-**Verification:** `tests/c89/run-tc-0009.ps1` builds and executes TC-0009.

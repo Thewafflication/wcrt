@@ -1,21 +1,26 @@
 # REQ-0001 — `<assert.h>`
 
-**Index:** [C89 Requirements](REQUIREMENTS.md)  
-**Draft annotation:** §4.2 Diagnostics; §4.2.1.1 `assert`
+**Content type:** Project requirement
 
-## Required files
+**Status:** Implemented
+
+**Source:** §4.2 Diagnostics; §4.2.1.1 `assert`
+
+## Scope
+
+### Required files
 
 - `include/assert.h` — public macro.
 - `src/assert.c` — assertion reporting and abnormal termination helper.
 - `tests/c89/assert.c` — enabled, disabled, side-effect, and diagnostic tests.
 
-## Public surface
+### Public surface
 
 - `assert(expression)` shall be a macro.
 - `NDEBUG` controls whether `assert` is active; it is supplied by the program,
   not defined unconditionally by WCRT.
 
-## Requirements
+## Requirement
 
 - With `NDEBUG` undefined, `assert` shall evaluate its expression exactly once.
 - A nonzero expression shall have no further effect.
@@ -27,13 +32,33 @@
   an include guard shall not freeze the macro definition.
 - The implementation shall use WCRT `stderr` and `abort`, not a host CRT.
 
-## Acceptance
+## Rationale
+
+WCRT must provide its own `<assert.h>` contract to supply C89-conforming behavior without depending on a host C runtime.
+
+## Verification
+
+**Method:** Automated test and inspection
+
+**References:** `TC-0001`
 
 The shared gates in `REQUIREMENTS.md` apply. Tests shall additionally validate both
 `NDEBUG` states in separate translation units and capture the failure exit and
 diagnostic fields.
 
-## Implementation record
+## Relationships
+
+- **Derived from:** §4.2 Diagnostics; §4.2.1.1 `assert`
+- **Depends on:** Shared build, ABI, and quality gates in `docs/REQUIREMENTS.md`
+- **Conflicts with:** None known
+
+## Tailoring
+
+WCRT groups the related obligations for this C89 conformance unit under one
+stable requirement identifier. Each observable obligation remains explicit in
+this record and is verified collectively by `TC-0001`.
+
+## Implementation Record
 
 - `include/assert.h` implements the repeatable C89 macro definition.
 - `src/assert.c` reports through `stderr`, flushes it, and calls `abort`.

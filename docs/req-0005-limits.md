@@ -1,22 +1,27 @@
 # REQ-0005 — `<limits.h>`
 
-**Index:** [C89 Requirements](REQUIREMENTS.md)  
-**Draft annotation:** §4.1.4 Limits `<float.h>` and `<limits.h>`
+**Content type:** Project requirement
 
-## Required files
+**Status:** Implemented
+
+**Source:** §4.1.4 Limits `<float.h>` and `<limits.h>`
+
+## Scope
+
+### Required files
 
 - `include/limits.h` — character and integer limits.
 - `tests/c89/limits.c` — compile-time and representation checks.
 
 No runtime source file or public function is required by this header.
 
-## Required macros
+### Required macros
 
 `CHAR_BIT`, `SCHAR_MIN`, `SCHAR_MAX`, `UCHAR_MAX`, `CHAR_MIN`, `CHAR_MAX`,
 `MB_LEN_MAX`, `SHRT_MIN`, `SHRT_MAX`, `USHRT_MAX`, `INT_MIN`, `INT_MAX`,
 `UINT_MAX`, `LONG_MIN`, `LONG_MAX`, and `ULONG_MAX`.
 
-## Requirements
+## Requirement
 
 - Values shall match the actual WCRT ABI and satisfy §2.2.4.2 minimum ranges.
 - `CHAR_MIN` and `CHAR_MAX` shall reflect TinyCC's plain-`char` signedness for
@@ -27,13 +32,33 @@ No runtime source file or public function is required by this header.
 - `MB_LEN_MAX` shall be no smaller than any supported locale's maximum
   multibyte character length.
 
-## Acceptance
+## Rationale
+
+WCRT must provide its own `<limits.h>` contract to supply C89-conforming behavior without depending on a host C runtime.
+
+## Verification
+
+**Method:** Automated test and inspection
+
+**References:** `TC-0005`
 
 Tests shall verify macro presence, constant-expression usability, signedness,
 range ordering, arithmetic relationships without overflowing test expressions,
 and agreement with `sizeof`. The shared gates in `REQUIREMENTS.md` apply.
 
-## Implementation record
+## Relationships
+
+- **Derived from:** §4.1.4 Limits `<float.h>` and `<limits.h>`
+- **Depends on:** Shared build, ABI, and quality gates in `docs/REQUIREMENTS.md`
+- **Conflicts with:** None known
+
+## Tailoring
+
+WCRT groups the related obligations for this C89 conformance unit under one
+stable requirement identifier. Each observable obligation remains explicit in
+this record and is verified collectively by `TC-0005`.
+
+## Implementation Record
 
 - `include/limits.h` defines the Windows TinyCC ABI: 8-bit signed plain char,
   16-bit short, 32-bit int, and 32-bit long.
@@ -42,4 +67,3 @@ and agreement with `sizeof`. The shared gates in `REQUIREMENTS.md` apply.
   wider multibyte encoding.
 - `tests/c89/limits.c` verifies storage widths, signedness, unsigned wrap
   maxima, signed range relationships, and value round trips.
-**Verification:** `tests/c89/run-tc-0005.ps1` builds and executes TC-0005.

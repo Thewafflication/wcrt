@@ -1,22 +1,27 @@
 # REQ-0002 — `<ctype.h>`
 
-**Index:** [C89 Requirements](REQUIREMENTS.md)  
-**Draft annotation:** §4.3 Character handling
+**Content type:** Project requirement
 
-## Required files
+**Status:** Implemented
+
+**Source:** §4.3 Character handling
+
+## Scope
+
+### Required files
 
 - `include/ctype.h` — public declarations or permitted macro forms.
 - `src/ctype.c` — classification tables/logic and case mapping.
 - `tests/c89/ctype.c` — full-domain and locale tests.
 
-## Functions
+### Functions
 
 | Draft clause | Required functions |
 | --- | --- |
 | §4.3.1 Character testing | `isalnum`, `isalpha`, `iscntrl`, `isdigit`, `isgraph`, `islower`, `isprint`, `ispunct`, `isspace`, `isupper`, `isxdigit` |
 | §4.3.2 Case mapping | `tolower`, `toupper` |
 
-## Requirements
+## Requirement
 
 - Every function shall accept `EOF` or any value representable as `unsigned
   char`; other argument values retain the draft's undefined behavior.
@@ -30,13 +35,33 @@
 - Macro forms may evaluate their arguments only once and addressable function
   forms shall be supplied where §4.1.6 requires them.
 
-## Acceptance
+## Rationale
+
+WCRT must provide its own `<ctype.h>` contract to supply C89-conforming behavior without depending on a host C runtime.
+
+## Verification
+
+**Method:** Automated test and inspection
+
+**References:** `TC-0002`
 
 Tests shall cover `EOF`, every value from 0 through `UCHAR_MAX`, class
 relationships, case round trips, argument side effects for macros, and all
 supported locales. The shared gates in `REQUIREMENTS.md` apply.
 
-## Implementation record
+## Relationships
+
+- **Derived from:** §4.3 Character handling
+- **Depends on:** Shared build, ABI, and quality gates in `docs/REQUIREMENTS.md`
+- **Conflicts with:** None known
+
+## Tailoring
+
+WCRT groups the related obligations for this C89 conformance unit under one
+stable requirement identifier. Each observable obligation remains explicit in
+this record and is verified collectively by `TC-0002`.
+
+## Implementation Record
 
 - `include/ctype.h` declares all 13 addressable C89 functions. Function forms
   avoid macro multiple-evaluation hazards.

@@ -1,9 +1,14 @@
 # REQ-0008 — `<setjmp.h>`
 
-**Index:** [C89 Requirements](REQUIREMENTS.md)  
-**Draft annotation:** §4.6 Non-local jumps
+**Content type:** Project requirement
 
-## Required files
+**Status:** Implemented
+
+**Source:** §4.6 Non-local jumps
+
+## Scope
+
+### Required files
 
 - `include/setjmp.h` — `jmp_buf` and public interfaces.
 - `src/setjmp.c` — portable runtime half where needed.
@@ -11,7 +16,7 @@
   insufficient.
 - `tests/c89/setjmp.c` — control-flow, values, nesting, and register tests.
 
-## Public surface
+### Public surface
 
 | Draft clause | Facility |
 | --- | --- |
@@ -20,7 +25,7 @@
 
 The header shall define `jmp_buf`.
 
-## Requirements
+## Requirement
 
 - The saved environment shall match each supported WCRT ABI, including stack
   state, instruction location, and all nonvolatile registers.
@@ -34,13 +39,33 @@ The header shall define `jmp_buf`.
 - Invalid lifetime, cross-thread, and unwound-context uses shall be documented
   as undefined and shall not be used by acceptance tests.
 
-## Acceptance
+## Rationale
+
+WCRT must provide its own `<setjmp.h>` contract to supply C89-conforming behavior without depending on a host C runtime.
+
+## Verification
+
+**Method:** Automated test and inspection
+
+**References:** `TC-0008`
 
 Tests shall cover zero/nonzero values, nested calls, repeated jumps where valid,
 callee-saved integer and floating state, stack restoration, and `volatile`
 objects at optimization levels supported by TinyCC. Shared gates apply.
 
-## Implementation record
+## Relationships
+
+- **Derived from:** §4.6 Non-local jumps
+- **Depends on:** Shared build, ABI, and quality gates in `docs/REQUIREMENTS.md`
+- **Conflicts with:** None known
+
+## Tailoring
+
+WCRT groups the related obligations for this C89 conformance unit under one
+stable requirement identifier. Each observable obligation remains explicit in
+this record and is verified collectively by `TC-0008`.
+
+## Implementation Record
 
 - `include/setjmp.h` defines WCRT-owned x86, x64, and ARM64 context layouts and
   maps

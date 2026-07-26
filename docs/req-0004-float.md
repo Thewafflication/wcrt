@@ -1,16 +1,21 @@
 # REQ-0004 — `<float.h>`
 
-**Index:** [C89 Requirements](REQUIREMENTS.md)  
-**Draft annotation:** §4.1.4 Limits `<float.h>` and `<limits.h>`
+**Content type:** Project requirement
 
-## Required files
+**Status:** Implemented
+
+**Source:** §4.1.4 Limits `<float.h>` and `<limits.h>`
+
+## Scope
+
+### Required files
 
 - `include/float.h` — floating-point model and limits.
 - `tests/c89/float.c` — compile-time values and runtime representation checks.
 
 No runtime source file or public function is required by this header.
 
-## Required macros
+### Required macros
 
 - Model: `FLT_RADIX`, `FLT_ROUNDS`.
 - Precision: `FLT_DIG`, `DBL_DIG`, `LDBL_DIG`, `FLT_MANT_DIG`,
@@ -21,7 +26,7 @@ No runtime source file or public function is required by this header.
 - Values: `FLT_MAX`, `DBL_MAX`, `LDBL_MAX`, `FLT_EPSILON`, `DBL_EPSILON`,
   `LDBL_EPSILON`, `FLT_MIN`, `DBL_MIN`, `LDBL_MIN`.
 
-## Requirements
+## Requirement
 
 - Values shall describe the actual TinyCC/WCRT ABI, including any x86 x87
   extended-precision behavior documented by WCRT.
@@ -31,13 +36,33 @@ No runtime source file or public function is required by this header.
   inability to track runtime rounding changes shall be documented.
 - Inclusion shall not change the floating-point environment.
 
-## Acceptance
+## Rationale
+
+WCRT must provide its own `<float.h>` contract to supply C89-conforming behavior without depending on a host C runtime.
+
+## Verification
+
+**Method:** Automated test and inspection
+
+**References:** `TC-0004`
 
 Tests shall verify macro presence, types where observable, ordering constraints,
 radix/exponent relationships, epsilon behavior, and consistency with actual
 storage formats. The shared gates in `REQUIREMENTS.md` apply.
 
-## Implementation record
+## Relationships
+
+- **Derived from:** §4.1.4 Limits `<float.h>` and `<limits.h>`
+- **Depends on:** Shared build, ABI, and quality gates in `docs/REQUIREMENTS.md`
+- **Conflicts with:** None known
+
+## Tailoring
+
+WCRT groups the related obligations for this C89 conformance unit under one
+stable requirement identifier. Each observable obligation remains explicit in
+this record and is verified collectively by `TC-0004`.
+
+## Implementation Record
 
 - `include/float.h` defines the complete C89 model for TinyCC targets.
 - On x64 Windows, runtime tests establish binary32 `float`, binary64 `double`,
@@ -47,4 +72,3 @@ storage formats. The shared gates in `REQUIREMENTS.md` apply.
   document their compiler model in the header.
 - `tests/c89/float.c` validates environmental minima, ordering, exponent signs,
   positive ranges, and stored epsilon behavior.
-**Verification:** `tests/c89/run-tc-0004.ps1` builds and executes TC-0004.

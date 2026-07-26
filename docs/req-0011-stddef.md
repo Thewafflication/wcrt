@@ -1,21 +1,26 @@
 # REQ-0011 — `<stddef.h>`
 
-**Index:** [C89 Requirements](REQUIREMENTS.md)  
-**Draft annotation:** §4.1.5 Common definitions
+**Content type:** Project requirement
 
-## Required files
+**Status:** Implemented
+
+**Source:** §4.1.5 Common definitions
+
+## Scope
+
+### Required files
 
 - `include/stddef.h` — common types and macros.
 - `tests/c89/stddef.c` — type, null pointer, and offset tests.
 
-## Public surface
+### Public surface
 
 - Types: `ptrdiff_t`, `size_t`, `wchar_t`.
 - Macros: `NULL`, `offsetof(type, member)`.
 
 No public function is introduced by this header.
 
-## Requirements
+## Requirement
 
 - Each type shall match the actual WCRT/TinyCC ABI and have the signedness and
   range required for its purpose.
@@ -26,16 +31,35 @@ No public function is introduced by this header.
   not create conflicting typedefs or macro definitions.
 - Any compiler builtin used by `offsetof` shall be capability-tested.
 
-## Acceptance
+## Rationale
+
+WCRT must provide its own `<stddef.h>` contract to supply C89-conforming behavior without depending on a host C runtime.
+
+## Verification
+
+**Method:** Automated test and inspection
+
+**References:** `TC-0011`
 
 Tests shall cover type sizes/signedness, pointer subtraction, `sizeof` result
 assignment, wide-character storage, `NULL` conversions, nested structures,
 arrays, padding, and `offsetof` constant-expression use. Shared gates apply.
 
-## C89 milestone design
+## Relationships
+
+- **Derived from:** §4.1.5 Common definitions
+- **Depends on:** Shared build, ABI, and quality gates in `docs/REQUIREMENTS.md`
+- **Conflicts with:** None known
+
+## Tailoring
+
+WCRT groups the related obligations for this C89 conformance unit under one
+stable requirement identifier. Each observable obligation remains explicit in
+this record and is verified collectively by `TC-0011`.
+
+## Implementation Record
 
 The public types use TinyCC's `__SIZE_TYPE__`, `__PTRDIFF_TYPE__`, and
 `__WCHAR_TYPE__` ABI definitions. `NULL` is the integer constant zero, making
 it usable for both object and function pointers, and `offsetof` uses
 TinyCC's constant-expression `__builtin_offsetof` facility.
-**Verification:** `tests/c89/run-tc-0011.ps1` builds and executes TC-0011.
