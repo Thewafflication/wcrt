@@ -1,0 +1,48 @@
+% TC-0017 controlled test-case fragment.
+\def\TCID{TC-0017}
+\def\TCTitle{Optional console process startup}
+\def\TCPurpose{Verify that WCRT supplies an explicitly selected console PE
+entry point without changing ordinary static-library startup behavior.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0017}
+\def\TCDesignRef{ADR-0001; WCRT Phase 0 process-startup and
+deterministic-static-link objectives; no C89 draft clause.}
+\def\TCFeatureRef{\texttt{wcrt-startup-console.o};
+\texttt{libwcrt.a};\par
+\texttt{tests/c89/run-tc-0017.ps1}.}
+\def\TCTestTechnique{Use-case testing of ordinary and explicit startup paths,
+equivalence partitioning of command-line arguments, and binary inspection.}
+\def\TCPreconditions{TinyCC, a completed WCRT static build, the optional
+console startup object, and PE inspection tooling are available for the target
+architecture.}
+\def\TCEnvironment{Windows x86, x64, and ARM64 release-matrix environments;
+native execution is required for final release evidence.}
+\def\TCAssumptions{The test invokes the documented console-subsystem link
+recipe and uses no toolchain-provided C runtime startup in the explicit path.}
+\def\TCInputData{An ordinary static consumer and explicit-startup consumers
+receiving no additional arguments, spaces, empty arguments, and quoted text.}
+\def\TCInitialState{No test executable or evidence from an earlier execution
+is present in the isolated output directory.}
+\def\TCProcedure{\par\begin{enumerate}
+\item Link an ordinary \texttt{main} consumer with \texttt{libwcrt.a} using
+the normal TinyCC link path, and execute it.
+\item Inspect \texttt{libwcrt.a} and verify that it does not supply the WCRT
+console PE entry point.
+\item Link a console consumer with the documented no-toolchain-runtime command,
+\texttt{wcrt-startup-console.o}, and \texttt{libwcrt.a}.
+\item Inspect the resulting PE machine type, subsystem, entry point, and import
+table; reject any host C runtime dependency.
+\item Execute the explicit-startup consumer with each argument partition and
+verify \texttt{argc}, every \texttt{argv} string, and
+\texttt{argv[argc]}.
+\item Return a controlled value from \texttt{main} and verify the process exit
+status. Register an \texttt{atexit} callback and verify that it runs before
+termination.
+\end{enumerate}}
+\def\TCExpectedResult{The ordinary consumer uses the TinyCC startup and exits
+successfully. The explicit consumer has the correct PE properties, imports no
+host C runtime, receives every expected argument, runs its \texttt{atexit}
+callback, and exits with the value returned by \texttt{main}.}
+\def\TCPostConditions{Generated executables and evidence remain only in the
+isolated output directory; no process or temporary test state remains.}
+\TCTemplate

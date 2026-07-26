@@ -33,6 +33,8 @@ and [project test strategy](TEST-STRATEGY.md).
 | [REQ-0014](req-0014-string.md) | [TC-0014](tc-0014-string.tex) | `<string.h>` | §4.11 | String handling |
 | [REQ-0015](req-0015-time.md) | [TC-0015](tc-0015-time.tex) | `<time.h>` | §4.12 | Date and time |
 | [REQ-0016](req-0016-source-documentation.md) | [TC-0016](tc-0016-source-documentation.tex) | All project-owned C sources | N/A | Doxygen documentation and 80-column limit |
+| [REQ-0017](req-0017-optional-console-startup.md) | [TC-0017](tc-0017-optional-console-startup.tex) | Static console startup | N/A | Optional WCRT-owned PE entry point |
+| [REQ-0018](req-0018-optional-gui-startup.md) | [TC-0018](tc-0018-optional-gui-startup.tex) | Static GUI startup | N/A | Optional WCRT-owned `WinMain` PE entry point |
 
 ## Shared acceptance gates
 
@@ -45,3 +47,7 @@ implementation-defined choices and deviations are documented.
 Shared runtime requirements—startup, ABI, Windows adaptation, imports, and
 test-manifest structure—will receive subsequent requirement numbers rather than
 being nested beneath a header requirement.
+
+The rationale for keeping console and GUI startup outside `libwcrt.a` is
+recorded in
+[ADR-0001](adr-0001-separate-optional-pe-startup-objects.md).

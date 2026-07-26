@@ -1,0 +1,46 @@
+% TC-0018 controlled test-case fragment.
+\def\TCID{TC-0018}
+\def\TCTitle{Optional GUI process startup}
+\def\TCPurpose{Verify that WCRT supplies an explicitly selected GUI PE entry
+point that invokes ANSI \texttt{WinMain} without affecting other startup paths.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0018}
+\def\TCDesignRef{ADR-0001; WCRT Phase 0 process-startup objectives; no C89
+draft clause.}
+\def\TCFeatureRef{\texttt{wcrt-startup-gui.o}; \texttt{libwcrt.a};\par
+\texttt{tests/c89/run-tc-0018.ps1}.}
+\def\TCTestTechnique{Use-case testing, equivalence partitioning of GUI command
+lines and show states, and binary inspection.}
+\def\TCPreconditions{TinyCC, a completed WCRT static build, the optional GUI
+startup object, PE inspection tooling, and controlled child-process observation
+are available for the target architecture.}
+\def\TCEnvironment{Windows x86, x64, and ARM64 release-matrix environments;
+native execution is required for final release evidence.}
+\def\TCAssumptions{The test uses the documented GUI-subsystem link recipe and
+no toolchain-provided C runtime startup.}
+\def\TCInputData{Command lines with no application arguments, spaces, empty
+arguments, and quoted text; default and explicitly supplied initial-show state.}
+\def\TCInitialState{No test executable or evidence from an earlier execution
+is present in the isolated output directory.}
+\def\TCProcedure{\par\begin{enumerate}
+\item Verify that an ordinary \texttt{libwcrt.a} link does not select the WCRT
+GUI entry point.
+\item Link a \texttt{WinMain} consumer with the documented no-toolchain-runtime
+command, \texttt{wcrt-startup-gui.o}, and \texttt{libwcrt.a}.
+\item Inspect the PE machine type, GUI subsystem, entry point, and import table;
+reject any host C runtime dependency.
+\item Execute the consumer as a controlled child for each command-line and
+initial-show-state partition.
+\item Verify the current module instance, null previous instance, command line
+without the program name, and applicable initial-show value passed to
+\texttt{WinMain}.
+\item Return a controlled value from \texttt{WinMain} and verify process
+termination. Register an \texttt{atexit} callback and verify that it runs.
+\end{enumerate}}
+\def\TCExpectedResult{The artifact is a GUI-subsystem PE of the expected
+architecture with no host C runtime import. \texttt{WinMain} receives every
+required value, its \texttt{atexit} callback runs, and its return value becomes
+the process exit status.}
+\def\TCPostConditions{The child has terminated, and generated executables and
+evidence remain only in the isolated output directory.}
+\TCTemplate

@@ -34,3 +34,10 @@ evidence, and retention rules are defined in
 | Requirement | Specification | Runner | Static coverage |
 | --- | --- | --- | --- |
 | REQ-0016 | [TC-0016](../../docs/tc-0016-source-documentation.tex) | `run-tc-0016.ps1` | Doxygen documentation and 80-character physical-line limit |
+
+## Startup integration suite
+
+| Requirement | Specification | Runner | Integration coverage |
+| --- | --- | --- | --- |
+| REQ-0017 | [TC-0017](../../docs/tc-0017-optional-console-startup.tex) | `run-tc-0017.ps1` | Ordinary TinyCC startup compatibility; explicit no-toolchain-runtime console startup; PE and import inspection; arguments, return status, and `atexit` |
+| REQ-0018 | [TC-0018](../../docs/tc-0018-optional-gui-startup.tex) | `run-tc-0018.ps1` | Explicit no-toolchain-runtime GUI startup; PE and import inspection; `WinMain` arguments, return status, and `atexit` |

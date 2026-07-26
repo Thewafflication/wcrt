@@ -18,6 +18,7 @@ WPM packages. Developer-only exploratory checks are not release evidence.
 | Level | Method | Controlled artifacts |
 | --- | --- | --- |
 | Source quality | Automated inspection and Doxygen analysis | `REQ-0016`, `TC-0016` |
+| Startup integration | Static link, PE inspection, and native execution | `REQ-0017`–`REQ-0018`, `TC-0017`–`TC-0018` |
 | API presence | C89 compile-time verification without host-header fallback | `TC-0001`–`TC-0015`, `tests/c89/presence/` |
 | Component behavior | Dynamic functional and boundary testing | `tests/c89/*.c`, PowerShell runners |
 | Library integration | DLL and static-library consumer builds and execution | `tools/test-built-libraries.ps1` |
@@ -35,9 +36,11 @@ the corresponding `docs/tc-NNNN-*.tex` specification.
 | x64 | `windows-2025` | Debug and tagged Release | TinyCC WPM package |
 | ARM64 | `windows-11-arm` | Debug and tagged Release | TinyCC WPM package |
 
-TC-0016 is architecture independent and runs once on `windows-2025`. The
-comparison workflow uses the locally available Microsoft compiler and UCRT and
-is supporting evidence rather than the WCRT release gate.
+TC-0016 is architecture independent and runs once on `windows-2025`. TC-0017
+and TC-0018 apply to x86, x64, and ARM64; cross-link inspection is interim
+evidence and does not replace required native execution. The comparison
+workflow uses the locally available Microsoft compiler and UCRT and is
+supporting evidence rather than the WCRT release gate.
 
 ## Environments and Preconditions
 

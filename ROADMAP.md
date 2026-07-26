@@ -39,6 +39,10 @@ conformance claim.
 - [ ] Define the strategy for x64 builds separately from the Windows 2000 x86
       compatibility target.
 - [ ] Add a minimal process startup/termination path and platform abstraction.
+- [ ] Provide the optional, separately selected WCRT console startup specified
+      by REQ-0017 and verify it through TC-0017.
+- [ ] Provide the optional, separately selected WCRT GUI startup specified by
+      REQ-0018 and verify it through TC-0018.
 - [ ] Add CI or repeatable local test scripts for supported Windows tiers.
 - [ ] Add import-table inspection to catch accidental dependencies on newer
       Windows APIs.
@@ -83,6 +87,11 @@ Extend the C89 base without regressing its compatibility mode.
       conversion requirements.
 - [ ] Add wide-character and multibyte facilities from `wchar.h` and
       `wctype.h`.
+- [ ] Define and verify the `wchar_t` ABI and Windows UTF-16 interoperability
+      on x86, x64, and ARM64.
+- [ ] After those prerequisites pass, specify and implement a separately
+      selected Unicode GUI startup object for `wWinMain`; do not alias it to
+      the C89 `WinMain` startup object.
 - [ ] Add C99 mathematical classification, comparison, and function families.
 - [ ] Add hexadecimal floating-point and other C99 numeric conversions.
 - [ ] Define support for complex arithmetic and floating-point environment
