@@ -13,6 +13,8 @@ struct wcrt_output {
     char *string;
     int count;
     int failed;
+    size_t limit;
+    int bounded;
 };
 
 /** @brief Emits one formatter byte. */
@@ -20,7 +22,7 @@ static void wcrt_emit(struct wcrt_output *output, int character)
 {
     if (output->stream != NULL) {
         if (fputc(character, output->stream) == EOF) output->failed = 1;
-    } else {
+    } else if (!output->bounded || (size_t)output->count < output->limit) {
         output->string[output->count] = (char)character;
     }
     ++output->count;
@@ -214,13 +216,15 @@ static int wcrt_format(struct wcrt_output *output, const char *format,
         } else return -1;
         wcrt_field(output, value, value_length, width, left, zero);
     }
-    if (output->string != NULL) output->string[output->count] = '\0';
+    if (output->string != NULL && !output->bounded) {
+        output->string[output->count] = '\0';
+    }
     return output->failed ? -1 : output->count;
 }
 
 int vfprintf(FILE *stream, const char *format, va_list arguments)
 {
-    struct wcrt_output output = {stream, NULL, 0, 0};
+    struct wcrt_output output = {stream, NULL, 0, 0, 0, 0};
     return wcrt_format(&output, format, arguments);
 }
 
@@ -231,8 +235,46 @@ int vprintf(const char *format, va_list arguments)
 
 int vsprintf(char *destination, const char *format, va_list arguments)
 {
-    struct wcrt_output output = {NULL, destination, 0, 0};
+    struct wcrt_output output = {NULL, destination, 0, 0, 0, 0};
     return wcrt_format(&output, format, arguments);
+}
+
+/** @brief Implements the standard C99 bounded va_list formatter. */
+int vsnprintf(char *destination, size_t size, const char *format,
+    va_list arguments)
+{
+    struct wcrt_output output = {
+        NULL, destination, 0, 0, size > 0 ? size - 1 : 0, 1
+    };
+    int result = wcrt_format(&output, format, arguments);
+    if (size > 0) {
+        size_t end = (size_t)output.count < size ?
+            (size_t)output.count : size - 1;
+        destination[end] = '\0';
+    }
+    return result;
+}
+
+/** @brief Implements Microsoft legacy bounded va_list formatting. */
+int _vsnprintf(char *destination, size_t size, const char *format,
+    va_list arguments)
+{
+    struct wcrt_output output;
+    int result;
+    if (destination != NULL && size == 0) return -1;
+    output.stream = NULL;
+    output.string = destination;
+    output.count = 0;
+    output.failed = 0;
+    output.limit = size;
+    output.bounded = 1;
+    result = wcrt_format(&output, format, arguments);
+    if (destination == NULL && size == 0) return result;
+    if (result >= 0 && (size_t)result < size) {
+        destination[result] = '\0';
+    }
+    if (result >= 0 && (size_t)result > size) return -1;
+    return result;
 }
 
 int fprintf(FILE *stream, const char *format, ...)
@@ -258,6 +300,24 @@ int sprintf(char *destination, const char *format, ...)
     va_list arguments; int result;
     va_start(arguments, format);
     result = vsprintf(destination, format, arguments);
+    va_end(arguments);
+    return result;
+}
+
+int snprintf(char *destination, size_t size, const char *format, ...)
+{
+    va_list arguments; int result;
+    va_start(arguments, format);
+    result = vsnprintf(destination, size, format, arguments);
+    va_end(arguments);
+    return result;
+}
+
+int _snprintf(char *destination, size_t size, const char *format, ...)
+{
+    va_list arguments; int result;
+    va_start(arguments, format);
+    result = _vsnprintf(destination, size, format, arguments);
     va_end(arguments);
     return result;
 }

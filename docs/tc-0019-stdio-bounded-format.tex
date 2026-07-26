@@ -1,0 +1,30 @@
+% TC-0019 fragment; intended for the C99 test report.
+\def\TCID{TC-0019}
+\def\TCTitle{C99 bounded formatted output}
+\def\TCPurpose{Verify the declarations, bounds, termination, return values,
+zero-size queries, and variadic forwarding of \texttt{snprintf} and
+\texttt{vsnprintf}.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0019}
+\def\TCDesignRef{ISO/IEC 9899:1999 7.19.6.5 and 7.19.6.12.}
+\def\TCFeatureRef{\texttt{include/stdio.h};
+\texttt{src/stdio\_format.c}; \texttt{tests/c99/stdio.c};
+\texttt{tests/c99/run-tc-0019.ps1}.}
+\def\TCTestTechnique{Boundary-value and equivalence-partition testing around
+destination sizes zero, one, exact fit, and truncation.}
+\def\TCPreconditions{TinyCC and the WCRT C89 formatting dependencies are
+available.}
+\def\TCEnvironment{C99 compilation and native x64 behavioral execution.}
+\def\TCAssumptions{Test formats use conversions already required by REQ-0012.}
+\def\TCInputData{Short strings and integer fields with zero, one, exact-fit,
+and insufficient destination sizes.}
+\def\TCInitialState{Destination arrays contain nonzero sentinel bytes.}
+\def\TCProcedure{\par\begin{enumerate}
+\item Compile both declarations without host standard headers.
+\item Exercise ordinary, exact-fit, truncated, one-byte, and zero-byte output.
+\item Repeat representative boundaries through \texttt{vsnprintf}.
+\end{enumerate}}
+\def\TCExpectedResult{Writes stay within bounds, every positive-size result is
+null terminated, and each success return reports the untruncated length.}
+\def\TCPostConditions{Only bytes permitted by each destination size changed.}
+\TCTemplate

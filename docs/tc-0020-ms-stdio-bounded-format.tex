@@ -1,0 +1,31 @@
+% TC-0020 fragment; intended for the compatibility test report.
+\def\TCID{TC-0020}
+\def\TCTitle{Microsoft legacy bounded formatted output}
+\def\TCPurpose{Verify the declarations and legacy truncation behavior of
+\texttt{\_snprintf} and \texttt{\_vsnprintf}.}
+\def\TCPriority{\TCPriorityMedium}
+\def\TCRequirementRef{REQ-0020}
+\def\TCDesignRef{Microsoft CRT documentation for \texttt{\_snprintf} and
+\texttt{\_vsnprintf}.}
+\def\TCFeatureRef{\texttt{include/stdio.h};
+\texttt{src/stdio\_format.c}; \texttt{tests/mscompat/stdio.c};
+\texttt{tests/mscompat/run-tc-0020.ps1}.}
+\def\TCTestTechnique{Boundary-value testing below, at, and above the count,
+plus zero-count partitions for null and nonnull destinations.}
+\def\TCPreconditions{TinyCC and the WCRT C99 bounded formatter are available.}
+\def\TCEnvironment{C89 compilation and native x64 behavioral execution.}
+\def\TCAssumptions{The Microsoft compatibility surface is selected.}
+\def\TCInputData{Short strings at lengths below, equal to, and greater than
+the supplied count.}
+\def\TCInitialState{Destination arrays contain nonzero sentinel bytes.}
+\def\TCProcedure{\par\begin{enumerate}
+\item Compile both declarations without host standard headers.
+\item Verify termination when output is shorter than the count.
+\item Verify unterminated exact-limit and truncated output and return values.
+\item Repeat representative boundaries through \texttt{\_vsnprintf}.
+\end{enumerate}}
+\def\TCExpectedResult{The underscored functions reproduce the specified
+Microsoft legacy bounds, termination, and return-value behavior.}
+\def\TCPostConditions{Only the first \texttt{count} destination bytes may have
+changed.}
+\TCTemplate

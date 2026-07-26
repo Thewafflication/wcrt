@@ -55,6 +55,15 @@ int sscanf(const char *source, const char *format, ...);
 int vfprintf(FILE *stream, const char *format, va_list arguments);
 int vprintf(const char *format, va_list arguments);
 int vsprintf(char *destination, const char *format, va_list arguments);
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
+int snprintf(char *restrict destination, size_t size,
+    const char *restrict format, ...);
+int vsnprintf(char *restrict destination, size_t size,
+    const char *restrict format, va_list arguments);
+#endif
+int _snprintf(char *destination, size_t size, const char *format, ...);
+int _vsnprintf(char *destination, size_t size, const char *format,
+    va_list arguments);
 int fgetc(FILE *stream);
 char *fgets(char *destination, int count, FILE *stream);
 int fputc(int character, FILE *stream);

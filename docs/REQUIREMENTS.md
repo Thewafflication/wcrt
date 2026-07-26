@@ -1,8 +1,9 @@
-# C89 Requirements Index
+# Requirements Index
 
-WCRT assigns independently numbered requirement documents to each public C89
-header and to project-wide quality or platform requirements. Clause numbers
-annotate Clause 4 of the late ANSI X3J11 C89 draft where applicable:
+WCRT assigns independently numbered requirement documents to each public
+standard-library conformance unit and to project-wide quality or platform
+requirements. C89 clause numbers annotate Clause 4 of the late ANSI X3J11 C89
+draft where applicable:
 
 <https://bohr.wlu.ca/hfan/cp264/references/c89-draft.html>
 
@@ -35,6 +36,25 @@ and [project test strategy](TEST-STRATEGY.md).
 | [REQ-0016](req-0016-source-documentation.md) | [TC-0016](tc-0016-source-documentation.tex) | All project-owned C sources | N/A | Doxygen documentation and 80-column limit |
 | [REQ-0017](req-0017-optional-console-startup.md) | [TC-0017](tc-0017-optional-console-startup.tex) | Static console startup | N/A | Optional WCRT-owned PE entry point |
 | [REQ-0018](req-0018-optional-gui-startup.md) | [TC-0018](tc-0018-optional-gui-startup.tex) | Static GUI startup | N/A | Optional WCRT-owned `WinMain` PE entry point |
+
+## C99 extensions
+
+These requirements extend the C89 baseline. A proposed extension is not part
+of WCRT's implemented conformance claim until its requirement and verification
+record are accepted and its tests pass.
+
+| Requirement | Test case | Header | C99 clause | Scope |
+| --- | --- | --- | --- | --- |
+| [REQ-0019](req-0019-stdio-bounded-format.md) | [TC-0019](tc-0019-stdio-bounded-format.tex) | `<stdio.h>` | §7.19.6.5, §7.19.6.12 | `snprintf` and `vsnprintf` bounded formatted output |
+
+## Microsoft compatibility extensions
+
+These nonstandard interfaces are isolated from the ISO conformance units so
+that compatibility behavior cannot alter a standard function's contract.
+
+| Requirement | Test case | Header | Source | Scope |
+| --- | --- | --- | --- | --- |
+| [REQ-0020](req-0020-ms-stdio-bounded-format.md) | [TC-0020](tc-0020-ms-stdio-bounded-format.tex) | `<stdio.h>` | Microsoft CRT | `_snprintf` and `_vsnprintf` legacy bounded output |
 
 ## Shared acceptance gates
 
