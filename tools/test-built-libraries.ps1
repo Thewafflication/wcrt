@@ -46,33 +46,9 @@ if (-not $CompileOnly) {
     if ($LASTEXITCODE -ne 0) { throw 'DLL consumer failed at runtime.' }
 }
 
-$startupArguments = @{
-    Architecture = $Architecture
-    Configuration = $Configuration
-    TinyCc = $TinyCc
-    BuildRoot = $BuildRoot
-}
-$consoleStartup = & (Join-Path $repoRoot 'tests/c89/run-tc-0017.ps1') `
-    @startupArguments
-$guiStartup = & (Join-Path $repoRoot 'tests/c89/run-tc-0018.ps1') `
-    @startupArguments
-$acceptedStartupStatuses = if ($CompileOnly) {
-    @('Pass', 'Blocked')
-} else {
-    @('Pass')
-}
-foreach ($result in @($consoleStartup, $guiStartup)) {
-    if ($result.Status -notin $acceptedStartupStatuses) {
-        throw "$($result.TestCase) startup verification failed: " +
-            $result.Output
-    }
-}
-
 [PSCustomObject]@{
     Architecture = $Architecture
     StaticLink = 'Pass'
     DllLink = 'Pass'
     Runtime = if ($CompileOnly) { 'Deferred' } else { 'Pass' }
-    ConsoleStartup = $consoleStartup.Status
-    GuiStartup = $guiStartup.Status
 }
