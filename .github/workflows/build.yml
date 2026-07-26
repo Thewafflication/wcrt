@@ -25,7 +25,12 @@ jobs:
 
       - name: Verify pinned WSP common tools
         shell: pwsh
-        run: ./tools/wsp/tools/tests/run-tests.ps1
+        run: |
+          ./tools/wsp/tools/tests/run-tests.ps1
+          # Negative tool tests deliberately leave LASTEXITCODE at 1. The
+          # runner throws for an actual failure, so reaching this line means
+          # the controlled suite passed.
+          $global:LASTEXITCODE = 0
 
       - name: Verify requirements traceability
         shell: pwsh
