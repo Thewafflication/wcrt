@@ -2,7 +2,7 @@
 
 **Content type:** Project requirement
 
-**Status:** Proposed
+**Status:** Implemented
 
 **Source:** ADR-0001 and project static-link integration requirement; not
 specified by C89
@@ -28,7 +28,9 @@ startup object shall not export, alias, or claim support for `wWinMain`.
 - Each WCRT static distribution shall provide `wcrt-startup-gui.o` separately
   from `libwcrt.a` and `wcrt-startup-console.o`.
 - The startup object shall define the PE entry point needed to start a Windows
-  GUI-subsystem application without a toolchain-provided C runtime startup.
+  GUI-subsystem application without a toolchain-provided C runtime startup. For
+  TinyCC, the object shall expose `_winstart` for x86 and `_start` for x64 and
+  ARM64.
 - The startup object shall call `WinMain` with the current module instance, a
   null previous-instance value, the process command line excluding the program
   name, and the applicable Windows initial-show value.
@@ -74,6 +76,13 @@ gate.
 
 ## Implementation Record
 
-No GUI startup object is implemented. `tests/c89/run-tc-0018.ps1` records the
-planned test as Not run until the required artifact and executable test
-procedure are implemented.
+- `src/platform/windows/startup_gui.c` defines TinyCC's GUI entry symbols,
+  obtains the module instance and Windows show state, calls ANSI `WinMain`, and
+  terminates through `exit`.
+- `tools/build-wcrt.ps1` produces `wcrt-startup-gui.o` separately from
+  `libwcrt.a` for x86, x64, and ARM64.
+- `tests/c89/run-tc-0018.ps1` verifies GUI startup linking, PE properties,
+  host-CRT independence, command-line and show-state values, return
+  propagation, and `atexit`.
+- Native x86 and x64 execution and ARM64 cross-link inspection pass locally;
+  final ARM64 native evidence remains assigned to the ARM64 CI matrix entry.

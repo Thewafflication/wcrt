@@ -39,6 +39,11 @@ New-Item -ItemType Directory -Force -Path $staging, (Join-Path $staging '.wpm'),
 Copy-Item -LiteralPath $dll -Destination (Join-Path $staging 'bin/wcrt.dll')
 Copy-Item -LiteralPath (Join-Path $releaseDirectory 'libwcrt.a') `
     -Destination (Join-Path $staging 'lib/libwcrt.a')
+Copy-Item -LiteralPath `
+    (Join-Path $releaseDirectory 'wcrt-startup-console.o') `
+    -Destination (Join-Path $staging 'lib/wcrt-startup-console.o')
+Copy-Item -LiteralPath (Join-Path $releaseDirectory 'wcrt-startup-gui.o') `
+    -Destination (Join-Path $staging 'lib/wcrt-startup-gui.o')
 Copy-Item -LiteralPath (Join-Path $releaseDirectory 'wcrt.def') `
     -Destination (Join-Path $staging 'lib/wcrt.def')
 Copy-Item -Path (Join-Path $repoRoot 'include/*') -Destination (Join-Path $staging 'include') -Recurse
@@ -111,6 +116,8 @@ try {
     $requiredEntries = @(
         'bin/wcrt.dll'
         'lib/libwcrt.a'
+        'lib/wcrt-startup-console.o'
+        'lib/wcrt-startup-gui.o'
         'lib/wcrt.def'
         'include/stdio.h'
     )

@@ -2,7 +2,7 @@
 
 **Content type:** Project requirement
 
-**Status:** Proposed
+**Status:** Implemented
 
 **Source:** ADR-0001 and project bootstrap and static-link integration
 requirement; not specified by C89
@@ -25,7 +25,8 @@ such as C++ static constructors.
 - Each WCRT static distribution shall provide `wcrt-startup-console.o`
   separately from `libwcrt.a`.
 - The startup object shall define the PE entry point needed to start a console
-  application without a toolchain-provided C runtime startup.
+  application without a toolchain-provided C runtime startup. For TinyCC, the
+  object shall expose that entry point as `_start`.
 - The startup object shall construct a C89-compatible `argc` and `argv`, call
   `main(argc, argv)`, and pass the value returned by `main` to `exit`.
 - `argc` shall be nonnegative, `argv[argc]` shall be a null pointer, and each
@@ -77,6 +78,13 @@ gate.
 
 ## Implementation Record
 
-No startup object is implemented. `tests/c89/run-tc-0017.ps1` records the
-planned test as Not run until the required artifact and executable test
-procedure are implemented.
+- `src/platform/windows/startup_console.c` defines TinyCC's `_start` entry,
+  parses the Windows command line into `argc` and `argv`, calls `main`, and
+  terminates through `exit`.
+- `tools/build-wcrt.ps1` produces `wcrt-startup-console.o` separately from
+  `libwcrt.a` for x86, x64, and ARM64.
+- `tests/c89/run-tc-0017.ps1` verifies ordinary startup compatibility, explicit
+  startup linking, PE properties, host-CRT independence, arguments, return
+  propagation, and `atexit`.
+- Native x86 and x64 execution and ARM64 cross-link inspection pass locally;
+  final ARM64 native evidence remains assigned to the ARM64 CI matrix entry.

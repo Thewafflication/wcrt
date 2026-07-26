@@ -92,6 +92,8 @@ $sources = @(
 $dllPath = Join-Path $outputDirectory 'wcrt.dll'
 $definitionPath = Join-Path $outputDirectory 'wcrt.def'
 $staticLibrary = Join-Path $outputDirectory 'libwcrt.a'
+$consoleStartup = Join-Path $outputDirectory 'wcrt-startup-console.o'
+$guiStartup = Join-Path $outputDirectory 'wcrt-startup-gui.o'
 $staticObjectDirectory = Join-Path $outputDirectory 'static-objects'
 $includeOutput = Join-Path $outputDirectory 'include'
 $arguments = @('-std=c89', '-Wall', '-Werror', '-shared',
@@ -153,6 +155,27 @@ if ($LASTEXITCODE -ne 0 -or
     throw "TinyCC failed to create $staticLibrary."
 }
 
+$startupSources = @{
+    $consoleStartup = Join-Path $repoRoot `
+        'src/platform/windows/startup_console.c'
+    $guiStartup = Join-Path $repoRoot 'src/platform/windows/startup_gui.c'
+}
+foreach ($startup in $startupSources.GetEnumerator()) {
+    $startupArguments = @('-std=c89', '-Wall', '-Werror', '-c', '-I',
+        (Join-Path $repoRoot 'include'))
+    if ($Configuration -eq 'Debug') {
+        $startupArguments += '-g'
+    } else {
+        $startupArguments += '-O2'
+    }
+    $startupArguments += @($startup.Value, '-o', $startup.Key)
+    & $tinyCcPath @startupArguments
+    if ($LASTEXITCODE -ne 0 -or
+        -not (Test-Path -LiteralPath $startup.Key -PathType Leaf)) {
+        throw "TinyCC failed to create $($startup.Key)."
+    }
+}
+
 New-Item -ItemType Directory -Force -Path $includeOutput | Out-Null
 Copy-Item -Path (Join-Path $repoRoot 'include/*') -Destination $includeOutput `
     -Recurse -Force
@@ -166,5 +189,7 @@ Copy-Item -Path (Join-Path $repoRoot 'include/*') -Destination $includeOutput `
     Pdb = if ($Configuration -eq 'Debug') { $pdbPath } else { $null }
     ImportDefinition = $definitionPath
     StaticLibrary = $staticLibrary
+    ConsoleStartup = $consoleStartup
+    GuiStartup = $guiStartup
     IncludeDirectory = $includeOutput
 }

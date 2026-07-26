@@ -51,6 +51,10 @@ WCRT provides subsystem-specific startup as optional object files separate from
 - `wcrt-startup-gui.o` owns the entry point for GUI applications and invokes
   ANSI `WinMain` for the C89 milestone.
 
+The GUI object exposes TinyCC's target-specific entry symbols: `_winstart` on
+x86 and `_start` on x64 and ARM64. These names are linker-facing implementation
+contracts; consumers select the object and subsystem rather than calling them.
+
 A consumer selects exactly one startup object through a documented explicit
 link action that omits the toolchain C runtime startup. Linking only
 `libwcrt.a` continues to use the toolchain-provided entry point.

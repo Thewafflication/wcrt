@@ -126,13 +126,51 @@ its numeric file version, architecture, configuration, source revision,
 package name, license, and repository information.
 
 Each build produces the shared `wcrt.dll`, its TinyCC import definition
-`wcrt.def`, the static TinyCC archive `libwcrt.a`, and a copy of the public
-headers. WPM packages install these beneath `bin`, `lib`, and `include`.
+`wcrt.def`, the static TinyCC archive `libwcrt.a`, the optional
+`wcrt-startup-console.o` and `wcrt-startup-gui.o` startup objects, and a copy of
+the public headers. WPM packages install these beneath `bin`, `lib`, and
+`include`.
 After all Debug architecture jobs pass, a semantic-version tag builds signed
 Release artifacts for x86, x64, and ARM64. The workflow publishes only the
 WPM packages, public signing key, and WPM repository `index.json` to the
 corresponding GitHub Release. The libraries and headers are inside each WPM
 package.
+
+## Optional static process startup
+
+An ordinary link against `libwcrt.a` continues to use TinyCC's process startup.
+Consumers that want WCRT to own the PE entry point select exactly one startup
+object and omit the toolchain runtime startup. The TinyCC compiler-support
+archive remains necessary for architecture-specific compiler helpers; it is
+not a C runtime startup.
+
+For a console application defining `main`, use the architecture-matched files:
+
+```powershell
+tcc -nostdlib -Wl,-nostdlib -Wl,-subsystem=console `
+  $env:WCRT_HOME/lib/wcrt-startup-console.o program.c `
+  $env:WCRT_HOME/lib/libwcrt.a `
+  $env:TCC_HOME/lib/x86_64-win32-libtcc1.a `
+  $env:TCC_HOME/lib/kernel32.def -o program.exe
+```
+
+For a GUI application defining ANSI `WinMain`, select the GUI object and
+Windows subsystem:
+
+```powershell
+tcc -nostdlib -Wl,-nostdlib -Wl,-subsystem=windows `
+  $env:WCRT_HOME/lib/wcrt-startup-gui.o program.c `
+  $env:WCRT_HOME/lib/libwcrt.a `
+  $env:TCC_HOME/lib/x86_64-win32-libtcc1.a `
+  $env:TCC_HOME/lib/kernel32.def -o program.exe
+```
+
+Replace `x86_64-win32` with `i386-win32` or `arm64-win32` for x86 or ARM64.
+The console startup applies Windows quote and backslash parsing to construct
+`argc` and `argv`. The GUI startup passes the command line after the executable
+name to `WinMain` and uses `STARTUPINFO.wShowWindow` when Windows supplies it,
+or `SW_SHOWDEFAULT` otherwise. Unicode `wWinMain` startup is deferred until the
+C99 wide-character ABI and UTF-16 interoperability requirements are complete.
 
 ## Installing with WPM
 
