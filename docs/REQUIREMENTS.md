@@ -52,6 +52,12 @@ until their requirement and verification records are added.
 | Requirement | Test case | Header | C99 clause | Scope |
 | --- | --- | --- | --- | --- |
 | [REQ-0019](req-0019-stdio-bounded-format.md) | [TC-0019](tc-0019-stdio-bounded-format.tex) | `<stdio.h>` | §7.19.6.5, §7.19.6.12 | `snprintf` and `vsnprintf` bounded formatted output |
+| [REQ-0021](req-0021-stdbool.md) | [TC-0021](tc-0021-stdbool.tex) | `<stdbool.h>` | §6.2.5, §6.3.1.2, §7.16 | Boolean type and values |
+| [REQ-0022](req-0022-stdint.md) | [TC-0022](tc-0022-stdint.tex) | `<stdint.h>` | §7.18 | Integer types, limits, and constants |
+| [REQ-0023](req-0023-limits-long-long.md) | [TC-0023](tc-0023-limits-long-long.tex) | `<limits.h>` | §5.2.4.2.1, §7.10 | `long long` limits |
+| [REQ-0024](req-0024-float-c99.md) | [TC-0024](tc-0024-float-c99.tex) | `<float.h>` | §5.2.4.2.2, §7.7 | Floating-point characteristics |
+| [REQ-0025](req-0025-va-copy-restrict.md) | [TC-0025](tc-0025-va-copy-restrict.tex) | `<stdarg.h>`, public headers | §6.7.3, §7.15 | `va_copy` and `restrict` contracts |
+| [REQ-0026](req-0026-iso646.md) | [TC-0026](tc-0026-iso646.tex) | `<iso646.h>` | §7.9 | Alternative operator spellings |
 
 ## Microsoft compatibility extensions
 

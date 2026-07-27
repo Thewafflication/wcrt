@@ -1,0 +1,24 @@
+% TC-0025 fragment; intended for the C99 test report.
+\def\TCID{TC-0025}
+\def\TCTitle{C99 variable arguments and restrict contracts}
+\def\TCPurpose{Verify REQ-0025 independent variable-argument copies and
+edition-correct public declarations.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0025}
+\def\TCDesignRef{ISO/IEC 9899:1999 6.7.3 and 7.15.}
+\def\TCFeatureRef{\texttt{include/stdarg.h}; public C99 headers;
+\texttt{tests/c99/va-copy.c}; \texttt{tests/c99/run-tc-0025.ps1}.}
+\def\TCTestTechnique{State-transition, interface-inspection, and compatibility
+testing.}
+\def\TCPreconditions{REQ-0010 passes on the selected target.}
+\def\TCEnvironment{C99 behavioral execution and C89 header compilation.}
+\def\TCAssumptions{Each copied list is ended exactly once by the test.}
+\def\TCInputData{Mixed integer, floating, pointer, and aggregate-compatible
+variadic arguments.}
+\def\TCInitialState{Fresh and partially traversed argument lists are available.}
+\def\TCProcedure{Copy at multiple traversal positions; advance and end each
+copy independently; inspect required declarations; compile headers in C89 mode.}
+\def\TCExpectedResult{Each copy produces the expected remaining arguments and
+C99 declarations include required qualifiers without breaking C89 parsing.}
+\def\TCPostConditions{Every initialized argument list has been ended.}
+\TCTemplate

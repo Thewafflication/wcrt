@@ -1,0 +1,26 @@
+% TC-0026 fragment; intended for the C99 test report.
+\def\TCID{TC-0026}
+\def\TCTitle{C99 alternative operator spellings}
+\def\TCPurpose{Verify every REQ-0026 macro and its operator-equivalent
+behavior.}
+\def\TCPriority{\TCPriorityMedium}
+\def\TCRequirementRef{REQ-0026}
+\def\TCDesignRef{ISO/IEC 9899:1999 7.9.}
+\def\TCFeatureRef{\texttt{include/iso646.h};
+\texttt{tests/c99/presence/iso646.c};
+\texttt{tests/c99/run-tc-0026.ps1}.}
+\def\TCTestTechnique{Interface, truth-table, precedence, and side-effect
+testing.}
+\def\TCPreconditions{The C99 library surface is selected.}
+\def\TCEnvironment{C99 compilation and execution plus C89 isolation
+compilation.}
+\def\TCAssumptions{Built-in operator behavior is the comparison oracle.}
+\def\TCInputData{Boolean and bit patterns plus operands with counted side
+effects.}
+\def\TCInitialState{Side-effect counters are zero.}
+\def\TCProcedure{Compile the header alone and twice; compare every macro with
+its operator; test precedence and evaluation counts; compile C89 isolation.}
+\def\TCExpectedResult{Every spelling is operator-equivalent, evaluates each
+operand as required, and is isolated from the C89 surface.}
+\def\TCPostConditions{No persistent state is changed.}
+\TCTemplate

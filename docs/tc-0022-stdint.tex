@@ -1,0 +1,27 @@
+% TC-0022 fragment; intended for the C99 test report.
+\def\TCID{TC-0022}
+\def\TCTitle{C99 fixed-width integer interface}
+\def\TCPurpose{Verify REQ-0022 integer types, limits, constants, pointer
+round trips, and target ABI agreement.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0022}
+\def\TCDesignRef{ISO/IEC 9899:1999 7.18.}
+\def\TCFeatureRef{\texttt{include/stdint.h};
+\texttt{tests/c99/presence/stdint.c};
+\texttt{tests/c99/run-tc-0022.ps1}.}
+\def\TCTestTechnique{Interface, boundary-value, expression-type, and ABI
+testing.}
+\def\TCPreconditions{The target data model and \texttt{long long} support are
+documented.}
+\def\TCEnvironment{C99 compilation for x86, x64, and ARM64; native execution
+where available.}
+\def\TCAssumptions{Optional definitions are documented per target.}
+\def\TCInputData{Each integer boundary and representative object pointers.}
+\def\TCInitialState{No host standard headers are visible.}
+\def\TCProcedure{Compile all applicable types and macros; assert widths,
+signedness, values, and expression types; round-trip pointers; run C89
+isolation checks.}
+\def\TCExpectedResult{Every required and applicable optional interface agrees
+with the selected target ABI and all round trips preserve pointer values.}
+\def\TCPostConditions{No persistent state is changed.}
+\TCTemplate

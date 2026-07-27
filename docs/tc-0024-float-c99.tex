@@ -1,0 +1,24 @@
+% TC-0024 fragment; intended for the C99 test report.
+\def\TCID{TC-0024}
+\def\TCTitle{C99 floating-point characteristics}
+\def\TCPurpose{Verify REQ-0024 decimal precision, evaluation method, rounding
+description, and C89 compatibility.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0024}
+\def\TCDesignRef{ISO/IEC 9899:1999 5.2.4.2.2 and 7.7.}
+\def\TCFeatureRef{\texttt{include/float.h};
+\texttt{tests/c99/float.c}; \texttt{tests/c99/run-tc-0024.ps1}.}
+\def\TCTestTechnique{Boundary-value testing and engineering analysis.}
+\def\TCPreconditions{TinyCC floating code generation is characterized for the
+target.}
+\def\TCEnvironment{C99 compilation and native execution for supported targets.}
+\def\TCAssumptions{Decimal conversion support used by the test is independently
+verified.}
+\def\TCInputData{Boundary and representative finite floating values.}
+\def\TCInitialState{The default floating environment is active.}
+\def\TCProcedure{Validate macro ranges; perform decimal round trips; probe
+evaluation and rounding behavior; rerun REQ-0004 checks.}
+\def\TCExpectedResult{Published macro values match observed or analyzed target
+behavior and every required round trip preserves its value.}
+\def\TCPostConditions{The default floating environment is restored.}
+\TCTemplate

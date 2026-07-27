@@ -20,7 +20,7 @@ C11 atomics and threads are deliberately excluded.
 
 ## Priority 1 — Fundamental types and macros
 
-### Planned REQ-0021 — C99 Boolean type and values
+### Baselined REQ-0021 — C99 Boolean type and values
 
 **Scope:** The C99-mode `stdbool.h` public header. C89-mode isolation is included
 as a compatibility check; compiler implementation of the `_Bool` language type
@@ -40,7 +40,7 @@ supported TinyCC target.
 **Dependencies:** TinyCC `_Bool` capability probe and the public-header edition
 selection policy.
 
-### Planned REQ-0022 — C99 integer types, limits, and constants
+### Baselined REQ-0022 — C99 integer types, limits, and constants
 
 **Scope:** The C99-mode `stdint.h` public header for x86, x64, and ARM64 Windows
 ABIs. Optional exact-width typedefs are required whenever the target provides
@@ -65,12 +65,15 @@ and verified `long long` compiler behavior.
 
 ## Priority 2 — Integer integration
 
+REQ-0023 through REQ-0026 are baselined as the remainder of Milestone 2A;
+REQ-0027 and later remain planned backlog items.
+
 | Planned ID | Conformance unit | Primary C99 clauses | Principal obligations |
 | --- | --- | --- | --- |
-| REQ-0023 | C99 `limits.h` additions | 5.2.4.2.1, 7.10 | `LLONG_MIN`, `LLONG_MAX`, and `ULLONG_MAX` with correct expression types |
-| REQ-0024 | C99 `float.h` additions | 5.2.4.2.2, 7.7 | `DECIMAL_DIG`, evaluation-method macros, and documented TinyCC floating model |
-| REQ-0025 | C99 variable arguments | 7.15 | `va_copy` semantics, independent traversal, and cleanup |
-| REQ-0026 | Alternative spellings | 7.9 | Complete, self-contained `iso646.h` macro set |
+| REQ-0023 (baselined) | C99 `limits.h` additions | 5.2.4.2.1, 7.10 | `LLONG_MIN`, `LLONG_MAX`, and `ULLONG_MAX` with correct expression types |
+| REQ-0024 (baselined) | C99 `float.h` additions | 5.2.4.2.2, 7.7 | `DECIMAL_DIG`, evaluation-method macros, and documented TinyCC floating model |
+| REQ-0025 (baselined) | C99 variable arguments and declarations | 6.7.3, 7.15 | `va_copy` semantics plus edition-aware `restrict` contracts |
+| REQ-0026 (baselined) | Alternative spellings | 7.9 | Complete, self-contained `iso646.h` macro set |
 | REQ-0027 | Greatest-width integers | 7.8 | `inttypes.h` types, functions, and all applicable print/scan macros |
 | REQ-0028 | C99 general utilities | 7.20 | `_Exit`, `atoll`, `llabs`, `lldiv`, and extended `strto*` conversions |
 
@@ -105,7 +108,7 @@ and verified `long long` compiler behavior.
 
 ## Sequencing rule
 
-REQ-0021 and REQ-0022 are the first implementation candidates. `inttypes.h`
+REQ-0021 through REQ-0026 form the baselined Milestone 2A. `inttypes.h`
 depends on `stdint.h`; wide formatted I/O depends on the wide-character ABI;
 `tgmath.h` depends on complete real and complex function families. C11
 threading work begins only after the C99 exit condition unless the roadmap is

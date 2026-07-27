@@ -1,0 +1,24 @@
+% TC-0023 fragment; intended for the C99 test report.
+\def\TCID{TC-0023}
+\def\TCTitle{C99 long-long limits}
+\def\TCPurpose{Verify REQ-0023 values, expression types, ABI agreement, and
+C89 isolation.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0023}
+\def\TCDesignRef{ISO/IEC 9899:1999 5.2.4.2.1 and 7.10.}
+\def\TCFeatureRef{\texttt{include/limits.h};
+\texttt{tests/c99/presence/limits.c};
+\texttt{tests/c99/run-tc-0023.ps1}.}
+\def\TCTestTechnique{Boundary-value, expression-type, and regression testing.}
+\def\TCPreconditions{TinyCC \texttt{long long} behavior is characterized.}
+\def\TCEnvironment{C99 compilation for every supported target and C89
+regression compilation.}
+\def\TCAssumptions{The target uses the documented integer representation.}
+\def\TCInputData{The minimum and maximum signed and unsigned values.}
+\def\TCInitialState{REQ-0005 tests pass.}
+\def\TCProcedure{Use each macro in static bounds and typed expressions; verify
+range relationships and ABI values; rerun REQ-0005 checks.}
+\def\TCExpectedResult{All C99 limits have the required values and types while
+the C89 interface remains unchanged.}
+\def\TCPostConditions{No persistent state is changed.}
+\TCTemplate

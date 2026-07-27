@@ -1,0 +1,26 @@
+% TC-0021 fragment; intended for the C99 test report.
+\def\TCID{TC-0021}
+\def\TCTitle{C99 Boolean interface}
+\def\TCPurpose{Verify REQ-0021 Boolean macros, conversions, header properties,
+and C89 isolation.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0021}
+\def\TCDesignRef{ISO/IEC 9899:1999 6.2.5, 6.3.1.2, and 7.16.}
+\def\TCFeatureRef{\texttt{include/stdbool.h};
+\texttt{tests/c99/presence/stdbool.c};
+\texttt{tests/c99/run-tc-0021.ps1}.}
+\def\TCTestTechnique{Interface, constant-expression, equivalence-partition,
+and compatibility testing.}
+\def\TCPreconditions{TinyCC provides C99 \texttt{\_Bool}.}
+\def\TCEnvironment{C99 compilation for every supported target and C89
+isolation compilation.}
+\def\TCAssumptions{Compiler Boolean conversions conform to the cited clauses.}
+\def\TCInputData{Zero and representative nonzero scalar values.}
+\def\TCInitialState{No host standard headers are visible.}
+\def\TCProcedure{Compile the header alone and twice; use every macro in
+constant expressions; exercise scalar conversion; compile the C89 isolation
+case.}
+\def\TCExpectedResult{All C99 checks compile and produce zero-or-one Boolean
+values; the C89 surface exposes no C99 Boolean tokens.}
+\def\TCPostConditions{No persistent state is changed.}
+\TCTemplate
