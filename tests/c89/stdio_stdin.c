@@ -86,15 +86,27 @@ static int test_console_input(void)
 int main(int argument_count, char **arguments)
 {
     char answer[8];
+    int expected;
     if (argument_count == 2 && strcmp(arguments[1], "console") == 0) {
         return test_console_input();
     }
-    if (argument_count != 2 || strcmp(arguments[1], "redirected") != 0) {
+    if (argument_count != 3 || strcmp(arguments[1], "redirected") != 0 ||
+        arguments[2][0] == '\0' || arguments[2][1] != '\0') {
         return 1;
     }
+    expected = (unsigned char)arguments[2][0];
     if (fgets(answer, sizeof(answer), stdin) == NULL ||
-        strcmp(answer, "n\n") != 0) {
+        answer[0] != expected || strcmp(answer + 1, "\n") != 0) {
         return 2;
+    }
+    if (fgets(answer, sizeof(answer), stdin) != NULL) {
+        return 3;
+    }
+    if (!feof(stdin)) {
+        return 4;
+    }
+    if (ferror(stdin)) {
+        return 5;
     }
     return 0;
 }

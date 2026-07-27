@@ -38,11 +38,16 @@ verify \texttt{argc}, every \texttt{argv} string, and
 \item Return a controlled value from \texttt{main} and verify the process exit
 status. Register an \texttt{atexit} callback and verify that it runs before
 termination.
+\item Redirect the explicit-startup consumer's native standard-input handle,
+provide exact \texttt{n\textbackslash r\textbackslash n} and
+\texttt{y\textbackslash r\textbackslash n} records, and verify translated
+\texttt{fgets} input followed by EOF without a stream error.
 \end{enumerate}}
 \def\TCExpectedResult{The ordinary consumer uses the TinyCC startup and exits
 successfully. The explicit consumer has the correct PE properties, imports no
 host C runtime, receives every expected argument, runs its \texttt{atexit}
-callback, and exits with the value returned by \texttt{main}.}
+callback, reads native redirected standard input, and exits with the value
+returned by \texttt{main}.}
 \def\TCPostConditions{Generated executables and evidence remain only in the
 isolated output directory; no process or temporary test state remains.}
 \TCTemplate

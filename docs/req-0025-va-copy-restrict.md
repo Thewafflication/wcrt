@@ -2,7 +2,7 @@
 
 **Content type:** Project requirement
 
-**Status:** Approved; implementation planned
+**Status:** Implemented
 
 **Source:** ISO/IEC 9899:1999 §6.7.3 and §7.15
 
@@ -54,3 +54,15 @@ parsing, and ABI compatibility on every supported target.
 
 The `restrict` audit is limited to public declarations introduced or changed by
 C99; it does not change runtime behavior beyond the standard pointer contracts.
+
+## Implementation Record
+
+`include/stdarg.h` maps `va_copy` to TinyCC's independent traversal builtin in
+C99 mode. `include/wcrt/restrict.h` expands `WCRT_RESTRICT` to `restrict` for
+the C99 surface and to an empty token sequence when `WCRT_C89` selects the C89
+surface. The affected declarations in `<stdio.h>`, `<stdlib.h>`, `<string.h>`,
+and `<time.h>` use that spelling without changing linkage or calling convention.
+
+TC-0025 verifies independent traversal, audits 35 declarations for their
+required qualifier counts, compiles the affected headers with `WCRT_C89`, and
+reruns the REQ-0010 variable-argument test.

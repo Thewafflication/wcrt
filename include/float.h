@@ -12,6 +12,14 @@
 #define FLT_ROUNDS 1
 /** @} */
 
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
+/** @name C99 floating-point evaluation model */
+/** @{ */
+#define DECIMAL_DIG 17
+#define FLT_EVAL_METHOD 0
+/** @} */
+#endif
+
 /** @name Binary32 float model and limits */
 /** @{ */
 #define FLT_MANT_DIG 24

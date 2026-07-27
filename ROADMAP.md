@@ -92,7 +92,7 @@ dependency groups:
       types, limits, and constant-expression macros (REQ-0022).
 - [ ] Extend `limits.h` for `long long` (REQ-0023) and extend `float.h` with the
       C99 evaluation and decimal-conversion model (REQ-0024).
-- [ ] Add `va_copy` to `stdarg.h` and audit C99 `restrict`-qualified public
+- [x] Add `va_copy` to `stdarg.h` and audit C99 `restrict`-qualified public
       declarations without exposing C99 syntax in C89 mode (REQ-0025).
 - [ ] Add `iso646.h`, which C99 inherits from the C95 amendment (REQ-0026).
 - [ ] Establish TinyCC capability probes for every language/compiler facility

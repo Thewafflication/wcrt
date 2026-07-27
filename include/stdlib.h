@@ -7,6 +7,7 @@
 #define WCRT_STDLIB_H
 
 #include <stddef.h>
+#include <wcrt/restrict.h>
 
 #define EXIT_SUCCESS 0
 #define EXIT_FAILURE 1
@@ -25,9 +26,12 @@ extern "C" {
 double atof(const char *string);
 int atoi(const char *string);
 long atol(const char *string);
-double strtod(const char *string, char **end_pointer);
-long strtol(const char *string, char **end_pointer, int base);
-unsigned long strtoul(const char *string, char **end_pointer, int base);
+double strtod(const char *WCRT_RESTRICT string,
+    char **WCRT_RESTRICT end_pointer);
+long strtol(const char *WCRT_RESTRICT string,
+    char **WCRT_RESTRICT end_pointer, int base);
+unsigned long strtoul(const char *WCRT_RESTRICT string,
+    char **WCRT_RESTRICT end_pointer, int base);
 int rand(void);
 void srand(unsigned int seed);
 void *calloc(size_t count, size_t size);
@@ -48,10 +52,13 @@ long labs(long value);
 div_t div(int numerator, int denominator);
 ldiv_t ldiv(long numerator, long denominator);
 int mblen(const char *string, size_t count);
-int mbtowc(wchar_t *wide, const char *string, size_t count);
+int mbtowc(wchar_t *WCRT_RESTRICT wide,
+    const char *WCRT_RESTRICT string, size_t count);
 int wctomb(char *string, wchar_t wide);
-size_t mbstowcs(wchar_t *destination, const char *source, size_t count);
-size_t wcstombs(char *destination, const wchar_t *source, size_t count);
+size_t mbstowcs(wchar_t *WCRT_RESTRICT destination,
+    const char *WCRT_RESTRICT source, size_t count);
+size_t wcstombs(char *WCRT_RESTRICT destination,
+    const wchar_t *WCRT_RESTRICT source, size_t count);
 
 #ifdef __cplusplus
 }

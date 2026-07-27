@@ -44,10 +44,20 @@ try {
 if ($exitCode -ne 0) {
     throw "TC-0012 behavior failed with code $exitCode."
 }
-@('n') | & $stdinExecutable redirected
-if ($LASTEXITCODE -ne 0) {
-    throw "TC-0012 redirected standard input failed with code $LASTEXITCODE."
+function Invoke-RedirectedInputCase([string]$Answer) {
+    $inputPath = Join-Path $buildDirectory "stdin-$Answer.txt"
+    [IO.File]::WriteAllBytes($inputPath,
+        [Text.Encoding]::ASCII.GetBytes("$Answer`r`n"))
+    $process = Start-Process -FilePath $stdinExecutable `
+        -ArgumentList @('redirected', $Answer) `
+        -RedirectStandardInput $inputPath -NoNewWindow -Wait -PassThru
+    if ($process.ExitCode -ne 0) {
+        throw "TC-0012 native redirected stdin '$Answer' failed with " +
+            "code $($process.ExitCode)."
+    }
 }
+Invoke-RedirectedInputCase 'n'
+Invoke-RedirectedInputCase 'y'
 & $stdinExecutable console
 if ($LASTEXITCODE -ne 0) {
     throw "TC-0012 console standard input failed with code $LASTEXITCODE."
@@ -63,7 +73,9 @@ if ($LASTEXITCODE -ne 0) {
     FormattedOutput = 'Pass'
     FormattedInput = 'Pass'
     TextTranslation = 'Pass'
-    RedirectedStandardInput = 'Pass'
+    RedirectedStandardInputNo = 'Pass'
+    RedirectedStandardInputYes = 'Pass'
+    RedirectedEndOfFile = 'Pass'
     ConsoleStandardInput = 'Pass'
     ExitCode = 0
 }

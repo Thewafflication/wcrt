@@ -38,4 +38,13 @@
 #define ULONG_MAX 4294967295UL
 /** @} */
 
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
+/** @name C99 long-long limits */
+/** @{ */
+#define LLONG_MIN (-9223372036854775807LL - 1LL)
+#define LLONG_MAX 9223372036854775807LL
+#define ULLONG_MAX 18446744073709551615ULL
+/** @} */
+#endif
+
 #endif

@@ -94,6 +94,7 @@ function Invoke-WcrtStartupProcess {
     param(
         [Parameter(Mandatory)][string]$Path,
         [string]$ArgumentList,
+        [string]$RedirectStandardInput,
         [switch]$Hidden
     )
 
@@ -104,6 +105,9 @@ function Invoke-WcrtStartupProcess {
     }
     if (-not [string]::IsNullOrEmpty($ArgumentList)) {
         $parameters.ArgumentList = $ArgumentList
+    }
+    if (-not [string]::IsNullOrEmpty($RedirectStandardInput)) {
+        $parameters.RedirectStandardInput = $RedirectStandardInput
     }
     if ($Hidden) {
         $parameters.WindowStyle = 'Hidden'

@@ -25,8 +25,11 @@ families, widths, precision, modifiers, and scansets.}
 \def\TCProcedure{\par\begin{enumerate}
 \item Compile all required declarations without host standard headers.
 \item Exercise file lifecycle, direct I/O, positioning, and indicators.
-\item Exercise \texttt{fgets} using redirected stdin and a genuine Windows
-console input handle.
+\item Launch a child process twice with a native redirected standard-input
+handle, write exact \texttt{n\textbackslash r\textbackslash n} and
+\texttt{y\textbackslash r\textbackslash n} byte sequences, and verify
+\texttt{fgets}, EOF, and error indicators.
+\item Exercise \texttt{fgets} using a genuine Windows console input handle.
 \item Exercise formatted output, input, suppression, scansets, and counts.
 \item Cross-link the complete subsystem as PE/COFF ARM64.
 \end{enumerate}}

@@ -7,6 +7,7 @@
 #define WCRT_TIME_H
 
 #include <stddef.h>
+#include <wcrt/restrict.h>
 
 /** @brief Milliseconds of process execution time. */
 typedef long clock_t;
@@ -40,8 +41,9 @@ char *asctime(const struct tm *broken_down);
 char *ctime(const time_t *timer);
 struct tm *gmtime(const time_t *timer);
 struct tm *localtime(const time_t *timer);
-size_t strftime(char *destination, size_t capacity, const char *format,
-    const struct tm *broken_down);
+size_t strftime(char *WCRT_RESTRICT destination, size_t capacity,
+    const char *WCRT_RESTRICT format,
+    const struct tm *WCRT_RESTRICT broken_down);
 
 #ifdef __cplusplus
 }

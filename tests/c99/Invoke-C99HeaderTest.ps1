@@ -22,7 +22,9 @@ param(
 
     [string]$TinyCc,
 
-    [string]$C89Regression
+    [string]$C89Source,
+
+    [string[]]$C89Regression
 )
 
 $ErrorActionPreference = 'Stop'
@@ -66,8 +68,20 @@ if ($LASTEXITCODE -ne 0) {
     throw "$TestCase behavior failed with code $LASTEXITCODE."
 }
 
-if ($C89Regression) {
-    & (Join-Path $repoRoot $C89Regression) -TinyCc $TinyCc | Out-Null
+if ($C89Source) {
+    $c89Object = Join-Path $buildDirectory "$Name-c89.o"
+    $c89Arguments = @('-std=c89', '-DWCRT_C89=1', '-Wall', '-Werror', '-I',
+        (Join-Path $repoRoot 'include'))
+    $output = & $TinyCc @c89Arguments -c `
+        (Join-Path $repoRoot $C89Source) -o $c89Object 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        throw "$TestCase C89 isolation build failed:`n" +
+            ($output | Out-String)
+    }
+}
+
+foreach ($regression in $C89Regression) {
+    & (Join-Path $repoRoot $regression) -TinyCc $TinyCc | Out-Null
     if ($LASTEXITCODE -ne 0) {
         throw "$TestCase C89 regression failed with code $LASTEXITCODE."
     }
@@ -78,6 +92,10 @@ if ($C89Regression) {
     Requirement = $Requirement
     Presence = 'Pass'
     Behavior = 'Pass'
-    C89Regression = $(if ($C89Regression) { 'Pass' } else { 'NotApplicable' })
+    C89Regression = $(if ($C89Regression -or $C89Source) {
+        'Pass'
+    } else {
+        'NotApplicable'
+    })
     ExitCode = 0
 }

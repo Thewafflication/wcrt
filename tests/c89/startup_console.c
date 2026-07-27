@@ -4,6 +4,7 @@
  */
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 
 #if defined(__TINYC__) || defined(__GNUC__)
@@ -31,6 +32,7 @@ static void startup_exit_callback(void)
  */
 int main(int argument_count, char **argument_values)
 {
+    char answer[8];
     if (argument_count < 2 || argument_values == NULL ||
         argument_values[0] == NULL || argument_values[argument_count] != NULL) {
         return 101;
@@ -43,6 +45,24 @@ int main(int argument_count, char **argument_values)
             return 103;
         }
         return 23;
+    }
+    if (strcmp(argument_values[1], "--stdin") == 0) {
+        if (argument_count != 3 || argument_values[2][0] == '\0' ||
+            argument_values[2][1] != '\0') {
+            return 107;
+        }
+        if (fgets(answer, sizeof(answer), stdin) == NULL) {
+            return 108;
+        }
+        if (answer[0] != argument_values[2][0] ||
+            strcmp(answer + 1, "\n") != 0) {
+            return 109;
+        }
+        if (fgets(answer, sizeof(answer), stdin) != NULL || !feof(stdin) ||
+            ferror(stdin)) {
+            return 110;
+        }
+        return 0;
     }
     if (strcmp(argument_values[1], "empty") == 0) {
         if (argument_count != 4 || argument_values[2][0] != '\0' ||

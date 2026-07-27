@@ -8,6 +8,7 @@
 
 #include <stddef.h>
 #include <stdarg.h>
+#include <wcrt/restrict.h>
 
 typedef struct wcrt_file FILE;
 typedef long long fpos_t;
@@ -42,32 +43,42 @@ FILE *tmpfile(void);
 char *tmpnam(char *name);
 int fclose(FILE *stream);
 int fflush(FILE *stream);
-FILE *fopen(const char *path, const char *mode);
-FILE *freopen(const char *path, const char *mode, FILE *stream);
-void setbuf(FILE *stream, char *buffer);
-int setvbuf(FILE *stream, char *buffer, int mode, size_t size);
-int fprintf(FILE *stream, const char *format, ...);
-int fscanf(FILE *stream, const char *format, ...);
-int printf(const char *format, ...);
-int scanf(const char *format, ...);
-int sprintf(char *destination, const char *format, ...);
-int sscanf(const char *source, const char *format, ...);
-int vfprintf(FILE *stream, const char *format, va_list arguments);
-int vprintf(const char *format, va_list arguments);
-int vsprintf(char *destination, const char *format, va_list arguments);
+FILE *fopen(const char *WCRT_RESTRICT path,
+    const char *WCRT_RESTRICT mode);
+FILE *freopen(const char *WCRT_RESTRICT path,
+    const char *WCRT_RESTRICT mode, FILE *WCRT_RESTRICT stream);
+void setbuf(FILE *WCRT_RESTRICT stream, char *WCRT_RESTRICT buffer);
+int setvbuf(FILE *WCRT_RESTRICT stream, char *WCRT_RESTRICT buffer,
+    int mode, size_t size);
+int fprintf(FILE *WCRT_RESTRICT stream,
+    const char *WCRT_RESTRICT format, ...);
+int fscanf(FILE *WCRT_RESTRICT stream,
+    const char *WCRT_RESTRICT format, ...);
+int printf(const char *WCRT_RESTRICT format, ...);
+int scanf(const char *WCRT_RESTRICT format, ...);
+int sprintf(char *WCRT_RESTRICT destination,
+    const char *WCRT_RESTRICT format, ...);
+int sscanf(const char *WCRT_RESTRICT source,
+    const char *WCRT_RESTRICT format, ...);
+int vfprintf(FILE *WCRT_RESTRICT stream,
+    const char *WCRT_RESTRICT format, va_list arguments);
+int vprintf(const char *WCRT_RESTRICT format, va_list arguments);
+int vsprintf(char *WCRT_RESTRICT destination,
+    const char *WCRT_RESTRICT format, va_list arguments);
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
-int snprintf(char *restrict destination, size_t size,
-    const char *restrict format, ...);
-int vsnprintf(char *restrict destination, size_t size,
-    const char *restrict format, va_list arguments);
+int snprintf(char *WCRT_RESTRICT destination, size_t size,
+    const char *WCRT_RESTRICT format, ...);
+int vsnprintf(char *WCRT_RESTRICT destination, size_t size,
+    const char *WCRT_RESTRICT format, va_list arguments);
 #endif
 int _snprintf(char *destination, size_t size, const char *format, ...);
 int _vsnprintf(char *destination, size_t size, const char *format,
     va_list arguments);
 int fgetc(FILE *stream);
-char *fgets(char *destination, int count, FILE *stream);
+char *fgets(char *WCRT_RESTRICT destination, int count,
+    FILE *WCRT_RESTRICT stream);
 int fputc(int character, FILE *stream);
-int fputs(const char *string, FILE *stream);
+int fputs(const char *WCRT_RESTRICT string, FILE *WCRT_RESTRICT stream);
 int getc(FILE *stream);
 int getchar(void);
 char *gets(char *destination);
@@ -75,11 +86,14 @@ int putc(int character, FILE *stream);
 int putchar(int character);
 int puts(const char *string);
 int ungetc(int character, FILE *stream);
-size_t fread(void *destination, size_t size, size_t count, FILE *stream);
-size_t fwrite(const void *source, size_t size, size_t count, FILE *stream);
-int fgetpos(FILE *stream, fpos_t *position);
+size_t fread(void *WCRT_RESTRICT destination, size_t size, size_t count,
+    FILE *WCRT_RESTRICT stream);
+size_t fwrite(const void *WCRT_RESTRICT source, size_t size, size_t count,
+    FILE *WCRT_RESTRICT stream);
+int fgetpos(FILE *WCRT_RESTRICT stream, fpos_t *WCRT_RESTRICT position);
 int fseek(FILE *stream, long offset, int origin);
-int fsetpos(FILE *stream, const fpos_t *position);
+int fsetpos(FILE *WCRT_RESTRICT stream,
+    const fpos_t *WCRT_RESTRICT position);
 long ftell(FILE *stream);
 void rewind(FILE *stream);
 void clearerr(FILE *stream);

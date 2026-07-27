@@ -85,6 +85,7 @@ gate.
   `libwcrt.a` for x86, x64, and ARM64.
 - `tests/c89/run-tc-0017.ps1` verifies ordinary startup compatibility, explicit
   startup linking, PE properties, host-CRT independence, arguments, return
-  propagation, and `atexit`.
+  propagation, `atexit`, and native redirected standard input with exact
+  negative and affirmative confirmation records.
 - Native x86 and x64 execution and ARM64 cross-link inspection pass locally;
   final ARM64 native evidence remains assigned to the ARM64 CI matrix entry.

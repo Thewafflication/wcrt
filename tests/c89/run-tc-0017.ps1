@@ -58,6 +58,13 @@ try {
         $emptyStatus = Invoke-WcrtStartupProcess $executable 'empty "" tail'
         $doubleStatus = Invoke-WcrtStartupProcess $executable `
             'doubled "double""quote"'
+        $stdinStatuses = foreach ($answer in 'n', 'y') {
+            $inputPath = Join-Path $testDirectory "startup-stdin-$answer.txt"
+            [IO.File]::WriteAllBytes($inputPath,
+                [Text.Encoding]::ASCII.GetBytes("$answer`r`n"))
+            Invoke-WcrtStartupProcess $executable "--stdin $answer" `
+                -RedirectStandardInput $inputPath
+        }
         if ($ordinaryStatus -ne 0 -or $returnStatus -ne 23 -or
             $atexitStatus -ne 29 -or $argumentStatus -ne 0 -or
             $emptyStatus -ne 0 -or $doubleStatus -ne 0) {
@@ -66,7 +73,12 @@ try {
                 "arguments=$argumentStatus, empty=$emptyStatus, " +
                 "doubled=$doubleStatus."
         }
+        if ($stdinStatuses[0] -ne 0 -or $stdinStatuses[1] -ne 0) {
+            throw "WCRT-startup redirected stdin statuses were " +
+                "n=$($stdinStatuses[0]), y=$($stdinStatuses[1])."
+        }
         $output.Add('Native runtime checks: Pass')
+        $output.Add('WCRT-startup redirected stdin checks: Pass')
         $status = 'Pass'
     } else {
         $status = 'Blocked'
