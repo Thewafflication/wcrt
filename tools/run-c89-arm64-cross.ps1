@@ -5,6 +5,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path -Parent $PSScriptRoot
+. (Join-Path $repoRoot 'tests\test-logging.ps1')
 $buildRoot = Join-Path $repoRoot 'build\tests\c89\arm64-cross'
 $evidenceRoot = Join-Path $repoRoot 'output\test-results\c89-wcrt-arm64'
 
@@ -86,6 +87,7 @@ function Get-PeMachine {
 }
 
 $results = foreach ($test in $tests) {
+    Write-WspInfo "Cross-building TC-$($test.Id) ($($test.Name)) for ARM64."
     $executable = Join-Path $buildRoot "$($test.Name)-test.exe"
     $arguments = [System.Collections.Generic.List[string]]::new()
     @('-std=c89', '-Wall', '-Werror', '-I',
@@ -131,6 +133,8 @@ $results = foreach ($test in $tests) {
         "tc-$($test.Id)-$($test.Name)-evidence.txt"
     $result | Format-List | Out-String |
         Set-Content -LiteralPath $evidencePath -Encoding UTF8
+    Write-WcrtTestResult -Status $status `
+        -Message "TC-$($test.Id) ($($test.Name)) ARM64 cross-build."
     $result
 }
 
@@ -140,7 +144,9 @@ $results | ConvertTo-Json -Depth 4 |
 $results | Format-Table TestCase,Requirement,Status,PeMachine,Runtime
 
 if ($results.Status -contains 'Fail') {
+    Write-WspError "One or more WCRT ARM64 cross-builds failed."
     throw 'One or more WCRT ARM64 cross-builds failed.'
 }
 
+Write-WspPass "All WCRT ARM64 cross-builds passed. Results: $jsonPath"
 $jsonPath

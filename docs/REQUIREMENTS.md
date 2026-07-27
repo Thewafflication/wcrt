@@ -43,6 +43,12 @@ These requirements extend the C89 baseline. A proposed extension is not part
 of WCRT's implemented conformance claim until its requirement and verification
 record are accepted and its tests pass.
 
+The dependency-ordered inventory and proposed identifiers for the remaining
+C99 work are maintained in the
+[C99 requirements backlog](C99-REQUIREMENTS.md). Planned identifiers do not
+become controlled requirements, and do not enter the traceability baseline,
+until their requirement and verification records are added.
+
 | Requirement | Test case | Header | C99 clause | Scope |
 | --- | --- | --- | --- | --- |
 | [REQ-0019](req-0019-stdio-bounded-format.md) | [TC-0019](tc-0019-stdio-bounded-format.tex) | `<stdio.h>` | §7.19.6.5, §7.19.6.12 | `snprintf` and `vsnprintf` bounded formatted output |

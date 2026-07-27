@@ -74,6 +74,13 @@ headers, and build artifacts in GitHub Actions. Job summaries expose the final
 status of each test case. Project report tools can combine controlled
 specifications and execution results into the C89 report.
 
+Project test entry points import the PowerShell adapter from the pinned WSP
+logging library through `tests/test-logging.ps1`. Human-readable progress and
+outcomes use the common `[INFO ]`, `[PASS ]`, `[WARN ]`, and `[ERROR]` records.
+Structured PowerShell objects, JSON, TeX, and process exit codes remain the
+authoritative machine-readable evidence; logging shall not replace or alter
+those interfaces.
+
 Failure output from an execution must remain available in its original CI run.
 A later passing run is separate evidence and does not reclassify the failure.
 

@@ -16,6 +16,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path -Parent $PSScriptRoot
+. (Join-Path $repoRoot 'tests\test-logging.ps1')
 $arguments = @{
     Architecture = $Architecture
     Configuration = $Configuration
@@ -23,7 +24,12 @@ $arguments = @{
     BuildRoot = $BuildRoot
 }
 
-@(
+Write-WspInfo "Testing $Architecture $Configuration startup objects."
+$results = @(
     & (Join-Path $repoRoot 'tests/c89/run-tc-0017.ps1') @arguments
+    Write-WspPass "TC-0017 console startup passed on $Architecture."
     & (Join-Path $repoRoot 'tests/c89/run-tc-0018.ps1') @arguments
+    Write-WspPass "TC-0018 GUI startup passed on $Architecture."
 )
+Write-WspPass "$Architecture $Configuration startup-object tests passed."
+$results

@@ -12,6 +12,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path -Parent $PSScriptRoot
+. (Join-Path $repoRoot 'tests\test-logging.ps1')
 $outputDirectory = Join-Path $repoRoot "$OutputRoot/$Architecture"
 $texPath = Join-Path $outputDirectory 'c89-test-results.tex'
 $jsonPath = Join-Path $outputDirectory 'c89-test-results.json'
@@ -28,6 +29,7 @@ function ConvertTo-TexText {
 function Invoke-TestCase {
     param([string]$Id, [string]$Description)
     $runner = Join-Path $repoRoot "tests/c89/run-tc-$Id.ps1"
+    Write-WspInfo "Running TC-$Id ($Description) on $Architecture."
     $started = Get-Date
     $status = 'Pass'
     $details = ''
@@ -38,6 +40,8 @@ function Invoke-TestCase {
         $status = 'Fail'
         $details = $_.Exception.Message
     }
+    Write-WcrtTestResult -Status $status `
+        -Message "TC-$Id ($Description) on $Architecture."
     [PSCustomObject]@{
         TestCase = "TC-$Id"
         Description = $Description
@@ -90,7 +94,9 @@ Set-Content -LiteralPath $texPath -Value $document -Encoding utf8NoBOM
 
 $results | Format-Table TestCase, Description, Status
 if ($results.Status -contains 'Fail') {
+    Write-WspError "C89 test suite failed on $Architecture. Results: $texPath"
     throw "One or more $Architecture test cases failed. Results: $texPath"
 }
 
+Write-WspPass "C89 test suite passed on $Architecture. Results: $texPath"
 $texPath

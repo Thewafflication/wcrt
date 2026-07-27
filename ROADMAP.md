@@ -81,24 +81,74 @@ conformance suite and all common release gates.
 
 Extend the C89 base without regressing its compatibility mode.
 
-- [ ] Add C99 headers and types, including `stdint.h`, `inttypes.h`,
-      `stdbool.h`, `complex.h`, `fenv.h`, and `tgmath.h` as supported.
-- [ ] Add `long long`, extended integer conversion, and integer format macros.
-- [ ] Add C99 formatted-I/O behavior and new conversion requirements.
+The ordered requirement backlog is maintained in
+[`docs/C99-REQUIREMENTS.md`](docs/C99-REQUIREMENTS.md). Work proceeds in these
+dependency groups:
+
+### 2A — Fundamental types and compiler contracts
+
+- [ ] Add `stdbool.h` Boolean macros (planned REQ-0021).
+- [ ] Add `stdint.h` exact-, least-, fast-, pointer-, and maximum-width integer
+      types, limits, and constant-expression macros (planned REQ-0022).
+- [ ] Extend `limits.h` for `long long` and extend `float.h` with the C99
+      evaluation and decimal-conversion model.
+- [ ] Add `va_copy` to `stdarg.h` and audit C99 `restrict`-qualified public
+      declarations without exposing C99 syntax in C89 mode.
+- [ ] Add `iso646.h`, which C99 inherits from the C95 amendment.
+- [ ] Establish TinyCC capability probes for every language/compiler facility
+      required by public C99 headers, especially `_Bool`, `long long`,
+      `restrict`, variadic macros, complex arithmetic, and type-generic macros.
+
+### 2B — Extended integers and formatted I/O
+
+- [ ] Add `inttypes.h`, including `intmax_t`/`uintmax_t`, format and scan
+      macros, `imaxabs`, `imaxdiv`, `strtoimax`, `strtoumax`, `wcstoimax`, and
+      `wcstoumax`.
+- [ ] Extend `stdlib.h` with `_Exit`, `atoll`, `llabs`, `lldiv`, `strtof`,
+      `strtold`, `strtoll`, and `strtoull` and their required error behavior.
+- [ ] Complete C99 formatted output and input: `hh`, `ll`, `j`, `z`, and `t`
+      length modifiers; `%a`/`%A`, `%F`, and applicable wide-character
+      conversions; plus `vfscanf`, `vscanf`, and `vsscanf`.
   - [x] Implement and test `snprintf` and `vsnprintf` bounded output
         (REQ-0019 / TC-0019).
-- [ ] Add wide-character and multibyte facilities from `wchar.h` and
-      `wctype.h`.
+- [ ] Implement hexadecimal floating-point input/output and verify rounding,
+      overflow, underflow, matching failure, and return-value behavior.
+
+### 2C — Wide and multibyte library
+
+- [ ] Add the complete C99 `wchar.h` and `wctype.h` surfaces, including wide
+      streams, conversions, string operations, classification, and mappings.
+- [ ] Define the initial conversion state, `mbstate_t`, state-dependent
+      encodings, restartable conversions, and interaction with locale and
+      stream orientation.
 - [ ] Define and verify the `wchar_t` ABI and Windows UTF-16 interoperability
       on x86, x64, and ARM64.
 - [ ] After those prerequisites pass, specify and implement a separately
       selected Unicode GUI startup object for `wWinMain`; do not alias it to
       the C89 `WinMain` startup object.
-- [ ] Add C99 mathematical classification, comparison, and function families.
-- [ ] Add hexadecimal floating-point and other C99 numeric conversions.
-- [ ] Define support for complex arithmetic and floating-point environment
-      behavior under TinyCC and Windows.
-- [ ] Test C99 header behavior, type widths, macros, and backward compatibility.
+
+### 2D — Real, complex, and type-generic mathematics
+
+- [ ] Extend `math.h` with float and long-double variants, classification and
+      comparison macros, `HUGE_VALF`, `HUGE_VALL`, infinity/NaN support,
+      `math_errhandling`, and all C99 real mathematical function families.
+- [ ] Add `fenv.h` and document which exception flags, rounding modes, and
+      environment operations Windows and TinyCC can implement on each
+      architecture.
+- [ ] Add `complex.h` types, constants, real/imaginary access, and all C99
+      complex mathematical function families.
+- [ ] Add `tgmath.h` only after the real and complex functions and TinyCC
+      type-generic dispatch behavior are verified.
+
+### 2E — Conformance closure
+
+- [ ] Audit every C89 header for C99 additions and changed constraints,
+      including formatting, conversion, locale, stream, and macro behavior.
+- [ ] Publish a clause-level C99 conformance matrix that distinguishes required,
+      optional, implementation-defined, compiler-blocked, and missing items.
+- [ ] Test header self-containment, type widths, macro constant-expression
+      properties, C89-mode isolation, ABI behavior, and backward compatibility
+      on every supported target.
 
 **Exit condition:** supported C99 library facilities pass their conformance
 matrix, with unsupported optional facilities explicitly identified.
@@ -159,6 +209,132 @@ available in the supported TinyCC baseline.
 
 **Exit condition:** WCRT publishes a tested C23 support profile and explicitly
 classifies every omitted, optional, or compiler-blocked facility.
+
+## Parallel track — Microsoft CRT source compatibility
+
+This track provides documented Microsoft CRT extensions needed by Windows C
+programs without weakening ISO C behavior. It may advance alongside the
+standards milestones when its dependencies are complete. Each interface shall
+be isolated behind a Microsoft-compatibility selection, assigned its own
+requirement and tests, and classified as source, ABI, or behavioral
+compatibility.
+
+The target is a documented, versioned source-compatibility profile—not a
+drop-in replacement for `msvcrt.dll`, `ucrtbase.dll`, or private Visual C++
+runtime internals. C++ runtime, compiler exception machinery, undocumented
+symbols, and bug-for-bug compatibility remain out of scope unless separately
+approved.
+
+### MS0 — Compatibility contract and inventory
+
+- [ ] Select and record the Microsoft documentation and Windows SDK/UCRT
+      version used as the compatibility baseline.
+- [ ] Inventory public Microsoft C runtime headers, functions, macros, types,
+      globals, aliases, deprecations, and architecture-specific exports.
+- [ ] Publish a compatibility matrix distinguishing implemented, planned,
+      intentionally unsupported, compiler-provided, and OS-provided items.
+- [ ] Define compatibility-mode selection, naming, calling conventions, symbol
+      decoration, data model, `errno`/`_doserrno` mapping, invalid-parameter
+      behavior, and interaction with ISO language-edition modes.
+- [ ] Require Windows 2000 x86 import inspection for every compatible facility;
+      newer APIs must use runtime detection and an acceptable fallback.
+
+### MS1 — Common formatting, strings, paths, and conversions
+
+- [ ] Complete narrow and wide Microsoft formatted-I/O families, including
+      `_scprintf`, `_vscprintf`, `_snscanf`, count-output policy, Microsoft
+      length modifiers, and explicitly selected legacy semantics.
+  - [x] Implement and test legacy `_snprintf` and `_vsnprintf`
+        (REQ-0020 / TC-0020).
+- [ ] Add documented secure formatting and scanning families (`*_s`) under the
+      Microsoft contract, separately from ISO Annex K support.
+- [ ] Add commonly used string and memory extensions: case-insensitive
+      comparison, duplication, reversal, case conversion, tokenization,
+      collation, bounded helpers, and their wide-character variants.
+- [ ] Add integer-to-text and extended text-to-integer families, including
+      `_itoa`, `_ltoa`, `_i64toa`, unsigned variants, `_atoi64`, `_strtoi64`,
+      and `_strtoui64`, with secure variants where documented.
+- [ ] Add drive, directory, and path construction/decomposition interfaces,
+      including `_fullpath`, `_makepath`, `_splitpath`, and their secure and
+      wide-character forms.
+
+### MS2 — Files, descriptors, directories, and filesystem metadata
+
+- [ ] Add `io.h` low-level descriptor operations, including `_open`, `_close`,
+      `_read`, `_write`, `_lseek`, `_tell`, `_commit`, `_dup`, `_dup2`,
+      `_pipe`, `_isatty`, `_setmode`, and handle conversion.
+- [ ] Add `fcntl.h`/`share.h` flags and sharing semantics with explicit Windows
+      handle, text/binary translation, inheritance, and append behavior.
+- [ ] Add `direct.h` directory and current-drive functions in narrow and wide
+      forms.
+- [ ] Add Microsoft `sys/stat.h`, `sys/types.h`, `_findfirst`/`_findnext`,
+      file-length, access, chmod, unlink, rename, and temporary-name families,
+      including 32/64-bit time and file-size variants.
+- [ ] Add Microsoft stream extensions such as `_fdopen`, `_fileno`, `_fsopen`,
+      `_wfopen`, `_wfreopen`, locking, flushing, mode control, and wide
+      temporary-file functions.
+
+### MS3 — Processes, environment, and runtime startup state
+
+- [ ] Add `process.h` `_exec*`, `_spawn*`, `_cwait`, `_getpid`, `_popen`, and
+      `_pclose` families with documented quoting, environment, descriptor
+      inheritance, wait, and error behavior.
+- [ ] Add narrow and wide environment mutation/access interfaces, including
+      `_putenv`, `_wputenv`, `_dupenv_s`, environment globals, and accessors.
+- [ ] Add documented startup globals and accessors such as `__argc`, `__argv`,
+      `__wargv`, `_environ`, `_wenviron`, `_pgmptr`, `_wpgmptr`, `_fmode`, and
+      `_commode` where consistent with the selected WCRT startup object.
+- [ ] Add `onexit`/`_onexit`, `_cexit`, `_c_exit`, abort/report controls, and
+      invalid-parameter handlers with deterministic multithreaded behavior.
+- [ ] Keep console, `WinMain`, and `wWinMain` startup variants separately
+      selectable; compatibility globals shall reflect the selected startup
+      path rather than introduce an unconditional entry point.
+
+### MS4 — Allocation, locale, time, search, and mathematics
+
+- [ ] Add `malloc.h` aligned allocation, reallocation, offset allocation,
+      size-query, stack-allocation, and heap-inspection interfaces with
+      documented ownership and overflow behavior.
+- [ ] Add Microsoft locale objects and per-thread locale control, including
+      `_create_locale`, `_free_locale`, `_configthreadlocale`, and `_l`
+      function variants after the ISO locale model is complete.
+- [ ] Add Microsoft date/time extensions, including `_mkgmtime`, timezone and
+      daylight accessors, secure conversion functions, and explicit 32/64-bit
+      time variants.
+- [ ] Add Microsoft search/sort extensions such as `qsort_s`, `bsearch_s`,
+      `_lfind`, and `_lsearch`, preserving Microsoft callback conventions.
+- [ ] Add documented Microsoft floating-point control, status, classification,
+      and non-ISO mathematical functions only after the C99 `fenv.h` and
+      `math.h` requirements establish the architecture model.
+
+### MS5 — Multithreaded CRT behavior
+
+- [ ] Implement `_beginthread`, `_beginthreadex`, `_endthread`, and
+      `_endthreadex` over the WCRT threading/platform layer; document handle
+      ownership and why raw `CreateThread` may bypass CRT initialization.
+- [ ] Make `errno`, `_doserrno`, locale state, multibyte conversion state,
+      `strtok`-family state, temporary buffers, invalid-parameter handlers, and
+      other required runtime data correctly thread-local or synchronized.
+- [ ] Define stream, heap, environment, exit-handler, and locale locking and
+      verify deadlock, recursive-entry, teardown, and process-exit behavior.
+- [ ] Validate compatibility on x86, x64, and ARM64, with runtime fallbacks for
+      synchronization APIs unavailable on the Windows 2000 x86 baseline.
+
+### MS6 — Compatibility closure
+
+- [ ] Build representative open-source Windows C consumers against WCRT's
+      compatibility mode without source patches and record all exclusions.
+- [ ] Add header self-containment, symbol/export, ABI, negative, concurrency,
+      and ISO-mode-isolation tests for every compatibility family.
+- [ ] Verify that Microsoft aliases and secure functions never silently change
+      the corresponding ISO function's contract.
+- [ ] Publish the supported Microsoft CRT profile and freeze its compatibility
+      and deprecation policy for the first stable WCRT release.
+
+**Exit condition:** every interface in the selected Microsoft CRT profile has
+a requirement, verification evidence, compatibility classification, and
+documented deviation; private and unsupported interfaces are explicitly
+listed, and all applicable ISO and legacy-Windows gates remain green.
 
 ## Platform validation matrix
 

@@ -1,3 +1,6 @@
+$repositoryRoot = Split-Path -Parent $PSScriptRoot
+. (Join-Path $repositoryRoot 'tests\test-logging.ps1')
+
 function Escape-Latex {
     param([AllowNull()][string]$Value)
 
@@ -201,9 +204,10 @@ function Complete-WpmTestRun {
 
     $overallStatus = if ($Results.Status -contains 'Fail') { 'Fail' } else { 'Pass' }
     foreach ($result in $Results) {
-        Write-Output "[$($result.Status)] $($result.Command) exited $($result.ExitCode)"
+        Write-WcrtTestResult -Status $result.Status -Message (
+            "$($result.Command) exited $($result.ExitCode).")
         if ($result.Diagnostic) {
-            Write-Output "  $($result.Diagnostic)"
+            Write-WspError $result.Diagnostic
         }
     }
 

@@ -18,9 +18,12 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path -Parent $PSScriptRoot
+. (Join-Path $repoRoot 'tests\test-logging.ps1')
 $buildDirectory = Join-Path $repoRoot "$BuildRoot/$Architecture/$Configuration"
 $smokeDirectory = Join-Path $buildDirectory 'link-smoke'
 $source = Join-Path $smokeDirectory 'consumer.c'
+Write-WspInfo (
+    "Testing $Architecture $Configuration static and DLL consumers.")
 New-Item -ItemType Directory -Force -Path $smokeDirectory | Out-Null
 Set-Content -LiteralPath $source -Encoding ascii -Value @(
     '#include <string.h>'
@@ -46,6 +49,8 @@ if (-not $CompileOnly) {
     if ($LASTEXITCODE -ne 0) { throw 'DLL consumer failed at runtime.' }
 }
 
+Write-WspPass (
+    "$Architecture $Configuration static and DLL consumer tests passed.")
 [PSCustomObject]@{
     Architecture = $Architecture
     StaticLink = 'Pass'

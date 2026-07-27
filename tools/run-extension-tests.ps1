@@ -10,6 +10,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path -Parent $PSScriptRoot
+. (Join-Path $repoRoot 'tests\test-logging.ps1')
 $outputDirectory = Join-Path $repoRoot `
     "output\test-results\$Architecture"
 $tests = @(
@@ -20,9 +21,10 @@ $tests = @(
         'tests\mscompat\run-tc-0020.ps1')
 )
 $results = foreach ($test in $tests) {
+    Write-WspInfo "Running $($test[0]) ($($test[2])) on $Architecture."
     try {
         & (Join-Path $repoRoot $test[3]) -TinyCc $TinyCc | Out-Null
-        [PSCustomObject]@{
+        $result = [PSCustomObject]@{
             TestCase = $test[0]
             Suite = $test[1]
             Description = $test[2]
@@ -30,7 +32,7 @@ $results = foreach ($test in $tests) {
             Output = ''
         }
     } catch {
-        [PSCustomObject]@{
+        $result = [PSCustomObject]@{
             TestCase = $test[0]
             Suite = $test[1]
             Description = $test[2]
@@ -38,6 +40,9 @@ $results = foreach ($test in $tests) {
             Output = $_.Exception.Message
         }
     }
+    Write-WcrtTestResult -Status $result.Status `
+        -Message "$($test[0]) ($($test[2])) on $Architecture."
+    $result
 }
 New-Item -ItemType Directory -Force $outputDirectory | Out-Null
 $results | ConvertTo-Json -Depth 4 |
@@ -45,5 +50,7 @@ $results | ConvertTo-Json -Depth 4 |
         -Encoding utf8NoBOM
 $results | Format-Table TestCase, Suite, Description, Status
 if (@($results | Where-Object Status -ne 'Pass').Count -ne 0) {
+    Write-WspError "Extension test suite failed on $Architecture."
     exit 1
 }
+Write-WspPass "Extension test suite passed on $Architecture."

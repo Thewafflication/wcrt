@@ -4,11 +4,11 @@
 
 **Project:** WCRT
 
-**WSP baseline:** Immutable commit `3ac1b461c06071e15da6c6f2c44c253a4d9220ef`
+**WSP baseline:** Immutable commit `44f591d6416d18252596d8c9fb45f8fbaa65d08a`
 
 **Submodule path:** `tools/wsp/`
 
-**Pinned commit:** `3ac1b461c06071e15da6c6f2c44c253a4d9220ef`
+**Pinned commit:** `44f591d6416d18252596d8c9fb45f8fbaa65d08a`
 
 **Status:** Proposed
 
@@ -181,7 +181,7 @@
 
 | WSP requirement | Disposition | Project artifact | Rationale or notes |
 | --- | --- | --- | --- |
-| `WSP-TOOL-0001` | Applicable | `.github/workflows/build.yml` | CI invokes tools from the pinned WSP submodule. |
+| `WSP-TOOL-0001` | Applicable | `.github/workflows/build.yml`, `tests/test-logging.ps1` | CI invokes tools and the logging adapter from the pinned WSP submodule. |
 | `WSP-TOOL-0002` | Applicable | WSP tool invocations | WCRT passes explicit project-owned paths. |
 | `WSP-TOOL-0003` | Applicable | WSP common-tool self-tests | Selected tools have deterministic file-based inputs. |
 | `WSP-TOOL-0004` | Applicable | WSP common-tool self-tests | Positive and negative exit behavior is tested. |
@@ -189,6 +189,7 @@
 | `WSP-TOOL-0006` | Applicable | `output/` and `release-assets/` | Generated files remain outside the submodule. |
 | `WSP-TOOL-0007` | Applicable | Selected tool interfaces | No selected invocation receives or emits secrets. |
 | `WSP-TOOL-0008` | Applicable | `tools/wsp/tools/tests/run-tests.ps1` | Pinned common-tool self-tests run in CI. |
+| `WSP-TOOL-0009` | Applicable | `.github/workflows/build.yml` | Workflows use maintained v6 GitHub actions on GitHub-hosted Windows runners; self-hosted runner exceptions are not currently required. |
 
 ## Tailoring Decisions
 
@@ -242,3 +243,4 @@
 | Date | WSP baseline | Project change | Summary |
 | --- | --- | --- | --- |
 | 2026-07-26 | `3ac1b461c06071e15da6c6f2c44c253a4d9220ef` | `wsp_inclusion` | Initial WSP adoption at `tools/wsp/` |
+| 2026-07-26 | `44f591d6416d18252596d8c9fb45f8fbaa65d08a` | WSP baseline update | Adopt latest upstream WSP, including the 1.0.0 release, action-runtime currency requirements, and shared logging tools. |
