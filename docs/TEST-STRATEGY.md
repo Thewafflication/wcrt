@@ -64,8 +64,12 @@ reuse prior-run results as current evidence.
 Every change runs pinned WSP tool self-tests, traceability validation,
 TC-0016, architecture-specific builds, consumer verification, and the C89 test
 suite. A required non-Pass result fails its job. Tagged releases additionally
-build Release artifacts, create and verify signed WPM packages, generate
+build Release artifacts, combine all targets into one signed WPM development
+package, verify that package, generate
 SHA-256 checksums, and publish only after every architecture succeeds.
+After all ordinary Debug architecture jobs pass, CI combines their outputs into
+one unsigned `wcrt-debug` multi-architecture WPM package and retains it as a
+workflow artifact.
 
 ## Evidence and Reporting
 

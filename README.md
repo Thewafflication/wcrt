@@ -123,9 +123,12 @@ git submodule update --init tools/wsp
 
 GitHub Actions builds and tests x86, x64, and ARM64 independently. TC-0016 is
 always run first. Each job publishes the debug DLL, PDB, and a TeX test-results
-table. A `MAJOR.MINOR.PATCH` or `vMAJOR.MINOR.PATCH` tag additionally gates a
-Release build and creates an architecture-specific WPM package whose base
-version is taken from the tag.
+table. After every Debug job passes, the workflow also publishes an unsigned
+`wcrt-debug-any-<version>.zip` WPM package containing all three targets. It
+installs separately beneath `%ProgramFiles%\WCRT\Debug` and sets
+`WCRT_DEBUG_HOME`. A `MAJOR.MINOR.PATCH` or `vMAJOR.MINOR.PATCH` tag additionally gates a
+Release build and combines all three architectures into one WPM development
+package whose base version is taken from the tag.
 As with the TinyCC package, WPM versions normalize a tag suffix, add a
 development commit distance when applicable, append the eight-character Git
 revision as build metadata, and add `.dirty` for modified working trees. An
@@ -134,16 +137,15 @@ The DLL contains a Windows `VERSIONINFO` resource with this package version,
 its numeric file version, architecture, configuration, source revision,
 package name, license, and repository information.
 
-Each build produces the shared `wcrt.dll`, its TinyCC import definition
+Each architecture build produces the shared `wcrt.dll`, its TinyCC import definition
 `wcrt.def`, the static TinyCC archive `libwcrt.a`, the optional
 `wcrt-startup-console.o` and `wcrt-startup-gui.o` startup objects, and a copy of
-the public headers. WPM packages install these beneath `bin`, `lib`, and
-`include`.
+the public headers. The WPM package installs shared headers beneath `include`
+and target files beneath `x86`, `x64`, and `arm64` architecture directories.
 After all Debug architecture jobs pass, a semantic-version tag builds signed
-Release artifacts for x86, x64, and ARM64. The workflow publishes only the
-WPM packages, public signing key, and WPM repository `index.json` to the
-corresponding GitHub Release. The libraries and headers are inside each WPM
-package.
+Release artifacts for x86, x64, and ARM64. The workflow publishes one
+`arch=any` WPM package containing every target, the public signing key, and the
+WPM repository `index.json` to the corresponding GitHub Release.
 
 ## Optional static process startup
 
@@ -157,8 +159,8 @@ For a console application defining `main`, use the architecture-matched files:
 
 ```powershell
 tcc -nostdlib -Wl,-nostdlib -Wl,-subsystem=console `
-  $env:WCRT_HOME/lib/wcrt-startup-console.o program.c `
-  $env:WCRT_HOME/lib/libwcrt.a `
+  $env:WCRT_HOME/x64/lib/wcrt-startup-console.o program.c `
+  $env:WCRT_HOME/x64/lib/libwcrt.a `
   $env:TCC_HOME/lib/x86_64-win32-libtcc1.a `
   $env:TCC_HOME/lib/kernel32.def -o program.exe
 ```
@@ -168,13 +170,14 @@ Windows subsystem:
 
 ```powershell
 tcc -nostdlib -Wl,-nostdlib -Wl,-subsystem=windows `
-  $env:WCRT_HOME/lib/wcrt-startup-gui.o program.c `
-  $env:WCRT_HOME/lib/libwcrt.a `
+  $env:WCRT_HOME/x64/lib/wcrt-startup-gui.o program.c `
+  $env:WCRT_HOME/x64/lib/libwcrt.a `
   $env:TCC_HOME/lib/x86_64-win32-libtcc1.a `
   $env:TCC_HOME/lib/kernel32.def -o program.exe
 ```
 
-Replace `x86_64-win32` with `i386-win32` or `arm64-win32` for x86 or ARM64.
+Replace both `x64` and `x86_64-win32` with `x86` and `i386-win32`, or with
+`arm64` and `arm64-win32`, for those targets.
 The console startup applies Windows quote and backslash parsing to construct
 `argc` and `argv`. The GUI startup passes the command line after the executable
 name to `WinMain` and uses `STARTUPINFO.wShowWindow` when Windows supplies it,
@@ -184,7 +187,7 @@ C99 wide-character ABI and UTF-16 interoperability requirements are complete.
 ## Installing with WPM
 
 Trust the WCRT release key once, add the GitHub Release as a WPM repository,
-refresh its index, and install the package for the native architecture:
+refresh its index, and install the multi-architecture development package:
 
 ```powershell
 Invoke-WebRequest `
@@ -196,13 +199,10 @@ wpm update
 wpm install wcrt
 ```
 
-Select a different architecture explicitly when needed:
-
-```powershell
-wpm install wcrt --arch x86
-wpm install wcrt --arch x64
-wpm install wcrt --arch arm64
-```
+One installation provides the headers, DLL, static library, import definition,
+and startup objects for x86, x64, and ARM64. Build scripts select the desired
+target beneath `%WCRT_HOME%\x86`, `%WCRT_HOME%\x64`, or
+`%WCRT_HOME%\arm64`.
 
 To install a prerelease version, enable prereleases only for WCRT before
 updating the repository:

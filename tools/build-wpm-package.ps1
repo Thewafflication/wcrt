@@ -1,11 +1,12 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet('x86', 'x64', 'arm64')]
-    [string]$Architecture,
-
-    [Parameter(Mandatory = $true)]
     [string]$Version,
+
+    [ValidateSet('Debug', 'Release')]
+    [string]$Configuration = 'Release',
+
+    [string]$PackageName = 'wcrt',
 
     [string]$Wpm = 'wpm.exe',
     [string]$SigningKey,
@@ -21,39 +22,44 @@ $sourceVersion = $versionInfo.SourceVersion
 $packageVersion = $versionInfo.PackageVersion
 $gitHash = $versionInfo.GitHash
 
-$releaseDirectory = Join-Path $repoRoot "$BuildRoot/$Architecture/Release"
-$dll = Join-Path $releaseDirectory 'wcrt.dll'
-if (-not (Test-Path -LiteralPath $dll -PathType Leaf)) {
-    throw "Release DLL was not found: $dll"
+$architectures = @('x86', 'x64', 'arm64')
+foreach ($architecture in $architectures) {
+    $buildDirectory = Join-Path $repoRoot "$BuildRoot/$architecture/$Configuration"
+    $dll = Join-Path $buildDirectory 'wcrt.dll'
+    if (-not (Test-Path -LiteralPath $dll -PathType Leaf)) {
+        throw "$Configuration DLL was not found: $dll"
+    }
 }
 
-$staging = Join-Path $repoRoot "output/wpm-staging/$Architecture"
+$staging = Join-Path $repoRoot "output/wpm-staging/$PackageName-any"
 $packageOutput = Join-Path $repoRoot $PackageRoot
 if (Test-Path -LiteralPath $staging) {
     Remove-Item -LiteralPath $staging -Recurse -Force
 }
 New-Item -ItemType Directory -Force -Path $staging, (Join-Path $staging '.wpm'),
-    (Join-Path $staging 'bin'), (Join-Path $staging 'lib'),
     (Join-Path $staging 'include'), $packageOutput |
     Out-Null
-Copy-Item -LiteralPath $dll -Destination (Join-Path $staging 'bin/wcrt.dll')
-Copy-Item -LiteralPath (Join-Path $releaseDirectory 'libwcrt.a') `
-    -Destination (Join-Path $staging 'lib/libwcrt.a')
-Copy-Item -LiteralPath `
-    (Join-Path $releaseDirectory 'wcrt-startup-console.o') `
-    -Destination (Join-Path $staging 'lib/wcrt-startup-console.o')
-Copy-Item -LiteralPath (Join-Path $releaseDirectory 'wcrt-startup-gui.o') `
-    -Destination (Join-Path $staging 'lib/wcrt-startup-gui.o')
-Copy-Item -LiteralPath (Join-Path $releaseDirectory 'wcrt.def') `
-    -Destination (Join-Path $staging 'lib/wcrt.def')
+foreach ($architecture in $architectures) {
+    $buildDirectory = Join-Path $repoRoot "$BuildRoot/$architecture/$Configuration"
+    $architectureRoot = Join-Path $staging $architecture
+    $binDirectory = Join-Path $architectureRoot 'bin'
+    $libDirectory = Join-Path $architectureRoot 'lib'
+    New-Item -ItemType Directory -Force -Path $binDirectory, $libDirectory | Out-Null
+    Copy-Item -LiteralPath (Join-Path $buildDirectory 'wcrt.dll') -Destination $binDirectory
+    foreach ($file in @('libwcrt.a', 'wcrt-startup-console.o', 'wcrt-startup-gui.o', 'wcrt.def')) {
+        Copy-Item -LiteralPath (Join-Path $buildDirectory $file) -Destination $libDirectory
+    }
+}
 Copy-Item -Path (Join-Path $repoRoot 'include/*') -Destination (Join-Path $staging 'include') -Recurse
 Copy-Item -LiteralPath (Join-Path $repoRoot 'LICENSE.txt') -Destination $staging
 Copy-Item -LiteralPath (Join-Path $repoRoot 'README.md') -Destination $staging
 
 $metadata = @(
-    'name=wcrt'
+    "name=$PackageName"
     "version=$packageVersion"
-    "arch=$Architecture"
+    'arch=any'
+    # wcrt-debug is a separate package identity. Keep WPM's filename flavor
+    # field clear so its archive name is wcrt-debug-any-<version>.zip.
     'debug=false'
     'description=Waughtal C Run Time for Windows'
     'maintainer=Jordan Waughtal'
@@ -65,7 +71,9 @@ $metadata = @(
 )
 Set-Content -LiteralPath (Join-Path $staging '.wpm/package.txt') -Value $metadata -Encoding ascii
 
-$installDirectory = "%ProgramFiles%\WCRT\$packageVersion"
+$productDirectory = if ($Configuration -eq 'Debug') { 'WCRT\Debug' } else { 'WCRT' }
+$homeVariable = if ($Configuration -eq 'Debug') { 'WCRT_DEBUG_HOME' } else { 'WCRT_HOME' }
+$installDirectory = "%ProgramFiles%\$productDirectory\$packageVersion"
 $installScript = @(
     '@echo off'
     'setlocal'
@@ -73,7 +81,7 @@ $installScript = @(
     'if not exist "%WCRT_DEST%" mkdir "%WCRT_DEST%" || exit /b 1'
     'xcopy "%~dp0..\*" "%WCRT_DEST%\" /E /I /Q /Y >nul || exit /b 1'
     'if exist "%WCRT_DEST%\.wpm" rmdir /S /Q "%WCRT_DEST%\.wpm"'
-    'reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment" /v WCRT_HOME /t REG_EXPAND_SZ /d "%WCRT_DEST%" /f >nul || exit /b 1'
+    ('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment" /v {0} /t REG_EXPAND_SZ /d "%WCRT_DEST%" /f >nul || exit /b 1' -f $homeVariable)
     'exit /b 0'
 )
 $removeScript = @(
@@ -82,8 +90,8 @@ $removeScript = @(
     ('set "WCRT_DEST={0}"' -f $installDirectory)
     'if exist "%WCRT_DEST%" rmdir /S /Q "%WCRT_DEST%" || exit /b 1'
     'set "WCRT_CURRENT="'
-    'for /f "tokens=2,*" %%A in (''reg query "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment" /v WCRT_HOME 2^>nul'') do set "WCRT_CURRENT=%%B"'
-    'if /I "%WCRT_CURRENT%"=="%WCRT_DEST%" reg delete "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment" /v WCRT_HOME /f >nul 2>&1'
+    ('for /f "tokens=2,*" %%A in (''reg query "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment" /v {0} 2^>nul'') do set "WCRT_CURRENT=%%B"' -f $homeVariable)
+    ('if /I "%WCRT_CURRENT%"=="%WCRT_DEST%" reg delete "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment" /v {0} /f >nul 2>&1' -f $homeVariable)
     'exit /b 0'
 )
 Set-Content -LiteralPath (Join-Path $staging '.wpm/install.cmd') -Value $installScript -Encoding ascii
@@ -98,9 +106,9 @@ if (-not [string]::IsNullOrWhiteSpace($SigningKey)) {
 if ($LASTEXITCODE -ne 0) {
     throw 'WPM failed to create the WCRT package.'
 }
-$package = Get-ChildItem -LiteralPath $packageOutput -Filter "wcrt-$Architecture-$packageVersion.zip" -File
+$package = Get-ChildItem -LiteralPath $packageOutput -Filter "$PackageName-any-$packageVersion.zip" -File
 if (@($package).Count -ne 1) {
-    throw "Expected one WCRT package for $Architecture $packageVersion."
+    throw "Expected one multi-architecture WCRT package for $packageVersion."
 }
 
 # Keep the shared and static distributions atomic: a release package is not
@@ -113,14 +121,16 @@ try {
     foreach ($entry in $archive.Entries) {
         $entries[$entry.FullName.Replace('\', '/')] = $entry.Length
     }
-    $requiredEntries = @(
-        'bin/wcrt.dll'
-        'lib/libwcrt.a'
-        'lib/wcrt-startup-console.o'
-        'lib/wcrt-startup-gui.o'
-        'lib/wcrt.def'
-        'include/stdio.h'
-    )
+    $requiredEntries = @('include/stdio.h')
+    foreach ($architecture in $architectures) {
+        $requiredEntries += @(
+            "$architecture/bin/wcrt.dll"
+            "$architecture/lib/libwcrt.a"
+            "$architecture/lib/wcrt-startup-console.o"
+            "$architecture/lib/wcrt-startup-gui.o"
+            "$architecture/lib/wcrt.def"
+        )
+    }
     foreach ($entry in $requiredEntries) {
         if (-not $entries.ContainsKey($entry) -or $entries[$entry] -eq 0) {
             throw "WCRT package is missing required non-empty entry: $entry"
