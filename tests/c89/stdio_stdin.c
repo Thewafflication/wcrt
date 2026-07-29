@@ -14,6 +14,12 @@
 
 #define WCRT_STD_INPUT_HANDLE ((unsigned long)-10)
 #define WCRT_KEY_EVENT 1
+#define WCRT_GENERIC_READ 0x80000000UL
+#define WCRT_GENERIC_WRITE 0x40000000UL
+#define WCRT_SHARE_READ 1UL
+#define WCRT_SHARE_WRITE 2UL
+#define WCRT_OPEN_EXISTING 3UL
+#define WCRT_INVALID_HANDLE ((void *)(long long)-1)
 
 typedef struct wcrt_key_event_record {
     int key_down;
@@ -37,7 +43,13 @@ typedef struct wcrt_input_record {
 
 __declspec(dllimport) int WCRT_WINAPI AllocConsole(void);
 __declspec(dllimport) int WCRT_WINAPI FreeConsole(void);
+__declspec(dllimport) void *WCRT_WINAPI CreateFileA(const char *path,
+    unsigned long access, unsigned long sharing, void *security,
+    unsigned long creation, unsigned long attributes, void *template_file);
+__declspec(dllimport) int WCRT_WINAPI CloseHandle(void *handle);
 __declspec(dllimport) void *WCRT_WINAPI GetStdHandle(unsigned long selector);
+__declspec(dllimport) int WCRT_WINAPI SetStdHandle(unsigned long selector,
+    void *handle);
 __declspec(dllimport) int WCRT_WINAPI GetConsoleMode(void *handle,
     unsigned long *mode);
 __declspec(dllimport) int WCRT_WINAPI WriteConsoleInputA(void *handle,
@@ -67,19 +79,32 @@ static int test_console_input(void)
     if (!AllocConsole()) {
         return 10;
     }
-    handle = GetStdHandle(WCRT_STD_INPUT_HANDLE);
-    if (handle == NULL || !GetConsoleMode(handle, &mode)) {
+    handle = CreateFileA("CONIN$", WCRT_GENERIC_READ | WCRT_GENERIC_WRITE,
+        WCRT_SHARE_READ | WCRT_SHARE_WRITE, NULL, WCRT_OPEN_EXISTING, 0, NULL);
+    if (handle == NULL || handle == WCRT_INVALID_HANDLE) {
         return 11;
+    }
+    if (!SetStdHandle(WCRT_STD_INPUT_HANDLE, handle)) {
+        CloseHandle(handle);
+        return 12;
+    }
+    if (GetStdHandle(WCRT_STD_INPUT_HANDLE) != handle ||
+        !GetConsoleMode(handle, &mode)) {
+        CloseHandle(handle);
+        return 13;
     }
     set_key(&records[0], 'n', 'N');
     set_key(&records[1], '\r', 13);
     if (!WriteConsoleInputA(handle, records, 2, &written) || written != 2) {
-        return 12;
+        CloseHandle(handle);
+        return 14;
     }
     if (fgets(answer, sizeof(answer), stdin) == NULL ||
         strcmp(answer, "n\n") != 0) {
-        return 13;
+        CloseHandle(handle);
+        return 15;
     }
+    CloseHandle(handle);
     return 0;
 }
 
