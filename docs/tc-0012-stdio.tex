@@ -2,7 +2,8 @@
 \def\TCID{TC-0012}
 \def\TCTitle{C89 input and output}
 \def\TCPurpose{Verify all 41 functions across files, temporary streams,
-text translation, redirected and Windows console input, positioning,
+text translation, relative and drive-qualified Windows paths, redirected and
+Windows console input, positioning,
 indicators, formatting, and scanning.}
 \def\TCPriority{\TCPriorityHigh}
 \def\TCRequirementRef{REQ-0012}
@@ -24,7 +25,9 @@ families, widths, precision, modifiers, and scansets.}
 \def\TCInitialState{No dynamic WCRT stream slot is open.}
 \def\TCProcedure{\par\begin{enumerate}
 \item Compile all required declarations without host standard headers.
-\item Exercise file lifecycle, direct I/O, positioning, and indicators.
+\item Exercise file lifecycle, direct I/O, positioning, and indicators. Create
+and rename files through relative paths, then access the same files through
+drive-qualified absolute paths supplied by the test runner.
 \item Launch a child process twice with a native redirected standard-input
 handle, write exact \texttt{n\textbackslash r\textbackslash n} and
 \texttt{y\textbackslash r\textbackslash n} byte sequences, and verify

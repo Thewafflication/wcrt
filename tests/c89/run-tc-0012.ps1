@@ -36,7 +36,9 @@ if ($LASTEXITCODE -ne 0) {
 }
 Push-Location $buildDirectory
 try {
-    & $executable
+    $absoluteFirst = Join-Path $buildDirectory 'wcrt-tc-0012-a.tmp'
+    $absoluteSecond = Join-Path $buildDirectory 'wcrt-tc-0012-b.tmp'
+    & $executable $absoluteFirst $absoluteSecond
     $exitCode = $LASTEXITCODE
 } finally {
     Pop-Location
@@ -68,6 +70,7 @@ if ($LASTEXITCODE -ne 0) {
     Compiler = (& $TinyCc -v 2>&1 | Select-Object -First 1).ToString()
     FunctionsCovered = 41
     FilesAndTemporaryFiles = 'Pass'
+    RelativeAndDriveQualifiedPaths = 'Pass'
     CharacterAndDirectIo = 'Pass'
     PositionAndIndicators = 'Pass'
     FormattedOutput = 'Pass'

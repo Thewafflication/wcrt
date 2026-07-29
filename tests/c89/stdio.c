@@ -31,10 +31,12 @@ static int call_vfprintf(FILE *stream, const char *format, ...)
  * @brief Runs file, stream, formatting, scanning, and temporary-file checks.
  * @return Zero on success or a test-specific failure code.
  */
-int main(void)
+int main(int argc, char **argv)
 {
     const char *first_path = "wcrt-tc-0012-a.tmp";
     const char *second_path = "wcrt-tc-0012-b.tmp";
+    const char *absolute_first;
+    const char *absolute_second;
     FILE *stream;
     char buffer[256];
     char word[16];
@@ -121,6 +123,34 @@ int main(void)
     if (printf("") != 0 || vprintf == NULL || stdin == NULL ||
         stdout == NULL || stderr == NULL) {
         return 16;
+    }
+
+    if (argc != 3 || argv[1][0] == '\0' || argv[1][1] != ':' ||
+        argv[2][0] == '\0' || argv[2][1] != ':') {
+        return 17;
+    }
+    absolute_first = argv[1];
+    absolute_second = argv[2];
+    remove(first_path);
+    remove(second_path);
+    stream = fopen(first_path, "wb");
+    if (stream == NULL || fwrite("path", 1, 4, stream) != 4 ||
+        fclose(stream) != 0) {
+        return 18;
+    }
+    stream = fopen(absolute_first, "rb");
+    if (stream == NULL || fread(buffer, 1, 4, stream) != 4 ||
+        memcmp(buffer, "path", 4) != 0 || fclose(stream) != 0) {
+        return 19;
+    }
+    if (rename(absolute_first, second_path) != 0) {
+        return 20;
+    }
+    stream = fopen(absolute_second, "rb");
+    if (stream == NULL || fread(buffer, 1, 4, stream) != 4 ||
+        memcmp(buffer, "path", 4) != 0 || fclose(stream) != 0 ||
+        remove(second_path) != 0) {
+        return 21;
     }
     return 0;
 }

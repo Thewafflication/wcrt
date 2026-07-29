@@ -4,11 +4,11 @@
 
 **Project:** WCRT
 
-**WSP baseline:** Immutable commit `44f591d6416d18252596d8c9fb45f8fbaa65d08a`
+**WSP baseline:** Immutable commit `0f66aa65fd820799468818ae57897f2940fb6037`
 
 **Submodule path:** `tools/wsp/`
 
-**Pinned commit:** `44f591d6416d18252596d8c9fb45f8fbaa65d08a`
+**Pinned commit:** `0f66aa65fd820799468818ae57897f2940fb6037`
 
 **Status:** Proposed
 
@@ -51,7 +51,7 @@
 | `WSP-REQM-0005` | Applicable | `tests/verify-traceability.ps1` | Traceability is checked automatically. |
 | `WSP-REQM-0006` | Applicable | `docs/WSP-ADOPTION.md` | This record controls the adopted baseline and dispositions. |
 | `WSP-REQM-0007` | Applicable | `docs/WSP-ADOPTION.md` | Tailoring is explicit in this controlled record. |
-| `WSP-REQM-0008` | Deferred | Future change-review record | Add a controlled WSP change-impact review when the baseline is upgraded. |
+| `WSP-REQM-0008` | Applicable | Baseline history in this record | WSP baseline upgrades include a controlled change-impact review. |
 | `WSP-REQM-0009` | Applicable | Git history and requirement documents | Git preserves controlled requirement history. |
 | `WSP-REQM-0010` | Applicable | Git tags and GitHub releases | Releases identify immutable source baselines. |
 
@@ -244,3 +244,4 @@
 | --- | --- | --- | --- |
 | 2026-07-26 | `3ac1b461c06071e15da6c6f2c44c253a4d9220ef` | `wsp_inclusion` | Initial WSP adoption at `tools/wsp/` |
 | 2026-07-26 | `44f591d6416d18252596d8c9fb45f8fbaa65d08a` | WSP baseline update | Adopt latest upstream WSP, including the 1.0.0 release, action-runtime currency requirements, and shared logging tools. |
+| 2026-07-29 | `0f66aa65fd820799468818ae57897f2940fb6037` | WSP baseline update | Add native standard-input testing guidance. Impact review found no requirement-disposition or logging-interface changes; existing WCRT logging integration remains compatible. |
