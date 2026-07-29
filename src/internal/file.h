@@ -17,6 +17,7 @@
 
 struct wcrt_file {
     void *handle;             /**< Windows handle. */
+    int descriptor;           /**< Microsoft-compatible file descriptor. */
     unsigned int flags;       /**< Access and ownership flags. */
     int end_of_file;          /**< End-of-file indicator. */
     int error;                /**< Error indicator. */
@@ -39,6 +40,6 @@ int __wcrt_file_remove(const char *path);
 int __wcrt_file_rename(const char *old_path, const char *new_path);
 int __wcrt_file_temporary(char *path);
 void __wcrt_file_initialize_standard(FILE *stream, int selector,
-    unsigned int flags);
+    int descriptor, unsigned int flags);
 
 #endif

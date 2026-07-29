@@ -18,7 +18,13 @@ $tests = @(
         'tests\c99\run-tc-0019.ps1'),
     @('TC-0020', 'Microsoft compatibility',
         'Legacy bounded formatted output',
-        'tests\mscompat\run-tc-0020.ps1')
+        'tests\mscompat\run-tc-0020.ps1'),
+    @('TC-0043', 'Microsoft compatibility',
+        'Low-level I/O header baseline',
+        'tests\mscompat\run-tc-0043.ps1'),
+    @('TC-0044', 'Microsoft compatibility',
+        'Stream file descriptor',
+        'tests\mscompat\run-tc-0044.ps1')
 )
 $results = foreach ($test in $tests) {
     Write-WspInfo "Running $($test[0]) ($($test[2])) on $Architecture."

@@ -1,0 +1,33 @@
+% TC-0044 fragment; intended for the compatibility test report.
+\def\TCID{TC-0044}
+\def\TCTitle{Microsoft stream file descriptor}
+\def\TCPurpose{Verify the declaration and Microsoft-compatible behavior of
+\texttt{\_fileno}.}
+\def\TCPriority{\TCPriorityCritical}
+\def\TCRequirementRef{REQ-0044}
+\def\TCDesignRef{Microsoft CRT documentation for \texttt{\_fileno}.}
+\def\TCFeatureRef{\texttt{include/stdio.h}; \texttt{src/stdio.c};
+\texttt{tests/mscompat/fileno.c};
+\texttt{tests/mscompat/run-tc-0044.ps1}.}
+\def\TCTestTechnique{Interface, equivalence-partition, error, state-preservation,
+and integration testing.}
+\def\TCPreconditions{REQ-0003 and REQ-0012 are implemented and the Microsoft
+compatibility surface is selected.}
+\def\TCEnvironment{TinyCC compilation and execution on supported Windows
+targets, including a WSP logger compile check.}
+\def\TCAssumptions{The test harness can observe attached and, where supported,
+unattached standard streams.}
+\def\TCInputData{The three standard streams, an \texttt{fopen} stream,
+\texttt{NULL}, and an unattached output-stream fixture.}
+\def\TCInitialState{Streams are open with recorded position, mode, buffering,
+and error state.}
+\def\TCProcedure{Compile the documented declaration; query each valid stream;
+compare standard descriptors; verify state preservation and sentinels; test
+null continuation behavior; reject the POSIX alias; compile the WSP C logger.}
+\def\TCExpectedResult{\texttt{\_fileno} returns the associated descriptor,
+returns the documented sentinel values, preserves stream state, and supports
+the logger integration.}
+\def\TCPostConditions{All test-owned streams are closed and standard streams
+retain their initial state.}
+\TCTemplate
+

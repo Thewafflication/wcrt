@@ -22,11 +22,11 @@ static char wcrt_temporary_name[L_tmpnam];
 static void wcrt_prepare_stream(FILE *stream)
 {
     if (stream == stdin) {
-        __wcrt_file_initialize_standard(stream, -10, WCRT_FILE_READ);
+        __wcrt_file_initialize_standard(stream, -10, 0, WCRT_FILE_READ);
     } else if (stream == stdout) {
-        __wcrt_file_initialize_standard(stream, -11, WCRT_FILE_WRITE);
+        __wcrt_file_initialize_standard(stream, -11, 1, WCRT_FILE_WRITE);
     } else if (stream == stderr) {
-        __wcrt_file_initialize_standard(stream, -12, WCRT_FILE_WRITE);
+        __wcrt_file_initialize_standard(stream, -12, 2, WCRT_FILE_WRITE);
     }
 }
 
@@ -81,17 +81,24 @@ FILE *fopen(const char *path, const char *mode)
     if (stream == NULL || __wcrt_file_open(stream, path, mode) != 0) {
         return NULL;
     }
+    stream->descriptor = (int)(stream - wcrt_streams) + 3;
     return stream;
 }
 
 FILE *freopen(const char *path, const char *mode, FILE *stream)
 {
+    int descriptor;
     if (stream == NULL) {
         return NULL;
     }
     wcrt_prepare_stream(stream);
+    descriptor = stream->descriptor;
     __wcrt_file_close(stream);
-    return __wcrt_file_open(stream, path, mode) == 0 ? stream : NULL;
+    if (__wcrt_file_open(stream, path, mode) != 0) {
+        return NULL;
+    }
+    stream->descriptor = descriptor;
+    return stream;
 }
 
 int fclose(FILE *stream)
@@ -101,6 +108,21 @@ int fclose(FILE *stream)
     }
     wcrt_prepare_stream(stream);
     return __wcrt_file_close(stream) == 0 ? 0 : EOF;
+}
+
+int _fileno(FILE *stream)
+{
+    if (stream == NULL) {
+        errno = EINVAL;
+        return -1;
+    }
+    wcrt_prepare_stream(stream);
+    if ((stream == stdout || stream == stderr) &&
+        (stream->handle == NULL ||
+        stream->handle == (void *)(long long)-1)) {
+        return -2;
+    }
+    return stream->descriptor;
 }
 
 int fflush(FILE *stream)

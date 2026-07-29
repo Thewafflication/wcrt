@@ -30,6 +30,13 @@ Each standards milestone must satisfy all of these gates:
 Establish a runtime that can be built and tested before making a standards
 conformance claim.
 
+### Priority 0 — immediate
+
+- [x] Add the minimal Microsoft-compatible `io.h` inclusion surface
+      (REQ-0043) and implement the `<stdio.h>` `_fileno(FILE *stream)`
+      interface (REQ-0044), with tests for the standard streams, opened files,
+      invalid arguments, and compatibility with the WSP C logger.
+
 - [ ] Adopt a GPL-3.0-or-later source-file notice policy.
 - [x] Create the `include`, `wcrt`, `tests`, `tools`, and `docs` structure.
 - [ ] Define supported TinyCC versions and acquire compiler capability probes.
@@ -260,9 +267,10 @@ approved.
 
 ### MS2 — Files, descriptors, directories, and filesystem metadata
 
-- [ ] Add `io.h` low-level descriptor operations, including `_open`, `_close`,
-      `_read`, `_write`, `_lseek`, `_tell`, `_commit`, `_dup`, `_dup2`,
-      `_pipe`, `_isatty`, `_setmode`, and handle conversion.
+- [ ] Complete the `io.h` low-level descriptor surface beyond the Phase 0
+      `_fileno` baseline, including `_open`, `_close`, `_read`, `_write`,
+      `_lseek`, `_tell`, `_commit`, `_dup`, `_dup2`, `_pipe`, `_isatty`,
+      `_setmode`, and handle conversion.
 - [ ] Add `fcntl.h`/`share.h` flags and sharing semantics with explicit Windows
       handle, text/binary translation, inheritance, and append behavior.
 - [ ] Add `direct.h` directory and current-drive functions in narrow and wide
@@ -270,7 +278,7 @@ approved.
 - [ ] Add Microsoft `sys/stat.h`, `sys/types.h`, `_findfirst`/`_findnext`,
       file-length, access, chmod, unlink, rename, and temporary-name families,
       including 32/64-bit time and file-size variants.
-- [ ] Add Microsoft stream extensions such as `_fdopen`, `_fileno`, `_fsopen`,
+- [ ] Add remaining Microsoft stream extensions such as `_fdopen`, `_fsopen`,
       `_wfopen`, `_wfreopen`, locking, flushing, mode control, and wide
       temporary-file functions.
 

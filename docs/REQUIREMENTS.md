@@ -67,6 +67,8 @@ that compatibility behavior cannot alter a standard function's contract.
 | Requirement | Test case | Header | Source | Scope |
 | --- | --- | --- | --- | --- |
 | [REQ-0020](req-0020-ms-stdio-bounded-format.md) | [TC-0020](tc-0020-ms-stdio-bounded-format.tex) | `<stdio.h>` | Microsoft CRT | `_snprintf` and `_vsnprintf` legacy bounded output |
+| [REQ-0043](req-0043-ms-io-header.md) | [TC-0043](tc-0043-ms-io-header.tex) | `<io.h>` | Microsoft CRT | Minimal low-level I/O header baseline |
+| [REQ-0044](req-0044-ms-fileno.md) | [TC-0044](tc-0044-ms-fileno.tex) | `<stdio.h>` | Microsoft CRT | Stream-to-file-descriptor mapping |
 
 ## Shared acceptance gates
 

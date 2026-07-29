@@ -105,6 +105,7 @@ int __wcrt_file_close(FILE *stream)
         result = CloseHandle(stream->handle) ? 0 : -1;
     }
     stream->handle = NULL;
+    stream->descriptor = -1;
     if (stream->delete_path[0] != '\0') {
         DeleteFileA(stream->delete_path);
     }
@@ -169,10 +170,11 @@ int __wcrt_file_temporary(char *path)
 }
 
 void __wcrt_file_initialize_standard(FILE *stream, int selector,
-    unsigned int flags)
+    int descriptor, unsigned int flags)
 {
     if (stream->handle == NULL) {
         stream->handle = GetStdHandle((unsigned long)selector);
+        stream->descriptor = descriptor;
         stream->flags = flags;
         stream->pushback = EOF;
         stream->buffering = selector == -12 ? _IONBF : _IOLBF;

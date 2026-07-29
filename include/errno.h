@@ -12,6 +12,9 @@
 /** @brief Range error reported by a mathematical or conversion function. */
 #define ERANGE 34
 
+/** @brief Invalid argument reported by Microsoft compatibility interfaces. */
+#define EINVAL 22
+
 /** @brief Process-global C89 error indicator storage. */
 extern int wcrt_errno;
 

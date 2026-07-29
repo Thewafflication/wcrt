@@ -1,0 +1,30 @@
+% TC-0043 fragment; intended for the compatibility test report.
+\def\TCID{TC-0043}
+\def\TCTitle{Microsoft low-level I/O header baseline}
+\def\TCPurpose{Verify the controlled, minimal \texttt{io.h} inclusion
+surface required by REQ-0043.}
+\def\TCPriority{\TCPriorityCritical}
+\def\TCRequirementRef{REQ-0043}
+\def\TCDesignRef{Microsoft CRT required-header documentation and documented
+\texttt{io.h} assignment for low-level I/O.}
+\def\TCFeatureRef{\texttt{include/io.h};
+\texttt{tests/mscompat/presence/io.c};
+\texttt{tests/mscompat/run-tc-0043.ps1}.}
+\def\TCTestTechnique{Header presence, self-containment, repeated-inclusion,
+and interface-inspection testing.}
+\def\TCPreconditions{The Microsoft compatibility surface is selected.}
+\def\TCEnvironment{TinyCC C and available C++ header compilation without host
+CRT header fallback.}
+\def\TCAssumptions{Only implemented, controlled compatibility interfaces may
+be public.}
+\def\TCInputData{Translation units that include \texttt{io.h} first, twice,
+and alongside ISO C headers.}
+\def\TCInitialState{No project header has been included.}
+\def\TCProcedure{Compile the header inclusion partitions; inspect the public
+tokens; verify unimplemented MS2 declarations are absent; compile ISO header
+isolation checks.}
+\def\TCExpectedResult{The header is available and repeatable in C and C++,
+does not expose unimplemented interfaces, and does not alter ISO declarations.}
+\def\TCPostConditions{No runtime state is changed.}
+\TCTemplate
+

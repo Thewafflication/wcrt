@@ -74,6 +74,8 @@ int vsnprintf(char *WCRT_RESTRICT destination, size_t size,
 int _snprintf(char *destination, size_t size, const char *format, ...);
 int _vsnprintf(char *destination, size_t size, const char *format,
     va_list arguments);
+/** @brief Returns the descriptor associated with an open stream. */
+int _fileno(FILE *stream);
 int fgetc(FILE *stream);
 char *fgets(char *WCRT_RESTRICT destination, int count,
     FILE *WCRT_RESTRICT stream);
