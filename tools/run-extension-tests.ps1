@@ -24,7 +24,25 @@ $tests = @(
         'tests\mscompat\run-tc-0043.ps1'),
     @('TC-0044', 'Microsoft compatibility',
         'Stream file descriptor',
-        'tests\mscompat\run-tc-0044.ps1')
+        'tests\mscompat\run-tc-0044.ps1'),
+    @('TC-0045', 'Microsoft compatibility',
+        'Case-insensitive strings',
+        'tests\mscompat\run-tc-0045.ps1'),
+    @('TC-0046', 'Microsoft compatibility',
+        'Secure narrow stdio',
+        'tests\mscompat\run-tc-0046.ps1'),
+    @('TC-0047', 'Microsoft compatibility',
+        'Secure narrow string copy',
+        'tests\mscompat\run-tc-0047.ps1'),
+    @('TC-0048', 'Microsoft compatibility',
+        'Explicit-width file-time update',
+        'tests\mscompat\run-tc-0048.ps1'),
+    @('TC-0049', 'Microsoft compatibility',
+        '64-bit file status and x86 alias',
+        'tests\mscompat\run-tc-0049.ps1'),
+    @('TC-0050', 'WPM integration',
+        'Bounded formatted-output integration',
+        'tests\mscompat\run-tc-0050.ps1')
 )
 $results = foreach ($test in $tests) {
     Write-WspInfo "Running $($test[0]) ($($test[2])) on $Architecture."
