@@ -11,5 +11,6 @@
 | REQ-0026 | [TC-0026](../../docs/tc-0026-iso646.tex) | `presence/iso646.c`, `iso646.c` | Alternative spelling equivalence |
 
 The suite compiles against WCRT headers without host standard-library headers.
-TC-0021 through TC-0026 are implemented test cases. They are expected to fail
-until their corresponding C99 library interfaces are implemented.
+TC-0021 through TC-0026 and their corresponding interfaces are implemented.
+Adding those cases to the aggregate extension runner and its retained CI result
+set is planned as T0 in `docs/C99-1.0-WORK-PLAN.md`.

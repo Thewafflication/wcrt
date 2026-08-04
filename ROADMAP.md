@@ -1,7 +1,9 @@
 # WCRT Roadmap
 
 This roadmap is ordered by dependency and conformance level. Dates are omitted
-until the bootstrap work establishes reliable estimates. A checked item means
+until measured tranche history establishes reliable forecasts. The controlled
+C99-to-1.0.0 estimates and quality plan are in
+[`docs/C99-1.0-WORK-PLAN.md`](docs/C99-1.0-WORK-PLAN.md). A checked item means
 the work is present, tested, documented, and passing the relevant release
 gates—not merely started.
 
@@ -98,16 +100,20 @@ The ordered requirement backlog is maintained in
 [`docs/C99-REQUIREMENTS.md`](docs/C99-REQUIREMENTS.md). Work proceeds in these
 dependency groups:
 
+Completion of Milestone 2, the common release gates, and a successful
+release-readiness decision define the WCRT 1.0.0 boundary. C11 and the remaining
+Microsoft CRT compatibility backlog are post-1.0 work.
+
 ### 2A — Fundamental types and compiler contracts
 
-- [ ] Add `stdbool.h` Boolean macros (REQ-0021).
-- [ ] Add `stdint.h` exact-, least-, fast-, pointer-, and maximum-width integer
+- [x] Add `stdbool.h` Boolean macros (REQ-0021).
+- [x] Add `stdint.h` exact-, least-, fast-, pointer-, and maximum-width integer
       types, limits, and constant-expression macros (REQ-0022).
-- [ ] Extend `limits.h` for `long long` (REQ-0023) and extend `float.h` with the
+- [x] Extend `limits.h` for `long long` (REQ-0023) and extend `float.h` with the
       C99 evaluation and decimal-conversion model (REQ-0024).
 - [x] Add `va_copy` to `stdarg.h` and audit C99 `restrict`-qualified public
       declarations without exposing C99 syntax in C89 mode (REQ-0025).
-- [ ] Add `iso646.h`, which C99 inherits from the C95 amendment (REQ-0026).
+- [x] Add `iso646.h`, which C99 inherits from the C95 amendment (REQ-0026).
 - [ ] Establish TinyCC capability probes for every language/compiler facility
       required by public C99 headers, especially `_Bool`, `long long`,
       `restrict`, variadic macros, complex arithmetic, and type-generic macros.

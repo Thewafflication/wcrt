@@ -29,7 +29,7 @@
 
 | Profile | Selected | Project scope or rationale |
 | --- | --- | --- |
-| Personal process | No | Individual PSP records are not project deliverables. |
+| Personal process | Yes | C99-to-1.0.0 and later requirement-sized maintainer work; records and data governance are defined in `docs/PROJECT-PROCESS.md`. |
 | Security/DFS | Yes | Runtime behavior, build integrity, releases, and dependency trust |
 | C source style | Yes | Project-owned headers and C sources |
 | PowerShell style | Yes | Project-owned build, test, packaging, and reporting automation |
@@ -59,9 +59,9 @@
 
 | WSP requirement | Disposition | Project artifact | Rationale or notes |
 | --- | --- | --- | --- |
-| `WSP-PROC-0001` | Deferred | Future project-process document | Existing practices are distributed across project files and workflows. |
-| `WSP-PROC-0002` | Deferred | Future project-process document | Roles and responsibilities require explicit documentation. |
-| `WSP-PROC-0003` | Applicable | `ROADMAP.md`, GitHub issues and milestones | Work is planned proportionally to project risk and scope. |
+| `WSP-PROC-0001` | Applicable | `docs/PROJECT-PROCESS.md` | The lifecycle, records, tailoring, and improvement path are defined. |
+| `WSP-PROC-0002` | Applicable | `docs/PROJECT-PROCESS.md` | Maintainer, implementer, reviewer, verification, release, security, and improvement responsibilities are assigned. |
+| `WSP-PROC-0003` | Applicable | `ROADMAP.md`, `docs/C99-1.0-WORK-PLAN.md`, GitHub issues and milestones | Work is planned proportionally to project risk and scope. |
 | `WSP-PROC-0004` | Applicable | Git history and pull-request review | Project changes are version controlled and reviewable. |
 | `WSP-PROC-0005` | Applicable | Pull-request review and required CI | Changes are reviewed before integration. |
 | `WSP-PROC-0006` | Applicable | GitHub issues and test failures | Issues and defects are tracked with their corrective changes. |
@@ -69,6 +69,20 @@
 | `WSP-PROC-0008` | Applicable | Git tags and GitHub releases | Approved releases establish immutable baselines. |
 | `WSP-PROC-0009` | Applicable | GitHub issues and releases | Public support and corrective releases use repository records. |
 | `WSP-PROC-0010` | Deferred | Future retrospective record | Periodic improvement review requires explicit evidence. |
+
+### Personal process
+
+| WSP requirement | Disposition | Project artifact | Rationale or notes |
+| --- | --- | --- | --- |
+| `WSP-PSP-0001` | Applicable | `docs/PROJECT-PROCESS.md` | The selected personal lifecycle covers planning through postmortem. |
+| `WSP-PSP-0002` | Applicable | `docs/C99-1.0-WORK-PLAN.md`, `docs/work/` | Tranches require size, effort, forecast, assumptions, and uncertainty. |
+| `WSP-PSP-0003` | Applicable | `docs/PROJECT-PROCESS.md`, `docs/work/` | Focused effort is recorded by phase and interruptions are excluded. |
+| `WSP-PSP-0004` | Applicable | `docs/C99-1.0-WORK-PLAN.md`, `docs/work/` | The work plan defines defect fields and classification. |
+| `WSP-PSP-0005` | Applicable | `docs/PROJECT-PROCESS.md`, `docs/work/` | Each tranche uses a personal review checklist before verification. |
+| `WSP-PSP-0006` | Applicable | `docs/C99-1.0-WORK-PLAN.md` | Quality activities and early-removal checks are planned per tranche. |
+| `WSP-PSP-0007` | Applicable | `docs/PROJECT-PROCESS.md`, `docs/work/` | Tranche and release postmortems compare estimates and actuals. |
+| `WSP-PSP-0008` | Applicable | `docs/PROJECT-PROCESS.md`, postmortems | Evidence-based checklist and process improvements use normal review. |
+| `WSP-PSP-0009` | Applicable | `docs/PROJECT-PROCESS.md` | Access, retention, aggregation, and prohibited comparative use are defined. |
 
 ### Documentation
 
@@ -221,7 +235,7 @@
 ### Non-applicable requirements
 
 - **Disposition:** Not applicable
-- **Rationale:** Personal-process records, CMake, PAdES, authorization, and application data logging are outside WCRT's current project or product scope.
+- **Rationale:** CMake, PAdES, authorization, and application data logging are outside WCRT's current project or product scope.
 - **Impact:** WCRT makes no compliance claim for these profiles or controls.
 - **Compensating control:** Reassess applicability when the build system, release format, product boundary, or project governance changes.
 - **Owner:** WCRT maintainer
@@ -236,3 +250,4 @@
 | 2026-07-26 | `44f591d6416d18252596d8c9fb45f8fbaa65d08a` | WSP baseline update | Adopt latest upstream WSP, including the 1.0.0 release, action-runtime currency requirements, and shared logging tools. |
 | 2026-07-29 | `0f66aa65fd820799468818ae57897f2940fb6037` | WSP baseline update | Add native standard-input testing guidance. Impact review found no requirement-disposition or logging-interface changes; existing WCRT logging integration remains compatible. |
 | 2026-08-03 | `2198ccab08f969a789448767fe7017b774369adc` | WSP baseline update and relocation | Add portable C logger fallbacks and tests, adopt intervening upstream guidance, and move the checkout from `tools/wsp/` to the project-root `wsp/` path. |
+| 2026-08-04 | `2198ccab08f969a789448767fe7017b774369adc` | C99-to-1.0.0 planning change | Select the personal-process profile and define the project process, measured C99 work plan, and 1.0.0 release boundary. |

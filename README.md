@@ -19,11 +19,14 @@ your option) any later version.
 
 ## Project status
 
-WCRT has a working C89 library baseline and is beginning its C99 extension
-work. The C89 headers and runtime are covered by requirement-linked presence
-and behavioral tests (TC-0001 through TC-0015), while source quality and the
-optional console and GUI startup paths are covered by TC-0016 through TC-0018.
-`snprintf` and `vsnprintf` are the first implemented C99 additions.
+WCRT has a working C89 library baseline and has completed the first C99
+fundamental-header tranche. The C89 headers and runtime are covered by
+requirement-linked presence and behavioral tests (TC-0001 through TC-0015),
+while source quality and the optional console and GUI startup paths are covered
+by TC-0016 through TC-0018.
+`snprintf`, `vsnprintf`, and REQ-0021 through REQ-0026 are implemented C99
+additions. The remaining C99 work and the 1.0.0 release boundary are defined in
+the [C99 to 1.0.0 work plan](docs/C99-1.0-WORK-PLAN.md).
 
 Continuous integration builds and tests x86, x64, and ARM64 on native Windows
 runners. WCRT is still pre-release and is not yet suitable for production use;
