@@ -176,6 +176,8 @@ jobs:
           if (@($results | Where-Object Status -ne 'Pass').Count -ne 0) { exit 1 }
 
       - name: Run C89 tests
+        id: c89
+        continue-on-error: true
         shell: pwsh
         run: ./tools/run-c89-tests.ps1 -Architecture '${{ matrix.arch }}' -TinyCc $env:TINYCC
 
@@ -194,49 +196,74 @@ jobs:
             '# WCRT Test Report'
             ''
             '## ${{ matrix.arch }} Debug'
-            ''
-            '### ISO C89 library'
-            ''
-            '| Test Case | Result |'
-            '| --- | --- |'
           ) | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+
+          function Open-TestSuite {
+            param([string]$Name, [object[]]$Results)
+            $blocked = @($Results | Where-Object Status -eq 'Blocked').Count
+            $failed = @($Results | Where-Object Status -notin 'Pass', 'Blocked').Count
+            if ($Results.Count -eq 0 -or $failed -ne 0) {
+              $indicator = '❌'
+              $status = 'FAIL'
+              $open = ' open'
+            } elseif ($blocked -ne 0) {
+              $indicator = '⚠️'
+              $status = 'BLOCKED'
+              $open = ' open'
+            } else {
+              $indicator = '✅'
+              $status = 'PASS'
+              $open = ''
+            }
+            @(
+              ''
+              "<details$open>"
+              "<summary>$indicator <strong>$Name — $status</strong></summary>"
+              ''
+            ) | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+          }
+
+          function Close-TestSuite {
+            @('', '</details>') |
+              Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+          }
+
           $c89Json = "$directory/c89-test-results.json"
-          if (Test-Path $c89Json) {
-            Get-Content $c89Json -Raw | ConvertFrom-Json |
-              Sort-Object TestCase | ForEach-Object {
+          $c89 = if (Test-Path $c89Json) {
+            @(Get-Content $c89Json -Raw | ConvertFrom-Json)
+          } else { @() }
+          Open-TestSuite 'ISO C89 library' $c89
+          @('| Test Case | Result |', '| --- | --- |') |
+            Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+          $c89 | Sort-Object TestCase | ForEach-Object {
               $status = $_.Status.ToUpperInvariant()
               $indicator = if ($status -eq 'PASS') { '🟢' } else { '🔴' }
               "| $($_.TestCase) $($_.Description) | $indicator **$status** |" |
                 Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
-            }
           }
+          Close-TestSuite
+
           $extensionJson = "$directory/extension-test-results.json"
           $extensions = if (Test-Path $extensionJson) {
             @(Get-Content $extensionJson -Raw | ConvertFrom-Json)
           } else { @() }
           foreach ($suite in @('C99', 'Microsoft compatibility')) {
-            @(
-              ''
-              "### $(if ($suite -eq 'C99') { 'ISO C99 extensions' } else { $suite })"
-              ''
-              '| Test Case | Result |'
-              '| --- | --- |'
-            ) | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
-            @($extensions | Where-Object Suite -eq $suite |
-              Sort-Object TestCase) | ForEach-Object {
+            $name = if ($suite -eq 'C99') {
+              'ISO C99 extensions'
+            } else { $suite }
+            $suiteResults = @($extensions | Where-Object Suite -eq $suite)
+            Open-TestSuite $name $suiteResults
+            @('| Test Case | Result |', '| --- | --- |') |
+              Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+            $suiteResults | Sort-Object TestCase | ForEach-Object {
                 $status = $_.Status.ToUpperInvariant()
                 $indicator = if ($status -eq 'PASS') { '🟢' } else { '🔴' }
                 "| $($_.TestCase) $($_.Description) | $indicator **$status** |" |
                   Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
-              }
+            }
+            Close-TestSuite
           }
-          @(
-            ''
-            '### Windows startup objects'
-            ''
-            '| Test Case | Startup object | Result |'
-            '| --- | --- | --- |'
-          ) | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+
           $startupJson = "$directory/startup-test-results.json"
           $startup = if (Test-Path $startupJson) {
             @(Get-Content $startupJson -Raw | ConvertFrom-Json)
@@ -246,6 +273,11 @@ jobs:
               [PSCustomObject]@{ TestCase = 'TC-0018'; Status = 'Fail' }
             )
           }
+          Open-TestSuite 'Windows startup objects' $startup
+          @(
+            '| Test Case | Startup object | Result |'
+            '| --- | --- | --- |'
+          ) | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
           $startupNames = @{
             'TC-0017' = 'Console (`main`)'
             'TC-0018' = 'GUI (`WinMain`)'
@@ -257,6 +289,7 @@ jobs:
             "| $($_.TestCase) | $($startupNames[$_.TestCase]) | $indicator **$status** |" |
               Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
           }
+          Close-TestSuite
           @(
             ''
             'The DLL, debug symbols, and test evidence are attached to this workflow run as the architecture-specific debug artifact.'
@@ -288,6 +321,11 @@ jobs:
           path: output/build/${{ matrix.arch }}/Debug/*
           if-no-files-found: error
           compression-level: 0
+
+      - name: Enforce C89 result
+        if: steps.c89.outcome != 'success'
+        shell: pwsh
+        run: throw 'C89 verification failed. See the job summary.'
 
       - name: Enforce Windows startup result
         if: steps.startup.outcome != 'success'

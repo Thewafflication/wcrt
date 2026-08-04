@@ -24,6 +24,7 @@ New-Item -ItemType Directory -Force -Path $buildDirectory | Out-Null
 $arguments = @(
     '-std=c89', '-Wall', '-Werror',
     '-I', (Join-Path $repoRoot 'include'),
+    (Join-Path $repoRoot 'src\errno.c'),
     (Join-Path $repoRoot 'src\string.c'),
     (Join-Path $repoRoot 'src\time.c'),
     (Join-Path $repoRoot 'src\platform\windows\clock.c'),
