@@ -36,6 +36,15 @@ conformance claim.
       (REQ-0043) and implement the `<stdio.h>` `_fileno(FILE *stream)`
       interface (REQ-0044), with tests for the standard streams, opened files,
       invalid arguments, and compatibility with the WSP C logger.
+- [ ] **In progress — WPM compatibility tranche:** replace the compatibility
+      implementations carried by the latest tagged WPM release with WCRT
+      requirements and implementations for `_stricmp`, `_strnicmp`,
+      `fopen_s`, `strcpy_s`, `strncpy_s`, `sscanf_s`, `_utime32`, `_utime64`,
+      `_stat64`, and the x86 `_stat` linker alias (REQ-0045 through REQ-0049).
+- [ ] **Requirements started:** resolve WPM's `wpm_snprintf` bridge by making
+      WCRT's standard `snprintf` usable in the required TinyCC language mode,
+      or by approving a narrowly scoped compatibility alias (REQ-0050). Do
+      not add a downstream-owned symbol to WCRT's stable ABI by accident.
 
 - [ ] Adopt a GPL-3.0-or-later source-file notice policy.
 - [x] Create the `include`, `wcrt`, `tests`, `tools`, and `docs` structure.
@@ -248,6 +257,11 @@ approved.
 
 ### MS1 — Common formatting, strings, paths, and conversions
 
+- [ ] **Immediate WPM dependency:** implement `_stricmp` and `_strnicmp`
+      (REQ-0045), the narrow secure string-copy functions `strcpy_s` and
+      `strncpy_s` (REQ-0047), and the `snprintf` integration decision
+      (REQ-0050).
+
 - [ ] Complete narrow and wide Microsoft formatted-I/O families, including
       `_scprintf`, `_vscprintf`, `_snscanf`, count-output policy, Microsoft
       length modifiers, and explicitly selected legacy semantics.
@@ -266,6 +280,10 @@ approved.
       wide-character forms.
 
 ### MS2 — Files, descriptors, directories, and filesystem metadata
+
+- [ ] **Immediate WPM dependency:** implement `fopen_s` and `sscanf_s`
+      (REQ-0046), `_utime32` and `_utime64` (REQ-0048), and `_stat64` plus the
+      linker-compatible x86 `_stat` alias (REQ-0049).
 
 - [ ] Complete the `io.h` low-level descriptor surface beyond the Phase 0
       `_fileno` baseline, including `_open`, `_close`, `_read`, `_write`,

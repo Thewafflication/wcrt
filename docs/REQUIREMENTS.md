@@ -69,6 +69,12 @@ that compatibility behavior cannot alter a standard function's contract.
 | [REQ-0020](req-0020-ms-stdio-bounded-format.md) | [TC-0020](tc-0020-ms-stdio-bounded-format.tex) | `<stdio.h>` | Microsoft CRT | `_snprintf` and `_vsnprintf` legacy bounded output |
 | [REQ-0043](req-0043-ms-io-header.md) | [TC-0043](tc-0043-ms-io-header.tex) | `<io.h>` | Microsoft CRT | Minimal low-level I/O header baseline |
 | [REQ-0044](req-0044-ms-fileno.md) | [TC-0044](tc-0044-ms-fileno.tex) | `<stdio.h>` | Microsoft CRT | Stream-to-file-descriptor mapping |
+| [REQ-0045](req-0045-ms-case-insensitive-string.md) | Planned TC-0045 | `<string.h>` | Microsoft CRT | `_stricmp` and `_strnicmp` |
+| [REQ-0046](req-0046-ms-secure-stdio.md) | Planned TC-0046 | `<stdio.h>` | Microsoft secure CRT | `fopen_s` and `sscanf_s` |
+| [REQ-0047](req-0047-ms-secure-string-copy.md) | Planned TC-0047 | `<string.h>` | Microsoft secure CRT | `strcpy_s` and `strncpy_s` |
+| [REQ-0048](req-0048-ms-utime.md) | Planned TC-0048 | `<sys/utime.h>` | Microsoft CRT | `_utime32` and `_utime64` |
+| [REQ-0049](req-0049-ms-stat.md) | Planned TC-0049 | `<sys/stat.h>` | Microsoft CRT | `_stat64` and x86 `_stat` ABI alias |
+| [REQ-0050](req-0050-wpm-snprintf-integration.md) | Planned TC-0050 | `<stdio.h>` | WPM integration | TinyCC access to standard `snprintf` |
 
 ## Shared acceptance gates
 
