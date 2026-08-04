@@ -107,12 +107,25 @@ with Windows-specific code under `src/platform/windows/`.
 ## Building
 
 The build requires PowerShell and an architecture-matched TinyCC installation.
-Debug builds also require `cv2pdb.exe` in `PATH`:
+Debug builds also require `cv2pdb.exe` in `PATH`. Install the signed WPM
+package once from an elevated PowerShell session:
+
+```powershell
+Invoke-WebRequest `
+  https://github.com/Thewafflication/cv2pdb_package/releases/latest/download/wpm-release.public `
+  -OutFile cv2pdb-wpm-release.public
+wpm trust add cv2pdb-wpm-release.public
+wpm repo add https://github.com/Thewafflication/cv2pdb_package/releases/latest/download
+wpm update
+wpm install cv2pdb
+```
+
+The package sets `CV2PDB_HOME` and adds that directory to the system `PATH`.
 
 Initialize the pinned Waughtal Software Process (WSP) submodule after cloning:
 
 ```powershell
-git submodule update --init tools/wsp
+git submodule update --init wsp
 ```
 
 ```powershell

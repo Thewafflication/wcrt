@@ -44,9 +44,9 @@ if ($LASTEXITCODE -ne 0) {
 }
 $loggerFlags = @('-std=c99', '-Wall', '-Werror', '-DWSP_LOG_NO_TTY',
     '-I', (Join-Path $repoRoot 'include'), '-I',
-    (Join-Path $repoRoot 'tools\wsp\tools\logging'))
+    (Join-Path $repoRoot 'wsp\tools\logging'))
 $logger = & $TinyCc @loggerFlags -c `
-    (Join-Path $repoRoot 'tools\wsp\tools\logging\wsp_log.c') `
+    (Join-Path $repoRoot 'wsp\tools\logging\wsp_log.c') `
     -o $loggerObject 2>&1
 if ($LASTEXITCODE -ne 0) {
     throw "TC-0044 WSP logger build failed:`n$($logger | Out-String)"
@@ -58,4 +58,3 @@ if ($LASTEXITCODE -ne 0) {
     LoggerCompatibility = 'Pass'
     ExitCode = 0
 }
-

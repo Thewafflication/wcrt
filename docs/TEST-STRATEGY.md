@@ -44,11 +44,10 @@ supporting evidence rather than the WCRT release gate.
 
 ## Environments and Preconditions
 
-CI provisions TinyCC from its signed WPM repository and obtains the debug-
-symbol converter from its published GitHub release. Test runners receive the
-target architecture and compiler path explicitly. Outputs are isolated below
-`output/` and build intermediates below `build/` or `tmp/`; runners shall not
-reuse prior-run results as current evidence.
+CI provisions TinyCC and cv2pdb from their signed WPM repositories. Test
+runners receive the target architecture and compiler path explicitly. Outputs
+are isolated below `output/` and build intermediates below `build/` or `tmp/`;
+runners shall not reuse prior-run results as current evidence.
 
 ## Identifiers and Locations
 

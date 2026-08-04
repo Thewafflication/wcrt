@@ -4,7 +4,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$tool = Join-Path $RepositoryRoot 'tools/wsp/tools/Test-Traceability.ps1'
+$tool = Join-Path $RepositoryRoot 'wsp/tools/Test-Traceability.ps1'
 
 & $tool `
     -RepositoryRoot $RepositoryRoot `

@@ -4,11 +4,11 @@
 
 **Project:** WCRT
 
-**WSP baseline:** Immutable commit `0f66aa65fd820799468818ae57897f2940fb6037`
+**WSP baseline:** Immutable commit `2198ccab08f969a789448767fe7017b774369adc`
 
-**Submodule path:** `tools/wsp/`
+**Submodule path:** `wsp/`
 
-**Pinned commit:** `0f66aa65fd820799468818ae57897f2940fb6037`
+**Pinned commit:** `2198ccab08f969a789448767fe7017b774369adc`
 
 **Status:** Proposed
 
@@ -188,7 +188,7 @@
 | `WSP-TOOL-0005` | Applicable | WSP validation output | Diagnostics identify affected artifacts and rules. |
 | `WSP-TOOL-0006` | Applicable | `output/` and `release-assets/` | Generated files remain outside the submodule. |
 | `WSP-TOOL-0007` | Applicable | Selected tool interfaces | No selected invocation receives or emits secrets. |
-| `WSP-TOOL-0008` | Applicable | `tools/wsp/tools/tests/run-tests.ps1` | Pinned common-tool self-tests run in CI. |
+| `WSP-TOOL-0008` | Applicable | `wsp/tools/tests/run-tests.ps1` | Pinned common-tool self-tests run in CI. |
 | `WSP-TOOL-0009` | Applicable | `.github/workflows/build.yml` | Workflows use maintained v6 GitHub actions on GitHub-hosted Windows runners; self-hosted runner exceptions are not currently required. |
 
 ## Tailoring Decisions
@@ -204,16 +204,6 @@
 - **Compensating control:** Every obligation is explicit in the singular
   Requirement section, each record traces to a controlled test case, and the
   runners exercise the complete conformance unit.
-- **Owner:** WCRT maintainer
-- **Completion condition:** N/A
-- **Approval:** Review and merge of the `wsp_inclusion` branch
-
-### Submodule location — WSP repository convention
-
-- **Disposition:** Tailored
-- **Rationale:** WCRT keeps development and release utilities beneath `tools/`; WSP is engineering infrastructure rather than product source.
-- **Impact:** WSP examples that assume `wsp/` at the repository root cannot be copied verbatim.
-- **Compensating control:** Project invocations shall use the explicit `tools/wsp/` path, and this record identifies that path and the pinned commit.
 - **Owner:** WCRT maintainer
 - **Completion condition:** N/A
 - **Approval:** Review and merge of the `wsp_inclusion` branch
@@ -245,3 +235,4 @@
 | 2026-07-26 | `3ac1b461c06071e15da6c6f2c44c253a4d9220ef` | `wsp_inclusion` | Initial WSP adoption at `tools/wsp/` |
 | 2026-07-26 | `44f591d6416d18252596d8c9fb45f8fbaa65d08a` | WSP baseline update | Adopt latest upstream WSP, including the 1.0.0 release, action-runtime currency requirements, and shared logging tools. |
 | 2026-07-29 | `0f66aa65fd820799468818ae57897f2940fb6037` | WSP baseline update | Add native standard-input testing guidance. Impact review found no requirement-disposition or logging-interface changes; existing WCRT logging integration remains compatible. |
+| 2026-08-03 | `2198ccab08f969a789448767fe7017b774369adc` | WSP baseline update and relocation | Add portable C logger fallbacks and tests, adopt intervening upstream guidance, and move the checkout from `tools/wsp/` to the project-root `wsp/` path. |

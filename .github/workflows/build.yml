@@ -26,7 +26,7 @@ jobs:
       - name: Verify pinned WSP common tools
         shell: pwsh
         run: |
-          ./tools/wsp/tools/tests/run-tests.ps1
+          ./wsp/tools/tests/run-tests.ps1
           # Negative tool tests deliberately leave LASTEXITCODE at 1. The
           # runner throws for an actual failure, so reaching this line means
           # the controlled suite passed.
@@ -130,19 +130,23 @@ jobs:
           "TINYCC=$tcc" >> $env:GITHUB_ENV
           $tccHome >> $env:GITHUB_PATH
 
-      - name: Install debug-symbol converter
+      - name: Install cv2pdb WPM package
         shell: pwsh
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
-          $directory = Join-Path $env:RUNNER_TEMP 'cv2pdb'
-          New-Item -ItemType Directory -Force $directory | Out-Null
-          gh release download --repo rainers/cv2pdb --pattern '*.zip' --dir $directory
+          $key = Join-Path $env:RUNNER_TEMP 'cv2pdb-wpm-release.public'
+          Invoke-WebRequest -UseBasicParsing 'https://github.com/Thewafflication/cv2pdb_package/releases/latest/download/wpm-release.public' -OutFile $key
+          wpm trust add $key
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          Get-ChildItem $directory -Filter '*.zip' | ForEach-Object { Expand-Archive $_.FullName -DestinationPath $directory -Force }
-          $cv2pdb = Get-ChildItem $directory -Filter cv2pdb.exe -Recurse | Select-Object -First 1
-          if (-not $cv2pdb) { throw 'cv2pdb.exe was not found in the release archive.' }
-          $cv2pdb.DirectoryName >> $env:GITHUB_PATH
+          wpm repo add 'https://github.com/Thewafflication/cv2pdb_package/releases/latest/download'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          wpm update
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          wpm install cv2pdb
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $cv2pdbHome = [Environment]::GetEnvironmentVariable('CV2PDB_HOME', 'Machine')
+          $cv2pdb = Join-Path $cv2pdbHome 'cv2pdb.exe'
+          if (-not (Test-Path -LiteralPath $cv2pdb)) { throw "cv2pdb was not installed at $cv2pdb." }
+          $cv2pdbHome >> $env:GITHUB_PATH
 
       - name: Build debug DLL and PDB
         shell: pwsh
@@ -585,7 +589,7 @@ jobs:
         run: |
           $assets = (Resolve-Path release-assets).Path
           $files = @(Get-ChildItem $assets -File | Select-Object -ExpandProperty FullName)
-          ./tools/wsp/tools/New-ArtifactChecksum.ps1 `
+          ./wsp/tools/New-ArtifactChecksum.ps1 `
             -Path $files `
             -OutputPath (Join-Path $assets 'SHA256SUMS')
 

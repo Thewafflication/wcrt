@@ -25,7 +25,7 @@ if (-not $doxygen) {
 } else {
     $doxygenVersion = (& $doxygen --version 2>&1 |
         Select-Object -First 1).ToString()
-    $tool = Join-Path $repoRoot 'tools/wsp/tools/Test-CSourceQuality.ps1'
+    $tool = Join-Path $repoRoot 'wsp/tools/Test-CSourceQuality.ps1'
     $powerShell = (Get-Process -Id $PID).Path
     $escapedTool = $tool.Replace("'", "''")
     $escapedRoot = $repoRoot.Replace("'", "''")

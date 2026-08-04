@@ -116,4 +116,4 @@ implicit default in `libwcrt.a` would weaken interoperability.
 - [REQ-0017 — Optional console process startup](req-0017-optional-console-startup.md)
 - [REQ-0018 — Optional GUI process startup](req-0018-optional-gui-startup.md)
 - [WCRT roadmap](../ROADMAP.md)
-- [WSP ADR guidance](../tools/wsp/architecture/adr-guidance.md)
+- [WSP ADR guidance](../wsp/architecture/adr-guidance.md)

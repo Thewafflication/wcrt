@@ -1,6 +1,6 @@
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
 $loggingModule = Join-Path $repositoryRoot `
-    'tools\wsp\tools\logging\Wsp.Logging.psm1'
+    'wsp\tools\logging\Wsp.Logging.psm1'
 
 if (-not (Test-Path -LiteralPath $loggingModule)) {
     throw "The pinned WSP logging module was not found: $loggingModule"
