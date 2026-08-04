@@ -1,0 +1,36 @@
+% TC-0028 fragment; intended for the C99 test report.
+\def\TCID{TC-0028}
+\def\TCTitle{C99 general utilities}
+\def\TCPurpose{Verify REQ-0028 termination, long-long utilities, integer and
+decimal floating conversions, errors, isolation, and ABI behavior.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0028}
+\def\TCDesignRef{ISO/IEC 9899:1999 7.20.}
+\def\TCFeatureRef{\texttt{include/stdlib.h}; \texttt{src/stdlib.c};
+\texttt{tests/c99/stdlib.c}; \texttt{tests/c99/stdlib-exit.c};
+\texttt{tests/c99/presence/stdlib.c};
+\texttt{tests/c99/presence/stdlib-c89.c};
+\texttt{tests/c99/run-tc-0028.ps1}.}
+\def\TCTestTechnique{Interface, child-process, equivalence-class,
+boundary-value, expression-type, and ABI testing.}
+\def\TCPreconditions{The long-long and Windows floating models are verified.}
+\def\TCEnvironment{C99 compilation for x86, x64, and ARM64; native execution
+where available.}
+\def\TCAssumptions{Hexadecimal floating, infinity, and NaN syntax remain in
+the planned numeric-text tranche; long double is binary64 on every supported
+Windows target.}
+\def\TCInputData{Long-long extrema and divisions; all integer base classes;
+decimal floating white space, signs, fractional forms, exponent forms,
+rollback cases, signed zero, normal values, overflow, and underflow.}
+\def\TCInitialState{errno is seeded for preservation checks; an exit callback
+sets a distinguishable child-process status if invoked.}
+\def\TCProcedure{Compile declaration, return-expression, member-type, layout,
+self-containment, and C89-isolation checks; execute utility and conversion
+partitions; verify end pointers, signed results, range errors, and errno; run a
+child proving \texttt{\_Exit} bypasses callbacks; rerun REQ-0013.}
+\def\TCExpectedResult{All interfaces have the specified types and ABI;
+conversions select the required subject sequence and range behavior; errno is
+changed only for range errors; \texttt{\_Exit} bypasses normal cleanup; C89
+behavior and exposure remain unchanged.}
+\def\TCPostConditions{Only child processes are terminated.}
+\TCTemplate

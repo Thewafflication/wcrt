@@ -9,6 +9,8 @@
 | REQ-0024 | [TC-0024](../../docs/tc-0024-float-c99.tex) | `presence/float.c`, `presence/float-c89.c`, `float.c` | Floating-model declarations, behavior, analysis, and C89 isolation |
 | REQ-0025 | [TC-0025](../../docs/tc-0025-va-copy-restrict.tex) | `presence/stdarg.c`, `presence/restrict-c89.c`, `va-copy.c`, `Verify-RestrictDeclarations.ps1` | Independent traversal, declaration audit, and C89 isolation |
 | REQ-0026 | [TC-0026](../../docs/tc-0026-iso646.tex) | `presence/iso646.c`, `presence/iso646-c89.c`, `iso646.c` | Alternative spelling equivalence and C89 isolation |
+| REQ-0027 | [TC-0027](../../docs/tc-0027-inttypes.tex) | `presence/inttypes.c`, `presence/inttypes-c89.c`, `inttypes.c` | Types, all format macro families, arithmetic, conversions, errors, ABI, and C89 isolation |
+| REQ-0028 | [TC-0028](../../docs/tc-0028-stdlib-c99.tex) | `presence/stdlib.c`, `presence/stdlib-c89.c`, `stdlib.c`, `stdlib-exit.c` | C99 utilities, integer and decimal floating conversions, `_Exit`, errors, ABI, and C89 regression |
 
 The suite compiles against WCRT headers without host standard-library headers.
 Every row is controlled by `tools/run-extension-tests.ps1`; the runner rejects

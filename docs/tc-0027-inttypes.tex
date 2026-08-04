@@ -1,0 +1,34 @@
+% TC-0027 fragment; intended for the C99 test report.
+\def\TCID{TC-0027}
+\def\TCTitle{C99 greatest-width integer interfaces}
+\def\TCPurpose{Verify REQ-0027 types, functions, format macros, conversions,
+range errors, and target ABI agreement.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0027}
+\def\TCDesignRef{ISO/IEC 9899:1999 7.8.}
+\def\TCFeatureRef{\texttt{include/inttypes.h};
+\texttt{src/stdlib.c}; \texttt{tests/c99/inttypes.c};
+\texttt{tests/c99/presence/inttypes.c};
+\texttt{tests/c99/presence/inttypes-c89.c};
+\texttt{tests/c99/run-tc-0027.ps1}.}
+\def\TCTestTechnique{Interface, equivalence-class, boundary-value,
+expression-type, and ABI testing.}
+\def\TCPreconditions{REQ-0022 types and the Windows data models are verified.}
+\def\TCEnvironment{C99 compilation for x86, x64, and ARM64; native execution
+where available.}
+\def\TCAssumptions{Only base zero and bases 2 through 36 are in the standard
+conversion domain.}
+\def\TCInputData{Every applicable format macro family; integer arithmetic;
+white space, signs, prefixes, bases, invalid digits, exact extrema, and
+one-past-extrema strings.}
+\def\TCInitialState{No host standard headers are visible; errno is seeded to a
+nonzero sentinel before preservation checks.}
+\def\TCProcedure{Compile self-containment, repeated-inclusion, type, layout,
+macro-value, concatenation, and expression checks; execute arithmetic and
+conversion partitions; verify end pointers and errno; run C89 isolation and
+the relevant C89 conversion regression.}
+\def\TCExpectedResult{Every applicable interface matches the selected ABI;
+valid conversions and arithmetic return the specified results, range errors
+saturate and set ERANGE, other cases preserve errno, and C89 remains isolated.}
+\def\TCPostConditions{No persistent state is changed.}
+\TCTemplate

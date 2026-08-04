@@ -58,6 +58,8 @@ until their requirement and verification records are added.
 | [REQ-0024](req-0024-float-c99.md) | [TC-0024](tc-0024-float-c99.tex) | `<float.h>` | §5.2.4.2.2, §7.7 | Floating-point characteristics |
 | [REQ-0025](req-0025-va-copy-restrict.md) | [TC-0025](tc-0025-va-copy-restrict.tex) | `<stdarg.h>`, public headers | §6.7.3, §7.15 | `va_copy` and `restrict` contracts |
 | [REQ-0026](req-0026-iso646.md) | [TC-0026](tc-0026-iso646.tex) | `<iso646.h>` | §7.9 | Alternative operator spellings |
+| [REQ-0027](req-0027-inttypes.md) | [TC-0027](tc-0027-inttypes.tex) | `<inttypes.h>` | §7.8 | Greatest-width integer interfaces |
+| [REQ-0028](req-0028-stdlib-c99.md) | [TC-0028](tc-0028-stdlib-c99.tex) | `<stdlib.h>` | §7.20 | C99 general utilities |
 
 ## Microsoft compatibility extensions
 

@@ -19,6 +19,12 @@ typedef struct { int quot; int rem; } div_t;
 /** @brief Quotient and remainder from long integer division. */
 typedef struct { long quot; long rem; } ldiv_t;
 
+#if !defined(WCRT_C89) && defined(__STDC_VERSION__) && \
+    __STDC_VERSION__ >= 199901L
+/** @brief Quotient and remainder from long-long integer division. */
+typedef struct { long long quot; long long rem; } lldiv_t;
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -59,6 +65,22 @@ size_t mbstowcs(wchar_t *WCRT_RESTRICT destination,
     const char *WCRT_RESTRICT source, size_t count);
 size_t wcstombs(char *WCRT_RESTRICT destination,
     const wchar_t *WCRT_RESTRICT source, size_t count);
+
+#if !defined(WCRT_C89) && defined(__STDC_VERSION__) && \
+    __STDC_VERSION__ >= 199901L
+void _Exit(int status);
+long long atoll(const char *string);
+long long llabs(long long value);
+lldiv_t lldiv(long long numerator, long long denominator);
+float strtof(const char *WCRT_RESTRICT string,
+    char **WCRT_RESTRICT end_pointer);
+long double strtold(const char *WCRT_RESTRICT string,
+    char **WCRT_RESTRICT end_pointer);
+long long strtoll(const char *WCRT_RESTRICT string,
+    char **WCRT_RESTRICT end_pointer, int base);
+unsigned long long strtoull(const char *WCRT_RESTRICT string,
+    char **WCRT_RESTRICT end_pointer, int base);
+#endif
 
 #ifdef __cplusplus
 }

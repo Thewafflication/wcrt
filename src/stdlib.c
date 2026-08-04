@@ -6,6 +6,7 @@
 #include <ctype.h>
 #include <errno.h>
 #include <float.h>
+#include <inttypes.h>
 #include <limits.h>
 #include <stdlib.h>
 #include <string.h>
@@ -38,6 +39,72 @@ static int wcrt_digit(int character)
         return character - 'A' + 10;
     }
     return -1;
+}
+
+/** @brief Converts a subject sequence to an unsigned long-long magnitude. */
+static unsigned long long wcrt_strtoull(const char *string,
+    char **end_pointer, int base, int *was_negative, int *did_overflow)
+{
+    const char *cursor = string;
+    unsigned long long value = 0;
+    int negative = 0;
+    int converted = 0;
+    int overflow = 0;
+
+    if (did_overflow != NULL) {
+        *did_overflow = 0;
+    }
+
+    while (isspace((unsigned char)*cursor)) {
+        ++cursor;
+    }
+    if (*cursor == '+' || *cursor == '-') {
+        negative = *cursor++ == '-';
+    }
+    if ((base == 0 || base == 16) && cursor[0] == '0' &&
+        (cursor[1] == 'x' || cursor[1] == 'X') &&
+        wcrt_digit((unsigned char)cursor[2]) >= 0 &&
+        wcrt_digit((unsigned char)cursor[2]) < 16) {
+        base = 16;
+        cursor += 2;
+    } else if (base == 0) {
+        base = *cursor == '0' ? 8 : 10;
+    }
+    if (base < 2 || base > 36) {
+        if (end_pointer != NULL) {
+            *end_pointer = (char *)string;
+        }
+        if (was_negative != NULL) {
+            *was_negative = negative;
+        }
+        return 0;
+    }
+    while (wcrt_digit((unsigned char)*cursor) >= 0 &&
+        wcrt_digit((unsigned char)*cursor) < base) {
+        int digit = wcrt_digit((unsigned char)*cursor++);
+        converted = 1;
+        if (value > (18446744073709551615ULL -
+            (unsigned long long)digit) / (unsigned long long)base) {
+            overflow = 1;
+        } else if (!overflow) {
+            value = value * (unsigned long long)base +
+                (unsigned long long)digit;
+        }
+    }
+    if (end_pointer != NULL) {
+        *end_pointer = (char *)(converted ? cursor : string);
+    }
+    if (was_negative != NULL) {
+        *was_negative = negative;
+    }
+    if (did_overflow != NULL) {
+        *did_overflow = overflow;
+    }
+    if (overflow) {
+        errno = ERANGE;
+        return 18446744073709551615ULL;
+    }
+    return negative ? 0ULL - value : value;
 }
 
 unsigned long strtoul(const char *string, char **end_pointer, int base)
@@ -129,16 +196,18 @@ long strtol(const char *string, char **end_pointer, int base)
     return (long)magnitude;
 }
 
-double strtod(const char *string, char **end_pointer)
+/** @brief Parses the decimal floating subject sequence shared by C99 APIs. */
+static double wcrt_strtod_decimal(const char *string, char **end_pointer)
 {
     const char *cursor = string;
-    const char *start;
     double value = 0.0;
-    double fraction = 0.1;
     int negative = 0;
     int converted = 0;
     int exponent = 0;
     int exponent_negative = 0;
+    int significant_digits = 0;
+    int decimal_adjustment = 0;
+    int nonzero = 0;
 
     while (isspace((unsigned char)*cursor)) {
         ++cursor;
@@ -146,17 +215,36 @@ double strtod(const char *string, char **end_pointer)
     if (*cursor == '+' || *cursor == '-') {
         negative = *cursor++ == '-';
     }
-    start = cursor;
     while (isdigit((unsigned char)*cursor)) {
         converted = 1;
-        value = value * 10.0 + (double)(*cursor++ - '0');
+        if (*cursor != '0') {
+            nonzero = 1;
+        }
+        if (significant_digits == 0 && *cursor == '0') {
+            /* Leading integer zero does not consume stored precision. */
+        } else if (significant_digits < 18) {
+            value = value * 10.0 + (double)(*cursor - '0');
+            ++significant_digits;
+        } else {
+            ++decimal_adjustment;
+        }
+        ++cursor;
     }
     if (*cursor == '.') {
         ++cursor;
         while (isdigit((unsigned char)*cursor)) {
             converted = 1;
-            value += (double)(*cursor++ - '0') * fraction;
-            fraction *= 0.1;
+            if (*cursor != '0') {
+                nonzero = 1;
+            }
+            if (significant_digits == 0 && *cursor == '0') {
+                --decimal_adjustment;
+            } else if (significant_digits < 18) {
+                value = value * 10.0 + (double)(*cursor - '0');
+                ++significant_digits;
+                --decimal_adjustment;
+            }
+            ++cursor;
         }
     }
     if (converted && (*cursor == 'e' || *cursor == 'E')) {
@@ -168,7 +256,7 @@ double strtod(const char *string, char **end_pointer)
             cursor = exponent_start;
         } else {
             while (isdigit((unsigned char)*cursor)) {
-                if (exponent < 10000) {
+                if (exponent < 1000) {
                     exponent = exponent * 10 + (*cursor - '0');
                 }
                 ++cursor;
@@ -179,21 +267,34 @@ double strtod(const char *string, char **end_pointer)
         cursor = string;
         value = 0.0;
     } else {
-        double factor = exponent_negative ? 0.1 : 10.0;
-        while (exponent-- > 0) {
-            if (!exponent_negative && value > DBL_MAX / 10.0) {
+        int scale = decimal_adjustment +
+            (exponent_negative ? -exponent : exponent);
+        while (scale > 0) {
+            if (value > DBL_MAX / 10.0) {
                 errno = ERANGE;
                 value = DBL_MAX;
                 break;
             }
-            value *= factor;
+            value *= 10.0;
+            --scale;
+        }
+        while (scale < 0) {
+            value *= 0.1;
+            ++scale;
+        }
+        if (nonzero && value < DBL_MIN) {
+            errno = ERANGE;
         }
     }
     if (end_pointer != NULL) {
         *end_pointer = (char *)cursor;
     }
-    (void)start;
     return negative ? -value : value;
+}
+
+double strtod(const char *string, char **end_pointer)
+{
+    return wcrt_strtod_decimal(string, end_pointer);
 }
 
 double atof(const char *string)
@@ -343,6 +444,126 @@ ldiv_t ldiv(long numerator, long denominator)
     result.rem = numerator % denominator;
     return result;
 }
+
+#if !defined(WCRT_C89)
+
+void _Exit(int status)
+{
+    __wcrt_process_exit((unsigned int)status);
+}
+
+long long atoll(const char *string)
+{
+    return strtoll(string, NULL, 10);
+}
+
+long long llabs(long long value)
+{
+    return value < 0 ? -value : value;
+}
+
+lldiv_t lldiv(long long numerator, long long denominator)
+{
+    lldiv_t result;
+    result.quot = numerator / denominator;
+    result.rem = numerator % denominator;
+    return result;
+}
+
+unsigned long long strtoull(const char *string, char **end_pointer, int base)
+{
+    return wcrt_strtoull(string, end_pointer, base, NULL, NULL);
+}
+
+long long strtoll(const char *string, char **end_pointer, int base)
+{
+    char *end;
+    int negative;
+    int overflow;
+    unsigned long long magnitude = wcrt_strtoull(string, &end, base,
+        &negative, &overflow);
+
+    if (end_pointer != NULL) {
+        *end_pointer = end;
+    }
+    if (end == string) {
+        return 0;
+    }
+    if (overflow) {
+        return negative ? (-9223372036854775807LL - 1LL) :
+            9223372036854775807LL;
+    }
+    if (negative) {
+        magnitude = 0ULL - magnitude;
+        if (magnitude > 9223372036854775808ULL) {
+            errno = ERANGE;
+            return -9223372036854775807LL - 1LL;
+        }
+        if (magnitude == 9223372036854775808ULL) {
+            return -9223372036854775807LL - 1LL;
+        }
+        return -(long long)magnitude;
+    }
+    if (magnitude > 9223372036854775807ULL) {
+        errno = ERANGE;
+        return 9223372036854775807LL;
+    }
+    return (long long)magnitude;
+}
+
+float strtof(const char *string, char **end_pointer)
+{
+    char *end;
+    double value = wcrt_strtod_decimal(string, &end);
+    double magnitude = value < 0.0 ? -value : value;
+    float result;
+
+    if (end_pointer != NULL) {
+        *end_pointer = end;
+    }
+    if (end == string) {
+        return 0.0F;
+    }
+    if (magnitude > FLT_MAX) {
+        errno = ERANGE;
+        return value < 0.0 ? -FLT_MAX : FLT_MAX;
+    }
+    result = (float)value;
+    if (magnitude != 0.0 && magnitude < FLT_MIN) {
+        errno = ERANGE;
+    }
+    return result;
+}
+
+long double strtold(const char *string, char **end_pointer)
+{
+    return (long double)wcrt_strtod_decimal(string, end_pointer);
+}
+
+intmax_t imaxabs(intmax_t value)
+{
+    return value < 0 ? -value : value;
+}
+
+imaxdiv_t imaxdiv(intmax_t numerator, intmax_t denominator)
+{
+    imaxdiv_t result;
+    result.quot = numerator / denominator;
+    result.rem = numerator % denominator;
+    return result;
+}
+
+intmax_t strtoimax(const char *string, char **end_pointer, int base)
+{
+    return (intmax_t)strtoll(string, end_pointer, base);
+}
+
+uintmax_t strtoumax(const char *string, char **end_pointer, int base)
+{
+    return (uintmax_t)strtoull(string, end_pointer, base);
+}
+
+#endif
 
 int mblen(const char *string, size_t count)
 {

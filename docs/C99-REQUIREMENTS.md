@@ -65,8 +65,9 @@ and verified `long long` compiler behavior.
 
 ## Priority 2 — Integer integration
 
-REQ-0023 through REQ-0026 are baselined as the remainder of Milestone 2A;
-REQ-0027 and later remain planned backlog items.
+REQ-0023 through REQ-0026 are baselined as the remainder of Milestone 2A.
+REQ-0027 and REQ-0028 are baselined for tranche T1; later identifiers remain
+planned backlog items.
 
 | ID | Conformance unit | Primary C99 clauses | Principal obligations |
 | --- | --- | --- | --- |
@@ -74,8 +75,8 @@ REQ-0027 and later remain planned backlog items.
 | REQ-0024 (baselined) | C99 `float.h` additions | 5.2.4.2.2, 7.7 | `DECIMAL_DIG`, evaluation-method macros, and documented TinyCC floating model |
 | REQ-0025 (baselined) | C99 variable arguments and declarations | 6.7.3, 7.15 | `va_copy` semantics plus edition-aware `restrict` contracts |
 | REQ-0026 (baselined) | Alternative spellings | 7.9 | Complete, self-contained `iso646.h` macro set |
-| REQ-0027 | Greatest-width integers | 7.8 | `inttypes.h` types, functions, and all applicable print/scan macros |
-| REQ-0028 | C99 general utilities | 7.20 | `_Exit`, `atoll`, `llabs`, `lldiv`, and extended `strto*` conversions |
+| REQ-0027 (baselined) | Greatest-width integers | 7.8 | `inttypes.h` types, functions, and all applicable print/scan macros |
+| REQ-0028 (baselined) | C99 general utilities | 7.20 | `_Exit`, `atoll`, `llabs`, `lldiv`, and extended `strto*` conversions |
 
 ## Priority 3 — Input/output and character support
 
