@@ -152,6 +152,19 @@ jobs:
         shell: pwsh
         run: ./tools/build-wcrt.ps1 -Architecture '${{ matrix.arch }}' -Configuration Debug -TinyCc $env:TINYCC
 
+      - name: Probe TinyCC C99 capabilities and data model
+        id: capabilities
+        continue-on-error: true
+        shell: pwsh
+        run: ./tools/test-tinycc-capabilities.ps1 -Architecture '${{ matrix.arch }}' -TinyCc $env:TINYCC
+
+      - name: Verify Windows 2000 x86 imports
+        if: matrix.arch == 'x86'
+        id: win2000_imports
+        continue-on-error: true
+        shell: pwsh
+        run: ./tools/test-windows-2000-imports.ps1 -Binary output/build/x86/Debug/wcrt.dll
+
       - name: Verify DLL and static-library consumers
         shell: pwsh
         run: ./tools/test-built-libraries.ps1 -Architecture '${{ matrix.arch }}' -Configuration Debug -TinyCc $env:TINYCC
@@ -264,6 +277,63 @@ jobs:
             Close-TestSuite
           }
 
+          $capabilityJson = "$directory/tinycc-c99-capabilities.json"
+          $capability = if (Test-Path $capabilityJson) {
+            Get-Content $capabilityJson -Raw | ConvertFrom-Json
+          } else { $null }
+          $capabilityResults = if ($null -eq $capability) {
+            @()
+          } else { @($capability.Probes) }
+          $capabilityGateResults = @(
+            foreach ($probe in $capabilityResults) {
+              [PSCustomObject]@{
+                Status = if ($probe.Status -eq 'Supported') { 'Pass' }
+                  elseif ($probe.RequiredForCurrentBaseline) { 'Fail' }
+                  else { 'Blocked' }
+              }
+            }
+            if ($null -ne $capability) {
+              [PSCustomObject]@{ Status = $capability.DataModel.Status }
+            }
+          )
+          Open-TestSuite 'TinyCC C99 capabilities' $capabilityGateResults
+          @('| Facility | Baseline | Result |', '| --- | --- | --- |') |
+            Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+          foreach ($probe in $capabilityResults) {
+            $supported = $probe.Status -eq 'Supported'
+            $indicator = if ($supported) { '🟢' } else { '🟡' }
+            $baseline = if ($probe.RequiredForCurrentBaseline) {
+              'Required now'
+            } else { 'Future input' }
+            "| $($probe.Facility) | $baseline | $indicator **$($probe.Status.ToUpperInvariant())** |" |
+              Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+          }
+          if ($null -ne $capability) {
+            "| Data model ($($capability.DataModel.Model)) | Required now | 🟢 **$($capability.DataModel.Status.ToUpperInvariant())** |" |
+              Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+          }
+          Close-TestSuite
+
+          if ('${{ matrix.arch }}' -eq 'x86') {
+            $importJson = "$directory/windows-2000-imports.json"
+            $importResult = if (Test-Path $importJson) {
+              Get-Content $importJson -Raw | ConvertFrom-Json
+            } else { $null }
+            $importRows = if ($null -eq $importResult) { @() } else {
+              @([PSCustomObject]@{ Status = $importResult.Status })
+            }
+            Open-TestSuite 'Windows 2000 x86 imports' $importRows
+            @('| Binary | Imports | Result |', '| --- | ---: | --- |') |
+              Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+            if ($null -ne $importResult) {
+              $status = $importResult.Status.ToUpperInvariant()
+              $indicator = if ($status -eq 'PASS') { '🟢' } else { '🔴' }
+              "| $($importResult.Binary) | $(@($importResult.Imports).Count) | $indicator **$status** |" |
+                Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+            }
+            Close-TestSuite
+          }
+
           $startupJson = "$directory/startup-test-results.json"
           $startup = if (Test-Path $startupJson) {
             @(Get-Content $startupJson -Raw | ConvertFrom-Json)
@@ -311,6 +381,8 @@ jobs:
             output/test-results/${{ matrix.arch }}/c89-test-results.tex
             output/test-results/${{ matrix.arch }}/c89-test-results.json
             output/test-results/${{ matrix.arch }}/extension-test-results.json
+            output/test-results/${{ matrix.arch }}/tinycc-c99-capabilities.json
+            output/test-results/${{ matrix.arch }}/windows-2000-imports.json
             output/test-results/${{ matrix.arch }}/startup-test-results.json
           if-no-files-found: error
 
@@ -336,6 +408,16 @@ jobs:
         if: steps.extensions.outcome != 'success'
         shell: pwsh
         run: throw 'C99 or compatibility verification failed. See the job summary.'
+
+      - name: Enforce TinyCC C99 capability baseline
+        if: steps.capabilities.outcome != 'success'
+        shell: pwsh
+        run: throw 'TinyCC C99 capability or data-model verification failed. See the job summary.'
+
+      - name: Enforce Windows 2000 x86 imports
+        if: matrix.arch == 'x86' && steps.win2000_imports.outcome != 'success'
+        shell: pwsh
+        run: throw 'Windows 2000 x86 import verification failed. See the job summary.'
 
   debug-package:
     name: Build multi-architecture Debug WPM package
@@ -450,6 +532,11 @@ jobs:
         shell: pwsh
         run: ./tools/build-wcrt.ps1 -Architecture '${{ matrix.arch }}' -Configuration Release -TinyCc $env:TINYCC -Version '${{ github.ref_name }}'
 
+      - name: Verify release Windows 2000 x86 imports
+        if: matrix.arch == 'x86'
+        shell: pwsh
+        run: ./tools/test-windows-2000-imports.ps1 -Binary output/build/x86/Release/wcrt.dll
+
       - name: Verify release libraries
         shell: pwsh
         run: ./tools/test-built-libraries.ps1 -Architecture '${{ matrix.arch }}' -Configuration Release -TinyCc $env:TINYCC
@@ -514,6 +601,14 @@ jobs:
           path: output/build/${{ matrix.arch }}/Release/*
           if-no-files-found: error
           compression-level: 0
+
+      - name: Upload release Windows 2000 x86 import evidence
+        if: matrix.arch == 'x86'
+        uses: actions/upload-artifact@v6
+        with:
+          name: wcrt-x86-release-import-evidence
+          path: output/test-results/x86/windows-2000-imports.json
+          if-no-files-found: error
 
   package:
     if: startsWith(github.ref, 'refs/tags/')

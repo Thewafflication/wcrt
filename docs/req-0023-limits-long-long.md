@@ -2,7 +2,7 @@
 
 **Content type:** Project requirement
 
-**Status:** Approved; implementation planned
+**Status:** Implemented
 
 **Source:** ISO/IEC 9899:1999 §5.2.4.2.1 and §7.10
 
@@ -46,3 +46,11 @@ use, ABI agreement, C89 isolation, and REQ-0005 regression behavior.
 ## Tailoring
 
 This extension applies only in C99 and later modes.
+
+## Implementation Record
+
+`include/limits.h` defines the three two's-complement 64-bit limits only for
+the selected C99 surface and honors `WCRT_C89`. TC-0023 checks their values,
+expression widths, constant-expression use, direct C89 isolation, and the
+complete REQ-0005 regression runner. The target capability probe independently
+requires an 8-byte TinyCC `long long` on every supported architecture.

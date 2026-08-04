@@ -1,0 +1,36 @@
+{
+  "minimumTarget": "Windows 2000",
+  "architecture": "x86",
+  "modules": {
+    "kernel32.dll": [
+      "CloseHandle",
+      "CreateFileA",
+      "CreateProcessA",
+      "DeleteFileA",
+      "ExitProcess",
+      "FileTimeToLocalFileTime",
+      "GetCurrentProcess",
+      "GetEnvironmentVariableA",
+      "GetExitCodeProcess",
+      "GetFileAttributesExA",
+      "GetLastError",
+      "GetProcessHeap",
+      "GetProcessTimes",
+      "GetStdHandle",
+      "GetSystemTimeAsFileTime",
+      "GetTempFileNameA",
+      "GetTempPathA",
+      "HeapAlloc",
+      "HeapFree",
+      "HeapReAlloc",
+      "LocalFileTimeToFileTime",
+      "MoveFileA",
+      "ReadFile",
+      "SetFilePointer",
+      "SetFileTime",
+      "WaitForSingleObject",
+      "WriteFile"
+    ]
+  }
+}
+

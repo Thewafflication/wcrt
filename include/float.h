@@ -12,7 +12,8 @@
 #define FLT_ROUNDS 1
 /** @} */
 
-#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
+#if !defined(WCRT_C89) && defined(__STDC_VERSION__) && \
+    __STDC_VERSION__ >= 199901L
 /** @name C99 floating-point evaluation model */
 /** @{ */
 #define DECIMAL_DIG 17

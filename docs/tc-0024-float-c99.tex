@@ -7,18 +7,24 @@ description, and C89 compatibility.}
 \def\TCRequirementRef{REQ-0024}
 \def\TCDesignRef{ISO/IEC 9899:1999 5.2.4.2.2 and 7.7.}
 \def\TCFeatureRef{\texttt{include/float.h};
-\texttt{tests/c99/float.c}; \texttt{tests/c99/run-tc-0024.ps1}.}
+\texttt{tests/c99/float.c}; \texttt{tests/c99/presence/float-c89.c};
+\texttt{tests/c99/capabilities/data-model.c};
+\texttt{tests/c99/run-tc-0024.ps1}.}
 \def\TCTestTechnique{Boundary-value testing and engineering analysis.}
 \def\TCPreconditions{TinyCC floating code generation is characterized for the
 target.}
 \def\TCEnvironment{C99 compilation and native execution for supported targets.}
-\def\TCAssumptions{Decimal conversion support used by the test is independently
-verified.}
+\def\TCAssumptions{A binary type with 53 significant bits has the standard
+17-significant-decimal-digit round-trip bound. Conversion-function execution
+is controlled by the formatted-I/O and conversion requirements.}
 \def\TCInputData{Boundary and representative finite floating values.}
 \def\TCInitialState{The default floating environment is active.}
-\def\TCProcedure{Validate macro ranges; perform decimal round trips; probe
-evaluation and rounding behavior; rerun REQ-0004 checks.}
-\def\TCExpectedResult{Published macro values match observed or analyzed target
-behavior and every required round trip preserves its value.}
+\def\TCProcedure{Validate the exact published macros and binary64 widest-type
+model; establish the decimal round-trip bound by engineering analysis; probe
+evaluation and default rounding behavior; run direct C89 isolation and rerun
+REQ-0004 checks.}
+\def\TCExpectedResult{Published macro values match observed and analyzed
+target behavior; the widest 53-bit type has a 17-digit round-trip bound; the
+C89 surface remains unchanged.}
 \def\TCPostConditions{The default floating environment is restored.}
 \TCTemplate

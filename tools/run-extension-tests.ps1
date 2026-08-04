@@ -14,62 +14,98 @@ $repoRoot = Split-Path -Parent $PSScriptRoot
 $outputDirectory = Join-Path $repoRoot `
     "output\test-results\$Architecture"
 $tests = @(
-    @('TC-0019', 'C99', 'Bounded formatted output',
+    @('TC-0019', 'REQ-0019', 'C99', 'Bounded formatted output',
         'tests\c99\run-tc-0019.ps1'),
-    @('TC-0020', 'Microsoft compatibility',
+    @('TC-0021', 'REQ-0021', 'C99', 'Boolean type and values',
+        'tests\c99\run-tc-0021.ps1'),
+    @('TC-0022', 'REQ-0022', 'C99', 'Fixed-width integer interface',
+        'tests\c99\run-tc-0022.ps1'),
+    @('TC-0023', 'REQ-0023', 'C99', 'Long-long limits',
+        'tests\c99\run-tc-0023.ps1'),
+    @('TC-0024', 'REQ-0024', 'C99', 'Floating-point characteristics',
+        'tests\c99\run-tc-0024.ps1'),
+    @('TC-0025', 'REQ-0025', 'C99',
+        'Variable arguments and restrict contracts',
+        'tests\c99\run-tc-0025.ps1'),
+    @('TC-0026', 'REQ-0026', 'C99', 'Alternative operator spellings',
+        'tests\c99\run-tc-0026.ps1'),
+    @('TC-0020', 'REQ-0020', 'Microsoft compatibility',
         'Legacy bounded formatted output',
         'tests\mscompat\run-tc-0020.ps1'),
-    @('TC-0043', 'Microsoft compatibility',
+    @('TC-0043', 'REQ-0043', 'Microsoft compatibility',
         'Low-level I/O header baseline',
         'tests\mscompat\run-tc-0043.ps1'),
-    @('TC-0044', 'Microsoft compatibility',
+    @('TC-0044', 'REQ-0044', 'Microsoft compatibility',
         'Stream file descriptor',
         'tests\mscompat\run-tc-0044.ps1'),
-    @('TC-0045', 'Microsoft compatibility',
+    @('TC-0045', 'REQ-0045', 'Microsoft compatibility',
         'Case-insensitive strings',
         'tests\mscompat\run-tc-0045.ps1'),
-    @('TC-0046', 'Microsoft compatibility',
+    @('TC-0046', 'REQ-0046', 'Microsoft compatibility',
         'Secure narrow stdio',
         'tests\mscompat\run-tc-0046.ps1'),
-    @('TC-0047', 'Microsoft compatibility',
+    @('TC-0047', 'REQ-0047', 'Microsoft compatibility',
         'Secure narrow string copy',
         'tests\mscompat\run-tc-0047.ps1'),
-    @('TC-0048', 'Microsoft compatibility',
+    @('TC-0048', 'REQ-0048', 'Microsoft compatibility',
         'Explicit-width file-time update',
         'tests\mscompat\run-tc-0048.ps1'),
-    @('TC-0049', 'Microsoft compatibility',
+    @('TC-0049', 'REQ-0049', 'Microsoft compatibility',
         '64-bit file status and x86 alias',
         'tests\mscompat\run-tc-0049.ps1')
 )
+
+$manifest = Join-Path $repoRoot 'tests\c99\manifest.md'
+$controlledC99 = @(
+    Select-String -LiteralPath $manifest -Pattern '\[TC-(\d{4})\]' -AllMatches |
+        ForEach-Object { $_.Matches } |
+        ForEach-Object { "TC-$($_.Groups[1].Value)" } |
+        Sort-Object -Unique
+)
+$aggregateC99 = @(
+    $tests | Where-Object { $_[2] -eq 'C99' } |
+        ForEach-Object { $_[0] } | Sort-Object -Unique
+)
+$inventoryDifference = @(Compare-Object $controlledC99 $aggregateC99)
+if ($inventoryDifference.Count -ne 0) {
+    $detail = $inventoryDifference | ForEach-Object {
+        "$($_.InputObject) $($_.SideIndicator)"
+    }
+    throw "Aggregate C99 inventory differs from the controlled manifest: " +
+        ($detail -join ', ')
+}
+
 $results = foreach ($test in $tests) {
-    Write-WspInfo "Running $($test[0]) ($($test[2])) on $Architecture."
+    Write-WspInfo "Running $($test[0]) ($($test[3])) on $Architecture."
     try {
-        & (Join-Path $repoRoot $test[3]) -TinyCc $TinyCc | Out-Null
+        & (Join-Path $repoRoot $test[4]) -TinyCc $TinyCc | Out-Null
         $result = [PSCustomObject]@{
             TestCase = $test[0]
-            Suite = $test[1]
-            Description = $test[2]
+            Requirement = $test[1]
+            Suite = $test[2]
+            Description = $test[3]
             Status = 'Pass'
             Output = ''
         }
     } catch {
         $result = [PSCustomObject]@{
             TestCase = $test[0]
-            Suite = $test[1]
-            Description = $test[2]
+            Requirement = $test[1]
+            Suite = $test[2]
+            Description = $test[3]
             Status = 'Fail'
             Output = $_.Exception.Message
         }
     }
     Write-WcrtTestResult -Status $result.Status `
-        -Message "$($test[0]) ($($test[2])) on $Architecture."
+        -Message "$($test[0]) ($($test[3])) on $Architecture."
     $result
 }
 New-Item -ItemType Directory -Force $outputDirectory | Out-Null
 $results | ConvertTo-Json -Depth 4 |
     Set-Content (Join-Path $outputDirectory 'extension-test-results.json') `
         -Encoding utf8NoBOM
-$results | Format-Table TestCase, Suite, Description, Status
+$results | Format-Table TestCase, Requirement, Suite, Description, Status
 if (@($results | Where-Object Status -ne 'Pass').Count -ne 0) {
     Write-WspError "Extension test suite failed on $Architecture."
     exit 1

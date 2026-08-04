@@ -47,7 +47,9 @@ conformance claim.
 
 - [ ] Adopt a GPL-3.0-or-later source-file notice policy.
 - [x] Create the `include`, `wcrt`, `tests`, `tools`, and `docs` structure.
-- [ ] Define supported TinyCC versions and acquire compiler capability probes.
+- [ ] Pin and publish the supported TinyCC package versions. T0 baselines
+      0.9.28rc target capability probes and retains the exact packaged compiler
+      identity, but CI still installs the latest prerelease package.
 - [x] Add deterministic static-library and test-executable builds.
 - [ ] Define 32-bit x86 calling conventions, object format, symbol naming, and
       ABI boundaries.
@@ -60,8 +62,8 @@ conformance claim.
       REQ-0018 and verify it through TC-0018.
 - [x] Add CI and repeatable local test scripts for supported Windows
       architectures.
-- [ ] Add import-table inspection to catch accidental dependencies on newer
-      Windows APIs.
+- [x] Add enforced x86 import-table inspection against the Windows 2000 API
+      allowlist for Debug and tagged Release DLLs.
 - [ ] Create conformance, implementation-defined behavior, and deviation
       documents.
 
@@ -114,7 +116,7 @@ Microsoft CRT compatibility backlog are post-1.0 work.
 - [x] Add `va_copy` to `stdarg.h` and audit C99 `restrict`-qualified public
       declarations without exposing C99 syntax in C89 mode (REQ-0025).
 - [x] Add `iso646.h`, which C99 inherits from the C95 amendment (REQ-0026).
-- [ ] Establish TinyCC capability probes for every language/compiler facility
+- [x] Establish TinyCC capability probes for every language/compiler facility
       required by public C99 headers, especially `_Bool`, `long long`,
       `restrict`, variadic macros, complex arithmetic, and type-generic macros.
 

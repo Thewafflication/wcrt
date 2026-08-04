@@ -6,7 +6,8 @@
 #ifndef WCRT_STDBOOL_H
 #define WCRT_STDBOOL_H
 
-#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
+#if !defined(WCRT_C89) && defined(__STDC_VERSION__) && \
+    __STDC_VERSION__ >= 199901L
 /** @brief Convenient spelling of the compiler-owned Boolean type. */
 #define bool _Bool
 /** @brief Boolean true value. */

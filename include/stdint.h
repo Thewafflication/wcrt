@@ -6,7 +6,8 @@
 #ifndef WCRT_STDINT_H
 #define WCRT_STDINT_H
 
-#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
+#if !defined(WCRT_C89) && defined(__STDC_VERSION__) && \
+    __STDC_VERSION__ >= 199901L
 
 typedef signed char int8_t;
 typedef unsigned char uint8_t;

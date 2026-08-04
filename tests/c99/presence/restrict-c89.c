@@ -3,6 +3,7 @@
  * @brief Verifies that C99 restrict contracts disappear in C89 mode.
  */
 #include <stdio.h>
+#include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -12,3 +13,7 @@
 
 typedef char wcrt_restrict_is_empty[
     sizeof(WCRT_STRING(WCRT_RESTRICT)) == 1 ? 1 : -1];
+
+#if defined(va_copy)
+#error va_copy must not be exposed in C89 mode
+#endif

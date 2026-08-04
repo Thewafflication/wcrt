@@ -33,7 +33,7 @@ definitions shall be usable in integer constant expressions, repeated inclusion
 shall be harmless, and the header shall not introduce `_Bool` syntax into the
 C89 library surface.
 
-**Verification:** Planned TC-0021 shall compile presence, value, constant-
+**Verification:** TC-0021 compiles presence, value, constant-
 expression, conversion, repeated-inclusion, and C89-isolation checks with each
 supported TinyCC target.
 
@@ -55,7 +55,7 @@ and `WINT_*` macros when applicable, and the `INTN_C`, `UINTN_C`, `INTMAX_C`, an
 shall document every optional typedef or macro omitted because the target lacks
 a conforming representation.
 
-**Verification:** Planned TC-0022 shall verify declaration presence, signedness,
+**Verification:** TC-0022 verifies declaration presence, signedness,
 sizes, limits, constant-expression usability, expression types, pointer round
 trips, self-containment, C89 isolation, and ABI agreement on every supported
 architecture.
@@ -68,7 +68,7 @@ and verified `long long` compiler behavior.
 REQ-0023 through REQ-0026 are baselined as the remainder of Milestone 2A;
 REQ-0027 and later remain planned backlog items.
 
-| Planned ID | Conformance unit | Primary C99 clauses | Principal obligations |
+| ID | Conformance unit | Primary C99 clauses | Principal obligations |
 | --- | --- | --- | --- |
 | REQ-0023 (baselined) | C99 `limits.h` additions | 5.2.4.2.1, 7.10 | `LLONG_MIN`, `LLONG_MAX`, and `ULLONG_MAX` with correct expression types |
 | REQ-0024 (baselined) | C99 `float.h` additions | 5.2.4.2.2, 7.7 | `DECIMAL_DIG`, evaluation-method macros, and documented TinyCC floating model |

@@ -6,4 +6,5 @@ param([string]$TinyCc)
     -PublicHeader 'include/float.h' `
     -PresenceSource 'tests/c99/presence/float.c' `
     -BehaviorSource 'tests/c99/float.c' -TinyCc $TinyCc `
+    -C89Source 'tests/c99/presence/float-c89.c' `
     -C89Regression 'tests/c89/run-tc-0004.ps1'

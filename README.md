@@ -66,6 +66,11 @@ the compiler provides a reliable edition indicator. WCRT may also provide an
 explicit configuration override for compilers whose `__STDC_VERSION__` value
 is absent or incomplete.
 
+The supported TinyCC 0.9.28rc targets retain a later `__STDC_VERSION__` value
+under `-std=c89`. A consumer selecting WCRT's strict C89 header surface shall
+therefore define `WCRT_C89=1`; the controlled C99 tests verify that this
+selector removes the C99-only interfaces from affected public headers.
+
 Later milestones must preserve programs supported by completed earlier
 milestones unless the C standard requires different behavior. Any unavoidable
 incompatibility will be documented.

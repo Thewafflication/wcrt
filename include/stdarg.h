@@ -19,7 +19,8 @@ typedef __builtin_va_list va_list;
 /** @brief Completes a variable-argument traversal. */
 #define va_end(arguments) __builtin_va_end(arguments)
 
-#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
+#if !defined(WCRT_C89) && defined(__STDC_VERSION__) && \
+    __STDC_VERSION__ >= 199901L
 /** @brief Creates an independent copy of a variable-argument traversal. */
 #define va_copy(destination, source) \
     __builtin_va_copy(destination, source)

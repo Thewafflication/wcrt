@@ -63,6 +63,7 @@ the C99 surface and to an empty token sequence when `WCRT_C89` selects the C89
 surface. The affected declarations in `<stdio.h>`, `<stdlib.h>`, `<string.h>`,
 and `<time.h>` use that spelling without changing linkage or calling convention.
 
-TC-0025 verifies independent traversal, audits 35 declarations for their
-required qualifier counts, compiles the affected headers with `WCRT_C89`, and
-reruns the REQ-0010 variable-argument test.
+TC-0025 verifies independent traversal from fresh and partially consumed
+lists, nested forwarding with mixed argument types, audits 35 declarations for
+their required qualifier counts, verifies both `va_copy` and `restrict`
+isolation with `WCRT_C89`, and reruns the REQ-0010 variable-argument test.

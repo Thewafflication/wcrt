@@ -38,7 +38,8 @@
 #define ULONG_MAX 4294967295UL
 /** @} */
 
-#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
+#if !defined(WCRT_C89) && defined(__STDC_VERSION__) && \
+    __STDC_VERSION__ >= 199901L
 /** @name C99 long-long limits */
 /** @{ */
 #define LLONG_MIN (-9223372036854775807LL - 1LL)

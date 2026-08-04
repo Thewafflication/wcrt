@@ -2,7 +2,7 @@
 
 **Content type:** Project requirement
 
-**Status:** Approved; implementation planned
+**Status:** Implemented
 
 **Source:** ISO/IEC 9899:1999 §6.2.5, §6.3.1.2, and §7.16
 
@@ -55,3 +55,11 @@ isolation on every supported TinyCC target.
 
 This requirement applies only when the C99 or a later library surface is
 selected. WCRT does not implement the compiler's `_Bool` language semantics.
+
+## Implementation Record
+
+`include/stdbool.h` exposes the four standard macros only when the C99 surface
+is selected and honors the explicit `WCRT_C89` selector. TC-0021 verifies
+self-containment, repeated inclusion, constant-expression use, scalar
+conversion, and direct C89 isolation. TinyCC `_Bool` support and the Boolean
+width are also recorded by the target capability probe.

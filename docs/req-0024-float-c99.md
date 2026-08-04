@@ -2,7 +2,7 @@
 
 **Content type:** Project requirement
 
-**Status:** Approved; implementation planned
+**Status:** Implemented
 
 **Source:** ISO/IEC 9899:1999 §5.2.4.2.2 and §7.7
 
@@ -53,3 +53,15 @@ by toolchain analysis rather than execution.
 
 Target-specific values are permitted, but each supported target shall publish
 and verify its selected model.
+
+## Implementation Record
+
+`include/float.h` records the Windows TinyCC binary32 `float`, binary64
+`double`, and binary64 `long double` model with `DECIMAL_DIG` 17,
+`FLT_EVAL_METHOD` 0, and `FLT_ROUNDS` 1. TC-0024 checks the exact published
+model, epsilon behavior, default round-to-nearest behavior, direct C89
+isolation, and REQ-0004 regression behavior. The 17-digit decimal round-trip
+bound is established from the documented widest precision of 53 binary
+digits; execution coverage of the conversion functions themselves remains in
+the formatted-I/O and conversion tranches rather than being attributed to
+this header test.

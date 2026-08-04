@@ -2,7 +2,7 @@
 
 **Content type:** Project requirement
 
-**Status:** Approved; implementation planned
+**Status:** Implemented
 
 **Source:** ISO/IEC 9899:1999 §7.18
 
@@ -60,3 +60,13 @@ and agreement with each supported target ABI.
 
 C99 permits exact-width and pointer-capable types to be omitted when no
 conforming representation exists; every omission shall be recorded per target.
+
+## Implementation Record
+
+`include/stdint.h` implements the exact-, least-, fast-, pointer-, and
+maximum-width types and their applicable limit and constant macros for the
+documented Windows ILP32 and LLP64 models. TC-0022 checks widths, signedness,
+constant properties, limits, pointer round trips, and C89 isolation on the
+selected target. `WINT_MIN` and `WINT_MAX` are not yet applicable because WCRT
+does not define `wint_t`; that interface is controlled by planned REQ-0031 and
+REQ-0033 and must be added to this header when `wint_t` is baselined.

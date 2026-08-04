@@ -16,3 +16,7 @@
 
 typedef char wcrt_llong_range[LLONG_MIN == -LLONG_MAX - 1LL ? 1 : -1];
 typedef char wcrt_ullong_range[ULLONG_MAX > LLONG_MAX ? 1 : -1];
+typedef char wcrt_llong_expression_type[
+    sizeof(LLONG_MAX) == sizeof(long long) ? 1 : -1];
+typedef char wcrt_ullong_expression_type[
+    sizeof(ULLONG_MAX) == sizeof(unsigned long long) ? 1 : -1];

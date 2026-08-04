@@ -21,7 +21,10 @@ WPM packages. Developer-only exploratory checks are not release evidence.
 | Startup integration | Static link, PE inspection, and native execution | `REQ-0017`–`REQ-0018`, `TC-0017`–`TC-0018` |
 | API presence | C89 compile-time verification without host-header fallback | `TC-0001`–`TC-0015`, `tests/c89/presence/` |
 | Component behavior | Dynamic functional and boundary testing | `tests/c89/*.c`, PowerShell runners |
+| C99 interface and isolation | Compile-time, behavioral, C89-isolation, and ABI testing | `TC-0019`, `TC-0021`–`TC-0026`, `tests/c99/` |
+| Compiler and data model | Targeted compile-only capability and width assertions | `tests/c99/capabilities/`, `docs/c99-platform-model.md` |
 | Library integration | DLL and static-library consumer builds and execution | `tools/test-built-libraries.ps1` |
+| Legacy import compatibility | Repository-owned PE import parsing and Windows 2000 x86 allowlist | `tools/test-windows-2000-imports.ps1` |
 | Compatibility comparison | Equivalent test input against Microsoft UCRT | `tools/run-c89-comparison.ps1` |
 | Release verification | Release builds, consumer checks, package signing, and package verification | `.github/workflows/build.yml` |
 
@@ -61,8 +64,12 @@ runners shall not reuse prior-run results as current evidence.
 ## CI and Release Gates
 
 Every change runs pinned WSP tool self-tests, traceability validation,
-TC-0016, architecture-specific builds, consumer verification, and the C89 test
-suite. A required non-Pass result fails its job. Tagged releases additionally
+TC-0016, architecture-specific builds, consumer verification, the C89 test
+suite, the complete controlled C99 aggregate, compiler/data-model probes, and
+the Windows 2000 import gate for the x86 DLL. A required non-Pass result fails
+its job. Compiler facilities planned for later tranches may be recorded as
+unsupported without failing the current baseline; a facility required by an
+implemented requirement fails the job when unavailable. Tagged releases additionally
 build Release artifacts, combine all targets into one signed WPM development
 package, verify that package, generate
 SHA-256 checksums, and publish only after every architecture succeeds.
@@ -76,6 +83,13 @@ Architecture jobs retain JSON results, TeX test tables, binaries, symbols,
 headers, and build artifacts in GitHub Actions. Job summaries expose the final
 status of each test case. Project report tools can combine controlled
 specifications and execution results into the C89 report.
+
+The controlled C99 aggregate rejects drift between its inventory and
+`tests/c99/manifest.md`. Per-target capability/data-model evidence is retained
+as `tinycc-c99-capabilities.json`; x86 import evidence enumerates the inspected
+DLL imports and binary digest in `windows-2000-imports.json`. Tagged x86
+Release builds repeat and retain the import check for the release-configured
+DLL.
 
 Project test entry points import the PowerShell adapter from the pinned WSP
 logging library through `tests/test-logging.ps1`. Human-readable progress and
