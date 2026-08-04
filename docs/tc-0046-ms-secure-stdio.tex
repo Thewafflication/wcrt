@@ -1,0 +1,31 @@
+% TC-0046 fragment; intended for the compatibility test report.
+\def\TCID{TC-0046}
+\def\TCTitle{Microsoft secure narrow stdio}
+\def\TCPurpose{Verify the declarations and Microsoft secure-CRT behavior of
+\texttt{fopen\_s} and \texttt{sscanf\_s}.}
+\def\TCPriority{\TCPriorityCritical}
+\def\TCRequirementRef{REQ-0046}
+\def\TCDesignRef{Microsoft CRT documentation for \texttt{fopen\_s} and
+\texttt{sscanf\_s}.}
+\def\TCFeatureRef{\texttt{include/stdio.h}; planned presence, behavior, and
+\texttt{tests/mscompat/run-tc-0046.ps1} fixtures.}
+\def\TCTestTechnique{Interface, boundary-value, format-partition, error, and
+invalid-parameter testing.}
+\def\TCPreconditions{REQ-0003 and REQ-0012 are implemented and the Microsoft
+compatibility surface is selected.}
+\def\TCEnvironment{TinyCC compilation and native execution without host CRT
+fallback.}
+\def\TCAssumptions{A test-owned directory is writable and invalid-parameter
+handling is observable.}
+\def\TCInputData{Valid and invalid paths and modes; numeric, character,
+string, and scanset input; destination-size boundaries; null arguments; and
+the WPM \texttt{\%llu\%c} use case.}
+\def\TCInitialState{Outputs, buffers, \texttt{errno}, and files have recorded
+sentinels.}
+\def\TCProcedure{Compile the declarations and \texttt{errno\_t}; exercise
+successful and failed opens; verify output and error state; compare supported
+scan conversions; test required sizes and invalid-parameter partitions.}
+\def\TCExpectedResult{Both functions implement Microsoft return, output,
+assignment-count, size-validation, and invalid-parameter behavior.}
+\def\TCPostConditions{Streams are closed and test files are removed.}
+\TCTemplate

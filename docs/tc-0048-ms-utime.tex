@@ -1,0 +1,31 @@
+% TC-0048 fragment; intended for the compatibility test report.
+\def\TCID{TC-0048}
+\def\TCTitle{Microsoft explicit-width file-time update}
+\def\TCPurpose{Verify the ABI, timestamp behavior, ranges, errors, and imports
+of \texttt{\_utime32} and \texttt{\_utime64}.}
+\def\TCPriority{\TCPriorityCritical}
+\def\TCRequirementRef{REQ-0048}
+\def\TCDesignRef{Microsoft CRT documentation for \texttt{\_utime32} and
+\texttt{\_utime64}; Windows file-time documentation.}
+\def\TCFeatureRef{Planned \texttt{include/sys/utime.h}; planned presence,
+behavior, and \texttt{tests/mscompat/run-tc-0048.ps1} fixtures.}
+\def\TCTestTechnique{ABI inspection, boundary-value, filesystem behavior,
+error, clock-tolerance, and import-table testing.}
+\def\TCPreconditions{REQ-0003 and REQ-0015 are implemented and a test-owned
+filesystem location preserves Windows timestamps.}
+\def\TCEnvironment{TinyCC compilation and native execution on supported
+Windows targets, plus x86 PE import inspection.}
+\def\TCAssumptions{The harness measures filesystem timestamp resolution and
+current-time tolerance.}
+\def\TCInputData{Epoch and boundary times, distinct access and modification
+times, null \texttt{times}, missing and read-only paths, directories, and
+invalid parameters.}
+\def\TCInitialState{Test files have known contents and timestamps.}
+\def\TCProcedure{Compile declarations; inspect structure layout and symbols;
+set and read back explicit times; test current-time selection and boundaries;
+exercise error partitions; inspect x86 imports.}
+\def\TCExpectedResult{Both functions expose the required ABI, set both times
+within measured resolution, enforce ranges, report errors, and use only
+baseline-compatible imports.}
+\def\TCPostConditions{Test filesystem objects are removed.}
+\TCTemplate

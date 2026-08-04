@@ -1,0 +1,29 @@
+% TC-0045 fragment; intended for the compatibility test report.
+\def\TCID{TC-0045}
+\def\TCTitle{Microsoft case-insensitive narrow-string comparison}
+\def\TCPurpose{Verify the declarations, bounds, locale behavior, and error
+continuation of \texttt{\_stricmp} and \texttt{\_strnicmp}.}
+\def\TCPriority{\TCPriorityCritical}
+\def\TCRequirementRef{REQ-0045}
+\def\TCDesignRef{Microsoft CRT documentation for \texttt{\_stricmp} and
+\texttt{\_strnicmp}.}
+\def\TCFeatureRef{\texttt{include/string.h}; planned presence, behavior, and
+\texttt{tests/mscompat/run-tc-0045.ps1} fixtures.}
+\def\TCTestTechnique{Interface, equivalence-partition, boundary-value,
+locale, error, and excluded-alias testing.}
+\def\TCPreconditions{REQ-0003, REQ-0006, and REQ-0014 are implemented and
+the Microsoft compatibility surface is selected.}
+\def\TCEnvironment{TinyCC compilation and native execution on supported
+Windows architectures.}
+\def\TCAssumptions{The C locale is always available; other locale partitions
+run only for WCRT-supported locales.}
+\def\TCInputData{Empty strings, case variants, punctuation, high-bit bytes,
+prefixes, unequal lengths, count boundaries, and null pointers.}
+\def\TCInitialState{The active locale and \texttt{errno} are recorded.}
+\def\TCProcedure{Compile both declarations; compare equal and ordered
+partitions; test counts zero, one, exact prefix, and beyond termination;
+exercise locale and null-argument behavior; reject excluded aliases.}
+\def\TCExpectedResult{Both functions return the documented ordering, honor
+the count boundary, and report null arguments through the Microsoft contract.}
+\def\TCPostConditions{The active locale is restored and inputs are unchanged.}
+\TCTemplate

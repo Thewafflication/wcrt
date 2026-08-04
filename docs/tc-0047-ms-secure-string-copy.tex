@@ -1,0 +1,29 @@
+% TC-0047 fragment; intended for the compatibility test report.
+\def\TCID{TC-0047}
+\def\TCTitle{Microsoft secure narrow-string copy}
+\def\TCPurpose{Verify the declarations, bounds, termination, clearing, and
+returns of \texttt{strcpy\_s} and \texttt{strncpy\_s}.}
+\def\TCPriority{\TCPriorityCritical}
+\def\TCRequirementRef{REQ-0047}
+\def\TCDesignRef{Microsoft CRT documentation for \texttt{strcpy\_s} and
+\texttt{strncpy\_s}.}
+\def\TCFeatureRef{\texttt{include/string.h}; planned presence, behavior, and
+\texttt{tests/mscompat/run-tc-0047.ps1} fixtures.}
+\def\TCTestTechnique{Interface, boundary-value, sentinel, error, and
+invalid-parameter testing.}
+\def\TCPreconditions{REQ-0003 and REQ-0014 are implemented and the Microsoft
+compatibility surface is selected.}
+\def\TCEnvironment{TinyCC compilation and native execution on supported
+Windows architectures.}
+\def\TCAssumptions{Invalid-parameter handling is observable.}
+\def\TCInputData{Empty and nonempty sources; exact, excess, and insufficient
+capacities; count boundaries; \texttt{\_TRUNCATE}; and null arguments.}
+\def\TCInitialState{Destinations contain sentinels and \texttt{errno} is
+recorded.}
+\def\TCProcedure{Compile declarations and types; exercise successful copies;
+verify termination and untouched tails; exercise \texttt{\_TRUNCATE}; test
+invalid capacities and pointers; verify clearing, returns, and handler use.}
+\def\TCExpectedResult{Success produces the specified terminated string;
+failure returns the documented code and writes only where permitted.}
+\def\TCPostConditions{Only bytes permitted by the partition changed.}
+\TCTemplate
