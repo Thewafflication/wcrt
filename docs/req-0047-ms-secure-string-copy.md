@@ -2,7 +2,7 @@
 
 **Content type:** Project requirement
 
-**Status:** Proposed
+**Status:** Implemented
 
 **Source:** Microsoft Learn documentation for
 [`strcpy_s`](https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/strcpy-s-wcscpy-s-mbscpy-s?view=msvc-170)
@@ -63,5 +63,6 @@ Only the two named narrow C interfaces are included.
 
 ## Implementation Record
 
-Not yet implemented in WCRT. WPM supplies local reduced implementations in
-`wpm/tcc_compat/secure_crt.c`; its `strncpy_s` does not implement `_TRUNCATE`.
+`include/string.h` defines the compatibility types and constants and
+`src/string.c` implements both functions, including `_TRUNCATE`. TC-0047
+passes on x86 and x64 TinyCC.

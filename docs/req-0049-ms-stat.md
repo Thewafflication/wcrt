@@ -2,7 +2,7 @@
 
 **Content type:** Project requirement
 
-**Status:** Proposed
+**Status:** Implemented
 
 **Source:** Microsoft Learn documentation for the
 [`_stat` family](https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/stat-functions?view=msvc-170);
@@ -64,6 +64,6 @@ The `_stat` alias is required only for the verified x86 TinyCC ABI condition.
 
 ## Implementation Record
 
-Not yet implemented in WCRT. WPM currently provides an 8-byte-packed layout,
-Windows file-attribute translation, and the x86 alias in
-`wpm/tcc_compat/wcrt_stat.c`.
+`include/sys/stat.h` defines the 8-byte-packed layout and
+`src/platform/windows/stat.c` translates Windows attributes and exports the
+x86 alias. TC-0049 passes on x86 and x64 TinyCC.

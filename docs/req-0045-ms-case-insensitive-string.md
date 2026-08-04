@@ -2,7 +2,7 @@
 
 **Content type:** Project requirement
 
-**Status:** Proposed
+**Status:** Implemented
 
 **Source:** Microsoft Learn documentation for
 [`_stricmp`](https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/stricmp-wcsicmp-mbsicmp-stricmp-l-wcsicmp-l-mbsicmp-l?view=msvc-170)
@@ -61,5 +61,6 @@ This requirement applies only to the Microsoft compatibility surface.
 
 ## Implementation Record
 
-Not yet implemented in WCRT. WPM currently supplies an ASCII/C-locale-oriented
-fallback in `wpm/tcc_compat/secure_crt.c`.
+`include/string.h` declares both functions and `src/string.c` implements the
+Microsoft comparison and invalid-parameter continuation behavior. TC-0045
+passes on x86 and x64 TinyCC.

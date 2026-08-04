@@ -2,7 +2,7 @@
 
 **Content type:** Project requirement
 
-**Status:** Proposed
+**Status:** Implemented
 
 **Source:** Microsoft Learn documentation for
 [`fopen_s`](https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/fopen-s-wfopen-s?view=msvc-170)
@@ -71,5 +71,6 @@ Only the two named narrow interfaces are included.
 
 ## Implementation Record
 
-Not yet implemented in WCRT. WPM supplies local reduced implementations in
-`wpm/tcc_compat/secure_crt.c`.
+`include/stdio.h`, `src/stdio.c`, and `src/stdio_scan.c` provide the two
+interfaces, including destination sizes and the WPM `%llu%c` use case.
+TC-0046 passes on x86 and x64 TinyCC.

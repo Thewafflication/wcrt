@@ -1,4 +1,5 @@
 /** @file utime.c @brief Checks explicit-width utime declarations. */
+#include <stddef.h>
 #include <sys/utime.h>
 #ifndef WCRT_SYS_UTIME_H
 #error <sys/utime.h> did not resolve to the WCRT header

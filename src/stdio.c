@@ -85,6 +85,20 @@ FILE *fopen(const char *path, const char *mode)
     return stream;
 }
 
+errno_t fopen_s(FILE **stream, const char *path, const char *mode)
+{
+    if (stream == NULL || path == NULL || mode == NULL) {
+        errno = EINVAL;
+        return EINVAL;
+    }
+    *stream = fopen(path, mode);
+    if (*stream == NULL) {
+        if (errno == 0) errno = ENOENT;
+        return errno;
+    }
+    return 0;
+}
+
 FILE *freopen(const char *path, const char *mode, FILE *stream)
 {
     int descriptor;

@@ -10,7 +10,6 @@
 | REQ-0047 | [TC-0047](../../docs/tc-0047-ms-secure-string-copy.tex) | `presence/secure-string.c`, `secure-string.c` | Copy bounds, termination, `_TRUNCATE`, clearing, and errors |
 | REQ-0048 | [TC-0048](../../docs/tc-0048-ms-utime.tex) | `presence/utime.c`, `utime.c` | ABI, time ranges, filesystem behavior, errors, and imports |
 | REQ-0049 | [TC-0049](../../docs/tc-0049-ms-stat.tex) | `presence/stat.c`, `stat.c` | Layout, metadata, x86 alias, errors, symbols, and imports |
-| REQ-0050 | [TC-0050](../../docs/tc-0050-wpm-snprintf-integration.tex) | `presence/wpm-snprintf.c`, `wpm-snprintf.c` | Language mode, symbol resolution, formatter behavior, and C99 regression |
 
 This non-ISO suite compiles against WCRT headers without host
 standard-library headers. A runner failure is expected while its proposed

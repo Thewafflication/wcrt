@@ -8,6 +8,7 @@
 
 #include <stddef.h>
 #include <stdarg.h>
+#include <errno.h>
 #include <wcrt/restrict.h>
 
 typedef struct wcrt_file FILE;
@@ -45,6 +46,8 @@ int fclose(FILE *stream);
 int fflush(FILE *stream);
 FILE *fopen(const char *WCRT_RESTRICT path,
     const char *WCRT_RESTRICT mode);
+/** @brief Opens a file through the Microsoft secure-CRT contract. */
+errno_t fopen_s(FILE **stream, const char *path, const char *mode);
 FILE *freopen(const char *WCRT_RESTRICT path,
     const char *WCRT_RESTRICT mode, FILE *WCRT_RESTRICT stream);
 void setbuf(FILE *WCRT_RESTRICT stream, char *WCRT_RESTRICT buffer);
@@ -60,6 +63,8 @@ int sprintf(char *WCRT_RESTRICT destination,
     const char *WCRT_RESTRICT format, ...);
 int sscanf(const char *WCRT_RESTRICT source,
     const char *WCRT_RESTRICT format, ...);
+/** @brief Scans a string with Microsoft destination-size arguments. */
+int sscanf_s(const char *source, const char *format, ...);
 int vfprintf(FILE *WCRT_RESTRICT stream,
     const char *WCRT_RESTRICT format, va_list arguments);
 int vprintf(const char *WCRT_RESTRICT format, va_list arguments);

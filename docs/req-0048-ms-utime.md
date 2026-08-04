@@ -2,7 +2,7 @@
 
 **Content type:** Project requirement
 
-**Status:** Proposed
+**Status:** Implemented
 
 **Source:** Microsoft Learn documentation for
 [`_utime32` and `_utime64`](https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/utime-utime32-utime64-wutime-wutime32-wutime64?view=msvc-170);
@@ -58,5 +58,6 @@ The explicit-width narrow-path variants apply on every supported architecture.
 
 ## Implementation Record
 
-Not yet implemented in WCRT. WPM currently adapts Unix seconds to `FILETIME`
-and calls Windows file APIs in `wpm/tcc_compat/utime.c`.
+`include/sys/utime.h` defines the explicit-width ABI and
+`src/platform/windows/utime.c` uses baseline Windows file APIs with checked
+ranges and error mapping. TC-0048 passes on x86 and x64 TinyCC.

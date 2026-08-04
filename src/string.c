@@ -4,6 +4,7 @@
  */
 
 #include <errno.h>
+#include <ctype.h>
 #include <string.h>
 
 /** @brief Saved continuation used by the non-reentrant strtok function. */
@@ -276,4 +277,71 @@ size_t strlen(const char *string)
         ++end;
     }
     return (size_t)(end - string);
+}
+
+int _strnicmp(const char *left, const char *right, size_t count)
+{
+    if (left == NULL || right == NULL) {
+        errno = EINVAL;
+        return _NLSCMPERROR;
+    }
+    while (count-- != 0) {
+        int first = tolower((unsigned char)*left++);
+        int second = tolower((unsigned char)*right++);
+        if (first != second) {
+            return first < second ? -1 : 1;
+        }
+        if (first == 0) return 0;
+    }
+    return 0;
+}
+
+int _stricmp(const char *left, const char *right)
+{
+    return _strnicmp(left, right, (size_t)-1);
+}
+
+errno_t strcpy_s(char *destination, rsize_t destination_size,
+    const char *source)
+{
+    size_t source_size;
+    if (destination == NULL) return EINVAL;
+    if (destination_size == 0) return ERANGE;
+    if (source == NULL) {
+        destination[0] = '\0';
+        return EINVAL;
+    }
+    source_size = strlen(source) + 1;
+    if (source_size > destination_size) {
+        destination[0] = '\0';
+        return ERANGE;
+    }
+    memcpy(destination, source, source_size);
+    return 0;
+}
+
+errno_t strncpy_s(char *destination, rsize_t destination_size,
+    const char *source, rsize_t count)
+{
+    size_t source_length;
+    size_t copy_length;
+    int truncate = count == _TRUNCATE;
+    if (destination == NULL) return EINVAL;
+    if (destination_size == 0) return ERANGE;
+    if (source == NULL) {
+        destination[0] = '\0';
+        return EINVAL;
+    }
+    source_length = strlen(source);
+    copy_length = truncate || count > source_length ? source_length : count;
+    if (copy_length >= destination_size) {
+        if (!truncate) {
+            destination[0] = '\0';
+            return ERANGE;
+        }
+        copy_length = destination_size - 1;
+    }
+    memcpy(destination, source, copy_length);
+    destination[copy_length] = '\0';
+    return truncate && copy_length < source_length ? STRUNCATE : 0;
 }

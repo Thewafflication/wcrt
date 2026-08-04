@@ -86,7 +86,8 @@ $sources = @(
     'src/string.c', 'src/time.c', 'src/platform/windows/clock.c',
     'src/platform/windows/file.c', 'src/platform/windows/heap.c',
     'src/platform/windows/process.c', 'src/platform/windows/setjmp.S',
-    'src/platform/windows/signal.c'
+    'src/platform/windows/signal.c', 'src/platform/windows/stat.c',
+    'src/platform/windows/utime.c'
 ) | ForEach-Object { Join-Path $repoRoot $_ }
 
 $dllPath = Join-Path $outputDirectory 'wcrt.dll'

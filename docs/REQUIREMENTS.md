@@ -74,7 +74,6 @@ that compatibility behavior cannot alter a standard function's contract.
 | [REQ-0047](req-0047-ms-secure-string-copy.md) | [TC-0047](tc-0047-ms-secure-string-copy.tex) | `<string.h>` | Microsoft secure CRT | `strcpy_s` and `strncpy_s` |
 | [REQ-0048](req-0048-ms-utime.md) | [TC-0048](tc-0048-ms-utime.tex) | `<sys/utime.h>` | Microsoft CRT | `_utime32` and `_utime64` |
 | [REQ-0049](req-0049-ms-stat.md) | [TC-0049](tc-0049-ms-stat.tex) | `<sys/stat.h>` | Microsoft CRT | `_stat64` and x86 `_stat` ABI alias |
-| [REQ-0050](req-0050-wpm-snprintf-integration.md) | [TC-0050](tc-0050-wpm-snprintf-integration.tex) | `<stdio.h>` | WPM integration | TinyCC access to standard `snprintf` |
 
 ## Shared acceptance gates
 

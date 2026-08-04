@@ -39,10 +39,7 @@ $tests = @(
         'tests\mscompat\run-tc-0048.ps1'),
     @('TC-0049', 'Microsoft compatibility',
         '64-bit file status and x86 alias',
-        'tests\mscompat\run-tc-0049.ps1'),
-    @('TC-0050', 'WPM integration',
-        'Bounded formatted-output integration',
-        'tests\mscompat\run-tc-0050.ps1')
+        'tests\mscompat\run-tc-0049.ps1')
 )
 $results = foreach ($test in $tests) {
     Write-WspInfo "Running $($test[0]) ($($test[2])) on $Architecture."

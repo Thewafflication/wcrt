@@ -7,11 +7,28 @@
 #define WCRT_STRING_H
 
 #include <stddef.h>
+#include <errno.h>
 #include <wcrt/restrict.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/** @brief Microsoft secure-CRT object-size type. */
+typedef size_t rsize_t;
+
+/** @brief Requests truncation with guaranteed termination. */
+#ifndef _TRUNCATE
+#define _TRUNCATE ((rsize_t)-1)
+#endif
+
+/** @brief Reports successful truncation by a secure string function. */
+#ifndef STRUNCATE
+#define STRUNCATE 80
+#endif
+
+/** @brief Return value for invalid Microsoft comparison parameters. */
+#define _NLSCMPERROR 2147483647
 
 void *memcpy(void *WCRT_RESTRICT destination,
     const void *WCRT_RESTRICT source, size_t count);
@@ -42,6 +59,16 @@ char *strtok(char *WCRT_RESTRICT string,
 void *memset(void *memory, int character, size_t count);
 char *strerror(int error_number);
 size_t strlen(const char *string);
+/** @brief Compares two strings without regard to case. */
+int _stricmp(const char *left, const char *right);
+/** @brief Compares bounded strings without regard to case. */
+int _strnicmp(const char *left, const char *right, size_t count);
+/** @brief Copies a string under the Microsoft secure-CRT contract. */
+errno_t strcpy_s(char *destination, rsize_t destination_size,
+    const char *source);
+/** @brief Copies a bounded string under the secure-CRT contract. */
+errno_t strncpy_s(char *destination, rsize_t destination_size,
+    const char *source, rsize_t count);
 
 #ifdef __cplusplus
 }

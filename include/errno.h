@@ -15,6 +15,18 @@
 /** @brief Invalid argument reported by Microsoft compatibility interfaces. */
 #define EINVAL 22
 
+/** @brief Permission denied by a filesystem operation. */
+#define EACCES 13
+
+/** @brief File or path component was not found. */
+#define ENOENT 2
+
+/** @brief Process file-table capacity was exhausted. */
+#define EMFILE 24
+
+/** @brief Microsoft secure-CRT error-code type. */
+typedef int errno_t;
+
 /** @brief Process-global C89 error indicator storage. */
 extern int wcrt_errno;
 

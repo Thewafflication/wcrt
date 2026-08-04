@@ -135,13 +135,21 @@ static int wcrt_format(struct wcrt_output *output, const char *format,
                 precision = precision * 10 + *format++ - '0';
             }
         }
-        if (*format == 'h' || *format == 'l' || *format == 'L') {
+        if (*format == 'h' || *format == 'L') {
             length_modifier = *format++;
+        } else if (*format == 'l') {
+            length_modifier = 'l';
+            ++format;
+            if (*format == 'l') {
+                length_modifier = 2;
+                ++format;
+            }
         }
         conversion = *format++;
         if (conversion == 'd' || conversion == 'i') {
-            long long signed_value = length_modifier == 'l' ?
-                va_arg(arguments, long) : va_arg(arguments, int);
+            long long signed_value = length_modifier == 2 ?
+                va_arg(arguments, long long) : (length_modifier == 'l' ?
+                va_arg(arguments, long) : va_arg(arguments, int));
             unsigned long long magnitude;
             char sign = 0;
             if (signed_value < 0) {
@@ -161,9 +169,10 @@ static int wcrt_format(struct wcrt_output *output, const char *format,
                 (conversion == 'u' ? 10 : 16);
             if (conversion == 'p') number =
                 (unsigned long long)(size_t)va_arg(arguments, void *);
-            else number = length_modifier == 'l' ?
-                va_arg(arguments, unsigned long) :
-                va_arg(arguments, unsigned int);
+            else number = length_modifier == 2 ?
+                va_arg(arguments, unsigned long long) :
+                (length_modifier == 'l' ? va_arg(arguments, unsigned long) :
+                va_arg(arguments, unsigned int));
             if ((alternate || conversion == 'p') && base == 16) {
                 value[value_length++] = '0';
                 value[value_length++] = conversion == 'X' ? 'X' : 'x';

@@ -4,6 +4,7 @@
  */
 
 #include <ctype.h>
+#include <errno.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,7 +23,8 @@ static int wcrt_in_set(int character, const char *set, const char *end)
 }
 
 /** @brief Scans a terminated source using C89 conversion rules. */
-static int wcrt_scan(const char *source, const char *format, va_list arguments)
+static int wcrt_scan(const char *source, const char *format, va_list arguments,
+    int secure)
 {
     const char *cursor = source;
     int assignments = 0;
@@ -47,8 +49,15 @@ static int wcrt_scan(const char *source, const char *format, va_list arguments)
         while (isdigit((unsigned char)*format)) {
             width = width * 10 + *format++ - '0';
         }
-        if (*format == 'h' || *format == 'l' || *format == 'L') {
+        if (*format == 'h' || *format == 'L') {
             length = *format++;
+        } else if (*format == 'l') {
+            length = 'l';
+            ++format;
+            if (*format == 'l') {
+                length = 2;
+                ++format;
+            }
         }
         conversion = *format++;
         if (conversion != 'c' && conversion != '[' && conversion != 'n') {
@@ -73,6 +82,17 @@ static int wcrt_scan(const char *source, const char *format, va_list arguments)
                 (conversion == 'i' ? 0 : 10));
             const char *start = cursor;
             unsigned long number = strtoul(cursor, &end, base);
+            unsigned long long wide_number = number;
+            if (length == 2) {
+                const char *wide = cursor;
+                wide_number = 0;
+                while (*wide >= '0' && *wide <= '9' &&
+                    (width == 0 || wide - cursor < width)) {
+                    wide_number = wide_number * 10ULL +
+                        (unsigned int)(*wide++ - '0');
+                }
+                end = (char *)wide;
+            }
             if (end == cursor || (width > 0 && end - start > width)) {
                 return assignments;
             }
@@ -82,6 +102,8 @@ static int wcrt_scan(const char *source, const char *format, va_list arguments)
                     (void *)(size_t)number;
                 else if (length == 'h') *va_arg(arguments, unsigned short *) =
                     (unsigned short)number;
+                else if (length == 2)
+                    *va_arg(arguments, unsigned long long *) = wide_number;
                 else if (length == 'l') *va_arg(arguments, unsigned long *) =
                     number;
                 else *va_arg(arguments, unsigned int *) = (unsigned int)number;
@@ -104,7 +126,13 @@ static int wcrt_scan(const char *source, const char *format, va_list arguments)
         } else if (conversion == 'c') {
             int count = width == 0 ? 1 : width;
             char *output = suppress ? NULL : va_arg(arguments, char *);
+            unsigned int output_size = secure && !suppress ?
+                va_arg(arguments, unsigned int) : (unsigned int)count;
             int index;
+            if (!suppress && output_size < (unsigned int)count) {
+                errno = EINVAL;
+                return assignments == 0 ? EOF : assignments;
+            }
             for (index = 0; index < count; ++index) {
                 if (*cursor == '\0') return assignments;
                 if (!suppress) output[index] = *cursor;
@@ -113,6 +141,8 @@ static int wcrt_scan(const char *source, const char *format, va_list arguments)
             if (!suppress) ++assignments;
         } else if (conversion == 's' || conversion == '[') {
             char *output = suppress ? NULL : va_arg(arguments, char *);
+            unsigned int output_size = secure && !suppress ?
+                va_arg(arguments, unsigned int) : (unsigned int)-1;
             int count = 0, invert = 0;
             const char *set = NULL, *set_end = NULL;
             if (conversion == '[') {
@@ -128,6 +158,11 @@ static int wcrt_scan(const char *source, const char *format, va_list arguments)
                     !isspace((unsigned char)*cursor) :
                     (wcrt_in_set(*cursor, set, set_end) != invert);
                 if (!accepted) break;
+                if (!suppress && (unsigned int)(count + 1) >= output_size) {
+                    output[0] = '\0';
+                    errno = EINVAL;
+                    return assignments == 0 ? EOF : assignments;
+                }
                 if (!suppress) output[count] = *cursor;
                 ++cursor; ++count;
             }
@@ -142,7 +177,21 @@ int sscanf(const char *source, const char *format, ...)
 {
     va_list arguments; int result;
     va_start(arguments, format);
-    result = wcrt_scan(source, format, arguments);
+    result = wcrt_scan(source, format, arguments, 0);
+    va_end(arguments);
+    return result;
+}
+
+int sscanf_s(const char *source, const char *format, ...)
+{
+    va_list arguments;
+    int result;
+    if (source == NULL || format == NULL) {
+        errno = EINVAL;
+        return EOF;
+    }
+    va_start(arguments, format);
+    result = wcrt_scan(source, format, arguments, 1);
     va_end(arguments);
     return result;
 }
@@ -160,7 +209,7 @@ static int wcrt_stream_scan(FILE *stream, const char *format,
         if (character == '\n') break;
     }
     input[length] = '\0';
-    return length == 0 ? EOF : wcrt_scan(input, format, arguments);
+    return length == 0 ? EOF : wcrt_scan(input, format, arguments, 0);
 }
 
 int fscanf(FILE *stream, const char *format, ...)

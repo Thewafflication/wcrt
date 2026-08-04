@@ -1,4 +1,5 @@
 /** @file stat.c @brief Checks Microsoft file-status declarations. */
+#include <stddef.h>
 #include <sys/stat.h>
 #ifndef WCRT_SYS_STAT_H
 #error <sys/stat.h> did not resolve to the WCRT header
