@@ -99,6 +99,10 @@ No focused time is inferred from chat or command wall time.
 | T1-D002 | numeric | Implementation | Personal code review | — | `src/stdlib.c` | Changed decimal normalization so leading integer and fractional zeros do not exhaust the 18 stored significant digits; added a long-leading-zero regression. |
 | T1-D003 | documentation | Test specification | Traceability verification | — | `tc-0028-stdlib-c99.tex` | Rephrased a planned-requirement reference because controlled test specifications may reference only baselined requirement IDs. |
 | T1-D004 | algorithm | Implementation | Final code review | — | `src/stdlib.c` | Initialized the internal overflow result on the documented defensive invalid-base path, preventing an indeterminate branch in `strtoll`. |
+| T1-D005 | numeric | Implementation | Independent code review | — | `src/stdlib.c`, `tests/c99/stdlib.c` | Replaced repeated decimal scaling after boundary probes found results six ULPs below `DBL_MAX` and 87 ULPs below `DBL_MIN`; added exact binary64 range-boundary regressions. |
+| T1-D006 | test | Test implementation | Independent code review | — | `tests/c99/inttypes.c` | Replaced sampled format checks with an ABI-specific matrix covering all 154 controlled `PRI*` and `SCN*` macro values. |
+| T1-D007 | documentation | Postmortem | Independent code review | — | `docs/work/c99-t1-integer-core.md` | Corrected the actual Git change size used by the postmortem and T2 re-estimation. |
+| T1-D008 | documentation | Baseline update | Independent code review | — | `docs/C99-1.0-WORK-PLAN.md` | Removed the stale statement that the aggregate runner omitted TC-0021 through TC-0026. |
 
 ## Checklist
 
@@ -123,13 +127,14 @@ No focused time is inferred from chat or command wall time.
   `imaxdiv_t` preserve member order and natural Windows layout; no new platform
   import was introduced.
 - Code: accumulation is checked before multiplication, signed minima avoid
-  positive signed overflow, decimal exponent rollback and leading-zero
-  normalization were inspected, normal `exit` and `_Exit` remain distinct,
-  and C99 declarations are edition guarded.
+  positive signed overflow, decimal exponent rollback and integer-significand
+  scaling were inspected at the binary64 range boundaries, normal `exit` and
+  `_Exit` remain distinct, and C99 declarations are edition guarded.
 - Tests: positive, negative, boundary, no-conversion, preservation, range,
   expression-type, repeated-inclusion, C89-isolation, child-process, manifest,
-  and architecture partitions were reviewed. Findings T1-D001 through D003
-  are fixed and covered.
+  and architecture partitions were reviewed. Every controlled integer format
+  macro and the exact binary64 minimum and maximum are covered. Findings
+  T1-D001 through T1-D008 are fixed and covered.
 - Documentation/compatibility: requirements, test specifications, indices,
   strategy, platform decisions, work plan, manifest, aggregate inventory, and
   evidence statements agree. Source quality and final whitespace checks pass.
@@ -154,7 +159,7 @@ No focused time is inferred from chat or command wall time.
 - x86 and x64 startup tests pass. The fresh x86 DLL passes the Windows 2000
   import allowlist with no unexpected import and SHA-256
   `02D7B9DFBE5D727D765E6C07FD696A5A55C6C27D38D2D40FC4030444A26D6611`.
-- `git diff --check` passes. No commit, push, or publication was performed.
+- `git diff --check` passes for the reviewed T1 implementation and fixes.
 
 ## Remaining Target-Only Evidence
 
@@ -166,17 +171,17 @@ No focused time is inferred from chat or command wall time.
 
 ## Postmortem
 
-T1 changed 24 artifacts with 1,149 additions and 20 deletions (1,169 changed
+T1 changed 24 artifacts with 1,360 additions and 28 deletions (1,388 changed
 lines), within the 900–1,600-line inspected estimate. Runtime/header
-implementation accounts for 450 added lines; controlled records, tests, and
+implementation accounts for 518 added lines; controlled records, tests, and
 runner integration account for the remainder. No focused effort or elapsed
 schedule is claimed because maintainer-focused time was not recorded.
 
-Four defects were removed locally: one test-runner status leak, two conversion
-algorithm defects found in personal code review, and one controlled-record
-reference rejected by traceability. No fix minutes were recorded. No defect is
-known to remain in the locally executable scope; native ARM64 and changed-CI
-execution remain external evidence gates.
+Eight defects were removed locally: one test-runner status leak, four numeric
+or algorithm defects, one test-coverage defect, and two documentation defects.
+Four were found during independent review after the initial T1 commit. No fix
+minutes were recorded. No defect is known to remain in the locally executable
+scope; native ARM64 and changed-CI execution remain external evidence gates.
 
 T2 is revised from 70–120 to **75–130 focused hours**, and from 1,200–2,400 to
 **1,300–2,600 changed lines**. T1 confirms that controlled records, isolation,

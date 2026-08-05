@@ -39,6 +39,16 @@ int main(void)
     if (extended != (long double)12.5 || *end != '!') return 9;
     extended = strtold("0.00000000000000000001", &end);
     if (extended <= 0.0L || *end != '\0') return 18;
+    errno = EDOM;
+    extended = strtold("1.7976931348623157e308", &end);
+    if (extended != LDBL_MAX) return 19;
+    if (*end != '\0') return 20;
+    if (errno != EDOM) return 21;
+    errno = EDOM;
+    extended = strtold("2.2250738585072014e-308", &end);
+    if (extended != LDBL_MIN) return 22;
+    if (*end != '\0') return 23;
+    if (errno != EDOM) return 24;
     if (strtof("1e+x", &end) != 1.0F || *end != 'e') return 10;
     if (strtof("-0", &end) != 0.0F ||
         1.0F / strtof("-0", &end) > 0.0F) return 11;

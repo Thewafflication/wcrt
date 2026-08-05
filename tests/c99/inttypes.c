@@ -6,8 +6,67 @@
 #include <inttypes.h>
 #include <string.h>
 
-#define CHECK_FORMAT(name, expected, code) \
-    do { if (strcmp(name, expected) != 0) return code; } while (0)
+#define WCRT_FORMAT_SET(prefix) \
+    prefix##8, prefix##16, prefix##32, prefix##64, \
+    prefix##LEAST8, prefix##LEAST16, prefix##LEAST32, prefix##LEAST64, \
+    prefix##FAST8, prefix##FAST16, prefix##FAST32, prefix##FAST64, \
+    prefix##MAX, prefix##PTR
+
+#if defined(_WIN64)
+#define WCRT_POINTER_FORMAT(letter) "ll" letter
+#else
+#define WCRT_POINTER_FORMAT(letter) letter
+#endif
+
+#define WCRT_PRINT_EXPECTED(letter) \
+    letter, letter, letter, "ll" letter, \
+    letter, letter, letter, "ll" letter, \
+    letter, letter, letter, "ll" letter, \
+    "ll" letter, WCRT_POINTER_FORMAT(letter)
+
+#define WCRT_SCAN_EXPECTED(letter) \
+    "hh" letter, "h" letter, letter, "ll" letter, \
+    "hh" letter, "h" letter, letter, "ll" letter, \
+    letter, letter, letter, "ll" letter, \
+    "ll" letter, WCRT_POINTER_FORMAT(letter)
+
+/** @brief Actual spellings of every controlled integer format macro. */
+static const char *const wcrt_formats[] = {
+    WCRT_FORMAT_SET(PRId), WCRT_FORMAT_SET(PRIi),
+    WCRT_FORMAT_SET(PRIo), WCRT_FORMAT_SET(PRIu),
+    WCRT_FORMAT_SET(PRIx), WCRT_FORMAT_SET(PRIX),
+    WCRT_FORMAT_SET(SCNd), WCRT_FORMAT_SET(SCNi),
+    WCRT_FORMAT_SET(SCNo), WCRT_FORMAT_SET(SCNu),
+    WCRT_FORMAT_SET(SCNx)
+};
+
+/** @brief ABI-specific expected spellings matching wcrt_formats. */
+static const char *const wcrt_expected_formats[] = {
+    WCRT_PRINT_EXPECTED("d"), WCRT_PRINT_EXPECTED("i"),
+    WCRT_PRINT_EXPECTED("o"), WCRT_PRINT_EXPECTED("u"),
+    WCRT_PRINT_EXPECTED("x"), WCRT_PRINT_EXPECTED("X"),
+    WCRT_SCAN_EXPECTED("d"), WCRT_SCAN_EXPECTED("i"),
+    WCRT_SCAN_EXPECTED("o"), WCRT_SCAN_EXPECTED("u"),
+    WCRT_SCAN_EXPECTED("x")
+};
+
+/** @brief Checks every controlled format macro against the selected ABI. */
+static int wcrt_check_formats(void)
+{
+    size_t index;
+    size_t count = sizeof(wcrt_formats) / sizeof(wcrt_formats[0]);
+
+    if (count != sizeof(wcrt_expected_formats) /
+        sizeof(wcrt_expected_formats[0])) {
+        return 1;
+    }
+    for (index = 0; index < count; ++index) {
+        if (strcmp(wcrt_formats[index], wcrt_expected_formats[index]) != 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
 
 /** @brief Runs greatest-width integer checks. */
 int main(void)
@@ -16,25 +75,7 @@ int main(void)
     imaxdiv_t divided;
     int base;
 
-    CHECK_FORMAT(PRId8, "d", 1);
-    CHECK_FORMAT(PRId16, "d", 2);
-    CHECK_FORMAT(PRId32, "d", 3);
-    CHECK_FORMAT(PRId64, "lld", 4);
-    CHECK_FORMAT(PRIuLEAST8, "u", 5);
-    CHECK_FORMAT(PRIxFAST16, "x", 6);
-    CHECK_FORMAT(PRIXMAX, "llX", 7);
-    CHECK_FORMAT(SCNd8, "hhd", 8);
-    CHECK_FORMAT(SCNi16, "hi", 9);
-    CHECK_FORMAT(SCNo32, "o", 10);
-    CHECK_FORMAT(SCNu64, "llu", 11);
-    CHECK_FORMAT(SCNxMAX, "llx", 12);
-#if defined(_WIN64)
-    CHECK_FORMAT(PRIdPTR, "lld", 13);
-    CHECK_FORMAT(SCNxPTR, "llx", 14);
-#else
-    CHECK_FORMAT(PRIdPTR, "d", 13);
-    CHECK_FORMAT(SCNxPTR, "x", 14);
-#endif
+    if (wcrt_check_formats() != 0) return 1;
     if (imaxabs(-42) != 42) return 15;
     divided = imaxdiv(-20, 6);
     if (divided.quot != -3 || divided.rem != -2) return 16;

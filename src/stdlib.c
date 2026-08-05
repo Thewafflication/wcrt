@@ -196,11 +196,59 @@ long strtol(const char *string, char **end_pointer, int base)
     return (long)magnitude;
 }
 
+/** @brief Scales a decimal significand while limiting intermediate rounding. */
+static double wcrt_scale_decimal(double value, int scale, int *did_overflow)
+{
+    static const double powers[] = {
+        1.0e1, 1.0e2, 1.0e4, 1.0e8, 1.0e16,
+        1.0e32, 1.0e64, 1.0e128, 1.0e256
+    };
+    double factor;
+    double limit;
+    unsigned int magnitude;
+    unsigned int bit = 0;
+
+    *did_overflow = 0;
+    if (value == 0.0) {
+        return 0.0;
+    }
+    magnitude = (unsigned int)(scale < 0 ? -scale : scale);
+    while (magnitude != 0) {
+        if ((magnitude & 1U) != 0) {
+            if (bit >= sizeof(powers) / sizeof(powers[0])) {
+                if (scale > 0) {
+                    *did_overflow = 1;
+                    return DBL_MAX;
+                }
+                return 0.0;
+            }
+            factor = powers[bit];
+            if (scale > 0) {
+                limit = DBL_MAX / factor;
+                if (value > limit) {
+                    if (value - limit <= limit * DBL_EPSILON * 2.0) {
+                        return DBL_MAX;
+                    }
+                    *did_overflow = 1;
+                    return DBL_MAX;
+                }
+                value *= factor;
+            } else {
+                value /= factor;
+            }
+        }
+        magnitude >>= 1;
+        ++bit;
+    }
+    return value;
+}
+
 /** @brief Parses the decimal floating subject sequence shared by C99 APIs. */
 static double wcrt_strtod_decimal(const char *string, char **end_pointer)
 {
     const char *cursor = string;
-    double value = 0.0;
+    unsigned long long significand = 0;
+    double value;
     int negative = 0;
     int converted = 0;
     int exponent = 0;
@@ -208,6 +256,7 @@ static double wcrt_strtod_decimal(const char *string, char **end_pointer)
     int significant_digits = 0;
     int decimal_adjustment = 0;
     int nonzero = 0;
+    int overflow = 0;
 
     while (isspace((unsigned char)*cursor)) {
         ++cursor;
@@ -222,8 +271,9 @@ static double wcrt_strtod_decimal(const char *string, char **end_pointer)
         }
         if (significant_digits == 0 && *cursor == '0') {
             /* Leading integer zero does not consume stored precision. */
-        } else if (significant_digits < 18) {
-            value = value * 10.0 + (double)(*cursor - '0');
+        } else if (significant_digits < 19) {
+            significand = significand * 10ULL +
+                (unsigned long long)(*cursor - '0');
             ++significant_digits;
         } else {
             ++decimal_adjustment;
@@ -239,8 +289,9 @@ static double wcrt_strtod_decimal(const char *string, char **end_pointer)
             }
             if (significant_digits == 0 && *cursor == '0') {
                 --decimal_adjustment;
-            } else if (significant_digits < 18) {
-                value = value * 10.0 + (double)(*cursor - '0');
+            } else if (significant_digits < 19) {
+                significand = significand * 10ULL +
+                    (unsigned long long)(*cursor - '0');
                 ++significant_digits;
                 --decimal_adjustment;
             }
@@ -269,18 +320,9 @@ static double wcrt_strtod_decimal(const char *string, char **end_pointer)
     } else {
         int scale = decimal_adjustment +
             (exponent_negative ? -exponent : exponent);
-        while (scale > 0) {
-            if (value > DBL_MAX / 10.0) {
-                errno = ERANGE;
-                value = DBL_MAX;
-                break;
-            }
-            value *= 10.0;
-            --scale;
-        }
-        while (scale < 0) {
-            value *= 0.1;
-            ++scale;
+        value = wcrt_scale_decimal((double)significand, scale, &overflow);
+        if (overflow) {
+            errno = ERANGE;
         }
         if (nonzero && value < DBL_MIN) {
             errno = ERANGE;
