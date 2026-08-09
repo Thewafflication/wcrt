@@ -83,7 +83,7 @@ planned backlog items.
 | Planned ID | Conformance unit | Primary C99 clauses | Principal obligations |
 | --- | --- | --- | --- |
 | REQ-0029 | C99 formatted output | 7.19.6.1 | New length modifiers and conversions; REQ-0019 remains independently controlled |
-| REQ-0030 | C99 formatted input | 7.19.6.2, 7.19.6.4, 7.19.6.7, 7.19.6.10 | New modifiers/conversions and the three `v*scanf` functions |
+| REQ-0030 | C99 formatted input | 7.19.6.2, 7.19.6.4, 7.19.6.7, 7.19.6.9, 7.19.6.11, 7.19.6.14 | New modifiers/conversions and the three `v*scanf` functions |
 | REQ-0031 | Wide-character I/O and strings | 7.24 | Complete `wchar.h`, stream orientation, conversions, strings, time, and `mbstate_t` |
 | REQ-0032 | Wide-character classification | 7.25 | Complete `wctype.h` classification, descriptors, and mappings |
 | REQ-0033 | Windows UTF-16 ABI | Implementation-defined | `wchar_t`, `wint_t`, multibyte state, locale, and Windows interoperability by architecture |
