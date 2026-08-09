@@ -70,7 +70,13 @@ int vfprintf(FILE *WCRT_RESTRICT stream,
 int vprintf(const char *WCRT_RESTRICT format, va_list arguments);
 int vsprintf(char *WCRT_RESTRICT destination,
     const char *WCRT_RESTRICT format, va_list arguments);
-#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
+#if !defined(WCRT_C89) && defined(__STDC_VERSION__) && \
+    __STDC_VERSION__ >= 199901L
+int vfscanf(FILE *WCRT_RESTRICT stream,
+    const char *WCRT_RESTRICT format, va_list arguments);
+int vscanf(const char *WCRT_RESTRICT format, va_list arguments);
+int vsscanf(const char *WCRT_RESTRICT source,
+    const char *WCRT_RESTRICT format, va_list arguments);
 int snprintf(char *WCRT_RESTRICT destination, size_t size,
     const char *WCRT_RESTRICT format, ...);
 int vsnprintf(char *WCRT_RESTRICT destination, size_t size,

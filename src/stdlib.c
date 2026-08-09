@@ -243,6 +243,277 @@ static double wcrt_scale_decimal(double value, int scale, int *did_overflow)
     return value;
 }
 
+/** @brief Binary64 representation used by numeric-text conversion. */
+union wcrt_double_representation {
+    unsigned long long bits;
+    double value;
+};
+
+/** @brief Binary32 representation used by numeric-text conversion. */
+union wcrt_float_representation {
+    unsigned int bits;
+    float value;
+};
+
+/** @brief Tests an ASCII character without locale-dependent case folding. */
+static int wcrt_ascii_equal(int character, int lower)
+{
+    if (character >= 'A' && character <= 'Z') {
+        character += 'a' - 'A';
+    }
+    return character == lower;
+}
+
+/** @brief Matches one ASCII word without changing the supplied cursor. */
+static int wcrt_ascii_word(const char *cursor, const char *word)
+{
+    while (*word != '\0') {
+        if (!wcrt_ascii_equal((unsigned char)*cursor++, *word++)) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+/** @brief Returns the most significant set-bit index in a hexadecimal digit. */
+static int wcrt_hexadecimal_msb(int digit)
+{
+    if (digit >= 8) return 3;
+    if (digit >= 4) return 2;
+    if (digit >= 2) return 1;
+    return 0;
+}
+
+/** @brief Packs a correctly rounded hexadecimal subject into an IEEE format. */
+static int wcrt_hexadecimal_bits(const char *string, char **end_pointer,
+    int precision, int minimum_exponent, int maximum_exponent, int bias,
+    unsigned long long sign_mask, unsigned long long maximum_bits,
+    unsigned long long *result_bits)
+{
+    const char *cursor = string;
+    const char *digits;
+    const char *significand_end;
+    int negative = 0;
+    int saw_point = 0;
+    int saw_digit = 0;
+    int first_digit = -1;
+    int first_index = 0;
+    int digit_index = 0;
+    int digits_before_point = 0;
+    int exponent_negative = 0;
+    int exponent_value = 0;
+    int exponent;
+    int subnormal_exponent = minimum_exponent - (precision - 1);
+    int keep;
+    int stored = 0;
+    int guard = 0;
+    int sticky = 0;
+    int bit_index = 0;
+    unsigned long long significand = 0;
+    unsigned long long fraction_mask =
+        (1ULL << (precision - 1)) - 1ULL;
+
+    while (isspace((unsigned char)*cursor)) ++cursor;
+    if (*cursor == '+' || *cursor == '-') {
+        negative = *cursor++ == '-';
+    }
+    if (cursor[0] != '0' || (cursor[1] != 'x' && cursor[1] != 'X')) {
+        return 0;
+    }
+    cursor += 2;
+    digits = cursor;
+    while (*cursor != '\0') {
+        int digit = wcrt_digit((unsigned char)*cursor);
+        if (digit >= 0 && digit < 16) {
+            saw_digit = 1;
+            if (!saw_point && digits_before_point < 100000) {
+                ++digits_before_point;
+            }
+            if (first_digit < 0 && digit != 0) {
+                first_digit = digit;
+                first_index = digit_index;
+            }
+            if (digit_index < 100000) ++digit_index;
+            ++cursor;
+        } else if (*cursor == '.' && !saw_point) {
+            saw_point = 1;
+            ++cursor;
+        } else {
+            break;
+        }
+    }
+    if (!saw_digit) return 0;
+    significand_end = cursor;
+    if (*cursor == 'p' || *cursor == 'P') {
+        const char *exponent_start = cursor++;
+        if (*cursor == '+' || *cursor == '-') {
+            exponent_negative = *cursor++ == '-';
+        }
+        if (!isdigit((unsigned char)*cursor)) {
+            cursor = exponent_start;
+        } else {
+            while (isdigit((unsigned char)*cursor)) {
+                if (exponent_value < 100000) {
+                    exponent_value = exponent_value * 10 + *cursor - '0';
+                }
+                ++cursor;
+            }
+        }
+    }
+    if (end_pointer != NULL) *end_pointer = (char *)cursor;
+    if (first_digit < 0) {
+        *result_bits = negative ? sign_mask : 0;
+        return 1;
+    }
+
+    exponent = (exponent_negative ? -exponent_value : exponent_value) +
+        4 * (digits_before_point - first_index - 1) +
+        wcrt_hexadecimal_msb(first_digit);
+    keep = exponent >= minimum_exponent ? precision :
+        exponent - subnormal_exponent + 1;
+    if (keep < 0) {
+        errno = ERANGE;
+        *result_bits = negative ? sign_mask : 0;
+        return 1;
+    }
+
+    cursor = digits;
+    while (cursor < significand_end) {
+        int digit;
+        int bit;
+        if (*cursor == '.') {
+            ++cursor;
+            continue;
+        }
+        digit = wcrt_digit((unsigned char)*cursor++);
+        for (bit = 3; bit >= 0; --bit) {
+            int value = (digit >> bit) & 1;
+            if (bit_index == 0 && value == 0) continue;
+            if (stored < keep) {
+                significand = (significand << 1) | (unsigned int)value;
+                ++stored;
+            } else if (stored == keep && bit_index == keep) {
+                guard = value;
+            } else if (value != 0) {
+                sticky = 1;
+            }
+            ++bit_index;
+        }
+    }
+    while (stored < keep) {
+        significand <<= 1;
+        ++stored;
+    }
+    if (guard && (sticky || (significand & 1ULL) != 0)) {
+        ++significand;
+    }
+
+    if (exponent >= minimum_exponent) {
+        if (significand == (1ULL << precision)) {
+            significand >>= 1;
+            ++exponent;
+        }
+        if (exponent > maximum_exponent) {
+            errno = ERANGE;
+            *result_bits = maximum_bits | (negative ? sign_mask : 0);
+            return 1;
+        }
+        *result_bits = ((unsigned long long)(exponent + bias) <<
+            (precision - 1)) | (significand & fraction_mask) |
+            (negative ? sign_mask : 0);
+    } else {
+        if (significand >= (1ULL << (precision - 1))) {
+            *result_bits = 1ULL << (precision - 1);
+        } else {
+            *result_bits = significand;
+        }
+        if (negative) *result_bits |= sign_mask;
+        errno = ERANGE;
+    }
+    return 1;
+}
+
+/** @brief Parses C99 infinity or NaN subjects into binary64 bits. */
+static int wcrt_special_double(const char *string, char **end_pointer,
+    double *result)
+{
+    const char *cursor = string;
+    int negative = 0;
+    union wcrt_double_representation converted;
+
+    while (isspace((unsigned char)*cursor)) ++cursor;
+    if (*cursor == '+' || *cursor == '-') {
+        negative = *cursor++ == '-';
+    }
+    if (wcrt_ascii_word(cursor, "inf")) {
+        cursor += 3;
+        if (wcrt_ascii_word(cursor, "inity")) cursor += 5;
+        converted.bits = 0x7ff0000000000000ULL;
+    } else if (wcrt_ascii_word(cursor, "nan")) {
+        cursor += 3;
+        if (*cursor == '(') {
+            const char *payload = cursor + 1;
+            const char *end = payload;
+            while (isalnum((unsigned char)*end) || *end == '_') ++end;
+            if (*end == ')') cursor = end + 1;
+        }
+        converted.bits = 0x7ff8000000000000ULL;
+    } else {
+        return 0;
+    }
+    if (negative) converted.bits |= 0x8000000000000000ULL;
+    if (end_pointer != NULL) *end_pointer = (char *)cursor;
+    *result = converted.value;
+    return 1;
+}
+
+/** @brief Parses C99 infinity or NaN subjects into binary32 bits. */
+static int wcrt_special_float(const char *string, char **end_pointer,
+    float *result)
+{
+    double wide;
+    union wcrt_double_representation source;
+    union wcrt_float_representation converted;
+    if (!wcrt_special_double(string, end_pointer, &wide)) return 0;
+    source.value = wide;
+    converted.bits = (source.bits & 0x8000000000000000ULL) != 0 ?
+        0xffc00000U : 0x7fc00000U;
+    if ((source.bits & 0x000fffffffffffffULL) == 0) {
+        converted.bits &= 0xff800000U;
+    }
+    *result = converted.value;
+    return 1;
+}
+
+/** @brief Parses a C99 hexadecimal subject directly into binary64. */
+static int wcrt_hexadecimal_double(const char *string, char **end_pointer,
+    double *result)
+{
+    union wcrt_double_representation converted;
+    if (!wcrt_hexadecimal_bits(string, end_pointer, 53, -1022, 1023,
+        1023, 0x8000000000000000ULL, 0x7fefffffffffffffULL,
+        &converted.bits)) {
+        return 0;
+    }
+    *result = converted.value;
+    return 1;
+}
+
+/** @brief Parses a C99 hexadecimal subject directly into binary32. */
+static int wcrt_hexadecimal_float(const char *string, char **end_pointer,
+    float *result)
+{
+    union wcrt_float_representation converted;
+    unsigned long long bits;
+    if (!wcrt_hexadecimal_bits(string, end_pointer, 24, -126, 127, 127,
+        0x80000000ULL, 0x7f7fffffULL, &bits)) {
+        return 0;
+    }
+    converted.bits = (unsigned int)bits;
+    *result = converted.value;
+    return 1;
+}
+
 /** @brief Parses the decimal floating subject sequence shared by C99 APIs. */
 static double wcrt_strtod_decimal(const char *string, char **end_pointer)
 {
@@ -336,6 +607,9 @@ static double wcrt_strtod_decimal(const char *string, char **end_pointer)
 
 double strtod(const char *string, char **end_pointer)
 {
+    double result;
+    if (wcrt_special_double(string, end_pointer, &result)) return result;
+    if (wcrt_hexadecimal_double(string, end_pointer, &result)) return result;
     return wcrt_strtod_decimal(string, end_pointer);
 }
 
@@ -556,9 +830,14 @@ long long strtoll(const char *string, char **end_pointer, int base)
 float strtof(const char *string, char **end_pointer)
 {
     char *end;
-    double value = wcrt_strtod_decimal(string, &end);
-    double magnitude = value < 0.0 ? -value : value;
+    double value;
+    double magnitude;
     float result;
+
+    if (wcrt_special_float(string, end_pointer, &result)) return result;
+    if (wcrt_hexadecimal_float(string, end_pointer, &result)) return result;
+    value = wcrt_strtod_decimal(string, &end);
+    magnitude = value < 0.0 ? -value : value;
 
     if (end_pointer != NULL) {
         *end_pointer = end;
@@ -579,7 +858,7 @@ float strtof(const char *string, char **end_pointer)
 
 long double strtold(const char *string, char **end_pointer)
 {
-    return (long double)wcrt_strtod_decimal(string, end_pointer);
+    return (long double)strtod(string, end_pointer);
 }
 
 intmax_t imaxabs(intmax_t value)

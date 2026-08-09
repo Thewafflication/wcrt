@@ -1,0 +1,34 @@
+% TC-0029 fragment; intended for the C99 test report.
+\def\TCID{TC-0029}
+\def\TCTitle{C99 narrow formatted output}
+\def\TCPurpose{Verify C99 length modifiers, conversions, fields, typed
+arguments, character conversion, and output-sink contract separation.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0029}
+\def\TCDesignRef{ISO/IEC 9899:1999 7.19.6.1; ADR-0002.}
+\def\TCFeatureRef{\texttt{include/stdio.h};
+\texttt{src/stdio\_format.c}; \texttt{tests/c99/stdio-format.c};
+\texttt{tests/c99/run-tc-0029.ps1}.}
+\def\TCTestTechnique{Decision-table testing of length/conversion and sink
+combinations, boundary-value analysis, and metamorphic round-trip testing.}
+\def\TCPreconditions{REQ-0012, REQ-0019, REQ-0025, REQ-0027, and the
+documented target data models are available.}
+\def\TCEnvironment{C99 compilation and native execution on x86, x64, and
+ARM64 with the supported TinyCC package.}
+\def\TCAssumptions{The active locale is C and long double uses the documented
+Windows binary64 ABI.}
+\def\TCInputData{Every applicable hh, ll, j, z, t, L, and l-character
+combination; a, A, and F values; widths, precisions, flags, special values,
+bounded sizes, and direct/va-list calls.}
+\def\TCInitialState{Destination arrays contain guard bytes and streams have no
+error indicator.}
+\def\TCProcedure{Compile declarations and C89 isolation; execute the typed
+conversion matrix through stream, unbounded, C99-bounded, and Microsoft-
+bounded sinks; verify fields, rounding, return values, guards, termination,
+and encoding failure; rerun the controlled bounded-output regressions.}
+\def\TCExpectedResult{Every defined conversion has the specified text and
+return value, exact types are consumed, no guard changes, and REQ-0019 and
+REQ-0020 retain their separate contracts.}
+\def\TCPostConditions{All streams close and only bytes permitted by each sink
+policy changed.}
+\TCTemplate

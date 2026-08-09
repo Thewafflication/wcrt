@@ -21,7 +21,7 @@ WPM packages. Developer-only exploratory checks are not release evidence.
 | Startup integration | Static link, PE inspection, and native execution | `REQ-0017`–`REQ-0018`, `TC-0017`–`TC-0018` |
 | API presence | C89 compile-time verification without host-header fallback | `TC-0001`–`TC-0015`, `tests/c89/presence/` |
 | Component behavior | Dynamic functional and boundary testing | `tests/c89/*.c`, PowerShell runners |
-| C99 interface and isolation | Compile-time, behavioral, C89-isolation, and ABI testing | `TC-0019`, `TC-0021`–`TC-0028`, `tests/c99/` |
+| C99 interface and isolation | Compile-time, behavioral, C89-isolation, numeric-boundary, and ABI testing | `TC-0019`, `TC-0021`–`TC-0030`, `TC-0039`, `tests/c99/` |
 | Compiler and data model | Targeted compile-only capability and width assertions | `tests/c99/capabilities/`, `docs/c99-platform-model.md` |
 | Library integration | DLL and static-library consumer builds and execution | `tools/test-built-libraries.ps1` |
 | Legacy import compatibility | Repository-owned PE import parsing and Windows 2000 x86 allowlist | `tools/test-windows-2000-imports.ps1` |

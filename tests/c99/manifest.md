@@ -11,6 +11,9 @@
 | REQ-0026 | [TC-0026](../../docs/tc-0026-iso646.tex) | `presence/iso646.c`, `presence/iso646-c89.c`, `iso646.c` | Alternative spelling equivalence and C89 isolation |
 | REQ-0027 | [TC-0027](../../docs/tc-0027-inttypes.tex) | `presence/inttypes.c`, `presence/inttypes-c89.c`, `inttypes.c` | Types, all format macro families, arithmetic, conversions, errors, ABI, and C89 isolation |
 | REQ-0028 | [TC-0028](../../docs/tc-0028-stdlib-c99.tex) | `presence/stdlib.c`, `presence/stdlib-c89.c`, `stdlib.c`, `stdlib-exit.c` | C99 utilities, integer and decimal floating conversions, `_Exit`, errors, ABI, and C89 regression |
+| REQ-0029 | [TC-0029](../../docs/tc-0029-stdio-c99-format.tex) | `presence/stdio-t2.c`, `presence/stdio-t2-c89.c`, `stdio-format.c` | Modifiers, output conversions, fields, character bridge, sinks, and contract separation |
+| REQ-0030 | [TC-0030](../../docs/tc-0030-stdio-c99-scan.tex) | `presence/stdio-t2.c`, `presence/stdio-t2-c89.c`, `stdio-scan.c` | Modifiers, input conversions, failures, assignments, retained input, and v-list functions |
+| REQ-0039 | [TC-0039](../../docs/tc-0039-numeric-text.tex) | `presence/stdlib.c`, `presence/stdlib-c89.c`, `numeric-text.c` | Hexadecimal floating text, classification, signed zero, rounding, range, and round trips |
 
 The suite compiles against WCRT headers without host standard-library headers.
 Every row is controlled by `tools/run-extension-tests.ps1`; the runner rejects

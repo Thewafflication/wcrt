@@ -66,8 +66,9 @@ and verified `long long` compiler behavior.
 ## Priority 2 — Integer integration
 
 REQ-0023 through REQ-0026 are baselined as the remainder of Milestone 2A.
-REQ-0027 and REQ-0028 are baselined for tranche T1; later identifiers remain
-planned backlog items.
+REQ-0027 and REQ-0028 are baselined for tranche T1. REQ-0029, REQ-0030, and
+the narrow allocation of REQ-0039 are baselined for tranche T2; other later
+identifiers remain planned backlog items.
 
 | ID | Conformance unit | Primary C99 clauses | Principal obligations |
 | --- | --- | --- | --- |
@@ -80,10 +81,10 @@ planned backlog items.
 
 ## Priority 3 — Input/output and character support
 
-| Planned ID | Conformance unit | Primary C99 clauses | Principal obligations |
+| ID | Conformance unit | Primary C99 clauses | Principal obligations |
 | --- | --- | --- | --- |
-| REQ-0029 | C99 formatted output | 7.19.6.1 | New length modifiers and conversions; REQ-0019 remains independently controlled |
-| REQ-0030 | C99 formatted input | 7.19.6.2, 7.19.6.4, 7.19.6.7, 7.19.6.9, 7.19.6.11, 7.19.6.14 | New modifiers/conversions and the three `v*scanf` functions |
+| REQ-0029 (baselined) | C99 formatted output | 7.19.6.1 | New length modifiers and conversions; REQ-0019 remains independently controlled |
+| REQ-0030 (baselined) | C99 formatted input | 7.19.6.2, 7.19.6.4, 7.19.6.7, 7.19.6.9, 7.19.6.11, 7.19.6.14 | New modifiers/conversions and the three `v*scanf` functions |
 | REQ-0031 | Wide-character I/O and strings | 7.24 | Complete `wchar.h`, stream orientation, conversions, strings, time, and `mbstate_t` |
 | REQ-0032 | Wide-character classification | 7.25 | Complete `wctype.h` classification, descriptors, and mappings |
 | REQ-0033 | Windows UTF-16 ABI | Implementation-defined | `wchar_t`, `wint_t`, multibyte state, locale, and Windows interoperability by architecture |
@@ -97,7 +98,7 @@ planned backlog items.
 | REQ-0036 | Floating-point environment | 7.6 | `fenv.h`, flags, rounding control, saved environments, and architecture profile |
 | REQ-0037 | Complex arithmetic | 7.3 | `complex.h`, constants, accessors, and complete complex function families |
 | REQ-0038 | Type-generic mathematics | 7.22 | Correct real/complex dispatch without multiple evaluation |
-| REQ-0039 | Numeric text interchange | 7.12, 7.19, 7.20 | Hexadecimal floating syntax, rounding, range errors, and formatted I/O integration |
+| REQ-0039 (T2 allocation baselined) | Numeric text interchange | 7.12, 7.19, 7.20 | Hexadecimal floating syntax, rounding, range errors, and formatted I/O integration |
 
 ## Priority 5 — Conformance closure
 

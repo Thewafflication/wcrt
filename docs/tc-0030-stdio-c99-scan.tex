@@ -1,0 +1,35 @@
+% TC-0030 fragment; intended for the C99 test report.
+\def\TCID{TC-0030}
+\def\TCTitle{C99 narrow formatted input}
+\def\TCPurpose{Verify C99 scan modifiers, conversions, v-list functions,
+matching state, assignment counts, and retained input.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0030}
+\def\TCDesignRef{ISO/IEC 9899:1999 7.19.6.2, 7.19.6.4, 7.19.6.7,
+7.19.6.9, 7.19.6.11, and 7.19.6.14; ADR-0002.}
+\def\TCFeatureRef{\texttt{include/stdio.h};
+\texttt{src/stdio\_scan.c}; \texttt{tests/c99/stdio-scan.c};
+\texttt{tests/c99/run-tc-0030.ps1}.}
+\def\TCTestTechnique{Decision-table testing of length/destination pairs,
+state-transition testing, equivalence partitioning, and boundary analysis.}
+\def\TCPreconditions{REQ-0012, REQ-0025, REQ-0027, REQ-0039, and native
+standard-input test support are available.}
+\def\TCEnvironment{C99 compilation and native execution on x86, x64, and
+ARM64 with the supported TinyCC package.}
+\def\TCAssumptions{The active locale is C; tests avoid undefined numeric
+destination overflow.}
+\def\TCInputData{Typed integer and n destinations; decimal, hexadecimal,
+infinity, NaN, character, string, and scanset fields; whitespace, suppression,
+widths, malformed subjects, EOF, and direct/va-list calls.}
+\def\TCInitialState{Destinations contain sentinels and streams begin at known
+positions with known trailing bytes.}
+\def\TCProcedure{Compile declarations and C89 absence; execute string, file,
+and standard-input matrices; verify matching/input failure, counts, widths,
+first-unread bytes, repeated calls, exact destination types, and all three
+v-list functions; rerun C89 and secure-scan regressions.}
+\def\TCExpectedResult{Defined inputs produce the specified assignments and
+return value, failures preserve required input and destinations, and no fixed
+record limit or unintended read-ahead is observed.}
+\def\TCPostConditions{All streams close, temporary input is removed, and
+guarded destinations retain their surrounding bytes.}
+\TCTemplate

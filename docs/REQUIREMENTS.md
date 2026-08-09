@@ -60,6 +60,9 @@ until their requirement and verification records are added.
 | [REQ-0026](req-0026-iso646.md) | [TC-0026](tc-0026-iso646.tex) | `<iso646.h>` | §7.9 | Alternative operator spellings |
 | [REQ-0027](req-0027-inttypes.md) | [TC-0027](tc-0027-inttypes.tex) | `<inttypes.h>` | §7.8 | Greatest-width integer interfaces |
 | [REQ-0028](req-0028-stdlib-c99.md) | [TC-0028](tc-0028-stdlib-c99.tex) | `<stdlib.h>` | §7.20 | C99 general utilities |
+| [REQ-0029](req-0029-stdio-c99-format.md) | [TC-0029](tc-0029-stdio-c99-format.tex) | `<stdio.h>` | §7.19.6.1 | C99 narrow formatted output |
+| [REQ-0030](req-0030-stdio-c99-scan.md) | [TC-0030](tc-0030-stdio-c99-scan.tex) | `<stdio.h>` | §7.19.6.2, §7.19.6.9, §7.19.6.11, §7.19.6.14 | C99 narrow formatted input |
+| [REQ-0039](req-0039-numeric-text.md) | [TC-0039](tc-0039-numeric-text.tex) | `<stdlib.h>`, `<stdio.h>` | §7.19.6, §7.20.1.3 | Narrow numeric text interchange allocation |
 
 ## Microsoft compatibility extensions
 

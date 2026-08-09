@@ -88,5 +88,7 @@ new code must use `fgets`.
 
 Formatting and scanning share internal parsers covering C89 flags, dynamic and
 literal widths, precision, length modifiers, assignment suppression, scansets,
-and `%n`. Stream scanning uses a bounded 4096-byte staging record. This limit
-is an implementation constraint to remove in a later hardening pass.
+and `%n`. T2 replaced the former 4096-byte stream staging record with shared
+string/stream lookahead state. Repeated stream scans now preserve the first
+unread byte, and numeric fields use checked growable storage without a fixed
+line or conversion-item limit.
