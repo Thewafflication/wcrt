@@ -87,3 +87,13 @@ reverse-order callbacks. Environment access and command execution use
 These APIs are available on Windows 2000. The mandatory C locale treats each
 non-null byte as one multibyte character. Sorting uses an in-place stable
 insertion algorithm; its complexity is secondary to the C89 contract.
+
+## T3 Wide-character Implementation Impact
+
+REQ-0033 formalizes the existing C-locale conversion as a stateless one-byte
+encoding and supplies a shared eight-byte conversion-state representation.
+The C89 `mblen`, `mbtowc`, `wctomb`, `mbstowcs`, and `wcstombs` paths now use
+the same explicit byte/range rules, including length-only string queries and
+`EILSEQ` for unrepresentable wide values. TC-0013 and the complete C89
+aggregates pass without adding the previously cited nonexistent
+`src/internal/mbstate.h` file.

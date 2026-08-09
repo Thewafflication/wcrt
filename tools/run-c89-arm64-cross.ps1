@@ -54,6 +54,10 @@ $tests = @(
     @{ Id = '0012'; Name = 'stdio'; Sources = @(
         'src\ctype.c', 'src\errno.c', 'src\string.c', 'src\stdlib.c',
         'src\stdio.c', 'src\stdio_format.c', 'src\stdio_scan.c',
+        'src\locale.c', 'src\time.c', 'src\wchar_convert.c',
+        'src\wchar_format.c', 'src\wchar_io.c', 'src\wchar_scan.c',
+        'src\wchar_string.c', 'src\wchar_time.c', 'src\wctype.c',
+        'src\platform\windows\clock.c',
         'src\platform\windows\heap.c',
         'src\platform\windows\process.c',
         'src\platform\windows\file.c', 'tests\c89\stdio.c') },
@@ -64,7 +68,7 @@ $tests = @(
     @{ Id = '0014'; Name = 'string'; Sources = @(
         'src\errno.c', 'src\string.c', 'tests\c89\string.c') },
     @{ Id = '0015'; Name = 'time'; Sources = @(
-        'src\string.c', 'src\time.c',
+        'src\errno.c', 'src\string.c', 'src\time.c',
         'src\platform\windows\clock.c', 'tests\c89\time.c') }
 )
 

@@ -58,9 +58,11 @@ isolation, and target ABI agreement.
 ## Tailoring
 
 No optional macro family is omitted because REQ-0022 supplies every associated
-typedef. `wchar_t`/`wint_t` integer conversion facilities are not part of C99
-§7.8. Invalid bases are outside the standard function domain; the defensive
-WCRT result is documented in the T1 work record and is not a conformance claim.
+typedef. C99 §7.8.2.4 also requires the wide `wcstoimax` and `wcstoumax`
+conversion functions. They were omitted from the T1 baseline in error and are
+allocated to REQ-0031/TC-0031 for T3 closure. Invalid bases are outside the
+standard function domain; the defensive WCRT result is documented in the T1
+work record and is not a conformance claim.
 
 ## Implementation Record
 
@@ -73,3 +75,10 @@ architecture-dependent pointer spellings, arithmetic, bases 2–36 and base-zero
 prefixes, end pointers, exact extrema, range errors, errno preservation, and
 C89 isolation. ARM64 behavior is compile/link verified locally and requires
 native CI execution for runtime closure.
+
+## T3 Wide-character Implementation Impact
+
+T3 adds the two `<wchar.h>`-typed declarations to the C99 `<inttypes.h>`
+surface and implements them through the checked wide-to-narrow greatest-width
+adapter. The base, end-pointer, extrema, range, `errno`, C89-isolation, and
+architecture matrices pass on x86/x64 and compile/link for ARM64.

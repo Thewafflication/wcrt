@@ -249,6 +249,54 @@ static int wcrt_append_number(char *destination, size_t capacity,
     return wcrt_append_text(destination, capacity, length, digits);
 }
 
+/** @brief Appends a space-padded two-character decimal field. */
+static int wcrt_append_space_number(char *destination, size_t capacity,
+    size_t *length, int value)
+{
+    char digits[3];
+    digits[0] = value < 10 ? ' ' : (char)('0' + value / 10 % 10);
+    digits[1] = (char)('0' + value % 10);
+    digits[2] = '\0';
+    return wcrt_append_text(destination, capacity, length, digits);
+}
+
+/** @brief Returns whether a proleptic Gregorian year is a leap year. */
+static int wcrt_is_leap_year(int year)
+{
+    return year % 4 == 0 && (year % 100 != 0 || year % 400 == 0);
+}
+
+/** @brief Returns the number of ISO weeks for a year with known January 1. */
+static int wcrt_iso_weeks(int year, int january_first)
+{
+    return january_first == 4 ||
+        (january_first == 3 && wcrt_is_leap_year(year)) ? 53 : 52;
+}
+
+/** @brief Calculates ISO week-year and week from a broken-down date. */
+static void wcrt_iso_week(const struct tm *value, int *week_year, int *week)
+{
+    int year = value->tm_year + 1900;
+    int weekday = value->tm_wday == 0 ? 7 : value->tm_wday;
+    int january_first = (value->tm_wday - value->tm_yday % 7 + 7) % 7;
+    int result = (value->tm_yday + 10 - weekday) / 7;
+    int weeks = wcrt_iso_weeks(year, january_first);
+
+    if (result < 1) {
+        int previous = year - 1;
+        int days = wcrt_is_leap_year(previous) ? 366 : 365;
+        int previous_first = (january_first - days % 7 + 7) % 7;
+        *week_year = previous;
+        *week = wcrt_iso_weeks(previous, previous_first);
+    } else if (result > weeks) {
+        *week_year = year + 1;
+        *week = 1;
+    } else {
+        *week_year = year;
+        *week = result;
+    }
+}
+
 size_t strftime(char *destination, size_t capacity, const char *format,
     const struct tm *value)
 {
@@ -273,13 +321,22 @@ size_t strftime(char *destination, size_t capacity, const char *format,
         if (conversion == '\0') {
             return 0;
         }
+        if (conversion == 'E' || conversion == 'O') {
+            conversion = *++format;
+            if (conversion == '\0') return 0;
+        }
         ++format;
         switch (conversion) {
         case 'a': text = wcrt_short_days[value->tm_wday]; break;
         case 'A': text = wcrt_long_days[value->tm_wday]; break;
         case 'b': text = wcrt_short_months[value->tm_mon]; break;
         case 'B': text = wcrt_long_months[value->tm_mon]; break;
+        case 'C': number = (value->tm_year + 1900) / 100; break;
         case 'd': number = value->tm_mday; break;
+        case 'e':
+            if (!wcrt_append_space_number(destination, capacity, &length,
+                value->tm_mday)) return 0;
+            continue;
         case 'H': number = value->tm_hour; break;
         case 'I':
             number = value->tm_hour % 12;
@@ -290,6 +347,8 @@ size_t strftime(char *destination, size_t capacity, const char *format,
         case 'M': number = value->tm_min; break;
         case 'p': text = value->tm_hour < 12 ? "AM" : "PM"; break;
         case 'S': number = value->tm_sec; break;
+        case 'u': number = value->tm_wday == 0 ? 7 : value->tm_wday;
+            width = 1; break;
         case 'U': number = (value->tm_yday + 7 - value->tm_wday) / 7; break;
         case 'w': number = value->tm_wday; width = 1; break;
         case 'W':
@@ -298,8 +357,60 @@ size_t strftime(char *destination, size_t capacity, const char *format,
             break;
         case 'y': number = (value->tm_year + 1900) % 100; break;
         case 'Y': number = value->tm_year + 1900; width = 4; break;
+        case 'g': {
+            int week_year;
+            int week;
+            wcrt_iso_week(value, &week_year, &week);
+            (void)week;
+            number = week_year % 100;
+            break;
+        }
+        case 'G': {
+            int week_year;
+            int week;
+            wcrt_iso_week(value, &week_year, &week);
+            (void)week;
+            number = week_year;
+            width = 4;
+            break;
+        }
+        case 'V': {
+            int week_year;
+            wcrt_iso_week(value, &week_year, &number);
+            (void)week_year;
+            break;
+        }
         case 'Z': text = value->tm_isdst < 0 ? "" : "Local"; break;
+        case 'z': text = ""; break;
         case '%': text = "%"; break;
+        case 'h': text = wcrt_short_months[value->tm_mon]; break;
+        case 'n': text = "\n"; break;
+        case 't': text = "\t"; break;
+        case 'D':
+            if (strftime(destination + length, capacity - length,
+                "%m/%d/%y", value) == 0) return 0;
+            length += strlen(destination + length);
+            continue;
+        case 'F':
+            if (strftime(destination + length, capacity - length,
+                "%Y-%m-%d", value) == 0) return 0;
+            length += strlen(destination + length);
+            continue;
+        case 'r':
+            if (strftime(destination + length, capacity - length,
+                "%I:%M:%S %p", value) == 0) return 0;
+            length += strlen(destination + length);
+            continue;
+        case 'R':
+            if (strftime(destination + length, capacity - length,
+                "%H:%M", value) == 0) return 0;
+            length += strlen(destination + length);
+            continue;
+        case 'T':
+            if (strftime(destination + length, capacity - length,
+                "%H:%M:%S", value) == 0) return 0;
+            length += strlen(destination + length);
+            continue;
         case 'x':
             if (strftime(destination + length, capacity - length,
                 "%m/%d/%y", value) == 0) return 0;

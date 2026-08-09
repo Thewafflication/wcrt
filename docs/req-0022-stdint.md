@@ -67,6 +67,9 @@ conforming representation exists; every omission shall be recorded per target.
 maximum-width types and their applicable limit and constant macros for the
 documented Windows ILP32 and LLP64 models. TC-0022 checks widths, signedness,
 constant properties, limits, pointer round trips, and C89 isolation on the
-selected target. `WINT_MIN` and `WINT_MAX` are not yet applicable because WCRT
-does not define `wint_t`; that interface is controlled by planned REQ-0031 and
-REQ-0033 and must be added to this header when `wint_t` is baselined.
+selected target.
+
+REQ-0033 now baselines unsigned 32-bit `wint_t`, `WINT_MIN == 0`, and
+`WINT_MAX == UINT32_MAX` on x86, x64, and ARM64. T3 adds those macros to the
+C99 `<stdint.h>` surface. TC-0022 and TC-0033 pass on x86/x64 and compile/link
+for ARM64 while the macros remain absent from the selected C89 surface.

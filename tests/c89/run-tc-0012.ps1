@@ -14,6 +14,10 @@ New-Item -ItemType Directory -Force -Path $buildDirectory | Out-Null
 $sources = @(
     'src\ctype.c', 'src\errno.c', 'src\string.c', 'src\stdlib.c',
     'src\stdio.c', 'src\stdio_format.c', 'src\stdio_scan.c',
+    'src\locale.c', 'src\time.c', 'src\wchar_convert.c',
+    'src\wchar_format.c', 'src\wchar_io.c', 'src\wchar_scan.c',
+    'src\wchar_string.c', 'src\wchar_time.c', 'src\wctype.c',
+    'src\platform\windows\clock.c',
     'src\platform\windows\heap.c', 'src\platform\windows\process.c',
     'src\platform\windows\file.c', 'tests\c89\stdio.c'
 ) | ForEach-Object { Join-Path $repoRoot $_ }

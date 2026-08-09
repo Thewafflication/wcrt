@@ -91,3 +91,12 @@ the variadic functions are wrappers. TC-0030 and the complete C89/extension
 aggregates pass on x86 and x64. The same controlled source and tests
 compile/link for ARM64; native ARM64 execution remains required before
 target-complete acceptance.
+
+## T3 Wide-character Implementation Impact
+
+T3 routes `lc`, `ls`, and `l[` through the accepted REQ-0033 C-locale rules.
+The scanner's shared input abstraction now has an internal wide-input mode
+that preserves orientation and lookahead while selecting the inverse wide
+`c`/`s` destination rules. The destination, width, termination, encoding, and
+first-unread matrices pass on x86/x64 and compile/link for ARM64. Wide stream
+entry points remain owned by REQ-0031 rather than this requirement.

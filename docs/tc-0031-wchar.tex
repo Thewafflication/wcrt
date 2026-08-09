@@ -1,0 +1,33 @@
+% TC-0031 fragment; intended for the C99 test report.
+\def\TCID{TC-0031}
+\def\TCTitle{C99 wide-character utilities}
+\def\TCPurpose{Verify every C99 wchar function, including wide I/O,
+restartable conversions, strings, numeric text, and time formatting.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0031}
+\def\TCDesignRef{ISO/IEC 9899:1999 7.24 and 7.8.2; ADR-0003.}
+\def\TCFeatureRef{\texttt{include/wchar.h}; \texttt{include/inttypes.h}; wide
+implementation sources; \texttt{tests/c99/wchar.c};
+\texttt{tests/c99/run-tc-0031.ps1}.}
+\def\TCTestTechnique{Function inventory coverage, decision tables,
+state-transition testing, equivalence partitioning, and boundary analysis.}
+\def\TCPreconditions{REQ-0012 through REQ-0015, REQ-0025, REQ-0027,
+REQ-0029, REQ-0030, REQ-0033, and REQ-0039 are available.}
+\def\TCEnvironment{C99 compilation and native execution on x86, x64, and
+ARM64 with the supported TinyCC package.}
+\def\TCAssumptions{The active locale and multibyte encoding are those defined
+by REQ-0033; tests do not invoke undefined overlap or null-pointer behavior.}
+\def\TCInputData{Every public function; direct and v-list calls; empty,
+one-element, exact-fit, short, partial, invalid, EOF, overlap, numeric range,
+token, time, and orientation cases.}
+\def\TCInitialState{Buffers and destinations contain sentinels; streams and
+conversion states begin in explicitly verified states.}
+\def\TCProcedure{Compile header presence and C89 absence; execute all function
+families and boundary matrices; verify retained input and state; run x86/x64
+behavior, ARM64 native evidence, and all C89/narrow-stream regressions.}
+\def\TCExpectedResult{Every declaration links, defined inputs produce exact
+results and state transitions, failures preserve required data, no buffer is
+overrun, and earlier library behavior remains green.}
+\def\TCPostConditions{All temporary storage and streams are released and the
+test manifest accounts for every controlled source.}
+\TCTemplate

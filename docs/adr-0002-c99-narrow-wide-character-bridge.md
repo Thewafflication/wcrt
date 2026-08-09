@@ -40,14 +40,16 @@ a 16-bit unsigned `wint_t` representation.
 
 T2 implements `lc`, `ls`, and `l[` in the byte-oriented formatted-I/O
 functions through a minimal C-locale bridge. The bridge uses 16-bit
-`wchar_t`; the future public `wint_t` is unsigned short and therefore reaches
-a variadic `lc` output conversion after integer promotion. Only single-byte C-
-locale characters are accepted or produced during T2.
+`wchar_t`. Only single-byte C-locale characters are accepted or produced
+during T2.
 
 The implementation may use internal state equivalent to a zero-initialized
 conversion state, but T2 does not expose `mbstate_t`, `mbrtowc`, `wcrtomb`,
-wide formatted-I/O functions, or stream orientation. T3 shall preserve this
-ABI or supersede this ADR with an explicit compatibility impact analysis.
+wide formatted-I/O functions, or stream orientation. ADR-0003 supersedes this
+record's anticipated 16-bit `wint_t` with a 32-bit unsigned public type. The
+change does not alter T2's 16-bit `wchar_t` objects or C-locale encoding, but
+T3 shall update and reverify the variadic `lc` bridge against the accepted
+public type.
 
 The T2 personal design review accepted this decision on 2026-08-09. Local
 x86 and x64 behavior tests pass; ARM64 compile/link passes and native behavior
@@ -56,9 +58,10 @@ remains a CI verification obligation.
 ## Rationale
 
 The bridge completes the narrow clauses without making the formatted-I/O
-engine depend on an unfinished public wide library. Matching the Windows type
-model avoids a later varargs ABI change, while the C-locale restriction matches
-WCRT's only currently supported locale.
+engine depend on an unfinished public wide library. The C-locale restriction
+matches WCRT's only currently supported locale. ADR-0003's promotion-safe
+`wint_t` requires a deliberate T3 varargs review instead of copying the
+Microsoft UCRT typedef.
 
 ## Consequences
 

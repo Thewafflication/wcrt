@@ -78,3 +78,11 @@ this record and is verified collectively by `TC-0006`.
   requests, every convention member, and the implemented ctype interaction.
 - Collation, numeric conversion, and time-format integration checks execute
   with REQ-0014, REQ-0013, and REQ-0015 respectively.
+
+## T3 Wide-character Impact
+
+REQ-0033 retains `C` as the only locale and defines its multibyte encoding as
+a stateless one-byte mapping of `0x00` through `0xff` to equal-valued wide
+characters. REQ-0031 and REQ-0032 use that same locale for conversion,
+collation, time formatting, classification, and mapping. T3 adds no locale
+name, code page, UTF-8 external encoding, or Unicode property database.

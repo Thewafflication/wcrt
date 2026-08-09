@@ -92,3 +92,13 @@ and `%n`. T2 replaced the former 4096-byte stream staging record with shared
 string/stream lookahead state. Repeated stream scans now preserve the first
 unread byte, and numeric fields use checked growable storage without a fixed
 line or conversion-item limit.
+
+## T3 Wide-character Impact
+
+REQ-0033 adds private per-stream orientation, wide conversion state, and one
+wide pushback slot. Fresh streams remain compatible with C89 because the first
+byte I/O operation binds byte orientation and then follows the existing path.
+`freopen` resets orientation and conversion state; positioning clears
+pushback/conversion state but preserves an established orientation. An
+opposing-orientation call is a documented no-transfer WCRT error extension and
+must not change valid narrow-stream results.

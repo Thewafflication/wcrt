@@ -19,7 +19,7 @@ static FILE wcrt_streams[FOPEN_MAX];
 static char wcrt_temporary_name[L_tmpnam];
 
 /** @brief Initializes a standard stream when first referenced. */
-static void wcrt_prepare_stream(FILE *stream)
+void __wcrt_prepare_stream(FILE *stream)
 {
     if (stream == stdin) {
         __wcrt_file_initialize_standard(stream, -10, 0, WCRT_FILE_READ);
@@ -28,6 +28,36 @@ static void wcrt_prepare_stream(FILE *stream)
     } else if (stream == stderr) {
         __wcrt_file_initialize_standard(stream, -12, 2, WCRT_FILE_WRITE);
     }
+}
+
+void __wcrt_reset_stream_conversion(FILE *stream)
+{
+    stream->wide_state.__value = 0;
+    stream->wide_state.__bytes = 0;
+    stream->wide_state.__state = 0;
+    stream->wide_pushback = WEOF;
+    stream->has_wide_pushback = 0;
+}
+
+int __wcrt_orient_stream(FILE *stream, int mode)
+{
+    if (stream == NULL) return 0;
+    __wcrt_prepare_stream(stream);
+    if (stream->orientation == WCRT_ORIENTATION_NONE && mode != 0) {
+        stream->orientation = mode > 0 ? WCRT_ORIENTATION_WIDE :
+            WCRT_ORIENTATION_BYTE;
+        __wcrt_reset_stream_conversion(stream);
+    }
+    return stream->orientation;
+}
+
+int __wcrt_require_orientation(FILE *stream, int orientation)
+{
+    int actual = __wcrt_orient_stream(stream, orientation);
+    if (actual == orientation) return 0;
+    stream->error = 1;
+    errno = EINVAL;
+    return -1;
 }
 
 /** @brief Finds an unused dynamic stream slot. */
@@ -105,7 +135,7 @@ FILE *freopen(const char *path, const char *mode, FILE *stream)
     if (stream == NULL) {
         return NULL;
     }
-    wcrt_prepare_stream(stream);
+    __wcrt_prepare_stream(stream);
     descriptor = stream->descriptor;
     __wcrt_file_close(stream);
     if (__wcrt_file_open(stream, path, mode) != 0) {
@@ -120,7 +150,7 @@ int fclose(FILE *stream)
     if (stream == NULL) {
         return EOF;
     }
-    wcrt_prepare_stream(stream);
+    __wcrt_prepare_stream(stream);
     return __wcrt_file_close(stream) == 0 ? 0 : EOF;
 }
 
@@ -130,7 +160,7 @@ int _fileno(FILE *stream)
         errno = EINVAL;
         return -1;
     }
-    wcrt_prepare_stream(stream);
+    __wcrt_prepare_stream(stream);
     if ((stream == stdout || stream == stderr) &&
         (stream->handle == NULL ||
         stream->handle == (void *)(long long)-1)) {
@@ -169,7 +199,10 @@ int fgetc(FILE *stream)
     if (stream == NULL) {
         return EOF;
     }
-    wcrt_prepare_stream(stream);
+    __wcrt_prepare_stream(stream);
+    if (__wcrt_require_orientation(stream, WCRT_ORIENTATION_BYTE) != 0) {
+        return EOF;
+    }
     if (!(stream->flags & WCRT_FILE_READ)) {
         stream->error = 1;
         return EOF;
@@ -212,6 +245,9 @@ int getchar(void)
 int ungetc(int character, FILE *stream)
 {
     if (stream == NULL || character == EOF || stream->pushback != EOF) {
+        return EOF;
+    }
+    if (__wcrt_require_orientation(stream, WCRT_ORIENTATION_BYTE) != 0) {
         return EOF;
     }
     stream->pushback = (unsigned char)character;
@@ -263,7 +299,10 @@ int fputc(int character, FILE *stream)
     if (stream == NULL) {
         return EOF;
     }
-    wcrt_prepare_stream(stream);
+    __wcrt_prepare_stream(stream);
+    if (__wcrt_require_orientation(stream, WCRT_ORIENTATION_BYTE) != 0) {
+        return EOF;
+    }
     if (!(stream->flags & WCRT_FILE_WRITE)) {
         stream->error = 1;
         return EOF;
@@ -349,35 +388,39 @@ size_t fwrite(const void *source, size_t size, size_t count, FILE *stream)
 int fgetpos(FILE *stream, fpos_t *position)
 {
     long long current;
-    wcrt_prepare_stream(stream);
+    __wcrt_prepare_stream(stream);
     if (position == NULL || __wcrt_file_seek(stream, 0, SEEK_CUR,
         &current) != 0) {
         return -1;
     }
-    *position = current - (stream->pushback != EOF ? 1 : 0);
+    *position = current - (stream->pushback != EOF ||
+        stream->has_wide_pushback ? 1 : 0);
     return 0;
 }
 
 int fseek(FILE *stream, long offset, int origin)
 {
-    wcrt_prepare_stream(stream);
+    __wcrt_prepare_stream(stream);
     if (__wcrt_file_seek(stream, offset, origin, NULL) != 0) {
         stream->error = 1;
         return -1;
     }
     stream->end_of_file = 0;
     stream->pushback = EOF;
+    __wcrt_reset_stream_conversion(stream);
     return 0;
 }
 
 int fsetpos(FILE *stream, const fpos_t *position)
 {
+    __wcrt_prepare_stream(stream);
     if (position == NULL || __wcrt_file_seek(stream, *position, SEEK_SET,
         NULL) != 0) {
         return -1;
     }
     stream->end_of_file = 0;
     stream->pushback = EOF;
+    __wcrt_reset_stream_conversion(stream);
     return 0;
 }
 

@@ -588,12 +588,13 @@ static int wcrt_format(struct wcrt_output *output, const char *format,
             value_length += digit_count;
             if (precision >= 0) zero = 0;
         } else if (conversion == 'c') {
-            int character = va_arg(arguments, int);
-            if (length == WCRT_LENGTH_L &&
-                (character < 0 || character > 127)) {
+            wint_t character = length == WCRT_LENGTH_L ?
+                va_arg(arguments, wint_t) : (wint_t)va_arg(arguments, int);
+            if (length == WCRT_LENGTH_L && character > 0xffU) {
+                errno = EILSEQ;
                 output->failed = 1;
             } else {
-                value[0] = (char)character;
+                value[0] = (char)(unsigned char)character;
                 value_length = 1;
             }
         } else if (conversion == 's') {
@@ -606,7 +607,8 @@ static int wcrt_format(struct wcrt_output *output, const char *format,
                 }
                 while (wide[wide_length] != 0 &&
                     (precision < 0 || wide_length < precision)) {
-                    if ((unsigned int)wide[wide_length] > 127U) {
+                    if ((unsigned int)wide[wide_length] > 0xffU) {
+                        errno = EILSEQ;
                         output->failed = 1;
                         break;
                     }

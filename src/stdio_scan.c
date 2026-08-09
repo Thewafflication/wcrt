@@ -12,6 +12,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <wctype.h>
+
+#include "internal/file.h"
 
 /** @brief Parsed length modifiers used by the scanning engine. */
 enum wcrt_scan_length {
@@ -31,6 +34,7 @@ struct wcrt_input {
     const char *string;
     size_t position;
     FILE *stream;
+    int wide;
     size_t consumed;
     int lookahead;
     int has_lookahead;
@@ -50,7 +54,10 @@ static int wcrt_input_peek(struct wcrt_input *input)
 {
     if (input->has_lookahead) return input->lookahead;
     if (input->stream != NULL) {
-        input->lookahead = fgetc(input->stream);
+        if (input->wide) {
+            wint_t character = fgetwc(input->stream);
+            input->lookahead = character == WEOF ? EOF : (int)character;
+        } else input->lookahead = fgetc(input->stream);
     } else {
         input->lookahead = (unsigned char)input->string[input->position];
         if (input->lookahead == 0) input->lookahead = EOF;
@@ -78,7 +85,10 @@ static int wcrt_input_get(struct wcrt_input *input)
 static void wcrt_input_finish(struct wcrt_input *input)
 {
     if (input->stream != NULL && input->has_lookahead) {
-        if (ungetc(input->lookahead, input->stream) == EOF) {
+        int failed = input->wide ?
+            ungetwc((wint_t)input->lookahead, input->stream) == WEOF :
+            ungetc(input->lookahead, input->stream) == EOF;
+        if (failed) {
             input->at_end = 1;
         }
         input->has_lookahead = 0;
@@ -88,7 +98,10 @@ static void wcrt_input_finish(struct wcrt_input *input)
 /** @brief Consumes input white space. */
 static void wcrt_input_space(struct wcrt_input *input)
 {
-    while (isspace((unsigned char)wcrt_input_peek(input))) {
+    int character;
+    while ((character = wcrt_input_peek(input)) != EOF &&
+        (input->wide ? iswspace((wint_t)character) :
+        isspace((unsigned char)character))) {
         (void)wcrt_input_get(input);
     }
 }
@@ -461,8 +474,10 @@ static int wcrt_scan_characters(struct wcrt_input *input, int suppress,
     wchar_t *wide = NULL;
     unsigned int output_size = (unsigned int)-1;
     int count = 0;
+    int wide_output = input->wide ? length != WCRT_SCAN_L :
+        length == WCRT_SCAN_L;
     if (!suppress) {
-        if (length == WCRT_SCAN_L) wide = va_arg(*arguments, wchar_t *);
+        if (wide_output) wide = va_arg(*arguments, wchar_t *);
         else narrow = va_arg(*arguments, char *);
         if (secure) output_size = va_arg(*arguments, unsigned int);
         if (conversion == 'c' && output_size < (unsigned int)maximum) {
@@ -481,18 +496,24 @@ static int wcrt_scan_characters(struct wcrt_input *input, int suppress,
             accepted = wcrt_in_set(character, set, set_end) != invert;
         }
         if (!accepted) break;
-        if (length == WCRT_SCAN_L && character > 127) return -1;
         if (!suppress && conversion != 'c' &&
             (unsigned int)(count + 1) >= output_size) {
-            if (length == WCRT_SCAN_L) wide[0] = 0;
+            if (wide_output) wide[0] = 0;
             else narrow[0] = '\0';
             errno = EINVAL;
             return -1;
         }
         character = wcrt_input_get(input);
         if (!suppress) {
-            if (length == WCRT_SCAN_L) wide[count] = (wchar_t)character;
-            else narrow[count] = (char)character;
+            if (wide_output) wide[count] = (wchar_t)character;
+            else if (input->wide) {
+                int converted = wctob((wint_t)character);
+                if (converted == EOF) {
+                    errno = EILSEQ;
+                    return -1;
+                }
+                narrow[count] = (char)converted;
+            } else narrow[count] = (char)character;
         }
         ++count;
     }
@@ -500,7 +521,7 @@ static int wcrt_scan_characters(struct wcrt_input *input, int suppress,
         return input->at_end ? -2 : 0;
     }
     if (!suppress && conversion != 'c') {
-        if (length == WCRT_SCAN_L) wide[count] = 0;
+        if (wide_output) wide[count] = 0;
         else narrow[count] = '\0';
     }
     return suppress ? 2 : 1;
@@ -632,7 +653,7 @@ static int wcrt_scan(struct wcrt_input *input, const char *format,
 static int wcrt_string_scan(const char *source, const char *format,
     va_list arguments, int secure)
 {
-    struct wcrt_input input = {source, 0, NULL, 0, 0, 0, 0};
+    struct wcrt_input input = {source, 0, NULL, 0, 0, 0, 0, 0};
     return wcrt_scan(&input, format, arguments, secure);
 }
 
@@ -667,7 +688,16 @@ int sscanf_s(const char *source, const char *format, ...)
 
 int vfscanf(FILE *stream, const char *format, va_list arguments)
 {
-    struct wcrt_input input = {NULL, 0, stream, 0, 0, 0, 0};
+    struct wcrt_input input = {NULL, 0, stream, 0, 0, 0, 0, 0};
+    int result = wcrt_scan(&input, format, arguments, 0);
+    wcrt_input_finish(&input);
+    return result;
+}
+
+int __wcrt_vfwscanf_c_locale(FILE *stream, const char *format,
+    va_list arguments)
+{
+    struct wcrt_input input = {NULL, 0, stream, 1, 0, 0, 0, 0};
     int result = wcrt_scan(&input, format, arguments, 0);
     wcrt_input_finish(&input);
     return result;

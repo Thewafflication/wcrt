@@ -2,7 +2,7 @@
 
 **Content type:** Architecture decision record
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Date:** 2026-08-09
 
@@ -51,7 +51,7 @@ locale name select it.
 4. Add a UTF-8 or other stateful locale in T3 and change the C89 conversion
    baseline at the same time.
 
-## Proposed Decision
+## Decision
 
 ### Scalar and state ABI
 
@@ -112,7 +112,7 @@ locale name select it.
   introduces a non-initial stream state.
 - ISO C programs shall not apply a byte I/O function to a wide-oriented stream
   or a wide I/O function to a byte-oriented stream. As a defensive WCRT
-  extension, the implementation is proposed to reject such an operation
+  extension, the implementation rejects such an operation
   without transferring data, set the stream error indicator and `errno` to
   `EINVAL`, and return the applicable failure sentinel. Extension tests shall
   be labeled separately from ISO conformance tests.
@@ -153,18 +153,18 @@ without re-reviewing this ADR and the affected variadic ABI.
 - A future stateful locale may require changing `fpos_t`; that cannot occur in
   the 1.x ABI without a compatibility decision.
 
-## Approval and Follow-up
+## Approval and Implementation Follow-up
 
-This decision remains proposed until REQ-0033 and TC-0033 review confirms the
-type, layout, locale, error, orientation, and cross-architecture matrices.
-Before production-source changes:
+The WCRT maintainer accepted this decision with the T3 planning baseline on
+2026-08-09. Before production-source changes, REQ-0033/TC-0033 were baselined,
+the affected requirements and T2 bridge design were updated, and controlled
+tests recorded the expected missing-header failures.
 
-1. accept or revise this ADR;
-2. baseline REQ-0033 and TC-0033;
-3. record the impact on REQ-0012, REQ-0013, REQ-0022, REQ-0029, and REQ-0030;
-4. update the T2 bridge design for the accepted `wint_t`; and
-5. preserve the 16-bit `wchar_t` Windows interoperation evidence on x86, x64,
-   and ARM64.
+The implementation now follows this ABI in the public headers, conversion
+core, stream state, formatted/unformatted I/O, and target probes. Native x86
+and x64 tests and the Windows `lstrlenW` calling probe pass; ARM64 compiles and
+links. Native ARM64 execution and immutable exact-revision evidence remain
+open target-completion obligations rather than changes to this decision.
 
 `wWinMain` remains excluded. It requires a separate approved work item after
 REQ-0031 through REQ-0033 are complete.

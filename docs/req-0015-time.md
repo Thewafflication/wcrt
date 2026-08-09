@@ -80,3 +80,11 @@ on Windows 2000. Calendar arithmetic uses the proleptic Gregorian calendar.
 Conversion results share one `struct tm`; text results share one 26-byte
 buffer. Daylight status is reported as indeterminate (`tm_isdst == -1`) while
 Windows still applies its timezone rules during UTC/local conversion.
+
+## T3 Wide-character Implementation Impact
+
+REQ-0031 allocates `wcsftime`. The narrow formatter now supplies the audited
+C99 conversion delta, including ISO week/year and the C-locale `E`/`O`
+modifiers, before `wcsftime` applies the same results with wide format and
+destination buffer-length rules. Narrow time regressions and TC-0031 pass on
+x86/x64 and compile/link for ARM64.

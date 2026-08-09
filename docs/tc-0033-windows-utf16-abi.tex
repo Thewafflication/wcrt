@@ -1,0 +1,33 @@
+% TC-0033 fragment; intended for the C99 test report.
+\def\TCID{TC-0033}
+\def\TCTitle{Windows UTF-16 and wide-character ABI}
+\def\TCPurpose{Verify public wide scalar and state layout, C-locale
+conversion transitions, stream orientation, and Windows interoperability.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0033}
+\def\TCDesignRef{ISO/IEC 9899:1999 7.17, 7.24.1, 7.24.6, and 7.25.1;
+ADR-0003; Windows x86, x64, and ARM64 ABI.}
+\def\TCFeatureRef{\texttt{include/wchar.h}; \texttt{include/stdint.h};
+\texttt{src/internal/file.h}; conversion and stdio sources;
+\texttt{tests/c99/wide-abi.c}; \texttt{tests/c99/run-tc-0033.ps1}.}
+\def\TCTestTechnique{Compile-time ABI assertions, state-transition testing,
+equivalence partitioning, boundary analysis, and regression.}
+\def\TCPreconditions{REQ-0003, REQ-0006, REQ-0012, REQ-0013, REQ-0022,
+and ADR-0003 are available.}
+\def\TCEnvironment{C99 compilation on x86, x64, and ARM64; native execution
+and retained evidence on each supported Windows architecture.}
+\def\TCAssumptions{The active locale is C and its multibyte encoding is the
+documented stateless one-byte mapping.}
+\def\TCInputData{All bytes; representative UTF-16 code units; null, partial,
+invalid, reset, EOF/WEOF, orientation, pushback, and positioning cases.}
+\def\TCInitialState{Fresh and reopened streams are unoriented, conversion
+objects are zero-initialized, and destinations contain sentinels.}
+\def\TCProcedure{Assert target layouts and constants; execute conversion
+state matrices; bind/query/reopen/position streams; force opposing operations;
+verify Windows WCHAR object interoperation; rerun C89 narrow-stream tests.}
+\def\TCExpectedResult{Layouts match ADR-0003, conversions preserve documented
+state and pointers, orientation transitions are deterministic, conflicts
+transfer no data, and narrow behavior remains green.}
+\def\TCPostConditions{Streams close, temporary files are removed, and retained
+target evidence identifies compiler, architecture, command, and result.}
+\TCTemplate

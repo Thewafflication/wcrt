@@ -1,0 +1,32 @@
+% TC-0032 fragment; intended for the C99 test report.
+\def\TCID{TC-0032}
+\def\TCTitle{C99 wide-character classification and mapping}
+\def\TCPurpose{Verify all wide predicates, descriptors, and mappings in the
+C locale without changing narrow classification.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0032}
+\def\TCDesignRef{ISO/IEC 9899:1999 7.25; ADR-0003.}
+\def\TCFeatureRef{\texttt{include/wctype.h}; \texttt{src/wctype.c};
+\texttt{tests/c99/wctype.c}; \texttt{tests/c99/run-tc-0032.ps1}.}
+\def\TCTestTechnique{Exhaustive byte-repertoire comparison, descriptor
+decision tables, boundary analysis, ABI inspection, and regression.}
+\def\TCPreconditions{REQ-0002, REQ-0006, and REQ-0033 are available.}
+\def\TCEnvironment{C99 compilation and native execution on x86, x64, and
+ARM64 with the supported TinyCC package.}
+\def\TCAssumptions{Only the C locale is selected and values outside its byte
+repertoire have no classification or case mapping.}
+\def\TCInputData{Every byte value, WEOF, out-of-repertoire values, every
+standard class/mapping name, and null, empty, unknown, and case-mismatched
+names.}
+\def\TCInitialState{errno and result sentinels are recorded before each matrix
+and narrow classification remains independently observable.}
+\def\TCProcedure{Compile header presence and C89 absence; compare all
+predicates over the repertoire; query and apply every valid and invalid
+descriptor; verify direct mappings, ABI, errno preservation, and ctype
+regression.}
+\def\TCExpectedResult{Predicates and mappings match the documented C locale,
+descriptors are stable and target-invariant, invalid queries return zero, and
+narrow behavior is unchanged.}
+\def\TCPostConditions{No global locale or errno state is unintentionally
+changed and retained results identify the executing architecture.}
+\TCTemplate

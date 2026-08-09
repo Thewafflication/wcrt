@@ -67,8 +67,9 @@ and verified `long long` compiler behavior.
 
 REQ-0023 through REQ-0026 are baselined as the remainder of Milestone 2A.
 REQ-0027 and REQ-0028 are baselined for tranche T1. REQ-0029, REQ-0030, and
-the narrow allocation of REQ-0039 are baselined for tranche T2; other later
-identifiers remain planned backlog items.
+the narrow allocation of REQ-0039 are implemented locally for tranche T2.
+REQ-0031 through REQ-0033 and the wide REQ-0039 allocation are implemented
+locally for tranche T3; other later identifiers remain planned backlog items.
 
 | ID | Conformance unit | Primary C99 clauses | Principal obligations |
 | --- | --- | --- | --- |
@@ -85,9 +86,9 @@ identifiers remain planned backlog items.
 | --- | --- | --- | --- |
 | REQ-0029 (baselined) | C99 formatted output | 7.19.6.1 | New length modifiers and conversions; REQ-0019 remains independently controlled |
 | REQ-0030 (baselined) | C99 formatted input | 7.19.6.2, 7.19.6.4, 7.19.6.7, 7.19.6.9, 7.19.6.11, 7.19.6.14 | New modifiers/conversions and the three `v*scanf` functions |
-| REQ-0031 | Wide-character I/O and strings | 7.24 | Complete `wchar.h`, stream orientation, conversions, strings, time, and `mbstate_t` |
-| REQ-0032 | Wide-character classification | 7.25 | Complete `wctype.h` classification, descriptors, and mappings |
-| REQ-0033 | Windows UTF-16 ABI | Implementation-defined | `wchar_t`, `wint_t`, multibyte state, locale, and Windows interoperability by architecture |
+| REQ-0031 (implemented locally) | Wide-character I/O and strings | 7.24, 7.8.2 | Complete `wchar.h`, wide `inttypes.h` conversions, stream orientation, conversions, strings, time, and `mbstate_t` |
+| REQ-0032 (implemented locally) | Wide-character classification | 7.25 | Complete `wctype.h` classification, descriptors, and mappings |
+| REQ-0033 (implemented locally) | Windows UTF-16 ABI | 7.17, 7.24.1, 7.24.6, 7.25.1; implementation-defined ABI | `wchar_t`, promotion-safe `wint_t`, multibyte state, locale, stream state, and Windows interoperability by architecture |
 | REQ-0034 | Unicode GUI startup | Project extension | Separately selected `wWinMain` startup after REQ-0031 through REQ-0033 |
 
 ## Priority 4 — Numeric environment and mathematics
@@ -111,7 +112,7 @@ identifiers remain planned backlog items.
 ## Sequencing rule
 
 REQ-0021 through REQ-0026 form the baselined Milestone 2A. `inttypes.h`
-depends on `stdint.h`; wide formatted I/O depends on the wide-character ABI;
-`tgmath.h` depends on complete real and complex function families. C11
-threading work begins only after the C99 exit condition unless the roadmap is
-explicitly re-baselined with its C99 dependencies and compatibility risks.
+depends on `stdint.h`; T3 implements REQ-0033 first, then REQ-0031 and
+REQ-0032. `tgmath.h` depends on complete real and complex function families.
+C11 threading work begins only after the C99 exit condition unless the roadmap
+is explicitly re-baselined with its C99 dependencies and compatibility risks.

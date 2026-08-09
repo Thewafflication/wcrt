@@ -72,6 +72,7 @@ static int wcrt_check_formats(void)
 int main(void)
 {
     char *end;
+    wchar_t *wide_end;
     imaxdiv_t divided;
     int base;
 
@@ -108,5 +109,9 @@ int main(void)
     errno = EDOM;
     if (strtoimax("  +x", &end, 10) != 0 || end[0] != ' ' ||
         errno != EDOM) return 27;
+    if (wcstoimax(L"-42!", &wide_end, 10) != (intmax_t)-42 ||
+        *wide_end != L'!') return 29;
+    if (wcstoumax(L"ff!", &wide_end, 16) != (uintmax_t)255 ||
+        *wide_end != L'!') return 30;
     return 0;
 }

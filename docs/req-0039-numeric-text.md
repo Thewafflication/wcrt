@@ -79,11 +79,12 @@ round trips through the narrow formatted-I/O interfaces on every target.
 
 ## Tailoring
 
-Only the T2 narrow allocation is approved here. The remaining REQ-0039 scope
-cannot be reported complete until T6 closes the decimal-accuracy audit, wide,
-locale, math-environment, and clause-integration allocations. T2 retains the
-REQ-0028 decimal regression baseline but does not represent that earlier
-algorithm as a newly verified correctly rounded decimal implementation.
+The T2 narrow allocation and T3 wide allocation are approved. The remaining
+REQ-0039 scope cannot be reported complete until later work closes the decimal-
+accuracy audit, additional locale, math-environment, and clause-integration
+allocations. T2 retains the REQ-0028 decimal regression baseline but does not
+represent that earlier algorithm as a newly verified correctly rounded decimal
+implementation.
 
 ## Implementation Record
 
@@ -97,5 +98,13 @@ model.
 
 TC-0039 passes exact and adjacent binary vectors, binary32 halfway cases,
 range cases, known boundary spellings, and 519 finite `%a` round trips on x86
-and x64. ARM64 compile/link passes, while native execution and the later T6
-wide/locale/environment allocation remain open.
+and x64. ARM64 compile/link passes, while native execution remains open.
+
+## T3 Wide-character Implementation Allocation
+
+REQ-0031 brings the wide-input forms of integer and floating numeric text,
+including formatted wide I/O, into T3. The implementation checked-adapts the
+narrow subject-sequence and rounding logic and replays exact-value, range,
+end-pointer, signed-zero, infinity, NaN, hexadecimal, malformed-subject, and
+round-trip cases through the wide entry points. Locale/environment expansions
+beyond the C-locale model remain later work.

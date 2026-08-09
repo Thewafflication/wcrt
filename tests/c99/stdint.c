@@ -25,5 +25,7 @@ int main(void)
     if ((void *)unsigned_pointer != pointer) return 10;
     if (SIZE_MAX != (size_t)-1) return 11;
     if (INTMAX_MAX < INT64_MAX || UINTMAX_MAX < UINT64_MAX) return 12;
+    if (WCHAR_MIN != 0 || WCHAR_MAX != UINT16_MAX) return 13;
+    if (WINT_MIN != 0 || WINT_MAX != UINT32_MAX) return 14;
     return 0;
 }

@@ -14,3 +14,5 @@ static int uintmax_t;
 static int imaxdiv_t;
 static int imaxabs;
 static int strtoimax;
+static int wcstoimax;
+static int wcstoumax;

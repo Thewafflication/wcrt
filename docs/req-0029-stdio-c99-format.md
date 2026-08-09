@@ -93,3 +93,12 @@ share conversion logic but retain separate termination and return policies.
 TC-0029 and the complete C89/extension aggregates pass on x86 and x64. The
 same controlled source and tests compile/link with the ARM64 TinyCC package;
 native ARM64 execution remains required before target-complete acceptance.
+
+## T3 Wide-character Implementation Impact
+
+REQ-0033 supersedes ADR-0002's anticipated 16-bit `wint_t` with an unsigned
+32-bit type. T3 routes `lc` and `ls` through the accepted C-locale conversion
+rules and retrieves `%lc` through the exact promotion-safe `wint_t` variadic
+type. The complete narrow character/string and encoding-failure matrix passes
+on x86/x64 and compiles/links for ARM64. Wide stream functions remain owned by
+REQ-0031 rather than this requirement.

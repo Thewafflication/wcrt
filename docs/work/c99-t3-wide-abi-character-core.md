@@ -1,7 +1,7 @@
 # C99 T3 Wide ABI and Character Core Work Log
 
-**Status:** Proposed planning and architecture baseline; no production-source
-implementation started
+**Status:** Implemented and locally verified; native ARM64 CI, retained
+exact-revision evidence, and independent review pending
 
 **Owner:** WCRT maintainer
 
@@ -173,9 +173,9 @@ but its empty time log provides no basis for reducing T3 hour ranges.
     REQ-0030 have local implementations. They must not be marked complete
     until their supported-target evidence gates are actually closed.
 
-## Proposed Controlled Baseline
+## Accepted Controlled Baseline
 
-| Unit | Proposed acceptance boundary | Planned verification | Key dependencies |
+| Unit | Accepted boundary | Planned verification | Key dependencies |
 | --- | --- | --- | --- |
 | REQ-0033 / TC-0033 | Exact Windows wide scalar/state ABI; C-locale external encoding; initial and internal states; conversion and stream-state invariants; implementation-defined choices and deviations | Compile-time type/promotion/layout assertions; conversion state tables; native Windows UTF-16 calling and memory tests; x86/x64/ARM64 results | REQ-0006, REQ-0011, REQ-0013, REQ-0022, ADR-0002, proposed ADR-0003 |
 | REQ-0031 / TC-0031 | Complete C99 7.24 header, 59 functions, stream orientation, strings/memory, numeric/time conversions, restartable conversions, plus the dependent `wcstoimax`/`wcstoumax` closure | Header isolation; state-transition, decision-table, boundary, malformed-input, buffer-sentinel, round-trip, stream-remainder, format/scan matrix, and architecture tests | Accepted REQ-0033; REQ-0012, REQ-0013, REQ-0015, REQ-0027 through REQ-0030, REQ-0039 |
@@ -188,12 +188,12 @@ turn undefined opposite-orientation calls, overlapping non-move operations,
 invalid format/type pairs, or out-of-domain `wctype` arguments into accidental
 portable C promises.
 
-## Proposed Architecture Baseline
+## Accepted Architecture Baseline
 
-The detailed durable proposal is recorded in
-`docs/adr-0003-c99-wide-character-and-stream-abi.md`. It remains proposed and
-must be accepted or revised with REQ-0033 before production-source changes.
-The recommended baseline is:
+The detailed durable decision is recorded in accepted
+`docs/adr-0003-c99-wide-character-and-stream-abi.md`. REQ-0033/TC-0033,
+REQ-0031/TC-0031, and REQ-0032/TC-0032 are baselined before production-source
+changes. The accepted baseline is:
 
 1. Preserve unsigned 16-bit `wchar_t` and direct Windows `WCHAR` code-unit
    layout on x86, x64, and ARM64.
@@ -487,26 +487,35 @@ T3 is complete only when all of the following are true:
     `wWinMain`, commit, push, release, or publication unless separately
     authorized.
 
-## Planning Personal Review and Residual Risk
+## Implementation Personal Review and Residual Risk
 
-The planning and proposed-design patch received a personal requirements,
-architecture, test-plan, compatibility, and documentation review. The review
-checked the C99 function inventory, requirement impacts, estimate arithmetic,
-type/promotion conflict, stream and conversion state coverage, test-before-
-implementation order, C89 isolation, architecture/evidence gates, and the
-`wWinMain` exclusion. Findings T3-D001 through T3-D008 are recorded rather than
-being hidden by the proposed baseline. `git diff --check` passes. Production
-design/code/test review is not applicable yet because implementation has not
-started and remains a completion gate.
+The local patch received personal requirements, architecture, code, test,
+compatibility, buffer, and evidence review. The review walked public type
+ownership and include order; exact promoted and destination types; independent
+conversion states; partial, invalid, reset, and source-pointer transitions;
+stream orientation, EOF/WEOF, pushback, reopen, position, and no-transfer
+conflicts; format/scan `c`/`s` inversions; numeric and time adapters; allocation
+and terminator exits; and x86/x64/ARM64 source enumeration. Findings T3-D001
+through T3-D017 have a correction, explicit open evidence obligation, or
+accepted-risk disposition below.
 
-Residual planning risk is **high**. The primary open risk is approval of the
-conforming 32-bit `wint_t` versus Microsoft UCRT's 16-bit type. Stream-core and
-formatted-wide-I/O work remain high-risk even after that choice because the
-existing implementation is byte-only and formatted-wide reuse has not been
-prototyped. The C99 `wcsftime` dependency and wide numeric allocation also
-remain unbaselined. Native ARM64 behavior, exact-revision retained evidence,
-and independent review are unavailable. None of these risks is represented as
-closed by this planning change.
+The review found and removed wrong wide `c`/`s` modifier semantics, two unsafe
+attempts to reuse byte scanning for arbitrary in-memory UTF-16, a stream-scan
+modifier handoff error, an empty-time-result ambiguity, test-oracle mistakes,
+and an ARM64 cross-runner source omission. Focused regressions were added or
+strengthened before the final aggregate runs. No `wWinMain` declaration,
+source, object, or test was added.
+
+Residual local implementation risk is **medium**. The highest remaining
+behavioral uncertainty is native ARM64 execution, especially variadic and
+stream-state paths that local cross-linking cannot execute. Wide stream scan
+formats are deliberately restricted to code units representable in the
+captured C-locale external encoding; TC-0031 verifies the documented
+`EILSEQ`/no-transfer result, but a future broader encoding or fully
+encoding-independent format parser requires impact review. Ad hoc parallel
+focused runners also share architecture output directories and must be
+serialized. Immutable exact-revision CI evidence and independent review are
+unavailable and prevent target-complete acceptance.
 
 ## Entry Evidence
 
@@ -523,6 +532,49 @@ closed by this planning change.
 - WG14/N1256 was used to inventory C99 7.24/7.25 and identify the `wint_t`,
   `wcstoimax`/`wcstoumax`, stream orientation/state, and `wcsftime` obligations.
 
+## Controlled Implementation Entry Evidence
+
+On 2026-08-09, after the requirements and test specifications were baselined
+and before any production header or source change, the new x64 runners were
+executed with the repository TinyCC package. TC-0033 and TC-0031 failed at the
+controlled header gate because `include/wchar.h` was missing; TC-0032 failed at
+the same gate because `include/wctype.h` was missing. Those are the expected
+entry failures and establish that the tests do not silently use host wide
+headers. The commands were:
+
+- `tests/c99/run-tc-0033.ps1 -TinyCc ../tcc_package/out/build/x64-debug/package/tcc.exe`
+- `tests/c99/run-tc-0031.ps1 -TinyCc ../tcc_package/out/build/x64-debug/package/tcc.exe`
+- `tests/c99/run-tc-0032.ps1 -TinyCc ../tcc_package/out/build/x64-debug/package/tcc.exe`
+
+## Local Implementation Evidence
+
+The staged implementation was reviewed and exercised on 2026-08-09 with the
+repository TinyCC 0.9.28rc packages:
+
+- TC-0033, TC-0031, and TC-0032 pass presence, C89-isolation, behavior, ABI,
+  and Windows `lstrlenW` interoperation on native x86 and x64. All controlled
+  sources and probes compile/link for ARM64 through explicit `-CompileOnly`
+  modes; execution is recorded as not run.
+- Full TC-0001 through TC-0015 C89 aggregates pass on x86 and x64. The ARM64
+  C89 cross aggregate passes all fifteen units after T3-D014 was corrected.
+- The complete extension aggregate passes all 23 C99 and Microsoft
+  compatibility cases on x86 and x64, including the T2 narrow format/scan
+  regressions and the three T3 cases.
+- Fresh Release DLL, static library, and startup-object builds pass for x86,
+  x64, and ARM64. Built-library consumers execute on x86/x64 and compile/link
+  for ARM64. Startup-object consumers execute on x86/x64. Native ARM64 startup
+  and behavior execution remain CI obligations.
+- The Windows 2000 x86 import allowlist reports no unexpected imports. WSP
+  common-tool tests pass, traceability reports 41 requirements, 41
+  specifications, and 41 implementations, and TC-0016 reports zero violations
+  across 157 C/header files. `git diff --check` reports no patch errors.
+
+Generated local aggregate and build output remains ignored developer evidence.
+It identifies a dirty implementation derived from the accepted T3 baseline,
+not the immutable post-commit revision. It therefore cannot substitute for
+the required native ARM64 CI results, retained per-target metadata, or
+independent review.
+
 ## Time Log
 
 | Date | Phase | Focused minutes | Excluded interruption | Note |
@@ -535,14 +587,23 @@ automated execution. The maintainer may add observed phase time.
 
 | ID | Type | Affected baseline | Observed behavior | Priority | Injected | Removed | Fix minutes | Owner and disposition / verification |
 | --- | --- | --- | --- | --- | --- | --- | ---: | --- |
-| T3-D001 | interface/ABI | ADR-0002 / C99 platform model | Planned 16-bit `wint_t` is changed by integer promotions and conflicts with C99 7.24.1. | Critical | T2 design | Open in planning | - | Maintainer; resolve through ADR-0003/REQ-0033 before source. Verify promotion/type/sentinel natively on all targets. |
-| T3-D002 | requirements | REQ-0027 | Requirement incorrectly excludes `wcstoimax` and `wcstoumax`, which C99 7.8.2.4 requires. | High | T1 requirements | Open in planning | - | Maintainer; impact-update REQ-0027 and TC-0027 during T3 specification and verify both functions. |
-| T3-D003 | documentation | C99 work-plan T3 estimate | The estimate counts neither the full function inventory nor test/evidence/integration size. | High | Program planning | Planning | - | Removed from the active estimate by this inspected 7,800-13,300-line, 226-376-hour base range; verify in postmortem. |
-| T3-D004 | documentation | REQ-0013 implementation record | Scope names `src/internal/mbstate.h`, but no such file or state object exists. | Medium | C89 requirements | Open in planning | - | Maintainer; correct the impact record when the accepted state core exists; do not claim a file early. |
-| T3-D005 | design | REQ-0012 stream core | `FILE` has no orientation, conversion state, or wide pushback and byte paths cannot protect orientation. | Critical | C89 stream design | Open in planning | - | Maintainer; specify TC-0033/TC-0031 transitions before central stream-core implementation. |
-| T3-D006 | requirements | REQ-0015 / planned REQ-0031 | `wcsftime` requires a C99 time-format surface while current controlled `strftime` is C89-only. | High | Tranche allocation | Open in planning | - | Maintainer; allocate and test the required C99 time delta before `wcsftime`. |
-| T3-D007 | requirements | REQ-0039 | Wide numeric text is allocated later despite complete T3 wide numeric and formatted I/O depending on it. | High | T2 tailoring | Open in planning | - | Maintainer; add a controlled T3 wide allocation and replay exact numeric oracles. |
-| T3-D008 | test | T2-to-T3 dependency | T2 lacks retained native ARM64 and independent review evidence. | Medium | T2 verification | Open | - | Maintainer; carry as an explicit prerequisite/evidence obligation rather than treating local cross-linking as closure. |
+| T3-D001 | interface/ABI | ADR-0002 / C99 platform model | Planned 16-bit `wint_t` is changed by integer promotions and conflicts with C99 7.24.1. | Critical | T2 design | T3 specification | - | Removed by accepted ADR-0003/REQ-0033 and verified natively on x86/x64 and by ARM64 compile/link; native ARM64 execution remains open. |
+| T3-D002 | requirements | REQ-0027 | Requirement incorrectly excludes `wcstoimax` and `wcstoumax`, which C99 7.8.2.4 requires. | High | T1 requirements | T3 implementation | - | Removed by REQ-0031 declarations, implementations, presence checks, and numeric tests; x86/x64 pass and ARM64 compile/link passes. |
+| T3-D003 | documentation | C99 work-plan T3 estimate | The estimate counts neither the full function inventory nor test/evidence/integration size. | High | Program planning | Planning/postmortem | - | Removed from the planning basis by the inspected range and compared with the staged snapshot below. |
+| T3-D004 | documentation | REQ-0013 implementation record | Scope names `src/internal/mbstate.h`, but no such file or state object exists. | Medium | C89 requirements | Requirements closeout | - | Removed by correcting the impact record to the actual public state and conversion units; no fictional internal file was added. |
+| T3-D005 | design | REQ-0012 stream core | `FILE` has no orientation, conversion state, or wide pushback and byte paths cannot protect orientation. | Critical | C89 stream design | Implementation | - | Removed by private stream state and centralized orientation checks; transition/no-transfer, reopen, position, pushback, C89, and compatibility tests pass x86/x64. |
+| T3-D006 | requirements | REQ-0015 / REQ-0031 | `wcsftime` requires a C99 time-format surface while the controlled `strftime` implementation was C89-only. | High | Tranche allocation | Implementation/test | - | Removed by completing the C99 C-locale time-format delta before `wcsftime`; narrow and wide boundary tests pass. |
+| T3-D007 | requirements | REQ-0039 | Wide numeric text was allocated later despite complete T3 wide numeric and formatted I/O depending on it. | High | T2 tailoring | Requirements/implementation | - | Removed by the controlled T3 allocation and checked wide adapters; exact numeric, end-pointer, malformed, and range cases pass. |
+| T3-D008 | test | T2-to-T3 dependency | T2 lacks retained native ARM64 and independent review evidence. | Medium | T2 verification | Open | - | Maintainer; carried with T3 rather than represented as closed. Native ARM64 CI and independent review remain required. |
+| T3-D009 | interface/ABI | Initial wide formatter | Wide output initially treated unmodified `c`/`s` as wide and `l` forms as narrow, reversing C99 wide-format rules. | High | Implementation | Test/personal review | - | Removed by exact `int`/`wint_t` and narrow/wide pointer selection; direct and `va_list` matrices pass x86/x64 and compile/link ARM64. |
+| T3-D010 | design/state | Initial wide stream scanner | A provisional adapter temporarily routed a wide-oriented stream through public byte scanning, violating orientation and state ownership. | Critical | Implementation | Personal design review | - | Removed by the internal wide-input scanner mode using `fgetwc`/`ungetwc`; no public byte operation is used and orientation tests pass. |
+| T3-D011 | data/encoding | Initial `swscanf` adapter | Narrow staging replaced UTF-16 code units above 255, so in-memory high literals, strings, and scansets could not be preserved. | High | Implementation | Test | - | Removed by a native UTF-16 string scanner; high-code-unit literal and character/string tests pass. |
+| T3-D012 | test | Initial TC-0031 | Two expected counts and distinct-string-literal pointer comparisons produced false test failures. | Medium | Test implementation | Test review | - | Removed by recalculated counts and content/index comparisons; controlled reruns pass. |
+| T3-D013 | algorithm | Initial `wcsftime` adapter | A successful empty result was indistinguishable from a narrow formatting failure returning zero. | High | Implementation | Test/personal review | - | Removed with a destination sentinel and explicit empty-format/empty-result tests. |
+| T3-D014 | build/tooling | ARM64 C89 cross runner | TC-0015 omitted `src/errno.c`, causing unresolved `wcrt_errno` after the time impact was linked. | High | Existing runner | Full verification | - | Removed by adding the missing controlled source; all fifteen ARM64 C89 cross units rerun and pass. |
+| T3-D015 | test infrastructure | Focused T3 runners | Parallel focused runs share an architecture build directory and can collide with transient permission errors. | Medium | Test design | Accepted operational constraint | - | Serialize focused runners; aggregate and CI entry points are serial. A future isolated-output runner change is recommended. |
+| T3-D016 | interface/ABI | Initial wide stream scan adapter | Modifier translation changed wide `l` character destinations back to wide objects, breaking the required inverse destination rule. | High | Implementation | Integration test | - | Removed by preserving the format modifier and selecting destinations from wide-input mode; high and ordinary stream scans pass. |
+| T3-D017 | conformance/encoding | Wide stream scan formats | Format code units above 255 cannot be represented by the captured C-locale stream encoding. | Medium | T3 encoding scope | Accepted documented risk | - | REQ-0031 documents `EILSEQ` before transfer; TC-0031 verifies no input is consumed. Revisit with any broader encoding or independent wide-format parser. |
 
 No fix minutes are recorded because maintainer stopwatch data was not
 provided. Planning diagnosis time is not inferred.
@@ -559,17 +620,99 @@ provided. Planning diagnosis time is not inferred.
       proposed here.
 - [x] A durable ABI/encoding/stream proposal was recorded in ADR-0003 before
       any production-source change.
-- [ ] Proposed ADR-0003 is reviewed and accepted or superseded.
-- [ ] REQ-0033 and TC-0033 are baselined.
-- [ ] REQ-0031/TC-0031 and REQ-0032/TC-0032 are baselined.
-- [ ] Controlled tests are implemented and failing for the expected missing
+- [x] Proposed ADR-0003 is reviewed and accepted or superseded.
+- [x] REQ-0033 and TC-0033 are baselined.
+- [x] REQ-0031/TC-0031 and REQ-0032/TC-0032 are baselined.
+- [x] Controlled tests are implemented and failing for the expected missing
       behavior before production implementation.
-- [ ] Production implementation and personal review are complete.
+- [x] Production implementation and personal review are complete for the
+      local working patch.
+- [x] Native x86/x64 verification and ARM64 compile/link verification are
+      complete.
 - [ ] x86/x64/ARM64 verification, retained evidence, and independent review
       are complete.
-- [ ] Actual measures, residual risk, and postmortem are complete.
+- [x] Actual size, unavailable effort, residual risk, and local postmortem are
+      recorded.
 
 ## Postmortem
 
-Pending. No implementation, actual change-size comparison, focused phase time,
-verification result, or completion claim is recorded at this planning stage.
+**Completed:** 2026-08-09, using the staged diff, local test output, personal
+review findings, empty time log, and defect log. This is a local postmortem,
+not a claim that the tranche has met its supported-target completion gates.
+
+### Planned versus actual
+
+| Measure | Plan | Actual evidence | Assessment |
+| --- | --- | --- | --- |
+| Controlled scope | Three primary requirement/test units, nine existing-requirement impacts, approximately 79 behaviors plus ABI/build/evidence work | REQ-0033, REQ-0031, and REQ-0032; nine impact records; ADR/platform, implementation, runner, and build integration | Matched the controlled functional scope. |
+| Artifacts | 40-56 source-controlled artifacts | 64 artifacts | Eight above the upper bound; risk separation added files while shared runners limited line volume. |
+| Runtime/header change | 4,000-6,800 lines | 2,318 changed lines across `src/` and `include/` | 1,682 below the lower bound because the accepted C locale is stateless and existing numeric/scan cores were adapted. |
+| Test/runner change | 2,600-4,500 lines | 935 changed lines under `tests/` | 1,665 below the lower bound; dense focused cases and one shared runner covered the matrix. |
+| Controlled documentation/integration | 1,200-2,000 lines | 908 changed lines across controlled records and build integration | 292 below the lower bound; impact notes reused existing controlled records. |
+| Total change | 7,800-13,300 changed lines | 4,033 inserted, 128 removed, 4,161 changed lines | 3,639 below the lower bound; the forecast overestimated code density, not functional scope. |
+| Phase effort | 226-376 focused hours plus reserve | Unavailable: the time log has no focused-minute entries | No valid effort variance can be calculated. |
+| Schedule | No completion date without weekly capacity | Unavailable: no focused capacity or phase boundaries were recorded | No schedule variance can be calculated. |
+
+The size figures are a staged-diff snapshot at local postmortem completion;
+ignored generated output and commit metadata are excluded. The implementation
+is materially smaller than forecast because the stateless one-byte encoding
+needs no transition tables or dynamic codec, existing numeric and scanning
+cores were safely adapted, descriptor data is integral, and the focused tests
+use shared runners. The higher artifact count reflects splitting the risky
+wide conversion, I/O, formatting, scanning, string, time, and classification
+concerns into reviewable units. Without observed effort, size variance alone
+does not establish a new productivity or schedule model.
+
+### Defects and quality activity
+
+Eight entry findings were recorded from planning and inspected baselines.
+Seven are removed in this patch; T3-D008 remains open because T2 and T3 still
+lack native ARM64 retained evidence and independent review. Nine additional
+implementation, test, integration, or conformance findings were recorded.
+Seven were removed before final local verification; T3-D015 is an accepted
+serialized-runner constraint and T3-D017 is a documented C-locale format
+restriction. No known defect escaped x86/x64 local verification. That is not
+evidence of zero ARM64 or CI escapes.
+
+Quality activity completed includes controlled requirement/test and ADR
+review; test-before-production entry failures; focused native x86/x64 and
+ARM64 compile/link verification; full x86/x64 C89 and extension/compatibility
+aggregates; the ARM64 C89 cross aggregate; Release builds and consumers on all
+three targets; x86/x64 startup execution; Windows API ABI probes; the Windows
+2000 x86 import gate; export inspection; source quality; traceability;
+PowerShell parsing; WSP tool tests; and `git diff --check`. Native ARM64
+behavior/startup execution, immutable per-target exact-revision evidence, and
+independent review remain incomplete and prevent target-complete acceptance.
+
+### Estimate disposition
+
+The original T3 roadmap estimate was correctly rejected as incomplete, but
+the inspected replacement substantially overestimated implementation and test
+line volume. The accepted architecture eliminated the largest potential codec
+and state-machine expansion, and shared T2 numeric/scan cores reduced duplicate
+code. Future estimates for similarly broad standard-library surfaces should
+inventory functions and evidence as T3 did, then estimate simple stateless
+families separately from parser/stream cores instead of applying one density
+range to the complete inventory. The focused-hour estimate is not revised
+without observed effort data.
+
+### Process improvements adopted
+
+1. Wide and narrow formatted-I/O reviews shall use a cell-by-cell table of
+   function family, modifier, promoted argument, destination type, and
+   character encoding before implementation and again before aggregate tests.
+2. Stream adapters shall include an explicit orientation/state ownership walk;
+   no public operation of the opposite width may be used as an internal reuse
+   path.
+3. Empty-success results, malformed longest input items, first-unread state,
+   and high in-memory code units shall be mandatory adapter tests rather than
+   inferred from ordinary examples.
+4. Focused architecture runners should receive isolated output directories
+   before parallel execution is admitted. Until then they are serialized.
+5. The maintainer should record focused phase minutes and preserve each final
+   target run with revision, toolchain, command, timestamp, and artifact path;
+   missing observations remain unavailable rather than inferred.
+
+No completion date, actual focused effort, native ARM64 execution, retained
+exact-revision evidence, independent review, release readiness, or `wWinMain`
+work is claimed.

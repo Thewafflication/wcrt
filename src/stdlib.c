@@ -912,6 +912,7 @@ int wctomb(char *string, wchar_t wide)
         return 0;
     }
     if ((unsigned long)wide > 255UL) {
+        errno = EILSEQ;
         return -1;
     }
     *string = (char)wide;
@@ -921,6 +922,10 @@ int wctomb(char *string, wchar_t wide)
 size_t mbstowcs(wchar_t *destination, const char *source, size_t count)
 {
     size_t length = 0;
+    if (destination == NULL) {
+        while (source[length] != '\0') ++length;
+        return length;
+    }
     while (length < count && source[length] != '\0') {
         destination[length] = (wchar_t)(unsigned char)source[length];
         ++length;
@@ -934,8 +939,19 @@ size_t mbstowcs(wchar_t *destination, const char *source, size_t count)
 size_t wcstombs(char *destination, const wchar_t *source, size_t count)
 {
     size_t length = 0;
+    if (destination == NULL) {
+        while (source[length] != 0) {
+            if ((unsigned long)source[length] > 255UL) {
+                errno = EILSEQ;
+                return (size_t)-1;
+            }
+            ++length;
+        }
+        return length;
+    }
     while (length < count && source[length] != 0) {
         if ((unsigned long)source[length] > 255UL) {
+            errno = EILSEQ;
             return (size_t)-1;
         }
         destination[length] = (char)source[length];

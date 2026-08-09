@@ -15,6 +15,12 @@
 /** @brief Invalid argument reported by Microsoft compatibility interfaces. */
 #define EINVAL 22
 
+/** @brief Illegal byte sequence reported by character conversion. */
+#define EILSEQ 42
+
+/** @brief Insufficient storage reported by an allocating implementation. */
+#define ENOMEM 12
+
 /** @brief Permission denied by a filesystem operation. */
 #define EACCES 13
 

@@ -39,6 +39,7 @@ if ($LASTEXITCODE -ne 0) {
 }
 $runtimeSources = @(
     'src/ctype.c', 'src/errno.c', 'src/string.c', 'src/stdlib.c',
+    'src/wchar_string.c',
     'src/platform/windows/heap.c', 'src/platform/windows/process.c'
 ) | ForEach-Object { Join-Path $repoRoot $_ }
 $executable = Join-Path $buildDirectory "$Name-test.exe"

@@ -28,6 +28,10 @@ typedef char wcrt_uint64_constant_unsigned[
     UINT64_C(0) - UINT64_C(1) > UINT64_C(0) ? 1 : -1];
 typedef char wcrt_size_limit[
     SIZE_MAX == (uintptr_t)-1 ? 1 : -1];
+typedef char wcrt_wchar_limits[
+    (WCHAR_MIN == 0 && WCHAR_MAX == UINT16_MAX) ? 1 : -1];
+typedef char wcrt_wint_limits[
+    (WINT_MIN == 0 && WINT_MAX == UINT32_MAX) ? 1 : -1];
 
 static int_least8_t wcrt_least_value = INT8_C(1);
 static uint_fast32_t wcrt_fast_value = UINT32_C(1);

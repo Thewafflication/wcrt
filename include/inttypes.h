@@ -10,6 +10,7 @@
     __STDC_VERSION__ >= 199901L
 
 #include <stdint.h>
+#include <wchar.h>
 #include <wcrt/restrict.h>
 
 /** @brief Quotient and remainder from greatest-width integer division. */
@@ -205,6 +206,10 @@ intmax_t strtoimax(const char *WCRT_RESTRICT string,
     char **WCRT_RESTRICT end_pointer, int base);
 uintmax_t strtoumax(const char *WCRT_RESTRICT string,
     char **WCRT_RESTRICT end_pointer, int base);
+intmax_t wcstoimax(const wchar_t *WCRT_RESTRICT string,
+    wchar_t **WCRT_RESTRICT end_pointer, int base);
+uintmax_t wcstoumax(const wchar_t *WCRT_RESTRICT string,
+    wchar_t **WCRT_RESTRICT end_pointer, int base);
 
 #ifdef __cplusplus
 }

@@ -88,6 +88,12 @@ int __wcrt_file_open(FILE *stream, const char *path, const char *mode)
     stream->end_of_file = 0;
     stream->error = 0;
     stream->pushback = EOF;
+    stream->orientation = WCRT_ORIENTATION_NONE;
+    stream->wide_state.__value = 0;
+    stream->wide_state.__bytes = 0;
+    stream->wide_state.__state = 0;
+    stream->wide_pushback = WEOF;
+    stream->has_wide_pushback = 0;
     stream->buffering = _IOFBF;
     stream->buffer = NULL;
     stream->buffer_size = 0;
@@ -106,6 +112,10 @@ int __wcrt_file_close(FILE *stream)
     }
     stream->handle = NULL;
     stream->descriptor = -1;
+    stream->orientation = WCRT_ORIENTATION_NONE;
+    stream->pushback = EOF;
+    stream->wide_pushback = WEOF;
+    stream->has_wide_pushback = 0;
     if (stream->delete_path[0] != '\0') {
         DeleteFileA(stream->delete_path);
     }
@@ -177,6 +187,14 @@ void __wcrt_file_initialize_standard(FILE *stream, int selector,
         stream->descriptor = descriptor;
         stream->flags = flags;
         stream->pushback = EOF;
+        stream->orientation = WCRT_ORIENTATION_NONE;
+        stream->wide_state.__value = 0;
+        stream->wide_state.__bytes = 0;
+        stream->wide_state.__state = 0;
+        stream->wide_pushback = WEOF;
+        stream->has_wide_pushback = 0;
+        stream->end_of_file = 0;
+        stream->error = 0;
         stream->buffering = selector == -12 ? _IONBF : _IOLBF;
     }
 }

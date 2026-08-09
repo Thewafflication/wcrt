@@ -35,7 +35,8 @@ All sizes are bytes and are verified by compile-time assertions in
 | `size_t` / `ptrdiff_t` | 4 / 4 | 8 / 8 | 8 / 8 |
 | `_Bool` | 1 | 1 | 1 |
 | `wchar_t` | 2 | 2 | 2 |
-| future `wint_t` / signedness | 2 / unsigned | 2 / unsigned | 2 / unsigned |
+| `wint_t` / signedness | 4 / unsigned | 4 / unsigned | 4 / unsigned |
+| `mbstate_t` / alignment | 8 / 4 | 8 / 4 | 8 / 4 |
 | `float` | 4 | 4 | 4 |
 | `double` | 8 | 8 | 8 |
 | `long double` | 8 | 8 | 8 |
@@ -48,11 +49,14 @@ widths on x64 or ARM64.
 WCRT uses the Windows binary64 ABI for `long double` on all three targets.
 Consequently `LDBL_MANT_DIG` is 53, `DECIMAL_DIG` is 17,
 `FLT_EVAL_METHOD` is 0, and the default documented `FLT_ROUNDS` value is 1.
-The 2-byte `wchar_t` width and unsigned 2-byte `wint_t` choice are ABI facts.
-ADR-0002 permits the T2 C-locale `l` character conversions to use those facts
-without exposing the public wide library. The complete `wint_t`, UTF-16,
-multibyte-state, and wide-library contract remains planned under REQ-0031 and
-REQ-0033.
+The 2-byte unsigned `wchar_t` width is a Windows ABI fact. ADR-0003 selects a
+4-byte unsigned `wint_t` so the public type is unchanged by the integer
+promotions and has a distinct `WEOF` value. This intentionally differs from
+the Microsoft UCRT's 2-byte `wint_t`; Windows operating-system interoperability
+uses `wchar_t`/`WCHAR`, not `wint_t`. `mbstate_t` has one target-invariant
+8-byte, 4-byte-aligned ABI with the all-zero representation as its initial
+state. ADR-0002's T2 bridge remains bound to the same `wchar_t` and C-locale
+character behavior and is updated during T3 for the exact public `wint_t`.
 
 ## TinyCC C99 Facility Matrix
 

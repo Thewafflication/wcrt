@@ -13,8 +13,11 @@
 #if defined(INT8_C) || defined(UINT8_C) || defined(INTMAX_C)
 #error C99 integer constant macros must not be exposed in C89 mode
 #endif
+#if defined(WCHAR_MIN) || defined(WCHAR_MAX) || defined(WINT_MIN) || \
+    defined(WINT_MAX)
+#error C99 wide-character limits must not be exposed in C89 mode
+#endif
 
 static int int8_t;
 static int intptr_t;
 static int intmax_t;
-

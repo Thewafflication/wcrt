@@ -17,6 +17,10 @@ typedef char wcrt_strtoimax_type[
     sizeof(strtoimax("1", (char **)0, 10)) == sizeof(intmax_t) ? 1 : -1];
 typedef char wcrt_strtoumax_type[
     sizeof(strtoumax("1", (char **)0, 10)) == sizeof(uintmax_t) ? 1 : -1];
+typedef char wcrt_wcstoimax_type[
+    sizeof(wcstoimax(L"1", (wchar_t **)0, 10)) == sizeof(intmax_t) ? 1 : -1];
+typedef char wcrt_wcstoumax_type[
+    sizeof(wcstoumax(L"1", (wchar_t **)0, 10)) == sizeof(uintmax_t) ? 1 : -1];
 
 #define WCRT_FORMAT_SET(prefix) \
     prefix##8, prefix##16, prefix##32, prefix##64, \
