@@ -16,6 +16,8 @@
 | REQ-0033 | [TC-0033](../../docs/tc-0033-windows-utf16-abi.tex) | `presence/wchar.c`, `presence/wchar-c89.c`, `wide-abi.c` | Wide scalar/state ABI, conversions, orientation, pushback, and architecture interoperability |
 | REQ-0031 | [TC-0031](../../docs/tc-0031-wchar.tex) | `presence/wchar.c`, `presence/wchar-c89.c`, `wchar.c` | Complete wide I/O, strings/memory, numeric text, time, conversion, and C89 isolation |
 | REQ-0032 | [TC-0032](../../docs/tc-0032-wctype.tex) | `presence/wctype.c`, `presence/wctype-c89.c`, `wctype.c` | Exhaustive C-locale classes, descriptors, mappings, ABI, and C89 isolation |
+| REQ-0035 | [TC-0035](../../docs/tc-0035-real-math.tex) | `presence/math.c`, `presence/math-c89.c`, `math.c` | Real-math classification, comparisons, NaN/inf/signed-zero, special values, and C89 isolation |
+| REQ-0036 | [TC-0036](../../docs/tc-0036-fenv.tex) | `presence/fenv.c`, `presence/fenv-c89.c`, `fenv.c` | Floating-point environment, flags, rounding control, saved environments, and C89 isolation |
 | REQ-0039 | [TC-0039](../../docs/tc-0039-numeric-text.tex) | `presence/stdlib.c`, `presence/stdlib-c89.c`, `numeric-text.c` | Hexadecimal floating text, classification, signed zero, rounding, range, and round trips |
 
 The suite compiles against WCRT headers without host standard-library headers.

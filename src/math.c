@@ -102,10 +102,127 @@ static double wcrt_atan_series(double value)
     return sum;
 }
 
+/** @brief Returns a value with the sign bit of a second value. */
+double copysign(double value, double sign)
+{
+    union wcrt_double_shape source;
+    union wcrt_double_shape sign_source;
+
+    source.value = value;
+    sign_source.value = sign;
+    source.words.high = (source.words.high & 0x7fffffffUL) |
+        (sign_source.words.high & 0x80000000UL);
+    return source.value;
+}
+
 /** @brief Implements the public fabs contract. */
 double fabs(double value)
 {
     return value < 0.0 ? -value : value;
+}
+
+/** @brief Implements the public copysign contract for float values. */
+float copysignf(float value, float sign)
+{
+    union {
+        float value;
+        unsigned int bits;
+    } source, sign_source;
+
+    source.value = value;
+    sign_source.value = sign;
+    source.bits = (source.bits & 0x7fffffffU) | (sign_source.bits & 0x80000000U);
+    return source.value;
+}
+
+/** @brief Implements the public copysign contract for long double values. */
+long double copysignl(long double value, long double sign)
+{
+    union {
+        long double value;
+        unsigned long long bits;
+    } source, sign_source;
+
+    source.value = value;
+    sign_source.value = sign;
+    source.bits = (source.bits & 0x7fffffffffffffffULL) |
+        (sign_source.bits & 0x8000000000000000ULL);
+    return source.value;
+}
+
+/** @brief Implements the public fmax contract. */
+double fmax(double lhs, double rhs)
+{
+    if (lhs > rhs) return lhs;
+    if (rhs > lhs) return rhs;
+    if (lhs != lhs) return rhs;
+    if (rhs != rhs) return lhs;
+    return lhs;
+}
+
+/** @brief Implements the public fmin contract. */
+double fmin(double lhs, double rhs)
+{
+    if (lhs < rhs) return lhs;
+    if (rhs < lhs) return rhs;
+    if (lhs != lhs) return rhs;
+    if (rhs != rhs) return lhs;
+    return lhs;
+}
+
+/** @brief Implements the public fdim contract. */
+double fdim(double lhs, double rhs)
+{
+    if (lhs > rhs) {
+        return lhs - rhs;
+    }
+    return 0.0;
+}
+
+/** @brief Implements the public fma contract. */
+double fma(double lhs, double mid, double rhs)
+{
+    return lhs * mid + rhs;
+}
+
+/** @brief Implements the public nextafter contract. */
+double nextafter(double value, double target)
+{
+    double step;
+
+    if (value == target) {
+        return target;
+    }
+    step = fabs(value - target);
+    if (step == 0.0) {
+        return value;
+    }
+    step = DBL_EPSILON * fabs(value);
+    if (step == 0.0) {
+        step = DBL_MIN;
+    }
+    return value < target ? value + step : value - step;
+}
+
+/** @brief Generates a quiet NaN. */
+double nan(const char *text)
+{
+    (void)text;
+    return 0.0 / 0.0;
+}
+
+/** @brief Generates a quiet NaN for float values. */
+float nanf(const char *text)
+{
+    (void)text;
+    return 0.0F / 0.0F;
+}
+
+/** @brief Generates a quiet NaN for long double values. */
+long double nanl(const char *text)
+{
+    (void)text;
+    return 0.0L / 0.0L;
 }
 
 /** @brief Implements the public modf contract. */
