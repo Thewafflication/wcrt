@@ -1,148 +1,147 @@
 /**
  * @file math.c
- * @brief Implements the C89 binary64 mathematics library without a host CRT.
- * @details Ordinary finite results target about 12 significant decimal digits.
+ * @brief Implements the C89 and C99 real mathematics library without a CRT.
+ * @details Exact representation operations use IEEE binary32/binary64 bits;
+ * ordinary transcendental results target the tolerances in REQ-0035.
  */
 
 #include <errno.h>
+#include <fenv.h>
 #include <float.h>
+#include <limits.h>
 #include <math.h>
 
-/** @brief High-precision pi constant used for range reduction. */
 #define WCRT_PI 3.14159265358979323846
-/** @brief High-precision half-pi constant. */
 #define WCRT_HALF_PI 1.57079632679489661923
-/** @brief High-precision quarter-pi constant. */
 #define WCRT_QUARTER_PI 0.78539816339744830962
-/** @brief High-precision two-pi constant. */
 #define WCRT_TWO_PI 6.28318530717958647692
-/** @brief Natural logarithm of two. */
 #define WCRT_LN2 0.69314718055994530942
-/** @brief Natural logarithm of ten. */
 #define WCRT_LN10 2.30258509299404568402
+#define WCRT_LOG_SQRT_PI 0.57236494292470008707
+#define WCRT_TWO_OVER_SQRT_PI 1.12837916709551257390
+#define WCRT_SPLITTER 134217729.0
 
-/** @brief Binary64 representation used for exact integral splitting. */
 union wcrt_double_shape {
-    double value;              /**< Floating representation. */
-    struct {
-        unsigned long low;     /**< Low-order 32 bits. */
-        unsigned long high;    /**< High-order 32 bits. */
-    } words;                   /**< Little-endian Windows words. */
+    double value;
+    unsigned long long bits;
 };
 
-/** @brief Returns a signed zero with the sign of a supplied value. */
-static double wcrt_signed_zero(double value)
+union wcrt_float_shape {
+    float value;
+    unsigned int bits;
+};
+
+static double wcrt_infinity(void)
 {
-    return value * 0.0;
+    union wcrt_double_shape shape;
+    shape.bits = 0x7ff0000000000000ULL;
+    return shape.value;
 }
 
-/** @brief Tests whether a binary64 value is not a number. */
+static float wcrt_infinityf(void)
+{
+    union wcrt_float_shape shape;
+    shape.bits = 0x7f800000U;
+    return shape.value;
+}
+
+static double wcrt_quiet_nan(void)
+{
+    union wcrt_double_shape shape;
+    shape.bits = 0x7ff8000000000000ULL;
+    return shape.value;
+}
+
+static float wcrt_quiet_nanf(void)
+{
+    union wcrt_float_shape shape;
+    shape.bits = 0x7fc00000U;
+    return shape.value;
+}
+
+int __wcrt_fpclassify(double value)
+{
+    union wcrt_double_shape shape;
+    unsigned long long exponent;
+    unsigned long long fraction;
+
+    shape.value = value;
+    exponent = (shape.bits >> 52) & 0x7ffULL;
+    fraction = shape.bits & 0x000fffffffffffffULL;
+    if (exponent == 0x7ffULL) return fraction ? FP_NAN : FP_INFINITE;
+    if (exponent == 0ULL) return fraction ? FP_SUBNORMAL : FP_ZERO;
+    return FP_NORMAL;
+}
+
+int __wcrt_fpclassifyf(float value)
+{
+    union wcrt_float_shape shape;
+    unsigned int exponent;
+    unsigned int fraction;
+
+    shape.value = value;
+    exponent = (shape.bits >> 23) & 0xffU;
+    fraction = shape.bits & 0x007fffffU;
+    if (exponent == 0xffU) return fraction ? FP_NAN : FP_INFINITE;
+    if (exponent == 0U) return fraction ? FP_SUBNORMAL : FP_ZERO;
+    return FP_NORMAL;
+}
+
+int __wcrt_signbit(double value)
+{
+    union wcrt_double_shape shape;
+    shape.value = value;
+    return (int)(shape.bits >> 63);
+}
+
+int __wcrt_signbitf(float value)
+{
+    union wcrt_float_shape shape;
+    shape.value = value;
+    return (int)(shape.bits >> 31);
+}
+
 static int wcrt_is_nan(double value)
 {
-    return value != value;
+    return __wcrt_fpclassify(value) == FP_NAN;
 }
 
-/** @brief Reduces an angle to the interval centered on zero. */
-static double wcrt_reduce_angle(double value)
+static int wcrt_is_infinite(double value)
 {
-    double quotient;
-    double integral;
-
-    quotient = value / WCRT_TWO_PI;
-    if (quotient >= 0.0) {
-        integral = floor(quotient + 0.5);
-    } else {
-        integral = ceil(quotient - 0.5);
-    }
-    return value - integral * WCRT_TWO_PI;
+    return __wcrt_fpclassify(value) == FP_INFINITE;
 }
 
-/** @brief Evaluates the sine series on the reduced interval. */
-static double wcrt_sine_series(double value)
+static int wcrt_is_finite(double value)
 {
-    double term = value;
-    double sum = value;
-    double square = value * value;
-    int index;
-
-    for (index = 1; index < 14; ++index) {
-        term *= -square / ((2 * index) * (2 * index + 1));
-        sum += term;
-    }
-    return sum;
+    return __wcrt_fpclassify(value) >= FP_ZERO;
 }
 
-/** @brief Evaluates the cosine series on the reduced interval. */
-static double wcrt_cosine_series(double value)
+static int wcrt_is_nanf(float value)
 {
-    double term = 1.0;
-    double sum = 1.0;
-    double square = value * value;
-    int index;
-
-    for (index = 1; index < 14; ++index) {
-        term *= -square / ((2 * index - 1) * (2 * index));
-        sum += term;
-    }
-    return sum;
+    return __wcrt_fpclassifyf(value) == FP_NAN;
 }
 
-/** @brief Evaluates the arc-tangent series for small magnitudes. */
-static double wcrt_atan_series(double value)
-{
-    double square = value * value;
-    double term = value;
-    double sum = value;
-    int index;
+#define WCRT_ORDERED_HELPERS(suffix, type, nan_test) \
+int __wcrt_isgreater##suffix(type lhs, type rhs) \
+{ return !(nan_test(lhs) || nan_test(rhs)) && lhs > rhs; } \
+int __wcrt_isgreaterequal##suffix(type lhs, type rhs) \
+{ return !(nan_test(lhs) || nan_test(rhs)) && lhs >= rhs; } \
+int __wcrt_isless##suffix(type lhs, type rhs) \
+{ return !(nan_test(lhs) || nan_test(rhs)) && lhs < rhs; } \
+int __wcrt_islessequal##suffix(type lhs, type rhs) \
+{ return !(nan_test(lhs) || nan_test(rhs)) && lhs <= rhs; } \
+int __wcrt_islessgreater##suffix(type lhs, type rhs) \
+{ return !(nan_test(lhs) || nan_test(rhs)) && (lhs < rhs || lhs > rhs); } \
+int __wcrt_isunordered##suffix(type lhs, type rhs) \
+{ return nan_test(lhs) || nan_test(rhs); }
 
-    for (index = 1; index < 28; ++index) {
-        term *= -square;
-        sum += term / (2 * index + 1);
-    }
-    return sum;
-}
+WCRT_ORDERED_HELPERS(f, float, wcrt_is_nanf)
+WCRT_ORDERED_HELPERS(, double, wcrt_is_nan)
 
-/** @brief Returns a value with the sign bit of a second value. */
 double copysign(double value, double sign)
 {
     union wcrt_double_shape source;
     union wcrt_double_shape sign_source;
-
-    source.value = value;
-    sign_source.value = sign;
-    source.words.high = (source.words.high & 0x7fffffffUL) |
-        (sign_source.words.high & 0x80000000UL);
-    return source.value;
-}
-
-/** @brief Implements the public fabs contract. */
-double fabs(double value)
-{
-    return value < 0.0 ? -value : value;
-}
-
-/** @brief Implements the public copysign contract for float values. */
-float copysignf(float value, float sign)
-{
-    union {
-        float value;
-        unsigned int bits;
-    } source, sign_source;
-
-    source.value = value;
-    sign_source.value = sign;
-    source.bits = (source.bits & 0x7fffffffU) | (sign_source.bits & 0x80000000U);
-    return source.value;
-}
-
-/** @brief Implements the public copysign contract for long double values. */
-long double copysignl(long double value, long double sign)
-{
-    union {
-        long double value;
-        unsigned long long bits;
-    } source, sign_source;
-
     source.value = value;
     sign_source.value = sign;
     source.bits = (source.bits & 0x7fffffffffffffffULL) |
@@ -150,200 +149,615 @@ long double copysignl(long double value, long double sign)
     return source.value;
 }
 
-/** @brief Implements the public fmax contract. */
-double fmax(double lhs, double rhs)
+float copysignf(float value, float sign)
 {
-    if (lhs > rhs) return lhs;
-    if (rhs > lhs) return rhs;
-    if (lhs != lhs) return rhs;
-    if (rhs != rhs) return lhs;
-    return lhs;
+    union wcrt_float_shape source;
+    union wcrt_float_shape sign_source;
+    source.value = value;
+    sign_source.value = sign;
+    source.bits = (source.bits & 0x7fffffffU) |
+        (sign_source.bits & 0x80000000U);
+    return source.value;
 }
 
-/** @brief Implements the public fmin contract. */
-double fmin(double lhs, double rhs)
+long double copysignl(long double value, long double sign)
 {
-    if (lhs < rhs) return lhs;
-    if (rhs < lhs) return rhs;
-    if (lhs != lhs) return rhs;
-    if (rhs != rhs) return lhs;
-    return lhs;
+    return (long double)copysign((double)value, (double)sign);
 }
 
-/** @brief Implements the public fdim contract. */
-double fdim(double lhs, double rhs)
+double fabs(double value)
 {
-    if (lhs > rhs) {
-        return lhs - rhs;
+    union wcrt_double_shape shape;
+    shape.value = value;
+    shape.bits &= 0x7fffffffffffffffULL;
+    return shape.value;
+}
+
+float fabsf(float value)
+{
+    union wcrt_float_shape shape;
+    shape.value = value;
+    shape.bits &= 0x7fffffffU;
+    return shape.value;
+}
+
+long double fabsl(long double value)
+{
+    return (long double)fabs((double)value);
+}
+
+double nan(const char *tag)
+{
+    (void)tag;
+    return wcrt_quiet_nan();
+}
+
+float nanf(const char *tag)
+{
+    (void)tag;
+    return wcrt_quiet_nanf();
+}
+
+long double nanl(const char *tag)
+{
+    (void)tag;
+    return (long double)wcrt_quiet_nan();
+}
+
+double nextafter(double value, double direction)
+{
+    union wcrt_double_shape shape;
+    union wcrt_double_shape target;
+    int result_class;
+
+    if (wcrt_is_nan(value) || wcrt_is_nan(direction)) return value + direction;
+    if (value == direction) return direction;
+    shape.value = value;
+    target.value = direction;
+    if ((shape.bits & 0x7fffffffffffffffULL) == 0ULL) {
+        shape.bits = (target.bits & 0x8000000000000000ULL) | 1ULL;
+    } else if ((value > 0.0) == (value < direction)) {
+        ++shape.bits;
+    } else {
+        --shape.bits;
     }
-    return 0.0;
+    result_class = __wcrt_fpclassify(shape.value);
+    if (result_class == FP_INFINITE || result_class == FP_SUBNORMAL ||
+        result_class == FP_ZERO) errno = ERANGE;
+    return shape.value;
 }
 
-/** @brief Implements the public fma contract. */
-double fma(double lhs, double mid, double rhs)
+float nextafterf(float value, float direction)
 {
-    return lhs * mid + rhs;
-}
+    union wcrt_float_shape shape;
+    union wcrt_float_shape target;
+    int result_class;
 
-/** @brief Implements the public nextafter contract. */
-double nextafter(double value, double target)
-{
-    double step;
-
-    if (value == target) {
-        return target;
+    if (wcrt_is_nanf(value) || wcrt_is_nanf(direction)) {
+        return value + direction;
     }
-    step = fabs(value - target);
-    if (step == 0.0) {
-        return value;
+    if (value == direction) return direction;
+    shape.value = value;
+    target.value = direction;
+    if ((shape.bits & 0x7fffffffU) == 0U) {
+        shape.bits = (target.bits & 0x80000000U) | 1U;
+    } else if ((value > 0.0F) == (value < direction)) {
+        ++shape.bits;
+    } else {
+        --shape.bits;
     }
-    step = DBL_EPSILON * fabs(value);
-    if (step == 0.0) {
-        step = DBL_MIN;
-    }
-    return value < target ? value + step : value - step;
+    result_class = __wcrt_fpclassifyf(shape.value);
+    if (result_class == FP_INFINITE || result_class == FP_SUBNORMAL ||
+        result_class == FP_ZERO) errno = ERANGE;
+    return shape.value;
 }
 
-/** @brief Generates a quiet NaN. */
-double nan(const char *text)
+long double nextafterl(long double value, long double direction)
 {
-    (void)text;
-    return 0.0 / 0.0;
+    return (long double)nextafter((double)value, (double)direction);
 }
 
-/** @brief Generates a quiet NaN for float values. */
-float nanf(const char *text)
+double nexttoward(double value, long double direction)
 {
-    (void)text;
-    return 0.0F / 0.0F;
+    return nextafter(value, (double)direction);
 }
 
-/** @brief Generates a quiet NaN for long double values. */
-long double nanl(const char *text)
+float nexttowardf(float value, long double direction)
 {
-    (void)text;
-    return 0.0L / 0.0L;
+    double wide_value = (double)value;
+    double wide_direction = (double)direction;
+    if (wide_value == wide_direction) return (float)direction;
+    return nextafterf(value, wide_value < wide_direction ?
+        wcrt_infinityf() : -wcrt_infinityf());
 }
 
-/** @brief Implements the public modf contract. */
+long double nexttowardl(long double value, long double direction)
+{
+    return nextafterl(value, direction);
+}
+
 double modf(double value, double *integer_part)
 {
     union wcrt_double_shape shape;
+    union wcrt_double_shape integral;
+    unsigned long long mask;
     int exponent;
-    unsigned long mask;
 
     shape.value = value;
-    exponent = (int)((shape.words.high >> 20) & 0x7ffUL) - 1023;
+    exponent = (int)((shape.bits >> 52) & 0x7ffULL) - 1023;
+    if (((shape.bits >> 52) & 0x7ffULL) == 0x7ffULL) {
+        *integer_part = value;
+        return wcrt_is_nan(value) ? value : copysign(0.0, value);
+    }
     if (exponent < 0) {
-        *integer_part = wcrt_signed_zero(value);
+        *integer_part = copysign(0.0, value);
         return value;
     }
     if (exponent >= 52) {
         *integer_part = value;
-        return wcrt_signed_zero(value);
+        return copysign(0.0, value);
     }
-    if (exponent < 20) {
-        mask = (1UL << (20 - exponent)) - 1UL;
-        shape.words.high &= ~mask;
-        shape.words.low = 0UL;
-    } else if (exponent == 20) {
-        shape.words.low = 0UL;
-    } else {
-        mask = (1UL << (52 - exponent)) - 1UL;
-        shape.words.low &= ~mask;
+    mask = (1ULL << (52 - exponent)) - 1ULL;
+    if ((shape.bits & mask) == 0ULL) {
+        *integer_part = value;
+        return copysign(0.0, value);
     }
-    *integer_part = shape.value;
-    return value - shape.value;
+    integral.bits = shape.bits & ~mask;
+    *integer_part = integral.value;
+    return value - integral.value;
 }
 
-/** @brief Implements the public floor contract. */
+float modff(float value, float *integer_part)
+{
+    union wcrt_float_shape shape;
+    union wcrt_float_shape integral;
+    unsigned int mask;
+    int exponent;
+
+    shape.value = value;
+    exponent = (int)((shape.bits >> 23) & 0xffU) - 127;
+    if (((shape.bits >> 23) & 0xffU) == 0xffU) {
+        *integer_part = value;
+        return wcrt_is_nanf(value) ? value : copysignf(0.0F, value);
+    }
+    if (exponent < 0) {
+        *integer_part = copysignf(0.0F, value);
+        return value;
+    }
+    if (exponent >= 23) {
+        *integer_part = value;
+        return copysignf(0.0F, value);
+    }
+    mask = (1U << (23 - exponent)) - 1U;
+    if ((shape.bits & mask) == 0U) {
+        *integer_part = value;
+        return copysignf(0.0F, value);
+    }
+    integral.bits = shape.bits & ~mask;
+    *integer_part = integral.value;
+    return value - integral.value;
+}
+
+long double modfl(long double value, long double *integer_part)
+{
+    double integral;
+    double fraction = modf((double)value, &integral);
+    *integer_part = (long double)integral;
+    return (long double)fraction;
+}
+
 double floor(double value)
 {
-    double integer_part;
-    double fraction = modf(value, &integer_part);
-
-    return fraction < 0.0 ? integer_part - 1.0 : integer_part;
+    double integral;
+    double fraction;
+    if (!wcrt_is_finite(value) || value == 0.0) return value;
+    fraction = modf(value, &integral);
+    return fraction < 0.0 ? integral - 1.0 : integral;
 }
 
-/** @brief Implements the public ceil contract. */
 double ceil(double value)
 {
-    double integer_part;
-    double fraction = modf(value, &integer_part);
-
-    return fraction > 0.0 ? integer_part + 1.0 : integer_part;
+    double integral;
+    double fraction;
+    if (!wcrt_is_finite(value) || value == 0.0) return value;
+    fraction = modf(value, &integral);
+    return fraction > 0.0 ? integral + 1.0 : integral;
 }
 
-/** @brief Implements the public frexp contract. */
+double trunc(double value)
+{
+    double integral;
+    if (!wcrt_is_finite(value) || value == 0.0) return value;
+    (void)modf(value, &integral);
+    return integral;
+}
+
+double round(double value)
+{
+    double integral;
+    double fraction;
+    if (!wcrt_is_finite(value) || value == 0.0) return value;
+    fraction = modf(value, &integral);
+    if (fraction >= 0.5) return integral + 1.0;
+    if (fraction <= -0.5) return integral - 1.0;
+    return integral;
+}
+
+static double wcrt_round_even(double value)
+{
+    double integral;
+    double fraction;
+    double magnitude;
+
+    if (!wcrt_is_finite(value) || value == 0.0) return value;
+    fraction = modf(value, &integral);
+    magnitude = fabs(fraction);
+    if (magnitude > 0.5 ||
+        (magnitude == 0.5 && fmod(fabs(integral), 2.0) == 1.0)) {
+        integral += fraction < 0.0 ? -1.0 : 1.0;
+    }
+    return integral;
+}
+
+static double wcrt_round_mode(double value)
+{
+    int mode = fegetround();
+    if (mode == FE_DOWNWARD) return floor(value);
+    if (mode == FE_UPWARD) return ceil(value);
+    if (mode == FE_TOWARDZERO) return trunc(value);
+    return wcrt_round_even(value);
+}
+
+double rint(double value)
+{
+    double result = wcrt_round_mode(value);
+    if (wcrt_is_finite(value) && result != value) {
+        (void)feraiseexcept(FE_INEXACT);
+    }
+    return result;
+}
+
+double nearbyint(double value)
+{
+    fexcept_t inexact;
+    double result;
+    (void)fegetexceptflag(&inexact, FE_INEXACT);
+    result = wcrt_round_mode(value);
+    (void)fesetexceptflag(&inexact, FE_INEXACT);
+    return result;
+}
+
+static long wcrt_to_long(double value, int use_environment)
+{
+    double rounded = use_environment ? rint(value) : round(value);
+    if (wcrt_is_nan(rounded) || rounded > (double)LONG_MAX ||
+        rounded < (double)LONG_MIN) {
+        errno = EDOM;
+        return rounded < 0.0 ? LONG_MIN : LONG_MAX;
+    }
+    return (long)rounded;
+}
+
+static long long wcrt_to_long_long(double value, int use_environment)
+{
+    double rounded = use_environment ? rint(value) : round(value);
+    if (wcrt_is_nan(rounded) || rounded >= 9223372036854775808.0 ||
+        rounded < -9223372036854775808.0) {
+        errno = EDOM;
+        return rounded < 0.0 ? LLONG_MIN : LLONG_MAX;
+    }
+    return (long long)rounded;
+}
+
+long lrint(double value) { return wcrt_to_long(value, 1); }
+long long llrint(double value) { return wcrt_to_long_long(value, 1); }
+long lround(double value) { return wcrt_to_long(value, 0); }
+long long llround(double value) { return wcrt_to_long_long(value, 0); }
+
 double frexp(double value, int *exponent)
 {
-    double magnitude = fabs(value);
-    int result_exponent = 0;
+    union wcrt_double_shape shape;
+    unsigned int raw_exponent;
 
-    if (value == 0.0 || wcrt_is_nan(value)) {
+    shape.value = value;
+    raw_exponent = (unsigned int)((shape.bits >> 52) & 0x7ffULL);
+    if (raw_exponent == 0U) {
+        if ((shape.bits & 0x7fffffffffffffffULL) == 0ULL) {
+            *exponent = 0;
+            return value;
+        }
+        value *= 18014398509481984.0;
+        shape.value = value;
+        raw_exponent = (unsigned int)((shape.bits >> 52) & 0x7ffULL);
+        *exponent = (int)raw_exponent - 1022 - 54;
+    } else if (raw_exponent == 0x7ffU) {
         *exponent = 0;
         return value;
+    } else {
+        *exponent = (int)raw_exponent - 1022;
     }
-    while (magnitude >= 1.0) {
-        magnitude *= 0.5;
-        ++result_exponent;
-    }
-    while (magnitude < 0.5) {
-        magnitude *= 2.0;
-        --result_exponent;
-    }
-    *exponent = result_exponent;
-    return value < 0.0 ? -magnitude : magnitude;
+    shape.bits = (shape.bits & 0x800fffffffffffffULL) |
+        (1022ULL << 52);
+    return shape.value;
 }
 
-/** @brief Implements the public ldexp contract. */
+float frexpf(float value, int *exponent)
+{
+    union wcrt_float_shape shape;
+    unsigned int raw_exponent;
+
+    shape.value = value;
+    raw_exponent = (shape.bits >> 23) & 0xffU;
+    if (raw_exponent == 0U) {
+        if ((shape.bits & 0x7fffffffU) == 0U) {
+            *exponent = 0;
+            return value;
+        }
+        value *= 33554432.0F;
+        shape.value = value;
+        raw_exponent = (shape.bits >> 23) & 0xffU;
+        *exponent = (int)raw_exponent - 126 - 25;
+    } else if (raw_exponent == 0xffU) {
+        *exponent = 0;
+        return value;
+    } else {
+        *exponent = (int)raw_exponent - 126;
+    }
+    shape.bits = (shape.bits & 0x807fffffU) | (126U << 23);
+    return shape.value;
+}
+
+long double frexpl(long double value, int *exponent)
+{
+    return (long double)frexp((double)value, exponent);
+}
+
+static double wcrt_scalbn_core(double value, long exponent)
+{
+    double result = value;
+    double factor;
+    union wcrt_double_shape shape;
+    int result_class;
+
+    if (!wcrt_is_finite(value) || value == 0.0) return value;
+    if (exponent > 4096L) {
+        errno = ERANGE;
+        return copysign(HUGE_VAL, value);
+    }
+    if (exponent < -4096L) {
+        errno = ERANGE;
+        return copysign(0.0, value);
+    }
+    while (exponent > 512L) {
+        result *= 1.3407807929942597e+154;
+        exponent -= 512L;
+        if (wcrt_is_infinite(result)) {
+            errno = ERANGE;
+            return copysign(HUGE_VAL, value);
+        }
+    }
+    while (exponent < -512L) {
+        result *= 7.4583407312002070e-155;
+        exponent += 512L;
+        if (result == 0.0) {
+            errno = ERANGE;
+            return copysign(0.0, value);
+        }
+    }
+    shape.bits = ((unsigned long long)(exponent + 1023L)) << 52;
+    factor = shape.value;
+    result *= factor;
+    result_class = __wcrt_fpclassify(result);
+    if (result_class == FP_INFINITE) {
+        errno = ERANGE;
+        return copysign(HUGE_VAL, value);
+    }
+    if (result_class == FP_SUBNORMAL || result_class == FP_ZERO) errno = ERANGE;
+    return result;
+}
+
 double ldexp(double value, int exponent)
 {
-    if (value == 0.0 || wcrt_is_nan(value)) {
-        return value;
-    }
-    while (exponent > 0) {
-        if (fabs(value) > DBL_MAX / 2.0) {
-            errno = ERANGE;
-            return value < 0.0 ? -HUGE_VAL : HUGE_VAL;
-        }
-        value *= 2.0;
-        --exponent;
-    }
-    while (exponent < 0) {
-        if (fabs(value) < DBL_MIN * 2.0) {
-            errno = ERANGE;
-            return wcrt_signed_zero(value);
-        }
-        value *= 0.5;
-        ++exponent;
-    }
-    return value;
+    return wcrt_scalbn_core(value, (long)exponent);
 }
 
-/** @brief Implements the public sqrt contract. */
+double scalbn(double value, int exponent)
+{
+    return wcrt_scalbn_core(value, (long)exponent);
+}
+
+double scalbln(double value, long exponent)
+{
+    return wcrt_scalbn_core(value, exponent);
+}
+
+int ilogb(double value)
+{
+    int exponent;
+    int classification = __wcrt_fpclassify(value);
+    if (classification == FP_ZERO) {
+        errno = EDOM;
+        return FP_ILOGB0;
+    }
+    if (classification == FP_NAN) {
+        errno = EDOM;
+        return FP_ILOGBNAN;
+    }
+    if (classification == FP_INFINITE) return INT_MAX;
+    (void)frexp(value, &exponent);
+    return exponent - 1;
+}
+
+double logb(double value)
+{
+    int classification = __wcrt_fpclassify(value);
+    if (classification == FP_ZERO) {
+        errno = ERANGE;
+        return -wcrt_infinity();
+    }
+    if (classification == FP_NAN) return value;
+    if (classification == FP_INFINITE) return wcrt_infinity();
+    return (double)ilogb(value);
+}
+
+static double wcrt_reduce_angle(double value)
+{
+    double quotient = value / WCRT_TWO_PI;
+    double integral = quotient >= 0.0 ? floor(quotient + 0.5) :
+        ceil(quotient - 0.5);
+    return value - integral * WCRT_TWO_PI;
+}
+
+static double wcrt_sine_series(double value)
+{
+    double term = value;
+    double sum = value;
+    double square = value * value;
+    int index;
+    for (index = 1; index < 18; ++index) {
+        term *= -square / ((2 * index) * (2 * index + 1));
+        sum += term;
+    }
+    return sum;
+}
+
+static double wcrt_cosine_series(double value)
+{
+    double term = 1.0;
+    double sum = 1.0;
+    double square = value * value;
+    int index;
+    for (index = 1; index < 18; ++index) {
+        term *= -square / ((2 * index - 1) * (2 * index));
+        sum += term;
+    }
+    return sum;
+}
+
+static double wcrt_atan_series(double value)
+{
+    double square = value * value;
+    double term = value;
+    double sum = value;
+    int index;
+    for (index = 1; index < 36; ++index) {
+        term *= -square;
+        sum += term / (2 * index + 1);
+    }
+    return sum;
+}
+
+double sin(double value)
+{
+    if (wcrt_is_nan(value) || value == 0.0) return value;
+    if (wcrt_is_infinite(value)) {
+        errno = EDOM;
+        return wcrt_quiet_nan();
+    }
+    return wcrt_sine_series(wcrt_reduce_angle(value));
+}
+
+double cos(double value)
+{
+    if (wcrt_is_nan(value)) return value;
+    if (wcrt_is_infinite(value)) {
+        errno = EDOM;
+        return wcrt_quiet_nan();
+    }
+    return wcrt_cosine_series(wcrt_reduce_angle(value));
+}
+
+double tan(double value)
+{
+    double cosine;
+    if (value == 0.0) return value;
+    cosine = cos(value);
+    return sin(value) / cosine;
+}
+
+double atan(double value)
+{
+    double magnitude;
+    double result;
+    if (wcrt_is_nan(value) || value == 0.0) return value;
+    if (wcrt_is_infinite(value)) return copysign(WCRT_HALF_PI, value);
+    magnitude = fabs(value);
+    if (magnitude > 1.0) {
+        result = WCRT_HALF_PI - wcrt_atan_series(1.0 / magnitude);
+    } else if (magnitude > 0.4142135623730950) {
+        result = WCRT_QUARTER_PI +
+            wcrt_atan_series((magnitude - 1.0) / (magnitude + 1.0));
+    } else {
+        result = wcrt_atan_series(magnitude);
+    }
+    return copysign(result, value);
+}
+
+double atan2(double y, double x)
+{
+    if (wcrt_is_nan(x) || wcrt_is_nan(y)) return x + y;
+    if (x == 0.0 && y == 0.0) {
+        errno = EDOM;
+        return copysign(0.0, y);
+    }
+    if (wcrt_is_infinite(y) && wcrt_is_infinite(x)) {
+        if (x > 0.0) return copysign(WCRT_QUARTER_PI, y);
+        return copysign(3.0 * WCRT_QUARTER_PI, y);
+    }
+    if (wcrt_is_infinite(y)) return copysign(WCRT_HALF_PI, y);
+    if (wcrt_is_infinite(x)) {
+        if (x > 0.0) return copysign(0.0, y);
+        return copysign(WCRT_PI, y);
+    }
+    if (x > 0.0) return atan(y / x);
+    if (x < 0.0) return y >= 0.0 ? atan(y / x) + WCRT_PI :
+        atan(y / x) - WCRT_PI;
+    return copysign(WCRT_HALF_PI, y);
+}
+
 double sqrt(double value)
 {
     double estimate;
     int exponent;
     int index;
 
+    if (wcrt_is_nan(value) || value == 0.0 || value == wcrt_infinity())
+        return value;
     if (value < 0.0) {
         errno = EDOM;
         return 0.0;
     }
-    if (value == 0.0 || wcrt_is_nan(value)) {
-        return value;
-    }
-    frexp(value, &exponent);
-    estimate = ldexp(1.0, exponent / 2);
-    for (index = 0; index < 12; ++index) {
+    (void)frexp(value, &exponent);
+    estimate = wcrt_scalbn_core(1.0, (long)(exponent / 2));
+    if (estimate == 0.0) estimate = 1.0;
+    for (index = 0; index < 16; ++index)
         estimate = 0.5 * (estimate + value / estimate);
-    }
     return estimate;
 }
 
-/** @brief Implements the public exp contract. */
+double asin(double value)
+{
+    if (wcrt_is_nan(value) || value == 0.0) return value;
+    if (fabs(value) > 1.0) {
+        errno = EDOM;
+        return 0.0;
+    }
+    if (fabs(value) == 1.0) return copysign(WCRT_HALF_PI, value);
+    return atan2(value, sqrt((1.0 - value) * (1.0 + value)));
+}
+
+double acos(double value)
+{
+    if (wcrt_is_nan(value)) return value;
+    if (fabs(value) > 1.0) {
+        errno = EDOM;
+        return 0.0;
+    }
+    if (value == 1.0) return 0.0;
+    if (value == -1.0) return WCRT_PI;
+    return WCRT_HALF_PI - asin(value);
+}
+
 double exp(double value)
 {
     double reduced;
@@ -352,24 +766,48 @@ double exp(double value)
     int power;
     int index;
 
+    if (wcrt_is_nan(value)) return value;
+    if (value == wcrt_infinity()) return value;
+    if (value == -wcrt_infinity()) return 0.0;
     if (value > 709.782712893384) {
         errno = ERANGE;
         return HUGE_VAL;
     }
-    if (value < -708.3964185322641) {
+    if (value < -745.1332191019411) {
         errno = ERANGE;
         return 0.0;
     }
     power = (int)(value / WCRT_LN2 + (value >= 0.0 ? 0.5 : -0.5));
     reduced = value - power * WCRT_LN2;
-    for (index = 1; index < 24; ++index) {
+    for (index = 1; index < 28; ++index) {
         term *= reduced / index;
         sum += term;
     }
-    return ldexp(sum, power);
+    return wcrt_scalbn_core(sum, (long)power);
 }
 
-/** @brief Implements the public log contract. */
+double exp2(double value)
+{
+    if (wcrt_is_finite(value) && value >= -1074.0 && value <= 1023.0 &&
+        trunc(value) == value) return wcrt_scalbn_core(1.0, (long)value);
+    return exp(value * WCRT_LN2);
+}
+
+double expm1(double value)
+{
+    double term;
+    double sum;
+    int index;
+    if (fabs(value) > 0.5 || !wcrt_is_finite(value)) return exp(value) - 1.0;
+    term = value;
+    sum = value;
+    for (index = 2; index < 32; ++index) {
+        term *= value / index;
+        sum += term;
+    }
+    return sum;
+}
+
 double log(double value)
 {
     double fraction;
@@ -380,6 +818,8 @@ double log(double value)
     int exponent;
     int index;
 
+    if (wcrt_is_nan(value)) return value;
+    if (value == wcrt_infinity()) return value;
     if (value <= 0.0) {
         errno = EDOM;
         return -HUGE_VAL;
@@ -390,142 +830,66 @@ double log(double value)
     square = ratio * ratio;
     term = ratio;
     sum = ratio;
-    for (index = 1; index < 30; ++index) {
+    for (index = 1; index < 36; ++index) {
         term *= square;
         sum += term / (2 * index + 1);
     }
     return 2.0 * sum + exponent * WCRT_LN2;
 }
 
-/** @brief Implements the public log10 contract. */
 double log10(double value)
 {
     return log(value) / WCRT_LN10;
 }
 
-/** @brief Implements the public sin contract. */
-double sin(double value)
+double log2(double value)
 {
-    return wcrt_sine_series(wcrt_reduce_angle(value));
+    return log(value) / WCRT_LN2;
 }
 
-/** @brief Implements the public cos contract. */
-double cos(double value)
+double log1p(double value)
 {
-    return wcrt_cosine_series(wcrt_reduce_angle(value));
-}
-
-/** @brief Implements the public tan contract. */
-double tan(double value)
-{
-    return sin(value) / cos(value);
-}
-
-/** @brief Implements the public atan contract. */
-double atan(double value)
-{
-    double sign = value < 0.0 ? -1.0 : 1.0;
-    double magnitude = fabs(value);
-    double result;
-
-    if (magnitude > 1.0) {
-        result = WCRT_HALF_PI - wcrt_atan_series(1.0 / magnitude);
-    } else if (magnitude > 0.4142135623730950) {
-        result = WCRT_QUARTER_PI +
-            wcrt_atan_series((magnitude - 1.0) / (magnitude + 1.0));
-    } else {
-        result = wcrt_atan_series(magnitude);
-    }
-    return sign * result;
-}
-
-/** @brief Implements the public atan2 contract. */
-double atan2(double y, double x)
-{
-    if (x > 0.0) return atan(y / x);
-    if (x < 0.0 && y >= 0.0) return atan(y / x) + WCRT_PI;
-    if (x < 0.0 && y < 0.0) return atan(y / x) - WCRT_PI;
-    if (x == 0.0 && y > 0.0) return WCRT_HALF_PI;
-    if (x == 0.0 && y < 0.0) return -WCRT_HALF_PI;
-    errno = EDOM;
-    return 0.0;
-}
-
-/** @brief Implements the public asin contract. */
-double asin(double value)
-{
-    if (fabs(value) > 1.0) {
+    double term;
+    double sum;
+    int index;
+    if (value <= -1.0) {
         errno = EDOM;
-        return 0.0;
+        return value == -1.0 ? -HUGE_VAL : wcrt_quiet_nan();
     }
-    return atan2(value, sqrt((1.0 - value) * (1.0 + value)));
-}
-
-/** @brief Implements the public acos contract. */
-double acos(double value)
-{
-    if (fabs(value) > 1.0) {
-        errno = EDOM;
-        return 0.0;
+    if (fabs(value) > 0.25) return log(1.0 + value);
+    term = value;
+    sum = value;
+    for (index = 2; index < 80; ++index) {
+        term *= -value;
+        sum += term / index;
     }
-    return WCRT_HALF_PI - asin(value);
+    return sum;
 }
 
-/** @brief Implements the public sinh contract. */
-double sinh(double value)
-{
-    double positive = exp(value);
-    double negative = exp(-value);
-
-    return 0.5 * (positive - negative);
-}
-
-/** @brief Implements the public cosh contract. */
-double cosh(double value)
-{
-    double positive = exp(value);
-    double negative = exp(-value);
-
-    return 0.5 * (positive + negative);
-}
-
-/** @brief Implements the public tanh contract. */
-double tanh(double value)
-{
-    if (value > 20.0) return 1.0;
-    if (value < -20.0) return -1.0;
-    return sinh(value) / cosh(value);
-}
-
-/** @brief Implements the public fmod contract. */
-double fmod(double numerator, double denominator)
-{
-    double integral;
-    double quotient;
-
-    if (denominator == 0.0) {
-        errno = EDOM;
-        return 0.0;
-    }
-    quotient = numerator / denominator;
-    modf(quotient, &integral);
-    return numerator - integral * denominator;
-}
-
-/** @brief Implements the public pow contract. */
 double pow(double base, double power)
 {
     double integral;
     double result;
     int negative_result = 0;
 
-    if (power == 0.0) return 1.0;
+    if (power == 0.0 || base == 1.0) return 1.0;
+    if (wcrt_is_nan(base) || wcrt_is_nan(power)) return base + power;
+    if (wcrt_is_infinite(power)) {
+        double magnitude = fabs(base);
+        if (magnitude == 1.0) return 1.0;
+        if ((magnitude > 1.0) == (power > 0.0)) return wcrt_infinity();
+        return 0.0;
+    }
     if (base == 0.0) {
         if (power < 0.0) {
             errno = EDOM;
-            return HUGE_VAL;
+            return copysign(HUGE_VAL,
+                __wcrt_signbit(base) && fmod(fabs(power), 2.0) == 1.0 ?
+                -1.0 : 1.0);
         }
-        return 0.0;
+        return copysign(0.0,
+            __wcrt_signbit(base) && fmod(fabs(power), 2.0) == 1.0 ?
+            -1.0 : 1.0);
     }
     if (base < 0.0) {
         if (modf(power, &integral) != 0.0) {
@@ -537,4 +901,548 @@ double pow(double base, double power)
     }
     result = exp(power * log(base));
     return negative_result ? -result : result;
+}
+
+double sinh(double value)
+{
+    double magnitude;
+    double positive;
+    double negative;
+    if (wcrt_is_nan(value) || wcrt_is_infinite(value) || value == 0.0)
+        return value;
+    magnitude = fabs(value);
+    positive = exp(magnitude);
+    negative = 1.0 / positive;
+    return copysign(0.5 * (positive - negative), value);
+}
+
+double cosh(double value)
+{
+    double magnitude;
+    double positive;
+    if (wcrt_is_nan(value)) return value;
+    if (wcrt_is_infinite(value)) return wcrt_infinity();
+    magnitude = fabs(value);
+    positive = exp(magnitude);
+    return 0.5 * (positive + 1.0 / positive);
+}
+
+double tanh(double value)
+{
+    double twice;
+    if (wcrt_is_nan(value) || value == 0.0) return value;
+    if (value > 20.0) return 1.0;
+    if (value < -20.0) return -1.0;
+    twice = expm1(2.0 * fabs(value));
+    return copysign(twice / (twice + 2.0), value);
+}
+
+double hypot(double lhs, double rhs)
+{
+    double large = fabs(lhs);
+    double small = fabs(rhs);
+    double ratio;
+    if (wcrt_is_infinite(large) || wcrt_is_infinite(small))
+        return wcrt_infinity();
+    if (wcrt_is_nan(large) || wcrt_is_nan(small)) return large + small;
+    if (small > large) {
+        double swap = large;
+        large = small;
+        small = swap;
+    }
+    if (large == 0.0) return 0.0;
+    ratio = small / large;
+    return large * sqrt(1.0 + ratio * ratio);
+}
+
+double acosh(double value)
+{
+    if (wcrt_is_nan(value)) return value;
+    if (value < 1.0) {
+        errno = EDOM;
+        return wcrt_quiet_nan();
+    }
+    if (value == 1.0 || wcrt_is_infinite(value)) return value - 1.0;
+    if (value > 1.0e154) return log(value) + WCRT_LN2;
+    return log(value + sqrt(value - 1.0) * sqrt(value + 1.0));
+}
+
+double asinh(double value)
+{
+    double magnitude;
+    double result;
+    if (wcrt_is_nan(value) || wcrt_is_infinite(value) || value == 0.0)
+        return value;
+    magnitude = fabs(value);
+    result = magnitude > 1.0e154 ? log(magnitude) + WCRT_LN2 :
+        log(magnitude + hypot(magnitude, 1.0));
+    return copysign(result, value);
+}
+
+double atanh(double value)
+{
+    double magnitude = fabs(value);
+    if (wcrt_is_nan(value) || value == 0.0) return value;
+    if (magnitude > 1.0) {
+        errno = EDOM;
+        return wcrt_quiet_nan();
+    }
+    if (magnitude == 1.0) {
+        errno = ERANGE;
+        return copysign(HUGE_VAL, value);
+    }
+    return 0.5 * log1p(2.0 * value / (1.0 - value));
+}
+
+double cbrt(double value)
+{
+    double magnitude;
+    double result;
+    int index;
+    if (!wcrt_is_finite(value) || value == 0.0) return value;
+    magnitude = fabs(value);
+    result = exp(log(magnitude) / 3.0);
+    for (index = 0; index < 5; ++index)
+        result = (2.0 * result + magnitude / (result * result)) / 3.0;
+    return copysign(result, value);
+}
+
+double fmod(double numerator, double denominator)
+{
+    union wcrt_double_shape dividend;
+    union wcrt_double_shape divisor;
+    unsigned long long sign;
+    unsigned long long difference;
+    int dividend_exponent;
+    int divisor_exponent;
+    if (wcrt_is_nan(numerator) || wcrt_is_nan(denominator))
+        return numerator + denominator;
+    if (denominator == 0.0 || wcrt_is_infinite(numerator)) {
+        errno = EDOM;
+        return 0.0;
+    }
+    if (wcrt_is_infinite(denominator)) return numerator;
+    dividend.value = numerator;
+    divisor.value = denominator;
+    sign = dividend.bits & 0x8000000000000000ULL;
+    dividend.bits &= 0x7fffffffffffffffULL;
+    divisor.bits &= 0x7fffffffffffffffULL;
+    if (dividend.bits < divisor.bits) return numerator;
+    if (dividend.bits == divisor.bits) return copysign(0.0, numerator);
+
+    dividend_exponent = (int)(dividend.bits >> 52);
+    divisor_exponent = (int)(divisor.bits >> 52);
+    if (dividend_exponent == 0) {
+        while ((dividend.bits >> 52) == 0ULL) {
+            dividend.bits <<= 1;
+            --dividend_exponent;
+        }
+        ++dividend_exponent;
+    } else {
+        dividend.bits &= 0x000fffffffffffffULL;
+        dividend.bits |= 0x0010000000000000ULL;
+    }
+    if (divisor_exponent == 0) {
+        while ((divisor.bits >> 52) == 0ULL) {
+            divisor.bits <<= 1;
+            --divisor_exponent;
+        }
+        ++divisor_exponent;
+    } else {
+        divisor.bits &= 0x000fffffffffffffULL;
+        divisor.bits |= 0x0010000000000000ULL;
+    }
+    while (dividend_exponent > divisor_exponent) {
+        difference = dividend.bits - divisor.bits;
+        if ((difference >> 63) == 0ULL) {
+            if (difference == 0ULL) return copysign(0.0, numerator);
+            dividend.bits = difference;
+        }
+        dividend.bits <<= 1;
+        --dividend_exponent;
+    }
+    difference = dividend.bits - divisor.bits;
+    if ((difference >> 63) == 0ULL) {
+        if (difference == 0ULL) return copysign(0.0, numerator);
+        dividend.bits = difference;
+    }
+    while ((dividend.bits >> 52) == 0ULL) {
+        dividend.bits <<= 1;
+        --dividend_exponent;
+    }
+    if (dividend_exponent > 0) {
+        dividend.bits -= 0x0010000000000000ULL;
+        dividend.bits |= (unsigned long long)dividend_exponent << 52;
+    } else {
+        dividend.bits >>= 1 - dividend_exponent;
+    }
+    dividend.bits |= sign;
+    return dividend.value;
+}
+
+double remainder(double numerator, double denominator)
+{
+    double quotient;
+    double nearest;
+    if (wcrt_is_nan(numerator) || wcrt_is_nan(denominator))
+        return numerator + denominator;
+    if (denominator == 0.0 || wcrt_is_infinite(numerator)) {
+        errno = EDOM;
+        return wcrt_quiet_nan();
+    }
+    if (wcrt_is_infinite(denominator)) return numerator;
+    quotient = numerator / denominator;
+    nearest = wcrt_round_even(quotient);
+    return numerator - nearest * denominator;
+}
+
+double remquo(double numerator, double denominator, int *quotient)
+{
+    double divided;
+    double nearest;
+    double low;
+    if (denominator == 0.0 || wcrt_is_infinite(numerator) ||
+        wcrt_is_nan(numerator) || wcrt_is_nan(denominator)) {
+        *quotient = 0;
+        return remainder(numerator, denominator);
+    }
+    divided = numerator / denominator;
+    nearest = wcrt_round_even(divided);
+    low = fmod(fabs(nearest), 8.0);
+    *quotient = (int)low;
+    if (nearest < 0.0) *quotient = -*quotient;
+    return numerator - nearest * denominator;
+}
+
+double fmax(double lhs, double rhs)
+{
+    if (wcrt_is_nan(lhs)) return rhs;
+    if (wcrt_is_nan(rhs)) return lhs;
+    if (lhs > rhs) return lhs;
+    if (rhs > lhs) return rhs;
+    if (lhs == 0.0) return __wcrt_signbit(lhs) ? rhs : lhs;
+    return lhs;
+}
+
+double fmin(double lhs, double rhs)
+{
+    if (wcrt_is_nan(lhs)) return rhs;
+    if (wcrt_is_nan(rhs)) return lhs;
+    if (lhs < rhs) return lhs;
+    if (rhs < lhs) return rhs;
+    if (lhs == 0.0) return __wcrt_signbit(lhs) ? lhs : rhs;
+    return lhs;
+}
+
+double fdim(double lhs, double rhs)
+{
+    double result;
+    if (wcrt_is_nan(lhs) || wcrt_is_nan(rhs)) return lhs + rhs;
+    if (lhs <= rhs) return 0.0;
+    result = lhs - rhs;
+    if (wcrt_is_infinite(result) && wcrt_is_finite(lhs) && wcrt_is_finite(rhs))
+        errno = ERANGE;
+    return result;
+}
+
+static double wcrt_fma_core(double lhs, double middle, double rhs)
+{
+    double product;
+    double split_lhs;
+    double split_middle;
+    double lhs_high;
+    double lhs_low;
+    double middle_high;
+    double middle_low;
+    double product_error;
+    double sum;
+    double virtual_rhs;
+    double sum_error;
+
+    product = lhs * middle;
+    if (!wcrt_is_finite(product) || !wcrt_is_finite(rhs) ||
+        fabs(lhs) > 1.0e300 || fabs(middle) > 1.0e300)
+        return product + rhs;
+    split_lhs = WCRT_SPLITTER * lhs;
+    split_middle = WCRT_SPLITTER * middle;
+    lhs_high = split_lhs - (split_lhs - lhs);
+    lhs_low = lhs - lhs_high;
+    middle_high = split_middle - (split_middle - middle);
+    middle_low = middle - middle_high;
+    product_error = ((lhs_high * middle_high - product) +
+        lhs_high * middle_low + lhs_low * middle_high) +
+        lhs_low * middle_low;
+    sum = product + rhs;
+    virtual_rhs = sum - product;
+    sum_error = (product - (sum - virtual_rhs)) + (rhs - virtual_rhs);
+    return sum + (product_error + sum_error);
+}
+
+double fma(double lhs, double middle, double rhs)
+{
+    int lhs_exponent;
+    int middle_exponent;
+    int product_exponent;
+    double scaled;
+    double scale_down = 7.4583407312002070e-155;
+    double scale_up = 1.3407807929942597e+154;
+
+    if (!wcrt_is_finite(lhs) || !wcrt_is_finite(middle) ||
+        !wcrt_is_finite(rhs) || lhs == 0.0 || middle == 0.0)
+        return lhs * middle + rhs;
+    lhs_exponent = ilogb(fabs(lhs));
+    middle_exponent = ilogb(fabs(middle));
+    product_exponent = lhs_exponent + middle_exponent;
+    if (product_exponent > 1530) {
+        scaled = wcrt_fma_core(lhs * scale_down, middle * scale_down,
+            rhs * scale_down * scale_down);
+        scaled *= scale_up;
+        scaled *= scale_up;
+        if (wcrt_is_infinite(scaled)) {
+            errno = ERANGE;
+            return copysign(HUGE_VAL, scaled);
+        }
+        return scaled;
+    }
+    if (product_exponent > 1000) {
+        if (lhs_exponent >= middle_exponent) lhs *= scale_down;
+        else middle *= scale_down;
+        scaled = wcrt_fma_core(lhs, middle, rhs * scale_down) * scale_up;
+        if (wcrt_is_infinite(scaled)) {
+            errno = ERANGE;
+            return copysign(HUGE_VAL, scaled);
+        }
+        return scaled;
+    }
+    return wcrt_fma_core(lhs, middle, rhs);
+}
+
+static double wcrt_erfc_positive(double value)
+{
+    double square = value * value;
+    double factor;
+    double sum;
+    double delta;
+    double parameter;
+    int index;
+
+    if (value == 0.0) return 1.0;
+    factor = exp(-square + 0.5 * log(square) - WCRT_LOG_SQRT_PI);
+    if (square < 1.5) {
+        parameter = 0.5;
+        sum = 1.0 / parameter;
+        delta = sum;
+        for (index = 1; index < 160; ++index) {
+            parameter += 1.0;
+            delta *= square / parameter;
+            sum += delta;
+            if (fabs(delta) < fabs(sum) * 1.0e-16) break;
+        }
+        return 1.0 - sum * factor;
+    }
+    {
+        double b = square + 0.5;
+        double c = 1.0e300;
+        double d = 1.0 / b;
+        double h = d;
+        for (index = 1; index < 160; ++index) {
+            double an = -(double)index * ((double)index - 0.5);
+            double multiplier;
+            b += 2.0;
+            d = an * d + b;
+            if (fabs(d) < 1.0e-300) d = 1.0e-300;
+            c = b + an / c;
+            if (fabs(c) < 1.0e-300) c = 1.0e-300;
+            d = 1.0 / d;
+            multiplier = d * c;
+            h *= multiplier;
+            if (fabs(multiplier - 1.0) < 1.0e-15) break;
+        }
+        return factor * h;
+    }
+}
+
+double erf(double value)
+{
+    double result;
+    if (wcrt_is_nan(value) || value == 0.0) return value;
+    if (wcrt_is_infinite(value)) return copysign(1.0, value);
+    result = 1.0 - wcrt_erfc_positive(fabs(value));
+    return copysign(result, value);
+}
+
+double erfc(double value)
+{
+    if (wcrt_is_nan(value)) return value;
+    if (value == wcrt_infinity()) return 0.0;
+    if (value == -wcrt_infinity()) return 2.0;
+    if (value < 0.0) return 2.0 - wcrt_erfc_positive(-value);
+    return wcrt_erfc_positive(value);
+}
+
+static double wcrt_lgamma_positive(double value)
+{
+    static const double coefficients[9] = {
+        0.99999999999980993,
+        676.5203681218851,
+        -1259.1392167224028,
+        771.32342877765313,
+        -176.61502916214059,
+        12.507343278686905,
+        -0.13857109526572012,
+        0.0000099843695780195716,
+        0.00000015056327351493116
+    };
+    double shifted = value - 1.0;
+    double series = coefficients[0];
+    double base;
+    int index;
+    for (index = 1; index < 9; ++index)
+        series += coefficients[index] / (shifted + index);
+    base = shifted + 7.5;
+    return 0.91893853320467274178 + (shifted + 0.5) * log(base) - base +
+        log(series);
+}
+
+double lgamma(double value)
+{
+    double integral;
+    if (wcrt_is_nan(value)) return value;
+    if (value == wcrt_infinity()) return value;
+    if (value <= 0.0 && modf(value, &integral) == 0.0) {
+        errno = ERANGE;
+        return HUGE_VAL;
+    }
+    if (value < 0.5)
+        return log(WCRT_PI) - log(fabs(sin(WCRT_PI * value))) -
+            wcrt_lgamma_positive(1.0 - value);
+    return wcrt_lgamma_positive(value);
+}
+
+double tgamma(double value)
+{
+    double integral;
+    double magnitude;
+    if (wcrt_is_nan(value) || value == wcrt_infinity()) return value;
+    if (value <= 0.0 && modf(value, &integral) == 0.0) {
+        errno = EDOM;
+        return HUGE_VAL;
+    }
+    magnitude = exp(lgamma(value));
+    if (value < 0.0 && sin(WCRT_PI * value) < 0.0) magnitude = -magnitude;
+    return magnitude;
+}
+
+/** @brief Applies the binary32 range contract to a binary64 core result. */
+static float wcrt_float_result(double value)
+{
+    float converted;
+
+    if (!wcrt_is_finite(value)) return (float)value;
+    if (value > (double)FLT_MAX || value < -(double)FLT_MAX) {
+        errno = ERANGE;
+        return copysignf(HUGE_VALF, (float)value);
+    }
+    converted = (float)value;
+    if (value != 0.0 && converted == 0.0F) errno = ERANGE;
+    return converted;
+}
+
+#define WCRT_UNARY_WRAPPERS(name) \
+float name##f(float value) { return wcrt_float_result(name((double)value)); } \
+long double name##l(long double value) \
+{ return (long double)name((double)value); }
+
+#define WCRT_BINARY_WRAPPERS(name) \
+float name##f(float lhs, float rhs) \
+{ return wcrt_float_result(name((double)lhs, (double)rhs)); } \
+long double name##l(long double lhs, long double rhs) \
+{ return (long double)name((double)lhs, (double)rhs); }
+
+WCRT_UNARY_WRAPPERS(acos)
+WCRT_UNARY_WRAPPERS(asin)
+WCRT_UNARY_WRAPPERS(atan)
+WCRT_BINARY_WRAPPERS(atan2)
+WCRT_UNARY_WRAPPERS(cos)
+WCRT_UNARY_WRAPPERS(sin)
+WCRT_UNARY_WRAPPERS(tan)
+WCRT_UNARY_WRAPPERS(acosh)
+WCRT_UNARY_WRAPPERS(asinh)
+WCRT_UNARY_WRAPPERS(atanh)
+WCRT_UNARY_WRAPPERS(cosh)
+WCRT_UNARY_WRAPPERS(sinh)
+WCRT_UNARY_WRAPPERS(tanh)
+WCRT_UNARY_WRAPPERS(exp)
+WCRT_UNARY_WRAPPERS(exp2)
+WCRT_UNARY_WRAPPERS(expm1)
+WCRT_UNARY_WRAPPERS(log)
+WCRT_UNARY_WRAPPERS(log10)
+WCRT_UNARY_WRAPPERS(log1p)
+WCRT_UNARY_WRAPPERS(log2)
+WCRT_UNARY_WRAPPERS(logb)
+WCRT_UNARY_WRAPPERS(cbrt)
+WCRT_BINARY_WRAPPERS(hypot)
+WCRT_BINARY_WRAPPERS(pow)
+WCRT_UNARY_WRAPPERS(sqrt)
+WCRT_UNARY_WRAPPERS(erf)
+WCRT_UNARY_WRAPPERS(erfc)
+WCRT_UNARY_WRAPPERS(lgamma)
+WCRT_UNARY_WRAPPERS(tgamma)
+WCRT_UNARY_WRAPPERS(ceil)
+WCRT_UNARY_WRAPPERS(floor)
+WCRT_UNARY_WRAPPERS(nearbyint)
+WCRT_UNARY_WRAPPERS(rint)
+WCRT_UNARY_WRAPPERS(round)
+WCRT_UNARY_WRAPPERS(trunc)
+WCRT_BINARY_WRAPPERS(fmod)
+WCRT_BINARY_WRAPPERS(remainder)
+WCRT_BINARY_WRAPPERS(fdim)
+WCRT_BINARY_WRAPPERS(fmax)
+WCRT_BINARY_WRAPPERS(fmin)
+
+float ldexpf(float value, int exponent)
+{ return wcrt_float_result(ldexp((double)value, exponent)); }
+long double ldexpl(long double value, int exponent)
+{ return (long double)ldexp((double)value, exponent); }
+float scalbnf(float value, int exponent)
+{ return wcrt_float_result(scalbn((double)value, exponent)); }
+long double scalbnl(long double value, int exponent)
+{ return (long double)scalbn((double)value, exponent); }
+float scalblnf(float value, long exponent)
+{ return wcrt_float_result(scalbln((double)value, exponent)); }
+long double scalblnl(long double value, long exponent)
+{ return (long double)scalbln((double)value, exponent); }
+int ilogbf(float value) { return ilogb((double)value); }
+int ilogbl(long double value) { return ilogb((double)value); }
+
+long lrintf(float value) { return lrint((double)value); }
+long lrintl(long double value) { return lrint((double)value); }
+long long llrintf(float value) { return llrint((double)value); }
+long long llrintl(long double value) { return llrint((double)value); }
+long lroundf(float value) { return lround((double)value); }
+long lroundl(long double value) { return lround((double)value); }
+long long llroundf(float value) { return llround((double)value); }
+long long llroundl(long double value) { return llround((double)value); }
+
+float remquof(float numerator, float denominator, int *quotient)
+{
+    return wcrt_float_result(remquo((double)numerator,
+        (double)denominator, quotient));
+}
+
+long double remquol(long double numerator, long double denominator,
+    int *quotient)
+{
+    return (long double)remquo((double)numerator, (double)denominator,
+        quotient);
+}
+
+float fmaf(float lhs, float middle, float rhs)
+{
+    return wcrt_float_result((double)lhs * (double)middle + (double)rhs);
+}
+
+long double fmal(long double lhs, long double middle, long double rhs)
+{
+    return (long double)fma((double)lhs, (double)middle, (double)rhs);
 }

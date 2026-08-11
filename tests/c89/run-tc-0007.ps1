@@ -24,6 +24,7 @@ New-Item -ItemType Directory -Force -Path $buildDirectory | Out-Null
 $arguments = @(
     '-std=c89', '-Wall', '-Werror',
     '-I', (Join-Path $repoRoot 'include'),
+    (Join-Path $repoRoot 'src\fenv.c'),
     (Join-Path $repoRoot 'src\math.c'),
     (Join-Path $repoRoot 'src\errno.c'),
     (Join-Path $repoRoot 'tests\c89\math.c'),

@@ -24,7 +24,11 @@ param(
 
     [string]$C89Source,
 
-    [string[]]$C89Regression
+    [string[]]$C89Regression,
+
+    [string[]]$RuntimeSource,
+
+    [switch]$CompileOnly
 )
 
 $ErrorActionPreference = 'Stop'
@@ -58,14 +62,22 @@ if ($LASTEXITCODE -ne 0) {
     throw "$TestCase presence build failed:`n$($output | Out-String)"
 }
 
-$output = & $TinyCc @common (Join-Path $repoRoot $BehaviorSource) `
+$runtimeSources = @(
+    if ($RuntimeSource) {
+        $RuntimeSource | ForEach-Object { Join-Path $repoRoot $_ }
+    }
+)
+$output = & $TinyCc @common @runtimeSources `
+    (Join-Path $repoRoot $BehaviorSource) `
     -o $executable 2>&1
 if ($LASTEXITCODE -ne 0) {
     throw "$TestCase behavior build failed:`n$($output | Out-String)"
 }
-& $executable
-if ($LASTEXITCODE -ne 0) {
-    throw "$TestCase behavior failed with code $LASTEXITCODE."
+if (-not $CompileOnly) {
+    & $executable
+    if ($LASTEXITCODE -ne 0) {
+        throw "$TestCase behavior failed with code $LASTEXITCODE."
+    }
 }
 
 if ($C89Source) {
@@ -80,10 +92,12 @@ if ($C89Source) {
     }
 }
 
-foreach ($regression in $C89Regression) {
-    & (Join-Path $repoRoot $regression) -TinyCc $TinyCc | Out-Null
-    if ($LASTEXITCODE -ne 0) {
-        throw "$TestCase C89 regression failed with code $LASTEXITCODE."
+if (-not $CompileOnly) {
+    foreach ($regression in $C89Regression) {
+        & (Join-Path $repoRoot $regression) -TinyCc $TinyCc | Out-Null
+        if ($LASTEXITCODE -ne 0) {
+            throw "$TestCase C89 regression failed with code $LASTEXITCODE."
+        }
     }
 }
 
@@ -91,9 +105,9 @@ foreach ($regression in $C89Regression) {
     TestCase = $TestCase
     Requirement = $Requirement
     Presence = 'Pass'
-    Behavior = 'Pass'
+    Behavior = $(if ($CompileOnly) { 'CompilePass' } else { 'Pass' })
     C89Regression = $(if ($C89Regression -or $C89Source) {
-        'Pass'
+        $(if ($CompileOnly) { 'CompilePass' } else { 'Pass' })
     } else {
         'NotApplicable'
     })

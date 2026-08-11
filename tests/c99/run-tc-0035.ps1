@@ -1,5 +1,5 @@
 [CmdletBinding()]
-param([string]$TinyCc)
+param([string]$TinyCc, [switch]$CompileOnly)
 
 & (Join-Path $PSScriptRoot 'Invoke-C99HeaderTest.ps1') `
     -TestCase 'TC-0035' -Requirement 'REQ-0035' `
@@ -7,5 +7,8 @@ param([string]$TinyCc)
     -PublicHeader 'include/math.h' `
     -PresenceSource 'tests/c99/presence/math.c' `
     -BehaviorSource 'tests/c99/math.c' -TinyCc $TinyCc `
+    -RuntimeSource @('src/errno.c','src/fenv.c','src/math.c',
+        'tests/c99/presence/math.c') `
     -C89Source 'tests/c99/presence/math-c89.c' `
-    -C89Regression 'tests/c89/run-tc-0007.ps1'
+    -C89Regression 'tests/c89/run-tc-0007.ps1' `
+    -CompileOnly:$CompileOnly

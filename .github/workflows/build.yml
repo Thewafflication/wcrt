@@ -241,10 +241,60 @@ jobs:
               Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
           }
 
+          function Write-FailureDetails {
+            param(
+              [string]$Name,
+              [object[]]$Results,
+              [string]$DetailProperty = 'Output'
+            )
+            $failures = @(
+              $Results | Where-Object Status -notin 'Pass', 'Blocked'
+            )
+            if ($failures.Count -eq 0) { return }
+            @('', "### Failure details — $Name") |
+              Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+            foreach ($failure in $failures) {
+              $title = if ($failure.TestCase) {
+                "$($failure.TestCase) $($failure.Description)".Trim()
+              } else { $Name }
+              $detail = $failure.PSObject.Properties[$DetailProperty].Value
+              if ([string]::IsNullOrWhiteSpace([string]$detail)) {
+                $detail = 'The runner did not provide diagnostic text.'
+              }
+              $encoded = [System.Net.WebUtility]::HtmlEncode([string]$detail)
+              @(
+                ''
+                '<details open>'
+                "<summary>🔴 <strong>$title — FAIL</strong></summary>"
+                ''
+                "<pre>$encoded</pre>"
+                '</details>'
+              ) | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+            }
+          }
+
           $c89Json = "$directory/c89-test-results.json"
-          $c89 = if (Test-Path $c89Json) {
-            @(Get-Content $c89Json -Raw | ConvertFrom-Json)
-          } else { @() }
+          $c89 = @(
+            if (Test-Path $c89Json) {
+              try {
+                @(Get-Content $c89Json -Raw | ConvertFrom-Json)
+              } catch {
+                [PSCustomObject]@{
+                  TestCase = 'C89 runner'
+                  Description = 'Unreadable result file'
+                  Status = 'Fail'
+                  Details = $_.Exception.Message
+                }
+              }
+            } else {
+              [PSCustomObject]@{
+                TestCase = 'C89 runner'
+                Description = 'Result file missing'
+                Status = 'Fail'
+                Details = 'Runner outcome: ${{ steps.c89.outcome }}'
+              }
+            }
+          )
           Open-TestSuite 'ISO C89 library' $c89
           @('| Test Case | Result |', '| --- | --- |') |
             Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
@@ -255,11 +305,38 @@ jobs:
                 Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
           }
           Close-TestSuite
+          Write-FailureDetails 'ISO C89 library' $c89 'Details'
 
           $extensionJson = "$directory/extension-test-results.json"
-          $extensions = if (Test-Path $extensionJson) {
-            @(Get-Content $extensionJson -Raw | ConvertFrom-Json)
-          } else { @() }
+          $extensions = @(
+            if (Test-Path $extensionJson) {
+              try {
+                @(Get-Content $extensionJson -Raw | ConvertFrom-Json)
+              } catch {
+                foreach ($suiteName in @('C99', 'Microsoft compatibility')) {
+                  [PSCustomObject]@{
+                    TestCase = "$suiteName runner"
+                    Requirement = 'Runner'
+                    Suite = $suiteName
+                    Description = 'Unreadable result file'
+                    Status = 'Fail'
+                    Output = $_.Exception.Message
+                  }
+                }
+              }
+            } else {
+              foreach ($suiteName in @('C99', 'Microsoft compatibility')) {
+                [PSCustomObject]@{
+                  TestCase = "$suiteName runner"
+                  Requirement = 'Runner'
+                  Suite = $suiteName
+                  Description = 'Result file missing'
+                  Status = 'Fail'
+                  Output = 'Runner outcome: ${{ steps.extensions.outcome }}'
+                }
+              }
+            }
+          )
           foreach ($suite in @('C99', 'Microsoft compatibility')) {
             $name = if ($suite -eq 'C99') {
               'ISO C99 extensions'
@@ -275,6 +352,7 @@ jobs:
                   Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
             }
             Close-TestSuite
+            Write-FailureDetails $name $suiteResults
           }
 
           $capabilityJson = "$directory/tinycc-c99-capabilities.json"

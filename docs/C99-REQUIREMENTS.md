@@ -69,7 +69,9 @@ REQ-0023 through REQ-0026 are baselined as the remainder of Milestone 2A.
 REQ-0027 and REQ-0028 are baselined for tranche T1. REQ-0029, REQ-0030, and
 the narrow allocation of REQ-0039 are implemented locally for tranche T2.
 REQ-0031 through REQ-0033 and the wide REQ-0039 allocation are implemented
-locally for tranche T3; other later identifiers remain planned backlog items.
+locally for tranche T3. REQ-0035 and REQ-0036 are implemented locally for T4,
+with native ARM64 evidence and the recorded fused-operation disposition pending;
+other later identifiers remain planned backlog items.
 
 | ID | Conformance unit | Primary C99 clauses | Principal obligations |
 | --- | --- | --- | --- |
@@ -95,8 +97,8 @@ locally for tranche T3; other later identifiers remain planned backlog items.
 
 | Planned ID | Conformance unit | Primary C99 clauses | Principal obligations |
 | --- | --- | --- | --- |
-| REQ-0035 | C99 real mathematics | 7.12 | Classification/comparison macros and complete float, double, and long-double families |
-| REQ-0036 | Floating-point environment | 7.6 | `fenv.h`, flags, rounding control, saved environments, and architecture profile |
+| REQ-0035 (implemented locally) | C99 real mathematics | 7.12 | Classification/comparison macros and complete float, double, and long-double families |
+| REQ-0036 (implemented locally) | Floating-point environment | 7.6 | `fenv.h`, flags, rounding control, saved environments, and architecture profile |
 | REQ-0037 | Complex arithmetic | 7.3 | `complex.h`, constants, accessors, and complete complex function families |
 | REQ-0038 | Type-generic mathematics | 7.22 | Correct real/complex dispatch without multiple evaluation |
 | REQ-0039 (T2 allocation baselined) | Numeric text interchange | 7.12, 7.19, 7.20 | Hexadecimal floating syntax, rounding, range errors, and formatted I/O integration |

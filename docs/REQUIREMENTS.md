@@ -65,6 +65,8 @@ until their requirement and verification records are added.
 | [REQ-0031](req-0031-wchar.md) | [TC-0031](tc-0031-wchar.tex) | `<wchar.h>`, `<inttypes.h>` | §7.24, §7.8.2 | Wide I/O, conversion, strings, numeric text, and time |
 | [REQ-0032](req-0032-wctype.md) | [TC-0032](tc-0032-wctype.tex) | `<wctype.h>` | §7.25 | Wide classification, descriptors, and mappings |
 | [REQ-0033](req-0033-windows-utf16-abi.md) | [TC-0033](tc-0033-windows-utf16-abi.tex) | Wide types and streams | §7.17, §7.24.1, §7.24.6, §7.25.1 | Windows UTF-16 and wide-character ABI |
+| [REQ-0035](req-0035-real-math.md) | [TC-0035](tc-0035-real-math.tex) | `<math.h>` | §7.12 | Complete C99 real mathematics and inquiry macros |
+| [REQ-0036](req-0036-fenv.md) | [TC-0036](tc-0036-fenv.tex) | `<fenv.h>` | §7.6 | Flags, rounding control, and saved environments |
 | [REQ-0039](req-0039-numeric-text.md) | [TC-0039](tc-0039-numeric-text.tex) | `<stdlib.h>`, `<stdio.h>` | §7.19.6, §7.20.1.3 | Narrow numeric text interchange allocation |
 
 ## Microsoft compatibility extensions

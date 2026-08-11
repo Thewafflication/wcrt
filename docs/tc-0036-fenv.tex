@@ -1,0 +1,33 @@
+% TC-0036 fragment; intended for the C99 test report.
+\def\TCID{TC-0036}
+\def\TCTitle{C99 floating-point environment}
+\def\TCPurpose{Verify standard exception flags, rounding directions, saved and
+held environments, hardware arithmetic effects, ABI, and C89 isolation.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0036}
+\def\TCDesignRef{ISO/IEC 9899:1999 7.6; x87, MXCSR, FPCR, and FPSR mappings in
+ADR-0004.}
+\def\TCFeatureRef{\texttt{include/fenv.h}; \texttt{src/fenv.c};
+\texttt{tests/c99/fenv.c}; \texttt{tests/c99/run-tc-0036.ps1}.}
+\def\TCTestTechnique{ABI assertions, state-transition tables, pairwise flag
+combinations, invalid-input partitions, and volatile arithmetic probes.}
+\def\TCPreconditions{The T0 target compiler identity and REQ-0024 floating
+model are available.}
+\def\TCEnvironment{Native TinyCC execution on x86, x64, and ARM64, with ARM64
+cross-compile/link as a local preliminary gate.}
+\def\TCAssumptions{The WCRT default environment masks traps, clears flags, and
+rounds to nearest; nonstandard denormal and precision modes are not exposed.}
+\def\TCInputData{Each supported flag, combined and unselected flags, all four
+rounding modes, invalid rounding values, default/captured/held environments, and
+volatile halfway, invalid, divide-by-zero, overflow, and underflow operations.}
+\def\TCInitialState{The default environment is installed and verified before
+independent state-transition groups.}
+\def\TCProcedure{Compile header presence and C89 absence; verify type layout;
+exercise flag and rounding APIs; observe arithmetic effects; test capture,
+restore, hold, default, and update semantics; repeat on supported targets.}
+\def\TCExpectedResult{API state and hardware arithmetic agree, unselected state
+is preserved, environment transitions match C99, ABI is target-invariant, and
+unsupported target evidence is never inferred.}
+\def\TCPostConditions{The default environment is restored and target results
+are retained under the ignored evidence directory.}
+\TCTemplate

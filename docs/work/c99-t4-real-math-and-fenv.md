@@ -1,6 +1,7 @@
 # C99 T4 Real Math and Floating Environment Work Log
 
-**Status:** Proposed baseline; no production implementation started
+**Status:** Implemented locally; native ARM64 execution, fused-operation
+deviation disposition, and independent review pending
 
 **Owner:** WCRT maintainer
 
@@ -120,6 +121,61 @@ This is a baseline estimate only. It is intentionally narrower than the generic 
 - The current T0 evidence supports a Windows binary64 `long double` model and TinyCC `_Generic` availability. It does not support any unsupported real-math or `fenv` claim unless directly tested.
 - T4 is not the place to claim or implement the T5 complex or type-generic blocker. T5 remains gated by the compiler capability baseline and an explicit decision.
 
+## Implementation and Actual Size Record
+
+The cumulative T4 change from the pre-T4 revision currently spans 26
+source-controlled artifacts with 2,975 added and 254 removed lines (2,721 net)
+before any later review-only adjustment. This falls inside the planned artifact
+range and near the high end of the planned net-size range. Focused effort and
+elapsed schedule remain unavailable; command wall time is not substituted.
+
+Implemented behavior includes:
+
+- controlled REQ-0035/TC-0035 and REQ-0036/TC-0036 records plus ADR-0004;
+- a complete C99 real-math declaration/link inventory with binary32 and
+  Windows-binary64 function families;
+- single-evaluation inquiry/comparison macros and exact bit-based normal,
+  subnormal, zero, infinity, NaN, sign, adjacent-value, split, scale, and
+  remainder paths;
+- ordinary transcendental, hyperbolic, error, gamma, rounding, remainder,
+  manipulation, extrema, difference, and compensated fused-operation paths;
+- a target-invariant 16-byte `fenv_t` and actual per-thread x87, MXCSR, FPCR,
+  and FPSR mappings instead of the preliminary process-global shadow;
+- explicit `MATH_ERRNO` reporting, C89 isolation, runtime link inventory, and
+  aggregate-runner integration; and
+- GitHub Actions execution of the controlled aggregates on x86, x64, and
+  ARM64, with failed test diagnostics rendered on each job summary.
+
+`fma` passes the controlled cancellation and intermediate-overflow vectors but
+is not proven correctly rounded for all inputs and active rounding modes. It is
+therefore recorded as an unapproved deviation/pending completion item rather
+than silently represented as full C99 fused-operation evidence.
+
+## Verification Record
+
+The following local gates pass at the current workspace revision:
+
+- TC-0035 and TC-0036 behavior, macro/ABI, C89 isolation, and focused
+  regressions on native x86 and x64;
+- TC-0035 and TC-0036 compile/link, including ARM64 FPCR/FPSR assembly, with the
+  packaged ARM64 TinyCC;
+- the complete C89 TC-0001 through TC-0015 aggregates on x86 and x64;
+- the complete controlled C99 and Microsoft-compatibility extension aggregates
+  on x86 and x64, including manifest inventory enforcement;
+- x86, x64, and ARM64 Release DLL/static-library builds with the complete new
+  export surface;
+- TC-0035 against the packaged static library and TC-0036 against the packaged
+  DLL on x86/x64, with both consumer forms compiling/linking for ARM64;
+- x86/x64 static and DLL consumer execution and startup-object verification;
+- ARM64 static and DLL consumer compile/link; and
+- the Windows 2000 x86 Release DLL import allowlist; and
+- workflow-script parsing and a synthetic TC-0035 failure-summary probe that
+  confirms TC-0035/TC-0036 rows and HTML-encoded diagnostic output.
+
+Native ARM64 TC-0035/TC-0036, aggregates, consumers, and startup execution are
+Unknown until retained native CI evidence exists. Independent review is also
+pending. Neither gate is inferred from cross-compilation.
+
 ## Time Log
 
 | Date | Phase | Focused minutes | Excluded interruption | Note |
@@ -131,24 +187,49 @@ No focused minutes are entered from chat or command wall time; neither is a reli
 
 | ID | Type | Injected | Removed | Fix minutes | Related artifact | Disposition |
 | --- | --- | --- | --- | ---: | --- | --- |
-| T4-D001 | requirements | Planning | Planned baseline | — | `docs/C99-1.0-WORK-PLAN.md`, repo requirement records | The work-plan row is a generic placeholder and does not match the existing repository evidence. The T4 baseline therefore starts as an evidence-driven requirement/test reconciliation rather than an implementation assumption. |
-| T4-D002 | test | Planning | Planned baseline | — | `tests/c99/manifest.md`, missing T4 cases | No controlled T4 requirement/test record exists; the manifest and runner inventory will be extended before implementation begins. |
-| T4-D003 | interface/ABI | Planning | Planned baseline | — | `include/math.h`, `include/float.h` | The repo documents a Windows binary64 `long double` model and the C89-only math surface, but no C99 math or `fenv.h` ABI contract exists. The exact supported public surface must be baselined before implementation. |
-| T4-D004 | build/tooling | Planning | Planned baseline | — | `include/fenv.h`, test runner integration | The project has no `fenv` header or runner output. This is not a code bug yet; it is an unfilled implementation and evidence requirement for the tranche. |
+| T4-D001 | requirements | Planning | Specification | — | `docs/C99-1.0-WORK-PLAN.md`, REQ-0035/REQ-0036 | Removed by evidence-driven requirement and test baselines rather than the generic placeholder estimate. |
+| T4-D002 | test | Planning | Specification | — | TC-0035, TC-0036, manifest | Removed by controlled specifications, full inventory tests, C89 isolation, and aggregate enforcement. |
+| T4-D003 | interface/ABI | Planning | Design | — | `include/math.h`, `include/fenv.h`, ADR-0004 | Removed by the complete real-math surface, normalized 16-byte environment ABI, and architecture mappings. |
+| T4-D004 | build/tooling | Planning | Implementation | — | `src/fenv.c`, build and runners | Removed by runtime/build integration and target-aware test runners. |
+| T4-D005 | architecture | Preliminary implementation | Implementation review | — | `src/fenv.c` | A process-global shadow reported modes and flags without changing arithmetic. Replaced with calling-thread x87/MXCSR or FPCR/FPSR state. |
+| T4-D006 | macro/numeric | Preliminary implementation | Code review | — | `include/math.h` | Inquiry/comparison macros multiply-evaluated operands and did not classify subnormals. Replaced with single-call typed helpers and exact bit classification. |
+| T4-D007 | numeric | Preliminary implementation | Code review | — | `src/math.c` | `nextafter` used an epsilon-sized arithmetic step rather than the adjacent representation. Replaced with directed bit traversal for binary32/binary64. |
+| T4-D008 | interface | Preliminary implementation | Requirement review | — | `include/math.h`, `src/math.c` | Most C99 real function families and `feholdexcept` were absent. The controlled link inventory now covers the complete surface. |
+| T4-D009 | test/tooling | Preliminary implementation | Focused test | — | `Invoke-C99HeaderTest.ps1`, T4 runners | Behavior tests did not link WCRT math/fenv sources and failed with unresolved symbols. Added explicit runtime-source inputs. |
+| T4-D010 | test/tooling | T4 runner extension | Aggregate verification | — | `Invoke-C99HeaderTest.ps1` | Empty and singleton optional source lists were respectively passed as a directory or character-splatted path. Normalized the value to an array; the full aggregates pass. |
+| T4-D011 | numeric/range | Implementation | Numerical review | — | `src/math.c`, TC-0035 | Large `acosh`/`asinh`, float-family range conversion, subnormal remainder, and intermediate-overflow fused paths needed separate scaling/range logic. Added controlled cases and corrections. |
+| T4-D012 | numeric/deviation | Implementation | Verification | — | `fma`/`fmaf`/`fmal` | Compensated/scaled behavior passes controlled vectors but universal correctly-rounded single-operation behavior is unproven. Approval or stronger implementation/evidence remains required. |
+| T4-D013 | build/tooling | CI review | Workflow verification | — | `.github/workflows/build.yml` | Failed aggregate rows did not expose captured diagnostics, and a missing or unreadable result file could suppress useful summary evidence. Added robust result-file fallbacks and expandable, HTML-encoded failure details. |
 
 ## Review Checklist
 
-- [ ] Requirement and architecture traceability for REQ-0035 and REQ-0036 are complete.
-- [ ] T0 floating-model and TinyCC capability records are explicitly used as the authoritative baseline.
-- [ ] Numerical reference vectors cover ordinary values, special values, poles, and boundaries.
-- [ ] `errno`, `math_errhandling`, and exception/flag behavior are defined before implementation.
-- [ ] Rounding modes and saved environment semantics are specified and tested.
-- [ ] `long double` treatment is documented as Windows binary64 on all supported targets.
-- [ ] C89 isolation checks for `math.h` and the new `fenv.h` are planned and enforced.
-- [ ] x86, x64, and ARM64 evidence requirements are captured before any code is represented as completed.
-- [ ] Compiler-blocked or unsupported facilities are explicitly classified rather than assumed.
-- [ ] Final verification includes aggregate C99, C89 regression, and retained evidence review.
+- [x] Requirement and architecture traceability for REQ-0035 and REQ-0036 are complete.
+- [x] T0 floating-model and TinyCC capability records are explicitly used as the authoritative baseline.
+- [x] Numerical reference vectors cover ordinary values, special values, poles, and boundaries.
+- [x] `errno`, `math_errhandling`, and exception/flag behavior are defined.
+- [x] Rounding modes and saved environment semantics are specified and tested on x86/x64.
+- [x] `long double` treatment is documented as Windows binary64 on all supported targets.
+- [x] C89 isolation checks for `math.h` and `fenv.h` are enforced.
+- [x] x86, x64, and ARM64 evidence requirements are captured without target inference.
+- [x] Compiler-blocked, unsupported, or deviating facilities are explicitly classified.
+- [x] Local aggregate C99, C89 regression, build, consumer, and retained evidence review is complete.
+- [ ] Native ARM64 execution evidence is retained.
+- [ ] The fused-operation deviation is approved or removed with stronger evidence.
+- [ ] Independent review is complete.
 
 ## Postmortem Status
 
-This is a pre-implementation tranche baseline. No focused effort, implementation result, or real numeric evidence is recorded yet. The work log deliberately records the current evidence and the required completion gates before code changes are made.
+The inspected implementation is substantially larger than the preliminary
+header/shadow-state start because the controlled requirement requires the full
+function inventory, real hardware state, C89 isolation, and architecture
+evidence. The artifact estimate was accurate and the net-line estimate was
+slightly low but within the stated reserve. Focused effort and schedule actuals
+remain unavailable and are not fabricated.
+
+The highest-value review practices were the exact declaration/link inventory,
+bit-pattern vectors, volatile hardware probes, and complete aggregates. They
+found the incomplete preliminary surface, multiply-evaluated macros, shadow
+environment, adjacent-value algorithm, runner integration defects, and large
+range partitions before handoff. Remaining closure work is native ARM64,
+independent review, and the explicit fused-operation decision; the postmortem
+is provisional until those gates close.

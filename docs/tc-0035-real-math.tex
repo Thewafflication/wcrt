@@ -1,0 +1,34 @@
+% TC-0035 fragment; intended for the C99 test report.
+\def\TCID{TC-0035}
+\def\TCTitle{C99 real mathematics}
+\def\TCPurpose{Verify the complete C99 real-math surface, inquiry macros,
+ordinary accuracy, exact representation operations, special values, and errors.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0035}
+\def\TCDesignRef{ISO/IEC 9899:1999 7.12; REQ-0024 floating model; ADR-0004.}
+\def\TCFeatureRef{\texttt{include/math.h}; \texttt{src/math.c};
+\texttt{tests/c99/math.c}; \texttt{tests/c99/run-tc-0035.ps1}.}
+\def\TCTestTechnique{Function-inventory coverage, controlled reference vectors,
+exact bit patterns, equivalence partitioning, boundary analysis, and macro
+side-effect testing.}
+\def\TCPreconditions{REQ-0024 and the Windows binary32/binary64 model are
+baselined; the supported TinyCC package is available.}
+\def\TCEnvironment{C99 compilation and native execution on x86, x64, and
+ARM64; selected C89 isolation and TC-0007 regression.}
+\def\TCAssumptions{Long double is binary64; ordinary transcendental vectors use
+the documented scaled tolerances; Annex F and correctly rounded transcendentals
+are not claimed.}
+\def\TCInputData{Every public function family in three semantic types; normal,
+subnormal, zero, infinity, NaN, sign, adjacent, halfway, pole, domain, overflow,
+and underflow partitions.}
+\def\TCInitialState{Errno is cleared before error cases and floating values are
+constructed from controlled constants or exact representation operations.}
+\def\TCProcedure{Compile the full declaration inventory and C89 absence; prove
+single evaluation; execute each function group against ordinary and special
+vectors; verify exact operations by bits; check errno and rerun TC-0007.}
+\def\TCExpectedResult{All declarations link, inquiry and exact operations match
+the binary model, ordinary vectors meet their tolerance, required errors are
+reported, and the C89 mathematics baseline remains green.}
+\def\TCPostConditions{Generated objects, executables, and target results remain
+under ignored build and output directories.}
+\TCTemplate
