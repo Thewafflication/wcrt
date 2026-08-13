@@ -2,7 +2,8 @@
 
 **Content type:** Project requirement
 
-**Status:** Implemented locally; native ARM64 verification pending
+**Status:** Implemented with native x86, x64, and ARM64 CI evidence;
+independent review pending
 
 **Source:** ISO/IEC 9899:1999 as corrected through TC3, §7.6; x86, x64, and
 ARM64 Windows floating-point control architecture
@@ -106,5 +107,7 @@ TC-0036 verifies ABI/alignment, all flags alone and combined, preservation of
 unselected state, invalid rounding rejection, volatile arithmetic under every
 rounding direction, hardware-generated exception flags, and every environment
 transition. It passes natively on x86 and x64 and compiles/links against the
-ARM64 system-register path. Native ARM64 execution and independent review
-remain required before target-complete acceptance.
+ARM64 system-register path. GitHub Actions run `31463268579` passed TC-0036
+natively on x86, x64, and ARM64 at
+`027b324e233d4a0c1912667835dbef31d61c6dcc`; independent review remains required
+before requirement closure.

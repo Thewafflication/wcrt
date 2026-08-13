@@ -2,8 +2,8 @@
 
 **Content type:** Project requirement
 
-**Status:** Implemented locally; native ARM64 verification and fused-operation
-deviation disposition pending
+**Status:** Implemented with native x86, x64, and ARM64 CI evidence;
+fused-operation deviation disposition and independent review pending
 
 **Source:** ISO/IEC 9899:1999 as corrected through TC3, §7.12
 
@@ -81,9 +81,9 @@ TC-0035 shall compile every declaration and macro; prove single evaluation;
 exercise every function family in each semantic type; classify normal,
 subnormal, zero, infinite, and NaN representations; check signed-zero and
 adjacent-value direction; test ordinary reference vectors, poles, domain and
-range partitions; and rerun TC-0007. Native x86 and x64 execution and ARM64
-compile/link are local gates; native ARM64 evidence remains required for
-target-complete acceptance.
+range partitions; and rerun TC-0007. Native x86, x64, and ARM64 execution is
+required for target-complete acceptance; ARM64 compile/link is only a local
+preliminary gate.
 
 ## Relationships
 
@@ -123,5 +123,7 @@ and Windows 2000 x86 import gate pass locally.
 The compensated `fma` implementation passes controlled single-rounding
 cancellation and intermediate-overflow vectors, but it is not yet proven
 correctly rounded for every operand and rounding mode. That remains an explicit
-T4 deviation requiring approval or a stronger implementation/evidence set;
-native ARM64 numerical execution also remains required.
+T4 deviation requiring approval or a stronger implementation/evidence set.
+GitHub Actions run `31463268579` passed TC-0035 natively on x86, x64, and ARM64
+at `027b324e233d4a0c1912667835dbef31d61c6dcc`; independent review remains
+required before requirement closure.

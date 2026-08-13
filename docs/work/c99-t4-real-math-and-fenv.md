@@ -1,11 +1,18 @@
 # C99 T4 Real Math and Floating Environment Work Log
 
-**Status:** Implemented locally; native ARM64 execution, fused-operation
-deviation disposition, and independent review pending
+**Status:** Implemented with native x86, x64, and ARM64 CI evidence;
+fused-operation deviation disposition and independent review pending
 
 **Owner:** WCRT maintainer
 
 **Created:** 2026-08-09
+
+**Verification reconciliation:** 2026-08-12
+
+**Exact-revision CI evidence:** GitHub Actions run `31463268579` passed source
+quality, native x86, x64, and ARM64 Debug build/test/consumer/startup jobs, and
+multi-architecture Debug packaging at
+`027b324e233d4a0c1912667835dbef31d61c6dcc`.
 
 **Inspected source baseline:** current workspace state, including T0 capability and floating-model records and the existing C89-only `math.h` implementation
 
@@ -172,9 +179,13 @@ The following local gates pass at the current workspace revision:
 - workflow-script parsing and a synthetic TC-0035 failure-summary probe that
   confirms TC-0035/TC-0036 rows and HTML-encoded diagnostic output.
 
-Native ARM64 TC-0035/TC-0036, aggregates, consumers, and startup execution are
-Unknown until retained native CI evidence exists. Independent review is also
-pending. Neither gate is inferred from cross-compilation.
+GitHub Actions run `31463268579` supplies the previously pending native ARM64
+TC-0035/TC-0036, aggregate, consumer, and startup evidence at the exact source
+revision. The corresponding native x86 and x64 jobs and source-quality job also
+passed, and the workflow assembled the multi-architecture Debug package.
+Release jobs were not part of this push run; the local Release evidence above
+remains supporting evidence rather than exact-revision CI Release evidence.
+Independent review and the fused-operation disposition remain pending.
 
 ## Time Log
 
@@ -213,7 +224,7 @@ No focused minutes are entered from chat or command wall time; neither is a reli
 - [x] x86, x64, and ARM64 evidence requirements are captured without target inference.
 - [x] Compiler-blocked, unsupported, or deviating facilities are explicitly classified.
 - [x] Local aggregate C99, C89 regression, build, consumer, and retained evidence review is complete.
-- [ ] Native ARM64 execution evidence is retained.
+- [x] Native ARM64 execution evidence is retained at the exact T4 revision.
 - [ ] The fused-operation deviation is approved or removed with stronger evidence.
 - [ ] Independent review is complete.
 
@@ -230,6 +241,7 @@ The highest-value review practices were the exact declaration/link inventory,
 bit-pattern vectors, volatile hardware probes, and complete aggregates. They
 found the incomplete preliminary surface, multiply-evaluated macros, shadow
 environment, adjacent-value algorithm, runner integration defects, and large
-range partitions before handoff. Remaining closure work is native ARM64,
-independent review, and the explicit fused-operation decision; the postmortem
-is provisional until those gates close.
+range partitions before handoff. Native ARM64 execution was subsequently
+retained at the exact T4 revision. Remaining closure work is independent review
+and the explicit fused-operation decision; the postmortem is provisional until
+those gates close.
