@@ -558,6 +558,7 @@ jobs:
             output/build/${{ matrix.arch }}/Debug/wcrt.pdb
             output/build/${{ matrix.arch }}/Debug/wcrt.def
             output/build/${{ matrix.arch }}/Debug/libwcrt.a
+            output/build/${{ matrix.arch }}/Debug/libwcrt-tinycc-complex-abi.a
             output/build/${{ matrix.arch }}/Debug/wcrt-startup-console.o
             output/build/${{ matrix.arch }}/Debug/wcrt-startup-gui.o
             output/build/${{ matrix.arch }}/Debug/include/
@@ -569,6 +570,7 @@ jobs:
             output/test-results/${{ matrix.arch }}/windows-2000-imports.json
             output/test-results/${{ matrix.arch }}/startup-test-results.json
             output/test-results/${{ matrix.arch }}/native-test-diagnostics.json
+            output/test-results/${{ matrix.arch }}/dependency-provenance.json
             output/test-results/${{ matrix.arch }}/diagnostics/
           if-no-files-found: error
 
