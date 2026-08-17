@@ -422,8 +422,10 @@ command wall time, commit timestamps, or CI duration.
 | T6-D020 | test | TC-0041 profile validator | high | WCRT maintainer | T6 test implementation | T6 verification | -- | `tests/c99/Verify-C99ConformanceProfile.ps1`, REQ/TC-0041 | Removed: the controlled requirement permits approved `ExpectedFail`, but the validator rejected that state. The vocabulary now permits it only for compiler-blocked rows and prohibits compiler-blocked Pass; TC-0041 passes with 25 clauses, 24 headers, and 75 facility rows. |
 | T6-D021 | documentation/process | WSP adoption dispositions at candidate review | high | WCRT maintainer | Pre-candidate WSP adoption | R1 readiness consistency review | -- | `docs/WSP-ADOPTION.md`, `docs/security/design-for-security.md`, readiness record | Removed: the adoption record still described release readiness, DFS scope/trust/threat controls, and trust-layer separation as future work after the project-owned records existed. Those requirements now point to the implemented records; genuinely incomplete derived-security, signing, PDF, response, and evidence-retention controls remain Deferred. The DFS verification table now states the exact candidate Pass/Fail/Unknown boundaries. |
 | T6-D022 | test/evidence | GitHub Actions run `32020177550` at `80c88d1b0b2585734edb2451f560bbf4ae282b39` | high | WCRT maintainer | T4/T5 vector reproducibility checks | Post-push exact-revision CI | -- | `tests/c99/Verify-FmaVectors.ps1`, `tests/c99/Verify-ComplexVectors.ps1`, retained run artifacts | Removed: all three native architecture jobs reported TC-0035 and TC-0037 Fail because GitHub's Windows checkout converted controlled JSON to CRLF while Python emitted LF and the validators compared raw text. Product behavior was not reached by those subchecks. Both validators now canonicalize CRLF, CR, and LF before exact content comparison; semantic content remains unchanged. Rerun the complete workflow at the correction revision. |
-| T6-D023 | implementation/compiler ABI | GitHub Actions run `32020695485` at `c75b259cfdabadee1e2ab6de5cdaa6dbe03c65c2` | critical | WCRT maintainer | T5 complex implementation or selected ARM64 compiler ABI | Native ARM64 exact-revision CI | -- | Native ARM64 TC-0037 result artifact and job `95359866116` | Open T6 blocker: after T6-D022 was removed, x86/x64 passed the full matrix and native ARM64 passed C89, build, consumers, startup, TC-0035, TC-0036, TC-0038, TC-0040--0042, and every other C99/compatibility case, but TC-0037 terminated with access violation `0xC0000005` (`-1073741819`). Do not classify ARM64 complex behavior or the aggregate as Pass. Isolate the crashing complex operation and distinguish WCRT implementation memory corruption from TinyCC ARM64 complex calling-convention failure before correction or compiler-blocked disposition. |
-| T6-D024 | test/evidence | Native test failure handling through `145dac64136ba5881f43cdce27634aa9bff8d02d` | high | WCRT maintainer | Earlier aggregate test implementation | T6 corrective implementation | -- | native diagnostic helper, TinyCC wrapper, diagnostic self-test, architecture artifacts | Removed locally; exact-CI verification pending: ordinary C89/C99/compatibility executables now link with TinyCC `-g -bt30`, and runner exceptions retain captured output, transcript, executable digest, and a bounded GDB rerun when available. The self-test deliberately faults and requires `crash_probe` and `main` in TinyCC's original-crash trace; local GDB 17.1 independently reports `SIGSEGV`, `#0 crash_probe`, and `#1 main`. GDB absence or failure has an explicit non-Pass status. Custom `-nostdlib` startup links remain excluded because injecting TinyCC's backtrace runtime would change the runtime under test. |
+| T6-D023 | implementation/compiler ABI | GitHub Actions runs `32020695485` and `32023981205` | critical | WCRT maintainer | Selected TinyCC ARM64 compiler runtime | T6 corrective implementation | -- | ARM64 TC-0037 captured output, failing executable SHA-256 `6c41dabcfa1d3fc54dc74b7de307ee1ae8095d4e96e1b8c36eb92639860bc0b1`, bridge sources and consumer evidence | Correction implemented; exact-CI verification pending. The automatic TinyCC trace identifies `wcrt_check_exact` at `tests/c99/complex.c:101`. Disassembly proves the caller supplies components in `x0`--`x3` and the result pointer in `x4`, but packaged `__tcc_muldc3` reads `d0`--`d3` and writes through `x0`. The target-scoped bridge normalizes multiplication/division calls and delegates to scaled scalar helpers. Static and DLL package paths include the bridge, and tests now execute float/double/long-double multiply/divide. Local x86/x64 TC-0037 and consumers pass; ARM64 build, PE inspection, and consumer links pass. Native ARM64 behavior remains Unknown until the correction revision runs. |
+| T6-D024 | test/evidence | Commit `b0fb06937f067733c14f1adf54a48f16ceca4994`, run `32023981205` | high | WCRT maintainer | Earlier aggregate test implementation | T6 corrective implementation | -- | native diagnostic helper, TinyCC wrapper, diagnostic self-test, run artifacts | Functional evidence retained; enforcement correction pending exact CI. Every architecture's deliberate crash emitted TinyCC `crash_probe` and `main`; x86/x64 GDB independently returned `#0 crash_probe` and `#1 main`. The native ARM runner's installed GDB 16.2 rejected ARM64 PE and is now classified `UnsupportedTarget`, not Pass. Local GDB 17.1 is installed in the ignored project cache and captures x86/x64 traces. Custom `-nostdlib` startup links remain excluded because injecting TinyCC's backtrace runtime would change the runtime under test. |
+| T6-D025 | test/evidence | Commit `b0fb06937f067733c14f1adf54a48f16ceca4994`, run `32023981205` | high | WCRT maintainer | T6 native diagnostic self-test | T6 corrective implementation | -- | x86/x64 passing diagnostic JSON and failed workflow steps | Removed locally; exact-CI verification pending. The deliberate crashing child left PowerShell's process-wide `$LASTEXITCODE` nonzero even after the script emitted a passing JSON result, so all three diagnostic steps exited 1. The self-test now explicitly resets `$global:LASTEXITCODE` after recording the result, and local x86/x64 invocations return success. |
+| T6-D026 | test/consumer | Complex DLL consumer through commit `b0fb069` | high | WCRT maintainer | T5 build integration | T6 corrective implementation | -- | `tools/test-built-libraries.ps1`, generated consumer import inspection | Removed locally; exact-CI verification pending. Direct standard complex calls could be lowered as TinyCC builtins, so the earlier DLL consumer did not prove those functions came from `wcrt.dll`; using `wcrt.def` plus the full static archive on ARM64 could also silently select static WCRT functions. The generated DLL consumer now resolves `conj`, `creal`, `cimag`, and `cabs` by exact export name with `LoadLibraryA`/`GetProcAddress`, while only the private ARM64 helper companion is static. Local x86/x64 execution and ARM64 import/link inspection pass. |
 
 Local GDB uses the approved MinGW-w64 16.1.0 archive with SHA-256
 `ecaceb42639d21c695f875800a29b2dea76bbb05eb2a1cca3049b65499b8d867` in the
@@ -457,12 +459,14 @@ removed. Planning findings are not silently converted into implementation.
 ## Actuals and Postmortem
 
 The candidate implementation, readiness draft, exact-CI corrections, retained
-native ARM64 finding, and failure diagnostics span 71 controlled artifacts,
-5,250 changed lines, and four conformance units. The artifact count is nine
-above the 38--62 forecast; changed lines are within the 4,800--9,600 forecast
-and 450 above its lower bound. The variance comes from adding project DFS/release
-controls and machine-readable evidence while reusing compact audit runners and
-the existing aggregate infrastructure. The source candidate itself at
+native ARM64 finding, selected-compiler ABI bridge, and failure diagnostics
+span 79 controlled artifacts, 5,723 changed lines, and four conformance units.
+The artifact count is 17 above the 38--62 forecast; changed lines are within
+the 4,800--9,600 forecast and 923 above its lower bound. The variance comes
+from adding project DFS/release controls, machine-readable evidence, and the
+separately documented ARM64 package/consumer boundary while reusing compact
+audit runners and the existing aggregate infrastructure. The original source
+candidate itself at
 `3fa0b1a3` contains 61 changed artifacts, 3,854 additions, and 295 removals
 relative to the T6 entry commit.
 
@@ -472,14 +476,15 @@ as effort. The planned 174--322 focused-hour base and 218--451-hour completion
 forecast therefore cannot be scored for time accuracy or converted into a
 calendar schedule.
 
-Twenty-four findings were recorded. Twenty-one requirement, interface, numeric,
-test, dependency, documentation, and procedure findings were removed or
-explicitly disposed during personal review. T6-D016 remains a critical R1
-blocker because Authenticode/timestamp and final-byte Defender controls are not
-implemented. T6-D019 remains non-gating cleanup because unused bootstrap
-helpers describe dependencies WCRT does not contain. T6-D023 is an open
-critical native ARM64 complex-runtime fault. Independent-review gaps remain
-completion conditions rather than silently closed defects.
+Twenty-six findings were recorded. Requirement, interface, numeric, test,
+dependency, documentation, and procedure corrections are recorded per defect,
+including the newly exposed diagnostic exit-status and DLL-consumer evidence
+faults. T6-D016 remains a critical R1 blocker because Authenticode/timestamp
+and final-byte Defender controls are not implemented. T6-D019 remains
+non-gating cleanup because unused bootstrap helpers describe dependencies WCRT
+does not contain. T6-D023's ARM64 correction and T6-D024's diagnostic
+enforcement remain open until exact-revision native CI passes. Independent-
+review gaps remain completion conditions rather than silently closed defects.
 
 The quality plan found one candidate-blocking issue after the first freeze:
 ARM64 TC-0007 omitted the new `fenv.c` dependency. Retaining the failure,

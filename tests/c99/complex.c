@@ -100,6 +100,8 @@ static int wcrt_check_exact(void)
     if (cabs(value) != 5.0) return 52;
     result = wcrt_make(1.0, 2.0) * wcrt_make(3.0, -4.0);
     if (creal(result) != 11.0 || cimag(result) != 2.0) return 53;
+    result = result / wcrt_make(3.0, -4.0);
+    if (creal(result) != 1.0 || cimag(result) != 2.0) return 55;
     result = cproj(wcrt_make(INFINITY, -2.0));
     if (!isinf(creal(result)) || cimag(result) != 0.0 ||
         !signbit(cimag(result))) return 54;
@@ -236,6 +238,8 @@ static int wcrt_check_precisions(void)
     long double complex extended = (long double complex)single;
     float complex single_result = cexpf(single);
     long double complex long_result = cexpl(extended);
+    float complex single_product = single * single;
+    long double complex long_product = extended * extended;
 
     if (!wcrt_near(crealf(single_result), 1.1268383, 1e-5) ||
         !wcrt_near(cimagf(single_result), -0.6155946, 1e-5)) return 90;
@@ -243,6 +247,16 @@ static int wcrt_check_precisions(void)
             1e-11)) return 91;
     if (!wcrt_near((double)cimagl(long_result), -0.6155945769770066,
             1e-11)) return 92;
+    if (crealf(single_product) != -0.1875F ||
+        cimagf(single_product) != -0.25F) return 93;
+    single_product = single_product / single;
+    if (crealf(single_product) != 0.25F ||
+        cimagf(single_product) != -0.5F) return 94;
+    if (creall(long_product) != -0.1875L ||
+        cimagl(long_product) != -0.25L) return 95;
+    long_product = long_product / extended;
+    if (creall(long_product) != 0.25L ||
+        cimagl(long_product) != -0.5L) return 96;
     return 0;
 }
 

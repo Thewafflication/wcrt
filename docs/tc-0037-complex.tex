@@ -7,6 +7,7 @@ ordinary accuracy, branch cuts, signed zeros, and exceptional values.}
 \def\TCRequirementRef{REQ-0037}
 \def\TCDesignRef{ISO/IEC 9899:1999 7.3; ADR-0005.}
 \def\TCFeatureRef{\texttt{include/complex.h}; \texttt{src/complex.c};
+\texttt{src/platform/windows/tinycc\_complex\_abi.c} and \texttt{.S};
 \texttt{tests/c99/complex.c}; retained 100-digit vector JSON and generator;
 \texttt{tests/c99/run-tc-0037.ps1}.}
 \def\TCTestTechnique{Inventory checks, controlled vectors, exact components,
@@ -22,12 +23,15 @@ both sides of cuts; signed zero, infinity, NaN, overflow, and underflow.}
 \def\TCInitialState{Inputs are created from compiler complex constants and
 controlled component values; errno and relevant floating state are cleared.}
 \def\TCProcedure{Compile the declaration and C89 inventories; verify exact
-manipulation; execute ordinary, cut, special, range, and symmetry partitions;
-exercise static and DLL calls; rerun TC-0007 and TC-0035.}
+manipulation and float, double, and long-double multiplication and division;
+execute ordinary, cut, special, range, and symmetry partitions; exercise
+static and DLL calls, requiring DLL functions to resolve from \texttt{wcrt.dll}
+and the ARM64 private helper bridge from its companion archive; rerun TC-0007
+and TC-0035.}
 \def\TCExpectedResult{All targets link and meet their component, type,
-tolerance, branch, sign, classification, and error expectations. TinyCC 1441
-passes the capability gate; ADR-0005's exact diagnostic matrix remains only as
-a controlled regression fallback.}
+tolerance, branch, sign, classification, operator-ABI, and error expectations.
+TinyCC 1442 passes the capability gate; ADR-0005's exact diagnostic matrix
+remains only as a controlled regression fallback.}
 \def\TCPostConditions{Detailed results and compiler diagnostics remain in the
 architecture-specific ignored output directories.}
 \TCTemplate

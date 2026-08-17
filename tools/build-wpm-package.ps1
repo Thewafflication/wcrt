@@ -49,6 +49,10 @@ foreach ($architecture in $architectures) {
     foreach ($file in @('libwcrt.a', 'wcrt-startup-console.o', 'wcrt-startup-gui.o', 'wcrt.def')) {
         Copy-Item -LiteralPath (Join-Path $buildDirectory $file) -Destination $libDirectory
     }
+    if ($architecture -eq 'arm64') {
+        Copy-Item -LiteralPath (Join-Path $buildDirectory `
+            'libwcrt-tinycc-complex-abi.a') -Destination $libDirectory
+    }
     Copy-Item -LiteralPath (Join-Path $buildDirectory `
         'c99-complex-capability.json') -Destination $architectureRoot
 }
@@ -175,6 +179,10 @@ try {
             "$architecture/lib/wcrt.def"
             "$architecture/c99-complex-capability.json"
         )
+        if ($architecture -eq 'arm64') {
+            $requiredEntries +=
+                "$architecture/lib/libwcrt-tinycc-complex-abi.a"
+        }
     }
     foreach ($entry in $requiredEntries) {
         if (-not $entries.ContainsKey($entry) -or $entries[$entry] -eq 0) {

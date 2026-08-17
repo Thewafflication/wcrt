@@ -2,9 +2,9 @@
 
 **Content type:** Project requirement
 
-**Status:** Implementation baselined; selected TinyCC 1442 local x86/x64
-verification and ARM64 compile/link verification pass; exact-candidate native
-ARM64 review remains open
+**Status:** Corrective implementation baselined; selected TinyCC 1442 local
+x86/x64 verification and ARM64 compile/link verification pass; corrected
+exact-candidate native ARM64 verification and independent review remain open
 
 **Source:** ISO/IEC 9899:1999 as corrected through TC3, §7.3
 
@@ -19,6 +19,8 @@ conformance, and `CMPLX` construction macros are outside scope.
 
 - `include/complex.h` — edition-selected macros and declarations.
 - `src/complex.c` — self-contained complex mathematics implementation.
+- `src/platform/windows/tinycc_complex_abi.c` and `.S` — selected TinyCC
+  ARM64 operator-helper ABI adaptation.
 - `tests/c99/complex.c` and presence tests — inventory, numerical, special-
   value, representation, branch-cut, and isolation verification.
 - `tools/generate-complex-vectors.py` and retained JSON — deterministic
@@ -52,6 +54,10 @@ conformance, and `CMPLX` construction macros are outside scope.
   existing C89 and earlier C99 surfaces shall remain unchanged.
 - Complex representation and calling behavior shall be verified independently
   for x86, x64, and ARM64 before conformance is claimed.
+- A selected compiler whose emitted complex-operator helper calls do not match
+  its packaged helper entry ABI shall be rejected or adapted at that private
+  boundary. The adaptation shall not change the public C99 type or function
+  ABI and shall be included in static and DLL consumer verification.
 
 ## Rationale
 
@@ -90,6 +96,12 @@ root, exponential/logarithmic foundations, power, forward and inverse
 trigonometric and hyperbolic families, and three semantic precisions. TinyCC
 `0.9.28-rc.1441+0af32d51` established the historical T5 result. The T6-selected
 `0.9.28-rc.1442+2474e1c2` package compiles and executes TC-0037 natively on x86
-and x64, compiles it for ARM64, and links complex calls through the static and
-DLL interfaces on all three targets. Exact-candidate native ARM64 execution
-and independent review remain open.
+and x64. Native ARM64 run `32020695485` exposed a compiler-private mismatch:
+operator call sites pass the four binary64 components in `x0`--`x3` and the
+result pointer in `x4`, while the packaged C helper reads `d0`--`d3` and `x0`.
+The ARM64 assembly bridge normalizes that boundary and tail-calls scaled WCRT
+scalar helpers. `libwcrt.a` contains the bridge; DLL consumers link
+`wcrt.def` plus the packaged `libwcrt-tinycc-complex-abi.a` companion so C99
+functions still resolve from `wcrt.dll`. Local native x86/x64 behavior and
+ARM64 compile/link verification pass. Corrected exact-candidate native ARM64
+execution and independent review remain open.

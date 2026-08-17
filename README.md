@@ -175,7 +175,10 @@ package name, license, and repository information.
 Each architecture build produces the shared `wcrt.dll`, its TinyCC import definition
 `wcrt.def`, the static TinyCC archive `libwcrt.a`, the optional
 `wcrt-startup-console.o` and `wcrt-startup-gui.o` startup objects, and a copy of
-the public headers. The WPM package installs shared headers beneath `include`
+the public headers. ARM64 builds additionally produce
+`libwcrt-tinycc-complex-abi.a`, a selected-TinyCC private operator bridge for
+DLL consumers; the ordinary static archive already contains that bridge. The
+WPM package installs shared headers beneath `include`
 and target files beneath `x86`, `x64`, and `arm64` architecture directories.
 The package also contains the C99 complex capability/profile records. A target
 whose compiler passes the probe contains the complex runtime; a controlled
@@ -184,6 +187,17 @@ After all Debug architecture jobs pass, a semantic-version tag builds signed
 Release artifacts for x86, x64, and ARM64. The workflow publishes one
 `arch=any` WPM package containing every target, the public signing key, and the
 WPM repository `index.json` to the corresponding GitHub Release.
+
+An ARM64 C99 consumer that links the DLL uses both the import definition and
+the compiler-private companion archive (in this order):
+
+```powershell
+tcc program.c $env:WCRT_HOME/arm64/lib/wcrt.def `
+  $env:WCRT_HOME/arm64/lib/libwcrt-tinycc-complex-abi.a -o program.exe
+```
+
+The companion does not contain WCRT's public complex functions; those remain
+imports from `wcrt.dll`. x86/x64 DLL consumers need only `wcrt.def`.
 
 ## Optional static process startup
 
@@ -238,8 +252,8 @@ wpm install wcrt
 ```
 
 One installation provides the headers, DLL, static library, import definition,
-and startup objects for x86, x64, and ARM64. Build scripts select the desired
-target beneath `%WCRT_HOME%\x86`, `%WCRT_HOME%\x64`, or
+ARM64 complex-ABI companion archive, and startup objects for x86, x64, and
+ARM64. Build scripts select the desired target beneath `%WCRT_HOME%\x86`, `%WCRT_HOME%\x64`, or
 `%WCRT_HOME%\arm64`.
 
 To install a prerelease version, enable prereleases only for WCRT before

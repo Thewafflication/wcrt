@@ -71,10 +71,11 @@ try {
         [int]$Matches[1]
     } else { $null }
     $debugger = $invocation.Diagnostics
-    if ($debugger.Debugger -and $debugger.DebuggerStatus -ne 'Completed') {
+    if ($debugger.Debugger -and $debugger.DebuggerStatus -notin
+        'Completed', 'UnsupportedTarget') {
         throw "GDB did not capture a backtrace: $($debugger.DebuggerOutput)"
     }
-    if ($debugger.Debugger) {
+    if ($debugger.DebuggerStatus -eq 'Completed') {
         foreach ($requiredText in @('#0', 'crash_probe', 'main')) {
             if ($debugger.DebuggerOutput -notmatch
                 [regex]::Escape($requiredText)) {
@@ -106,3 +107,4 @@ try {
         $env:WCRT_TEST_TINYCC = $previousTinyCc
     }
 }
+$global:LASTEXITCODE = 0

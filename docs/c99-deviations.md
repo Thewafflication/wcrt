@@ -29,6 +29,16 @@ target JSON remain part of T6 verification. These are compiler-blocked, not
 silent runtime deviations. Optional imaginary types are omitted because the
 selected compiler does not provide them.
 
+## Resolved selected-compiler adaptation
+
+Native ARM64 run `32020695485` proved that TinyCC 1442 complex multiplication
+called its packaged `__tcc_muldc3` with a different private register convention
+than the helper entry expects. WCRT now supplies a target-scoped bridge and
+scalar helpers in the static library and ARM64 DLL companion archive. This is
+not registered as a public-library deviation: the public C99 representation,
+function ABI, and results remain required. Corrected native ARM64 execution is
+Unknown until retained exact-revision CI passes.
+
 ## Profiles not claimed
 
 WCRT 1.0.0 does not claim IEC 60559 Annex F binding, Annex G imaginary-type

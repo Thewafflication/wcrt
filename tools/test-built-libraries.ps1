@@ -55,12 +55,66 @@ $complexSupported = $complexCapability.Status -eq 'Supported' -and
 if ($complexSupported) {
     Set-Content -LiteralPath $complexSource -Encoding ascii -Value @(
         '#include <complex.h>'
+        'typedef union {'
+        '    double complex value;'
+        '    double part[2];'
+        '} wcrt_consumer_complex;'
+        'static double complex wcrt_consumer_make(double real, double imaginary)'
+        '{'
+        '    wcrt_consumer_complex result;'
+        '    result.part[0] = real;'
+        '    result.part[1] = imaginary;'
+        '    return result.value;'
+        '}'
+        'typedef double complex (*wcrt_complex_fn)(double complex);'
+        'typedef double (*wcrt_component_fn)(double complex);'
+        'static wcrt_complex_fn wcrt_conj_fn;'
+        'static wcrt_component_fn wcrt_creal_fn;'
+        'static wcrt_component_fn wcrt_cimag_fn;'
+        'static wcrt_component_fn wcrt_cabs_fn;'
+        '#if defined(WCRT_DLL_CONSUMER)'
+        '#if defined(__TINYC__) || defined(__GNUC__)'
+        '#define WCRT_WINAPI __attribute__((stdcall))'
+        '#else'
+        '#define WCRT_WINAPI __stdcall'
+        '#endif'
+        '__declspec(dllimport) void *WCRT_WINAPI LoadLibraryA(const char *name);'
+        '__declspec(dllimport) void *WCRT_WINAPI GetProcAddress(void *module, const char *name);'
+        '#endif'
+        'static int wcrt_resolve_functions(void)'
+        '{'
+        '#if defined(WCRT_DLL_CONSUMER)'
+        '    void *module = LoadLibraryA("wcrt.dll");'
+        '    if (module == 0) return 0;'
+        '    wcrt_conj_fn = (wcrt_complex_fn)GetProcAddress(module, "conj");'
+        '    wcrt_creal_fn = (wcrt_component_fn)GetProcAddress(module, "creal");'
+        '    wcrt_cimag_fn = (wcrt_component_fn)GetProcAddress(module, "cimag");'
+        '    wcrt_cabs_fn = (wcrt_component_fn)GetProcAddress(module, "cabs");'
+        '#else'
+        '    wcrt_conj_fn = conj;'
+        '    wcrt_creal_fn = creal;'
+        '    wcrt_cimag_fn = cimag;'
+        '    wcrt_cabs_fn = cabs;'
+        '#endif'
+        '    return wcrt_conj_fn != 0 && wcrt_creal_fn != 0 &&'
+        '        wcrt_cimag_fn != 0 && wcrt_cabs_fn != 0;'
+        '}'
         'int main(void)'
         '{'
-        '    double complex value = 3.0 + 4.0 * I;'
-        '    double complex mirror = conj(value);'
-        '    return creal(mirror) == 3.0 && cimag(mirror) == -4.0 &&'
-        '        cabs(value) == 5.0 ? 0 : 1;'
+        '    double complex value = wcrt_consumer_make(3.0, 4.0);'
+        '    double complex mirror;'
+        '    double complex right = wcrt_consumer_make(1.0, -2.0);'
+        '    double complex product = value * right;'
+        '    double complex quotient = product / right;'
+        '    if (!wcrt_resolve_functions()) return 2;'
+        '    mirror = wcrt_conj_fn(value);'
+        '    return wcrt_creal_fn(mirror) == 3.0 &&'
+        '        wcrt_cimag_fn(mirror) == -4.0 &&'
+        '        wcrt_creal_fn(product) == 11.0 &&'
+        '        wcrt_cimag_fn(product) == -2.0 &&'
+        '        wcrt_creal_fn(quotient) == 3.0 &&'
+        '        wcrt_cimag_fn(quotient) == 4.0 &&'
+        '        wcrt_cabs_fn(value) == 5.0 ? 0 : 1;'
         '}'
     )
     & $TinyCc -std=c99 -Wall -Werror -I $include $complexSource `
@@ -68,8 +122,18 @@ if ($complexSupported) {
     if ($LASTEXITCODE -ne 0) {
         throw 'Complex static-library consumer failed to link.'
     }
-    & $TinyCc -std=c99 -Wall -Werror -I $include $complexSource `
-        (Join-Path $buildDirectory 'wcrt.def') -o $complexDynamicExecutable
+    $complexDynamicInputs = @(
+        (Join-Path $buildDirectory 'wcrt.def')
+    )
+    if ($Architecture -eq 'arm64') {
+        # The DLL owns the C99 functions.  The archive contributes only the
+        # compiler-private TinyCC operator ABI bridge after imports resolve.
+        $complexDynamicInputs += Join-Path $buildDirectory `
+            'libwcrt-tinycc-complex-abi.a'
+    }
+    & $TinyCc -std=c99 -DWCRT_DLL_CONSUMER=1 -Wall -Werror -I $include `
+        $complexSource `
+        @complexDynamicInputs -o $complexDynamicExecutable
     if ($LASTEXITCODE -ne 0) {
         throw 'Complex DLL consumer failed to link.'
     }

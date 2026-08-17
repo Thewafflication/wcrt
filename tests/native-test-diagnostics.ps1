@@ -139,7 +139,10 @@ function Invoke-WcrtFailureDebugger {
                 $debuggerOutput = $debuggerResult.Output
                 if ($debuggerStatus -eq 'Completed' -and
                     $debuggerOutput -notmatch '(?m)^#0\s') {
-                    $debuggerStatus = 'NoBacktrace'
+                    $debuggerStatus = if ($debuggerOutput -match
+                        'not in executable format: file format not recognized') {
+                        'UnsupportedTarget'
+                    } else { 'NoBacktrace' }
                 }
             } catch {
                 $debuggerStatus = 'Failed'

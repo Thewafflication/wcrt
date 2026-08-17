@@ -64,11 +64,13 @@ function and its caller.
 After a runner exception, the aggregate retains emitted output and the
 executable, records its SHA-256 digest, and attempts a 30-second batch GDB
 rerun when GDB is available. The GDB result is independently classified as
-Completed, NoBacktrace, TimedOut, Failed, or Unavailable. cv2pdb remains the
-converter used for the WCRT DLL PDB; it is not required for TinyCC's embedded
-test trace or GDB's reading of the test executable. Logical failures that do
-not raise an exception retain their test diagnostics but may have no native
-stack to report.
+Completed, UnsupportedTarget, NoBacktrace, TimedOut, Failed, or Unavailable.
+`UnsupportedTarget` means the installed debugger cannot read that target's PE
+format and is not a debugger Pass. cv2pdb remains the converter used for the
+WCRT DLL PDB; it is not required for TinyCC's embedded test trace or GDB's
+reading of the test executable. Logical failures that do not raise an
+exception retain their test diagnostics but may have no native stack to
+report.
 
 ## Identifiers and Locations
 
@@ -98,6 +100,14 @@ SHA-256 checksums, and publish only after every architecture succeeds.
 After all ordinary Debug architecture jobs pass, CI combines their outputs into
 one unsigned `wcrt-debug` multi-architecture WPM package and retains it as a
 workflow artifact.
+
+The integration consumer constructs nonconstant complex operands and executes
+multiplication and division. It resolves DLL complex functions by exact export
+name at runtime so TinyCC builtins cannot turn the DLL test into static or
+compiler-only evidence. ARM64 DLL consumers link `wcrt.def` plus the packaged
+`libwcrt-tinycc-complex-abi.a`; the companion archive supplies only the
+selected compiler's private operator bridge, while the standard functions
+must still resolve from `wcrt.dll`.
 
 ## Evidence and Reporting
 

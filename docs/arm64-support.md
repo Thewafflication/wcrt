@@ -30,6 +30,14 @@ integer registers X19-X28, frame pointer X29, stack pointer, return address
 X30, and the low 64-bit halves D8-D15 of vector registers V8-V15. The public
 ARM64 `jmp_buf` size is compile-time checked as 168 bytes.
 
+TinyCC 1442's ARM64 complex-operator call sites and its packaged C helpers use
+different private register conventions. WCRT therefore ships a target-scoped
+bridge in `libwcrt.a` and as `libwcrt-tinycc-complex-abi.a` for DLL consumers.
+The bridge moves the four binary64 components from `x0`--`x3` to `d0`--`d3`,
+moves the result address from `x4` to `x0`, and delegates to scaled scalar
+helpers. This compiler adaptation does not alter the public complex function
+ABI. TC-0037 and the static/DLL consumers are the required native gate.
+
 ## Candidate evidence boundary
 
 An exact release candidate requires retained native ARM64 results for the full
