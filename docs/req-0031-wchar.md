@@ -2,7 +2,7 @@
 
 **Content type:** Project requirement
 
-**Status:** Implemented locally; native ARM64 verification pending
+**Status:** Implemented; exact native Debug x86/x64/ARM64 verification passes
 
 **Source:** ISO/IEC 9899:1999 as corrected through TC3, §7.24 and §7.8.2
 
@@ -125,9 +125,9 @@ uses a UTF-16 code-unit parser so high code units are preserved in memory.
 `wcsftime` uses the completed C99 C-locale `strftime` conversion set.
 
 TC-0031 passes its presence, C89-isolation, behavior, format/scan, string,
-conversion, stream, time, and numeric tests natively on x86 and x64. The same
-controlled sources and tests compile/link for ARM64. Full C89 and extension
-aggregates, Release library/consumer builds, source-quality, traceability,
-WSP-tool, and Windows 2000 x86 import gates pass locally. Native ARM64
-execution, immutable exact-revision CI evidence, and independent review remain
-required before target-complete acceptance.
+conversion, stream, time, and numeric tests natively on x86, x64, and ARM64 in
+exact-revision run `32027269426`. Full C89 and extension aggregates, Debug
+library/consumer/startup builds, source-quality, traceability, and WSP-tool
+gates also pass there. Exact local Release x86/x64 behavior, ARM64 compile/link,
+and the Windows 2000 x86 import gate pass; native ARM64 Release and independent
+review remain completion work.

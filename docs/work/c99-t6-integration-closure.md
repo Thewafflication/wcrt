@@ -1,7 +1,7 @@
 # C99 T6 Integration Closure Work Log
 
-**Status:** Local closure audit complete; Reject/No-Go because native
-exact-candidate ARM64 evidence and independent project review remain open
+**Status:** Exact native Debug closure audit complete; Reject/No-Go because
+native ARM64 Release, release-trust, and independent project review remain open
 
 **Owner:** WCRT maintainer
 
@@ -20,19 +20,23 @@ tree. T5 and the approved T6 baseline were reviewed and committed as
 `1d681da8ab439a0e63ee7433ed289037806a26c7`.
 
 **Candidate source baseline:**
-`3fa0b1a3a22bbd93ff9185dbb24689d83e057e56`. Commit
+`aea690d2caf108054d1644eefb176efde779f524`. Commit
 `5ab2e00bd899bb29ab936145ffe7a7f17d887dbb` contains the primary T6 audit and
 corrections, `d15c78d` pins dependency/action inputs, `23497525` reconciles
-project/release controls, and `3fa0b1a3` removes the ARM64 cross-runner defect
-found during the first candidate verification.
+project/release controls, `3fa0b1a3` removes the ARM64 cross-runner defect,
+`b0fb0693` adds automatic native crash diagnostics, `af3b42fb` adds the selected
+TinyCC ARM64 complex-helper ABI bridge, and `aea690d2` retains exact dependency
+provenance and the ARM64 companion artifact.
 
 ## Tranche Decision
 
-The maintainer authorized T6 implementation on 2026-08-16. The tranche may
+The maintainer authorized T6 implementation on 2026-08-16 and later explicitly
+authorized commits and pushes for exact GitHub comparison. The tranche may
 produce an unsigned local release candidate and readiness inputs, but it does
-not authorize tagging, private-key signing, pushing, publishing, uploading, or
-creating a release. Every exact-candidate target result remains Unknown until
-its retained evidence is produced.
+not authorize tagging, private-key signing, publishing, uploading artifacts,
+or creating a release. Every target result remains Unknown until its retained
+evidence is produced; run `32027269426` supplies exact native Debug evidence,
+not native ARM64 Release or release-trust evidence.
 
 ## Baseline and Scope
 
@@ -146,6 +150,26 @@ The following are completion work rather than supporting observations:
     and are not release candidates. Release-readiness, DFS, signing/timestamp,
     Defender, rollback, and support records remain absent or deferred and
     belong to R1 after T6 reaches a terminal decision.
+
+### Closure Reconciliation
+
+The baseline discrepancies above are preserved as planning evidence. The
+implementation created REQ/TC-0040--0042, the clause profile, implementation-
+defined/deviation/platform records, pinned dependency workflow, DFS/release
+records, and exact evidence manifests. It corrected the assertion, `isblank`,
+`lconv`, `MB_CUR_MAX`, FMA, startup aggregation, vector line-ending, automatic
+diagnostic, DLL-consumer, ARM64 complex-helper ABI, and artifact-retention
+findings recorded below.
+
+Run `32027269426` at
+`aea690d2caf108054d1644eefb176efde779f524` passes the exact native Debug
+x86/x64/ARM64 matrix and retains dependency/runner/artifact evidence. The
+reconciled exact local Release candidate is
+`wcrt-any-1.0.0-rc.1.23+aea690d2.zip`, SHA-256
+`18be4aa5086d07ed9ff31e4f808b107d14c399408e394877c57e9f51f288e68b`.
+Native ARM64 Release execution, independent review, signing/timestamp, WPM
+verification, final-signed-byte Defender design/evidence, documentation, and
+install/rollback remain open; they are not converted to Pass.
 
 ## Size and Effort Estimate
 
@@ -407,26 +431,27 @@ command wall time, commit timestamps, or CI duration.
 | T6-D005 | interface/ABI | C89 locale baseline | high | WCRT maintainer | C89 implementation | T6 implementation | -- | `include/locale.h`, `src/locale.c`, TC-0040/0042 | Removed: the six international monetary members and full runtime layout are present while the C89 prefix surface remains selected. |
 | T6-D006 | interface/ABI | C89 utility baseline | high | WCRT maintainer | C89 implementation | T6 implementation | -- | `include/stdlib.h`, TC-0040/0042 | Removed: `MB_CUR_MAX` is the positive constant expression `(size_t)1`. |
 | T6-D007 | test | T0--T5 test design | critical | WCRT maintainer | Earlier tranche design | T6 implementation | -- | C99 manifest/runners, TC-0040--0042 | Removed: all 24 C99 headers, all 15 C89 headers, repeated/mixed inclusion, ABI, profile, and existing-family inventory gates are controlled. |
-| T6-D008 | documentation | T0--T5 status | high | WCRT maintainer | Earlier verification | T6 documentation reconciliation | -- | work plan, roadmap, ARM64/platform records | Removed: current records distinguish historical evidence from the T6-selected baseline and preserve native ARM64 as Unknown at the candidate revision. Historical work logs are not rewritten as new evidence. |
+| T6-D008 | documentation | T0--T5 status | high | WCRT maintainer | Earlier verification | T6 documentation reconciliation | -- | work plan, roadmap, ARM64/platform records | Removed: current records distinguish historical evidence, exact native Debug Pass, and native ARM64 Release Unknown at the selected candidate. Historical work logs are not rewritten as new evidence. |
 | T6-D009 | documentation | Conformance documentation | critical | WCRT maintainer | Project bootstrap | T6 specification | -- | `docs/c99-conformance-profile.md`, `docs/implementation-defined.md`, `docs/c99-deviations.md` | Removed: 75 facility rows cover clauses 7.1--7.25 and all 24 headers with independent classifications and target states. |
 | T6-D010 | requirements/numeric | REQ-0028/REQ-0039 | high | WCRT maintainer | Earlier requirements/implementation | T6 specification/verification | -- | REQ/TC-0039; decimal profile test | Removed: mandatory hexadecimal rounding, implementation-defined decimal accuracy, omitted recommended practice, C-locale syntax, wide dependencies, and a one-ULP counterexample are explicit. |
-| T6-D011 | numeric | T4 | critical | WCRT maintainer | T4 implementation | T6 implementation | -- | `src/math.c`, TC-0035, `tests/c99/data/fma-vectors.json` | Removed: exact integer product/addend accumulation and single active-direction binary32/binary64 rounding replace the sample-only compensated implementation. Native exact-revision ARM64 evidence remains pending. |
-| T6-D012 | build/tooling | CI dependency provisioning | high | WCRT maintainer | CI design | T6 implementation | -- | `.github/workflows/build.yml`, commit `d15c78d` | Removed: WPM 1.0.16 archives/digests, TinyCC 1442 release/key/version, cv2pdb 0.54.0 release/key/version, and GitHub actions are pinned; per-target dependency provenance is retained by CI. Workflow execution at the candidate revision remains an evidence gate. |
-| T6-D013 | documentation/evidence | ARM64 support | high | WCRT maintainer | Earlier platform documentation | T6 documentation reconciliation | -- | `docs/arm64-support.md`, local result inventory | Documentation removed the stale cross-only description. Exact-candidate native ARM64 evidence remains an open completion gate, not a documentation defect. |
+| T6-D011 | numeric | T4 | critical | WCRT maintainer | T4 implementation | T6 implementation | -- | `src/math.c`, TC-0035, `tests/c99/data/fma-vectors.json` | Removed: exact integer product/addend accumulation and single active-direction binary32/binary64 rounding replace the sample-only compensated implementation. Exact-revision native x86/x64/ARM64 Debug TC-0035 passes in run `32027269426`. |
+| T6-D012 | build/tooling | CI dependency provisioning | high | WCRT maintainer | CI design | T6 implementation/verification | -- | `.github/workflows/build.yml`, dependency record, run `32027269426` | Removed: WPM 1.0.16 archives/digests, TinyCC 1442 release/key/version, cv2pdb 0.54.0 release/key/version, and GitHub actions are pinned; exact per-target provenance, runner images, jobs, and artifact identifiers are retained and inspected. |
+| T6-D013 | documentation/evidence | ARM64 support | high | WCRT maintainer | Earlier platform documentation | T6 documentation reconciliation | -- | `docs/arm64-support.md`, run `32027269426` | Removed: current documentation records exact native ARM64 Debug Pass and preserves native ARM64 Release as Unknown. |
 | T6-D014 | test | Startup aggregate runner | critical | WCRT maintainer | Earlier test implementation | T6 implementation | -- | `tools/test-startup-objects.ps1` | Removed: the runner reported Pass and returned success even when TC-0017 and TC-0018 returned Fail. It now throws for Fail, reports Blocked without Pass wording, and only reports Pass when every child result passes. |
 | T6-D015 | documentation/dependency | T5 compiler baseline | high | WCRT maintainer | T5 verification | T6 documentation reconciliation | -- | T5 records; selected TinyCC source `d5c02f0fcdfdf75265d38df6ff9db2f8067367ac` | Removed: T5 retains its historical 1441 evidence, while current requirements, platform, ADR, roadmap, README, and work-plan records select 1442 and require fresh results. The three local executable digests are recorded without transferring native claims. |
 | T6-D016 | build/tooling | Tagged release workflow | critical | WCRT maintainer | Earlier release automation | -- | -- | `.github/workflows/build.yml`, `docs/release-process.md`, WSP-SIGN-0001--0014 | Open R1 blocker: the workflow signs the WPM envelope but has no approved Authenticode identity/timestamp stage or exact-final-byte Defender evidence gate. The release process now fails this condition explicitly; signing infrastructure and exercised evidence remain required before publication. |
-| T6-D017 | build/tooling | Candidate `23497525bd0be03b0d53d79686376e93ade94046` ARM64 C89 cross aggregate | high | WCRT maintainer | T6 `fma` correction / earlier cross-runner inventory | T6 verification | -- | `tools/run-c89-arm64-cross.ps1`, failed and passing TC-0007 diagnostics | Removed: TC-0007 linked `src/math.c` without its now-required `src/fenv.c` dependency and reported unresolved `fegetround`, `feraiseexcept`, `fegetexceptflag`, and `fesetexceptflag`. The cross runner now uses the same dependency as the native runner; all 15 ARM64 C89 units compile/link as `0xAA64`, and focused x86/x64 TC-0007/0035/0036 reruns pass. Full build/consumer reruns remain in the exact-candidate matrix. |
-| T6-D018 | test | ARM64 aggregate invocation on x64 verification host | medium | WCRT maintainer | T6 verification procedure | T6 verification review | -- | `output/test-results/arm64/extension-test-results.json` | Removed as a procedure error, not a product Pass or Fail: the native aggregate was invoked with ARM64 executables on an x64 host and 27 cases reported process-launch errors; three compile/document checks passed. The result cannot support the product either way. Native ARM64 remains Unknown, while TC-0042 and the controlled cross runners provide separately identified compile/link evidence. |
+| T6-D017 | build/tooling | Candidate `23497525bd0be03b0d53d79686376e93ade94046` ARM64 C89 cross aggregate | high | WCRT maintainer | T6 `fma` correction / earlier cross-runner inventory | T6 verification | -- | `tools/run-c89-arm64-cross.ps1`, failed diagnostics, run `32027269426` | Removed: TC-0007 linked `src/math.c` without its now-required `src/fenv.c` dependency. The cross runner now uses the native dependency; all 15 ARM64 C89 units compile/link locally and pass natively in the final exact CI run. |
+| T6-D018 | test | ARM64 aggregate invocation on x64 verification host | medium | WCRT maintainer | T6 verification procedure | T6 verification review | -- | invalid local output; run `32027269426` | Removed as a procedure error, not a product result: the x64-host invocation produced launch errors and was excluded. The same aggregate later passes natively on the exact ARM64 runner; native ARM64 Release remains separately Unknown. |
 | T6-D019 | build/tooling | Bootstrap dependency helpers | medium | WCRT maintainer | Pre-C99 bootstrap | -- | -- | `tests/check-dependency-releases.ps1`, `tests/export-dependency-metadata.ps1` | Open non-gating cleanup: the unused helpers inventory absent miniz/libsodium directories and cannot establish WCRT provenance. They are excluded from Pass evidence; the pinned workflow and `docs/evidence/c99-t6/dependency-provenance.json` are authoritative. Remove or replace the helpers before enabling them as a gate. |
 | T6-D020 | test | TC-0041 profile validator | high | WCRT maintainer | T6 test implementation | T6 verification | -- | `tests/c99/Verify-C99ConformanceProfile.ps1`, REQ/TC-0041 | Removed: the controlled requirement permits approved `ExpectedFail`, but the validator rejected that state. The vocabulary now permits it only for compiler-blocked rows and prohibits compiler-blocked Pass; TC-0041 passes with 25 clauses, 24 headers, and 75 facility rows. |
 | T6-D021 | documentation/process | WSP adoption dispositions at candidate review | high | WCRT maintainer | Pre-candidate WSP adoption | R1 readiness consistency review | -- | `docs/WSP-ADOPTION.md`, `docs/security/design-for-security.md`, readiness record | Removed: the adoption record still described release readiness, DFS scope/trust/threat controls, and trust-layer separation as future work after the project-owned records existed. Those requirements now point to the implemented records; genuinely incomplete derived-security, signing, PDF, response, and evidence-retention controls remain Deferred. The DFS verification table now states the exact candidate Pass/Fail/Unknown boundaries. |
-| T6-D022 | test/evidence | GitHub Actions run `32020177550` at `80c88d1b0b2585734edb2451f560bbf4ae282b39` | high | WCRT maintainer | T4/T5 vector reproducibility checks | Post-push exact-revision CI | -- | `tests/c99/Verify-FmaVectors.ps1`, `tests/c99/Verify-ComplexVectors.ps1`, retained run artifacts | Removed: all three native architecture jobs reported TC-0035 and TC-0037 Fail because GitHub's Windows checkout converted controlled JSON to CRLF while Python emitted LF and the validators compared raw text. Product behavior was not reached by those subchecks. Both validators now canonicalize CRLF, CR, and LF before exact content comparison; semantic content remains unchanged. Rerun the complete workflow at the correction revision. |
-| T6-D023 | implementation/compiler ABI | GitHub Actions runs `32020695485` and `32023981205` | critical | WCRT maintainer | Selected TinyCC ARM64 compiler runtime | T6 corrective implementation | -- | ARM64 TC-0037 captured output, failing executable SHA-256 `6c41dabcfa1d3fc54dc74b7de307ee1ae8095d4e96e1b8c36eb92639860bc0b1`, bridge sources and consumer evidence | Correction implemented; exact-CI verification pending. The automatic TinyCC trace identifies `wcrt_check_exact` at `tests/c99/complex.c:101`. Disassembly proves the caller supplies components in `x0`--`x3` and the result pointer in `x4`, but packaged `__tcc_muldc3` reads `d0`--`d3` and writes through `x0`. The target-scoped bridge normalizes multiplication/division calls and delegates to scaled scalar helpers. Static and DLL package paths include the bridge, and tests now execute float/double/long-double multiply/divide. Local x86/x64 TC-0037 and consumers pass; ARM64 build, PE inspection, and consumer links pass. Native ARM64 behavior remains Unknown until the correction revision runs. |
-| T6-D024 | test/evidence | Commit `b0fb06937f067733c14f1adf54a48f16ceca4994`, run `32023981205` | high | WCRT maintainer | Earlier aggregate test implementation | T6 corrective implementation | -- | native diagnostic helper, TinyCC wrapper, diagnostic self-test, run artifacts | Functional evidence retained; enforcement correction pending exact CI. Every architecture's deliberate crash emitted TinyCC `crash_probe` and `main`; x86/x64 GDB independently returned `#0 crash_probe` and `#1 main`. The native ARM runner's installed GDB 16.2 rejected ARM64 PE and is now classified `UnsupportedTarget`, not Pass. Local GDB 17.1 is installed in the ignored project cache and captures x86/x64 traces. Custom `-nostdlib` startup links remain excluded because injecting TinyCC's backtrace runtime would change the runtime under test. |
-| T6-D025 | test/evidence | Commit `b0fb06937f067733c14f1adf54a48f16ceca4994`, run `32023981205` | high | WCRT maintainer | T6 native diagnostic self-test | T6 corrective implementation | -- | x86/x64 passing diagnostic JSON and failed workflow steps | Removed locally; exact-CI verification pending. The deliberate crashing child left PowerShell's process-wide `$LASTEXITCODE` nonzero even after the script emitted a passing JSON result, so all three diagnostic steps exited 1. The self-test now explicitly resets `$global:LASTEXITCODE` after recording the result, and local x86/x64 invocations return success. |
-| T6-D026 | test/consumer | Complex DLL consumer through commit `b0fb069` | high | WCRT maintainer | T5 build integration | T6 corrective implementation | -- | `tools/test-built-libraries.ps1`, generated consumer import inspection | Removed locally; exact-CI verification pending. Direct standard complex calls could be lowered as TinyCC builtins, so the earlier DLL consumer did not prove those functions came from `wcrt.dll`; using `wcrt.def` plus the full static archive on ARM64 could also silently select static WCRT functions. The generated DLL consumer now resolves `conj`, `creal`, `cimag`, and `cabs` by exact export name with `LoadLibraryA`/`GetProcAddress`, while only the private ARM64 helper companion is static. Local x86/x64 execution and ARM64 import/link inspection pass. |
-| T6-D027 | evidence | Commit `af3b42fb01f78f365e58db162c1c91e27426b597`, run `32026514992` | high | WCRT maintainer | CI artifact-retention list | T6 corrective implementation | -- | `.github/workflows/build.yml`, architecture artifacts | Removed in workflow; exact-CI retention verification pending. All target jobs created `dependency-provenance.json`, and the run logs identify the pinned dependencies and runner images, but the explicit artifact upload list omitted that JSON. The ARM64 companion archive was retained in the broad build/package artifacts but was also absent from the named architecture evidence artifact. Both paths are now explicit upload inputs; no provenance gate becomes Pass until the rerun artifact is inspected. |
+| T6-D022 | test/evidence | GitHub Actions run `32020177550` at `80c88d1b0b2585734edb2451f560bbf4ae282b39` | high | WCRT maintainer | T4/T5 vector reproducibility checks | Post-push exact-revision CI | -- | vector validators; run `32027269426` | Removed: the validators now canonicalize CRLF, CR, and LF before exact comparison; semantic content is unchanged, and the final exact native rerun passes all targets. |
+| T6-D023 | implementation/compiler ABI | GitHub Actions runs `32020695485` and `32023981205` | critical | WCRT maintainer | Selected TinyCC ARM64 compiler runtime | T6 corrective implementation/verification | -- | ARM64 TC-0037 trace, bridge sources, run `32027269426` | Removed: the trace/disassembly proved x0--x4 caller versus d0--d3/x0 helper conventions. The target bridge normalizes multiply/divide calls and delegates to scaled scalar helpers. Final exact ARM64 TC-0037 and static/DLL consumers pass natively. |
+| T6-D024 | test/evidence | Commit `b0fb06937f067733c14f1adf54a48f16ceca4994`, runs `32023981205` and `32027269426` | high | WCRT maintainer | Earlier aggregate test implementation | T6 corrective implementation/verification | -- | native diagnostic JSON and run artifacts | Removed with explicit exception: deliberate crashes emit TinyCC `crash_probe`/`main`; x86/x64 GDB 17.1 independently completes. ARM64 GDB 16.2 rejects ARM64 PE and is retained as `UnsupportedTarget`, while the built-in trace passes. Custom `-nostdlib` startup links remain excluded because injection would change the runtime under test. |
+| T6-D025 | test/evidence | Commit `b0fb06937f067733c14f1adf54a48f16ceca4994`, run `32023981205` | high | WCRT maintainer | T6 native diagnostic self-test | T6 corrective implementation/verification | -- | diagnostic self-test and run `32027269426` | Removed: the self-test resets `$global:LASTEXITCODE` after retaining the deliberate crash result; every final architecture diagnostic step returns success. |
+| T6-D026 | test/consumer | Complex DLL consumer through commit `b0fb069` | high | WCRT maintainer | T5 build integration | T6 corrective implementation/verification | -- | `tools/test-built-libraries.ps1`, run `32027269426` | Removed: the consumer resolves `conj`, `creal`, `cimag`, and `cabs` by exact export name with `LoadLibraryA`/`GetProcAddress`; only the private ARM64 helper companion is static. Final consumers pass natively on all targets. |
+| T6-D027 | evidence | Commit `af3b42fb01f78f365e58db162c1c91e27426b597`, runs `32026514992` and `32027269426` | high | WCRT maintainer | CI artifact-retention list | T6 corrective implementation/verification | -- | workflow and downloaded architecture artifacts | Removed: all named target artifacts retain dependency provenance; the named ARM64 artifact also contains the companion archive. Runner image, job, artifact, source, tool, and digest evidence was inspected. |
+| T6-D028 | evidence/provenance | First local `aea690d2` Release rebuild | high | WCRT maintainer | Local candidate preparation | T6 release-readiness verification | -- | exact TinyCC release archives, dependency record, candidate manifest | Removed: the first local rebuild used sibling-repository x64/ARM64 compiler executables whose hashes differed from CI, so those outputs were rejected. The three pinned release archives were obtained, archive and extracted executable hashes matched CI, and the candidate was rebuilt/tested under distinct exact-evidence paths. |
 
 Local GDB uses the approved MinGW-w64 16.1.0 archive with SHA-256
 `ecaceb42639d21c695f875800a29b2dea76bbb05eb2a1cca3049b65499b8d867` in the
@@ -454,22 +479,23 @@ removed. Planning findings are not silently converted into implementation.
       x86/x64 plus ARM64 compile/link verification passes.
 - [x] Actual size, local verification, personal review, defects, and the local
       postmortem are recorded without inferred effort.
-- [ ] Native ARM64 correction, passing exact-revision CI, and independent
-      project review are complete.
+- [x] Native ARM64 correction and passing exact-revision Debug CI are complete.
+- [ ] Native ARM64 Release execution and independent project review are
+      complete.
 
 ## Actuals and Postmortem
 
 The candidate implementation, readiness draft, exact-CI corrections, retained
-native ARM64 finding, selected-compiler ABI bridge, and failure diagnostics
-span 79 controlled artifacts, 5,723 changed lines, and four conformance units.
-The artifact count is 17 above the 38--62 forecast; changed lines are within
-the 4,800--9,600 forecast and 923 above its lower bound. The variance comes
-from adding project DFS/release controls, machine-readable evidence, and the
-separately documented ARM64 package/consumer boundary while reusing compact
-audit runners and the existing aggregate infrastructure. The original source
-candidate itself at
-`3fa0b1a3` contains 61 changed artifacts, 3,854 additions, and 295 removals
-relative to the T6 entry commit.
+native ARM64 finding, selected-compiler ABI bridge, failure diagnostics, and
+provenance retention span 79 controlled artifacts, 5,729 changed lines, and
+four conformance units at
+`aea690d2caf108054d1644eefb176efde779f524`. The artifact count is 17 above the
+38--62 forecast; changed lines are within the 4,800--9,600 forecast and 929
+above its lower bound. The exact diff from the T6 entry contains 5,350
+additions and 379 removals. The variance comes from project DFS/release
+controls, machine-readable evidence, automatic crash diagnostics, and the
+separately documented ARM64 package/consumer boundary while reusing the
+existing aggregate infrastructure.
 
 Focused effort and elapsed personal time remain Unknown because no time log was
 supplied. Command duration, chat duration, and commit timestamps are not used
@@ -477,15 +503,16 @@ as effort. The planned 174--322 focused-hour base and 218--451-hour completion
 forecast therefore cannot be scored for time accuracy or converted into a
 calendar schedule.
 
-Twenty-seven findings were recorded. Requirement, interface, numeric, test,
+Twenty-eight findings were recorded. Requirement, interface, numeric, test,
 dependency, documentation, and procedure corrections are recorded per defect,
 including the newly exposed diagnostic exit-status and DLL-consumer evidence
 faults. T6-D016 remains a critical R1 blocker because Authenticode/timestamp
-and final-byte Defender controls are not implemented. T6-D019 remains
+and a repeatable final-byte Defender control are not implemented. T6-D019 remains
 non-gating cleanup because unused bootstrap helpers describe dependencies WCRT
-does not contain. T6-D023's ARM64 correction and T6-D024's diagnostic
-enforcement remain open until exact-revision native CI passes. Independent-
-review gaps remain completion conditions rather than silently closed defects.
+does not contain. T6-D023--D027 are removed by exact-revision run
+`32027269426`; T6-D028 preserves and corrects the local dependency-provenance
+mismatch. Native ARM64 Release and independent-review gaps remain completion
+conditions rather than silently closed defects.
 
 The quality plan found one candidate-blocking issue after the first freeze:
 ARM64 TC-0007 omitted the new `fenv.c` dependency. Retaining the failure,
@@ -495,11 +522,11 @@ tranche should run all cross-build inventories before naming the first
 candidate and should reject dependency helpers whose declared paths do not
 exist.
 
-The terminal T6 decision is **Reject/No-Go**. Native x86/x64 tests and native
-ARM64 C89, build, consumer, startup, header/ABI, and all but TC-0037 extension
-results pass at `c75b259`; native ARM64 TC-0037 fails with access violation
-`0xC0000005`. Source quality, traceability, and Windows 2000 x86 imports pass.
-Package construction was correctly blocked by the failed architecture job,
-and independent project review is absent. The separate R1 readiness record
-adds signing, WPM verification, final-byte Defender, documentation, and
+The terminal T6 decision is **Reject/No-Go**. Exact native Debug x86/x64/ARM64
+C89, C99, compatibility, ABI, build, consumer, startup, source quality,
+traceability, and package results pass at `aea690d2`. Local exact-provenance
+Release x86/x64 behavior, ARM64 compile/link, and Windows 2000 x86 imports
+pass, but native ARM64 Release execution is Unknown and independent project
+review is absent. The separate R1 readiness record adds signing, WPM
+verification, final-signed-byte Defender design/evidence, documentation, and
 installation/rollback blockers. No release approval is implied.

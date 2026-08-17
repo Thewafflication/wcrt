@@ -29,9 +29,10 @@ The implemented C99 allocations include REQ-0019, REQ-0021 through REQ-0033,
 and REQ-0035 through REQ-0042 as detailed by the
 [C99 to 1.0.0 work plan](docs/C99-1.0-WORK-PLAN.md). The supported TinyCC
 package selected for T6 is `0.9.28-rc.1442+2474e1c2` (source revision
-`d5c02f0fcdfdf75265d38df6ff9db2f8067367ac`). Local native x86/x64 suites and
-ARM64 compile/link checks pass; exact-candidate native ARM64 execution and
-independent release review remain acceptance work.
+`d5c02f0fcdfdf75265d38df6ff9db2f8067367ac`). Exact-revision native Debug
+x86/x64/ARM64 suites pass in GitHub Actions run `32027269426`. Native ARM64
+Release execution, release trust, installation/rollback, and independent
+release review remain acceptance work.
 
 Continuous integration builds and tests x86, x64, and ARM64 on native Windows
 runners. WCRT is still pre-release and is not yet suitable for production use;

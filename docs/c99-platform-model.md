@@ -2,8 +2,7 @@
 
 **Content type:** Implementation-defined behavior and compiler capability record
 
-**Status:** T6 selected dependency baseline; corrected exact-candidate native
-ARM64 evidence pending
+**Status:** T6 selected dependency baseline; exact native Debug matrix verified
 
 **Selected compiler:** TinyCC `0.9.28-rc.1442+2474e1c2`, source revision
 `d5c02f0fcdfdf75265d38df6ff9db2f8067367ac`, for i386 Windows, x86_64
@@ -64,9 +63,9 @@ character behavior and is updated during T3 for the exact public `wint_t`.
 
 The following compile-only probes use `-std=c99 -Wall -Werror`. T5 qualified
 TinyCC `0.9.28-rc.1441+0af32d51` on 2026-08-13. T6 requalified the selected
-1442 package locally on x86/x64 and by ARM64-target compilation; exact native
-ARM64 candidate evidence remains Unknown. ADR-0005 retains the older
-controlled diagnostic matrix as a regression fallback.
+1442 package in exact-revision native x86/x64/ARM64 run `32027269426`.
+ADR-0005 retains the older controlled diagnostic matrix as a regression
+fallback.
 
 | Facility | Result | Release interpretation |
 | --- | --- | --- |
@@ -114,10 +113,11 @@ Any change to supported TinyCC packages, target ABI macros, fundamental type
 definitions, `float.h`, `stddef.h`, or `stdint.h` requires this record and all
 three target results to be reviewed together.
 
-The exact local compiler executable SHA-256 values selected for the candidate
-baseline are `2ba43fde75ee6795c83dafdd896b726b3d6c11d7c90c6e54a79aba9c300d5328`
-(x86), `deea187e49165b6110e0d3719e01d11db5f1729e18179dbe5e48eae4f5f55d54`
+The exact compiler executable SHA-256 values selected for the candidate and
+retained by CI are
+`2ba43fde75ee6795c83dafdd896b726b3d6c11d7c90c6e54a79aba9c300d5328`
+(x86), `e232a3c334076b76b3be5dc81402bb225ff7574b7b5bec5cece2693120139881`
 (x64), and
-`868d1c84426953f89a7720ae3a91ed04a127e57ae4b7fad8a44ae46ceef4d55c`
-(ARM64). These identify local inputs; they do not substitute for retained
-native target results.
+`7988e2f9cc4d4bb615c994a039f0aa63a7c2d03f47d0e8d62a6834ea8076b8c1`
+(ARM64). The matching release-archive hashes, source revision, and runner
+images are in `docs/evidence/c99-t6/dependency-provenance.json`.

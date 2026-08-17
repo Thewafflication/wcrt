@@ -7,9 +7,9 @@ template `2198ccab08f969a789448767fe7017b774369adc`
 
 **Release:** 1.0.0-rc.1 local unsigned candidate
 
-**Source revision:** `3fa0b1a3a22bbd93ff9185dbb24689d83e057e56`
+**Source revision:** `aea690d2caf108054d1644eefb176efde779f524`
 
-**Status:** Proposed and audited locally; release blocked
+**Status:** Proposed and audited; release blocked
 
 **Approval:** None
 
@@ -24,51 +24,67 @@ recommended practice; Annex F, Annex G imaginary types, and the three
 compiler-rejected standard pragmas are not represented as implemented Passes.
 
 The intended platform matrix is Windows 2000 x86 for the legacy import tier
-and Windows 10/11 x86, x64, and ARM64. Local native x86/x64 evidence and ARM64
-compile/link evidence exist at the source revision above. Native ARM64
-candidate behavior does not exist and remains Unknown. Windows 2000 support is
-not claimed for x64 or ARM64.
+and Windows 10/11 x86, x64, and ARM64. Exact-revision native Debug evidence
+exists for all three architectures in GitHub Actions run `32027269426`. Local
+Release x86/x64 execution and ARM64 compile/link evidence use the exact pinned
+TinyCC executables. Native ARM64 Release execution remains Unknown. Windows
+2000 support is not claimed for x64 or ARM64.
 
 REQ-0034 optional `wWinMain`, C11 and later library work, and the remaining
-Microsoft CRT roadmap are excluded. No tag, push, signature, publication,
-release creation, or upload is part of this candidate.
+Microsoft CRT roadmap are excluded. No tag, private-key operation, signature,
+release creation, artifact upload, or publication is part of this candidate.
 
 ## Gate Summary
 
 | Gate | Evidence | Status | Exception or notes |
 | --- | --- | --- | --- |
-| Requirements baseline | `docs/REQUIREMENTS.md`; traceability result in local verification record | Pass | 48/48/48 controlled records; baseline status is separate from target verification |
-| C99 clause/facility profile | `docs/c99-conformance-profile.md`; TC-0041 | Pass | 25 clauses, 24 headers, 75 classified rows; ARM64 required behavior cells remain Unknown |
-| Architecture and DFS review | `docs/security/design-for-security.md`; ADR-0001--0005 | Unknown | DFS exists but independent approval and native ARM64 review are absent |
-| Build and package | local verification and candidate manifest | Fail | Six builds and package structure pass, but WPM verification exits 1 because the package is unsigned |
-| Verification and test report | `docs/evidence/c99-t6/local-verification.md` | Unknown | Native x86/x64 pass; native ARM64 required tests, ABI, consumers, and startup are Unknown |
-| Header/C89 isolation/ABI | TC-0040/TC-0042 and local verification | Unknown | Header matrix passes all compilers; native ARM64 ABI behavior is not available |
-| Windows 2000 x86 imports | Release import JSON summarized in local verification | Pass | Release DLL `f5a6dee9...`, machine `0x014C`, 27 allowlisted `kernel32.dll` imports, zero unexpected |
-| Defect and vulnerability review | T6 work log; DFS | Fail | T6-D016 release-trust automation is open; target and signing risks are unapproved |
-| Documentation | README, profile, implementation-defined/deviation, ARM64, release-process, DFS | Unknown | Final release notes/document and independent review are absent |
-| Provenance and dependency record | `docs/evidence/c99-t6/dependency-provenance.json` | Unknown | Local revisions/executables/actions are pinned; exact candidate CI runner and native ARM64 provenance are unavailable |
+| Requirements baseline | `docs/REQUIREMENTS.md`; traceability result | Pass | 48/48/48 controlled records; baseline status is separate from target verification |
+| C99 clause/facility profile | `docs/c99-conformance-profile.md`; TC-0041 | Pass | 25 clauses, 24 headers, 75 classified rows; compiler-blocked and optional rows remain explicit |
+| Architecture and DFS review | `docs/security/design-for-security.md`; ADR-0001--0005 | Unknown | DFS and exact target evidence exist, but independent approval is absent |
+| Build and package | verification record and candidate manifest | Fail | Build/package structure passes; WPM verification exits 1 because the package is unsigned |
+| Verification and test report | `docs/evidence/c99-t6/local-verification.md` | Unknown | Exact native Debug matrix passes; native ARM64 Release consumers/startup remain Unknown |
+| Header/C89 isolation/ABI | TC-0040/TC-0042 and exact CI | Pass | All target header, constant-expression, layout, ABI, C89 isolation, and Debug native cases pass |
+| Windows 2000 x86 imports | exact local Release import inspection | Pass | DLL `ddd4051a...`, machine `0x014C`, 27 allowlisted `kernel32.dll` imports, zero unexpected |
+| Automatic built-in failure diagnostics | exact CI diagnostic JSON | Pass | TinyCC built-in crash trace identifies functions on all three targets |
+| Independent GDB backtrace | exact CI diagnostic JSON | Unknown | GDB 17.1 Completed on x86/x64; ARM64 GDB 16.2 is explicitly `UnsupportedTarget`, not Pass |
+| Defect and vulnerability review | T6 work log; DFS | Fail | Release-trust automation, signed-byte scan design, and independent review remain open |
+| Documentation | README, profile, implementation-defined/deviation, ARM64, release process, DFS | Unknown | Final release notes/document and independent review are absent |
+| Provenance and dependency record | `docs/evidence/c99-t6/dependency-provenance.json` | Pass | Exact archives/executables, sources, keys, action SHAs, runner images, jobs, and artifact IDs are retained |
 | Checksums and exact identities | candidate manifest; local `SHA256SUMS` | Pass | Applies only to the exact unsigned local candidate; it is not a published release set |
-| Windows signing and Defender scan | candidate manifest | Fail | DLLs are `NotSigned`; clean Defender results cover unsigned bytes only, not final signed bytes |
-| PDF metadata, digest, and provenance | None | Unknown | No project release-document PDF was produced |
+| Windows signing and Defender scan | candidate manifest | Fail | DLLs are `NotSigned`; one unsigned-byte scan is informational; final signed-byte evidence is Unknown and further design is deferred |
+| PDF metadata, digest, and provenance | None | Unknown | No project release-document PDF was produced or approved |
 | PAdES signature, when selected | Release process | N/A | PAdES is not selected for this Markdown readiness record |
-| Installation, rollback, and recovery | `docs/release-process.md` | Unknown | Procedure is documented; clean-system install/remove/rollback was not authorized or executed |
+| Installation, rollback, and recovery | `docs/release-process.md` | Unknown | Procedure exists; clean-system install/remove/rollback was not authorized or executed |
 | Support and communication | `docs/release-process.md`; DFS | Pass | GitHub issue/security-advisory intake and 1.x support boundary are documented; no response-time promise |
-| Exact-revision CI | No artifact | Unknown | No push or workflow dispatch was authorized |
+| Exact-revision CI | run `32027269426`; retained artifacts | Pass | Source quality, x86, x64, ARM64, and package jobs concluded success at the candidate source |
 
 ## Artifacts
 
 | Artifact | Platform or purpose | Integrity value | Publication location |
 | --- | --- | --- | --- |
-| `wcrt-any-1.0.0-rc.1.17+3fa0b1a3.zip` | Unsigned multi-architecture local candidate | SHA-256 `c1aa305e465d1b93dbb29ba13cfde54aa0472dc356ada450f96e4b225debe812`; 412482 bytes | Local `output/packages/`; not published |
-| `SHA256SUMS` | Checksum for the exact local package | SHA-256 `d2d193585588f1aeb50999461b30b60787ca92acec16c63f644ad2bfcee0eaac` | Local `output/release-candidate/1.0.0-rc.1/`; not published |
-| x86 Release `wcrt.dll` | Windows 2000 x86 / later x86 | SHA-256 `f5a6dee96bb2c12342bcfe7ed9cd77aca86d88fe0bf328006a470e4c4d365ace`; `NotSigned` | Inside local package only |
-| x64 Release `wcrt.dll` | Windows 10/11 x64 | SHA-256 `f9160b9f42531af614867c059e707e713e9d4cdced1f06e0a9f8c94e104fa78d`; `NotSigned` | Inside local package only |
-| ARM64 Release `wcrt.dll` | Windows 10/11 ARM64 | SHA-256 `f70c3a65668f5dcb457b56204d8583f158df585844e6c989117582fb16a81dd5`; `NotSigned` | Inside local package only |
+| `wcrt-any-1.0.0-rc.1.23+aea690d2.zip` | Unsigned multi-architecture local candidate | SHA-256 `18be4aa5086d07ed9ff31e4f808b107d14c399408e394877c57e9f51f288e68b`; 418316 bytes | Local `output/candidate-packages-exact/`; not published |
+| `SHA256SUMS` | Checksum for the exact local package | SHA-256 `29fcc6f24ce41bf7ea66f72162beb081c38951fa519e78f029efd789a11503ce`; 103 bytes | Local `output/release-candidate/1.0.0-rc.1-exact/`; not published |
+| x86 Release `wcrt.dll` | Windows 2000 x86 / later x86 | SHA-256 `ddd4051a236e9c278ba1a3833e0f60d362dcf5218b79c0e45a85dac5e0d5791b`; 150528 bytes; `NotSigned` | Inside local package only |
+| x64 Release `wcrt.dll` | Windows 10/11 x64 | SHA-256 `af0784a7570aa3c472ed796d2e28a6801a8c56e823f15250d41c357651c27511`; 170496 bytes; `NotSigned` | Inside local package only |
+| ARM64 Release `wcrt.dll` | Windows 10/11 ARM64 | SHA-256 `a43dae26b787476429c3a7a1931003f14436a810816e89ccacb51b5195ffcb8b`; 196096 bytes; `NotSigned` | Inside local package only |
 
-The machine-readable candidate manifest also identifies every static library
-and startup object. Package metadata reports source version `1.0.0-rc.1`,
-package version `1.0.0-rc.1.17+3fa0b1a3`, and short source revision
-`3fa0b1a3`; this record binds that short value to the full revision above.
+The machine-readable candidate manifest identifies every static library,
+startup object, and ARM64 private ABI companion. Package metadata reports
+source version `1.0.0-rc.1`, package version
+`1.0.0-rc.1.23+aea690d2`, and short source revision `aea690d2`; this record
+binds that short value to the full revision above.
+
+This readiness reconciliation is post-candidate evidence. The package contains
+the README from source `aea690d2`; it does not contain the later reconciled
+record text. Incorporating the reconciled documentation into distributed bytes
+requires a new source revision, package identity, checksum, and affected
+verification. The Documentation gate therefore remains Unknown.
+
+The exact CI Debug package
+`wcrt-debug-any-0.0.0-dev.23+aea690d2.zip` is retained verification evidence,
+not a candidate Release artifact. Its SHA-256 is
+`a94c6bda2289623cf03c798b41a21bf15789e802a2cdbfd2400574d3d01438f5`
+and its length is 1555555 bytes.
 
 ## Open Items and Accepted Risk
 
@@ -76,39 +92,48 @@ No release-blocking item is accepted for publication.
 
 | Item | Impact | Owner | Approval | Completion or review condition |
 | --- | --- | --- | --- | --- |
-| Native ARM64 candidate verification | Required behavior, ABI, fenv/math/complex, signal/setjmp, consumers, and startup are unproved | Maintainer | None | Native `windows-11-arm` run at the exact source/dependency baseline with retained detailed results and artifact hashes |
-| Exact candidate CI/provenance | Local results do not identify hosted runner images or uploaded artifacts | Maintainer | None | Authorized push/dispatch and retained source-quality, x86, x64, ARM64, package, and dependency-provenance artifacts |
-| Authenticode publisher identity | Distributed PE publisher and integrity cannot be verified | Maintainer | None | Approve managed/hardware-backed identity; sign every final DLL with SHA-256 and a trusted RFC 3161 SHA-256 timestamp; retain audit output |
-| Final-byte Defender evidence | Unsigned scans cannot establish the signed release result | Maintainer | None | Scan each exact signed DLL and final signed package; retain timestamps, hashes, engine/intelligence versions, and no-detection output |
-| WPM package signature | `wpm verify` rejects the candidate | Maintainer | None | Sign with protected WPM key after PE signing/scanning; trust public key and obtain `wpm verify` exit 0 on the unchanged package |
+| Native ARM64 Release verification | Release consumers and startup behavior are unproved | Maintainer | None | Native ARM64 Release build/consumer/startup run at this source and dependency baseline with retained output and hashes |
+| Authenticode publisher identity | Distributed PE publisher and integrity cannot be verified | Maintainer | None | Approve managed/hardware-backed identity; sign every final DLL with SHA-256 and trusted RFC 3161 SHA-256 timestamp; retain verification |
+| Defender release gate design | An ad hoc unsigned scan cannot prove final release bytes | Maintainer | None | Design and review a repeatable release/GitHub Actions scan after signing; retain exact hashes, timestamps, engine/intelligence versions, exit status, and detections |
+| WPM package signature | `wpm verify` rejects the candidate | Maintainer | None | Sign with protected WPM key after PE signing; trust the public key and obtain exit 0 on the unchanged package |
 | Installation and rollback | Install scripts, registry state, removal, and recovery are unexercised | Maintainer | None | Clean supported-system install/static+DLL consumer/remove/rollback log for the exact signed package on each applicable architecture |
-| Release document/PDF | Selected WSP documentation gate has no final release document or provenance | Maintainer | None | Decide the release-document format; generate and validate metadata, manifest, and digest; apply PAdES only if selected |
-| Independent project review | Author evidence has not received independent PR review | Reviewer | None | Challenge all Pass cells and disposition each finding at the immutable candidate baseline |
-| Stale dependency helper inventory | Two unused bootstrap scripts mention absent miniz/libsodium directories | Maintainer | None | Remove or replace the helpers before relying on them; current workflow provenance must remain authoritative |
+| Release document/PDF | Selected WSP documentation gate has no final release document or provenance | Maintainer | None | Select the release-document format; generate and validate metadata, manifest, and digest; apply PAdES only if selected |
+| Post-candidate documentation reconciliation | The exact package predates the final evidence wording | Maintainer | None | Freeze reconciled documentation in a new candidate source and rebuild/reverify all changed package bytes |
+| Independent project review | Author evidence has not received independent PR review | Reviewer | None | Challenge all Pass cells and disposition every finding at the immutable candidate baseline |
+| Stale dependency helper inventory | Two unused bootstrap scripts mention absent miniz/libsodium directories | Maintainer | None | Remove or replace the helpers before relying on them; current workflow provenance remains authoritative |
 
 ## Approval Decision
 
 - **Decision:** Reject
-- **Approver:** WCRT maintainer local readiness audit; independent project
-  approval absent
+- **Approver:** WCRT maintainer readiness audit; independent project approval
+  absent
 - **Date:** 2026-08-17
-- **Rationale:** Native ARM64 required evidence is Unknown. The package and all
+- **Rationale:** Exact-revision native Debug evidence passes on x86, x64, and
+  ARM64, but native ARM64 Release execution remains Unknown. The package and
   DLLs are unsigned, WPM verification fails, final-signed-byte Defender
-  evidence does not exist, install/rollback is Unknown, and exact-revision CI
-  and independent project review are absent. No combination of local x86/x64
-  success and ARM64 cross-compilation converts those gates to Pass.
-- **Support or communication actions:** Do not tag, push, publish, create a
-  release, upload, or announce availability. Retain this candidate locally for
+  evidence and its repeatable design do not exist, install/rollback is
+  Unknown, release documentation is incomplete, and independent review is
+  absent.
+- **Support or communication actions:** Do not tag, sign, publish, create a
+  release, upload, or announce availability. Retain this candidate for
   corrective verification only.
 
 ## Minimum Corrective Commands or Evidence
 
-After separate authorization for external writes, publish the exact source to
-a review branch and run `.github/workflows/build.yml` without changing source
-or dependency pins. Retain the source-quality, x86, x64, native ARM64,
-multi-architecture package, dependency-provenance, startup, consumer, and x86
-import artifacts from one successful run. If source changes, assign a new
-candidate revision and repeat all gates.
+On a native Windows ARM64 host, use the exact compiler executable identified
+in the dependency record and retain output from:
+
+```powershell
+./tools/build-wcrt.ps1 -Architecture arm64 -Configuration Release -TinyCc <exact-arm64-tcc> -Version 1.0.0-rc.1 -OutputRoot <clean-build-root>
+./tools/test-built-libraries.ps1 -Architecture arm64 -Configuration Release -TinyCc <exact-arm64-tcc> -BuildRoot <clean-build-root>
+./tools/test-startup-objects.ps1 -Architecture arm64 -Configuration Release -TinyCc <exact-arm64-tcc> -BuildRoot <clean-build-root>
+```
+
+An independent reviewer must inspect the candidate source, this readiness
+record, run `32027269426`, and the exact local candidate manifest. Every
+exception or correction must identify whether it changes candidate bytes; any
+source or build-input change creates a new baseline and requires affected
+verification to be rerun.
 
 After an approved signing service and identity exist, the required order is:
 
@@ -122,18 +147,18 @@ wpm verify <exact-signed-package.zip>
 
 Retain full SignTool output, signer subject/thumbprint, timestamp and trust
 chain, before/after SHA-256 values, protected-key audit reference, and WPM
-verification output. Then run non-remediating Defender scans against the exact
-signed DLLs and final signed package and retain the engine/intelligence
-versions, timestamps, hashes, exit status, and output. Finally, perform the
+verification output. Then use the separately reviewed Defender release design
+against the exact signed DLLs and final signed package. Finally, perform the
 documented clean-system install, consumer, remove, and rollback cases.
 
-No command in this section was executed as part of candidate preparation.
+No command in the signing block was executed as part of candidate preparation.
 
 ## Baseline Record
 
 - **Release tag:** None; no tag was created.
 - **Full source revision:**
-  `3fa0b1a3a22bbd93ff9185dbb24689d83e057e56`.
+  `aea690d2caf108054d1644eefb176efde779f524`.
+- **Exact CI:** run `32027269426`, conclusion success.
 - **WSP revision:** `2198ccab08f969a789448767fe7017b774369adc`.
 - **Dependency baseline:**
   `docs/evidence/c99-t6/dependency-provenance.json`.

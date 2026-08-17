@@ -2,7 +2,7 @@
 
 **Content type:** Project requirement
 
-**Status:** Implemented locally; native ARM64 verification pending
+**Status:** Implemented; exact native Debug x86/x64/ARM64 verification passes
 
 **Source:** ISO/IEC 9899:1999 as corrected through TC3, §7.25
 
@@ -87,6 +87,5 @@ process-lifetime registry.
 TC-0032 exhaustively compares the complete byte repertoire with the C-locale
 narrow classifications, covers `WEOF`, UTF-16 and other out-of-repertoire
 values, all valid and invalid names, and direct/descriptor mapping
-equivalence. It passes natively on x86 and x64 and compiles/links for ARM64.
-Native ARM64 execution, immutable exact-revision CI evidence, and independent
-review remain required before target-complete acceptance.
+equivalence. It passes natively on x86, x64, and ARM64 in exact-revision run
+`32027269426`. Independent review remains required before release acceptance.

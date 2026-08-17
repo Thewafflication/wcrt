@@ -2,7 +2,7 @@
 
 **Content type:** Project requirement
 
-**Status:** Implemented; native ARM64 verification pending
+**Status:** Implemented; exact native Debug x86/x64/ARM64 verification passes
 
 **Source:** ISO/IEC 9899:1999 as corrected through TC3, §7.19.6.1
 
@@ -90,9 +90,8 @@ to `int`.
 
 The stream, unbounded-string, C99-bounded, and Microsoft-bounded entry points
 share conversion logic but retain separate termination and return policies.
-TC-0029 and the complete C89/extension aggregates pass on x86 and x64. The
-same controlled source and tests compile/link with the ARM64 TinyCC package;
-native ARM64 execution remains required before target-complete acceptance.
+TC-0029 and the complete C89/extension aggregates pass natively on x86, x64,
+and ARM64 in exact-revision run `32027269426`.
 
 ## T3 Wide-character Implementation Impact
 
@@ -100,5 +99,5 @@ REQ-0033 supersedes ADR-0002's anticipated 16-bit `wint_t` with an unsigned
 32-bit type. T3 routes `lc` and `ls` through the accepted C-locale conversion
 rules and retrieves `%lc` through the exact promotion-safe `wint_t` variadic
 type. The complete narrow character/string and encoding-failure matrix passes
-on x86/x64 and compiles/links for ARM64. Wide stream functions remain owned by
-REQ-0031 rather than this requirement.
+on native x86/x64/ARM64 in exact-revision run `32027269426`. Wide stream
+functions remain owned by REQ-0031 rather than this requirement.

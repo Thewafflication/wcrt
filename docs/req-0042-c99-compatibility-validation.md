@@ -2,7 +2,8 @@
 
 **Content type:** Project requirement
 
-**Status:** Baselined for T6; matrix verification pending
+**Status:** Exact native Debug matrix passes; native ARM64 Release and
+independent audit remain open
 
 **Source:** ISO/IEC 9899:1999 as corrected through TC3, clauses 7.1.2 and
 7.1.4; WCRT supported-platform policy
@@ -51,3 +52,14 @@ records shall preserve the distinction.
 - **Required by:** WCRT 1.0.0 release-readiness approval
 - **Conflicts with:** Parallel shared-output test execution or inferred target
   success
+
+## Implementation Record
+
+Exact-revision run `32027269426` passes 15/15 C89 and 30/30 combined
+C99/compatibility cases, Debug static/DLL consumers, startup objects, source
+quality, traceability, and package assembly on native x86, x64, and ARM64.
+Each named target artifact retains detailed results and dependency provenance.
+The local exact-dependency Release rebuild passes x86/x64 consumers/startup,
+all ARM64 links, and the x86 Windows 2000 import gate. Native ARM64 Release
+execution, WPM signature verification, release trust, install/rollback, and
+independent audit remain incomplete and are not represented as Pass.

@@ -67,8 +67,8 @@ until their requirement and verification records are added.
 | [REQ-0033](req-0033-windows-utf16-abi.md) | [TC-0033](tc-0033-windows-utf16-abi.tex) | Wide types and streams | §7.17, §7.24.1, §7.24.6, §7.25.1 | Windows UTF-16 and wide-character ABI |
 | [REQ-0035](req-0035-real-math.md) | [TC-0035](tc-0035-real-math.tex) | `<math.h>` | §7.12 | Complete C99 real mathematics and inquiry macros |
 | [REQ-0036](req-0036-fenv.md) | [TC-0036](tc-0036-fenv.tex) | `<fenv.h>` | §7.6 | Flags, rounding control, and saved environments |
-| [REQ-0037](req-0037-complex.md) | [TC-0037](tc-0037-complex.tex) | `<complex.h>` | §7.3 | Complex types, constants, accessors, and complete function families; selected TinyCC 1442 local x86/x64 Pass and ARM64 compile/link Pass |
-| [REQ-0038](req-0038-tgmath.md) | [TC-0038](tc-0038-tgmath.tex) | `<tgmath.h>` | §7.22 | Complete type-generic dispatch; selected TinyCC 1442 local x86/x64 Pass and ARM64 compile Pass |
+| [REQ-0037](req-0037-complex.md) | [TC-0037](tc-0037-complex.tex) | `<complex.h>` | §7.3 | Complex types, constants, accessors, and complete function families; selected TinyCC 1442 exact native Debug x86/x64/ARM64 Pass |
+| [REQ-0038](req-0038-tgmath.md) | [TC-0038](tc-0038-tgmath.tex) | `<tgmath.h>` | §7.22 | Complete type-generic dispatch; selected TinyCC 1442 exact native Debug x86/x64/ARM64 Pass |
 | [REQ-0039](req-0039-numeric-text.md) | [TC-0039](tc-0039-numeric-text.tex) | `<stdlib.h>`, `<stdio.h>` | §7.19.6, §7.20.1.3 | Narrow numeric text interchange allocation |
 | [REQ-0040](req-0040-existing-header-audit.md) | [TC-0040](tc-0040-existing-header-audit.tex) | C89 header/runtime families | §7.1--§7.25 | Existing-header C99 integration audit |
 | [REQ-0041](req-0041-c99-conformance-profile.md) | [TC-0041](tc-0041-c99-conformance-profile.tex) | All standard headers | §7.1--§7.25, Annex J | Clause-level conformance profile |

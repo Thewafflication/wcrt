@@ -8,17 +8,17 @@
 
 - **Requirement:** REQ-0035, C99 7.12.13.1
 - **Affected implementation:** `fma`, `fmaf`, and `fmal` in `src/math.c`
-- **State:** Corrected in T6; exact-revision native target verification and
-  independent review pending
+- **State:** Corrected in T6; exact-revision native Debug target verification
+  passes; independent review pending
 - **Correction:** Fixed-size integer magnitudes now accumulate the complete
   exact product and addend across the supported exponent range before one
   active-direction rounding. Binary32 is rounded directly and Windows
   `long double` follows binary64.
 - **Evidence:** TC-0035 includes cancellation, overflow-avoidance, subnormal,
   binary32, four-direction, and 260 reproducible exact-rational binary64
-  vectors. Local x86/x64 behavior and ARM64 compile/link pass. The deviation
-  is removed from the implementation disposition, while missing exact-revision
-  native ARM64 evidence remains an evidence blocker rather than a deviation.
+  vectors. Exact-revision native x86/x64/ARM64 Debug behavior passes in run
+  `32027269426`. The deviation is removed from the implementation disposition;
+  native ARM64 Release remains a verification blocker rather than a deviation.
 
 ## Compiler-owned blocking items
 
@@ -36,8 +36,9 @@ called its packaged `__tcc_muldc3` with a different private register convention
 than the helper entry expects. WCRT now supplies a target-scoped bridge and
 scalar helpers in the static library and ARM64 DLL companion archive. This is
 not registered as a public-library deviation: the public C99 representation,
-function ABI, and results remain required. Corrected native ARM64 execution is
-Unknown until retained exact-revision CI passes.
+function ABI, and results remain required. Corrected native ARM64 Debug
+execution passes in exact-revision run `32027269426`; native ARM64 Release is
+separately Unknown.
 
 ## Profiles not claimed
 

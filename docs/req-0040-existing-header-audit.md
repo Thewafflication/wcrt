@@ -2,7 +2,8 @@
 
 **Content type:** Project requirement
 
-**Status:** Baselined for T6; implementation verification pending
+**Status:** Implemented; exact-revision native x86/x64/ARM64 Debug verification
+passes
 
 **Source:** ISO/IEC 9899:1999 as corrected through TC3, clauses 7.1--7.25
 
@@ -59,3 +60,13 @@ results do not close native behavior.
 WCRT supports only the C locale for 1.0.0 and documents Windows binary32/
 binary64 and UTF-16 choices. Annex F is not claimed. Optional facilities and
 implementation-defined choices are classified in the REQ-0041 profile.
+
+## Implementation Record
+
+TC-0040 and TC-0042 inventory every inherited C89 header/runtime family,
+exercise each corrected C99 addition, compile the C89/C99 isolation matrices,
+and check constant-expression types and target layouts. Run `32027269426`
+passes the complete native Debug C89 and extension aggregates on x86, x64, and
+ARM64. The local exact-provenance Release rebuild passes x86/x64 behavior,
+ARM64 compile/link, and the x86 Windows 2000 import allowlist; native ARM64
+Release remains a REQ-0042 completion item.

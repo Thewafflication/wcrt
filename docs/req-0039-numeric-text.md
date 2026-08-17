@@ -2,7 +2,7 @@
 
 **Content type:** Project requirement
 
-**Status:** T6 integration baselined; exact-revision target verification pending
+**Status:** T6 integration verified on exact-revision native x86/x64/ARM64
 
 **Source:** ISO/IEC 9899:1999 as corrected through TC3, §7.19.6 and §7.20.1.3
 
@@ -105,8 +105,8 @@ model.
 TC-0039 covers exact and adjacent binary vectors, binary32 halfway cases,
 range cases, known boundary spellings, 519 finite `%a` round trips, controlled
 17-digit decimal format/parse values, and the documented one-ULP decimal
-accuracy counterexample. Exact-revision x86/x64/ARM64 result
-claims remain pending T6 verification.
+accuracy counterexample. Exact-revision native x86/x64/ARM64 TC-0039 passes in
+GitHub Actions run `32027269426`.
 
 ## T3 Wide-character Implementation Allocation
 

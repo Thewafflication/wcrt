@@ -1,15 +1,19 @@
-# C99 T6 Local Verification Record
+# C99 T6 Verification Record
 
-**Content type:** Retained local verification evidence
+**Content type:** Retained local and exact-revision CI verification evidence
 
-**Candidate source:** `3fa0b1a3a22bbd93ff9185dbb24689d83e057e56`
+**Candidate source:** `aea690d2caf108054d1644eefb176efde779f524`
 
 **Execution date:** 2026-08-17 (America/Chicago)
 
-**Host:** Microsoft Windows 10.0.26200, x64 OS, x64 process, PowerShell 7.6.3
+**Local host:** Microsoft Windows 10.0.26200, x64 OS, x64 process,
+PowerShell 7.6.3
 
-**Decision:** Local x86/x64 and cross-build scope Pass; native ARM64 and
-release-trust scope are not complete
+**Exact CI:** GitHub Actions run `32027269426`, conclusion `success`
+
+**Decision:** Exact-revision native Debug conformance matrix Pass; T6
+completion and release readiness Reject because trust, independent review,
+installation, and native ARM64 Release evidence remain incomplete
 
 ## Dependency Baseline
 
@@ -19,105 +23,126 @@ The machine-readable dependency record is
 `0.9.28-rc.1442+2474e1c2` at source revision
 `d5c02f0fcdfdf75265d38df6ff9db2f8067367ac`; WPM is 1.0.16; and cv2pdb is
 0.54.0 at source revision `25cfecaad700550a49cd7ddbf7773254ea438d07`.
-Executable and release-key hashes are in the machine-readable record.
+The exact release archives, installed executables, release keys, action SHAs,
+runner images, jobs, and artifact identifiers are recorded there.
 
-The exact GitHub Actions workflow was not run because no push or other
-external write was authorized. Native runner image resolution and CI-produced
-dependency JSON are therefore Unknown.
+Exact CI used runner 2.336.0 and provisioner 20260729.566. x86/x64 used
+`windows-2025-vs2026` image `20260810.198.2`; ARM64 used
+`windows-11-arm64` image `20260809.134.1`.
 
 ## Gate Results
 
 | Gate | x86 | x64 | ARM64 | Evidence and boundary |
 | --- | --- | --- | --- | --- |
-| TinyCC language/data model | Pass | Pass | Pass (compile) | Ten probes per target: seven Supported and three controlled compiler-blocked ExpectedFail pragmas; no unexpected probe failure |
-| Header self-containment/repetition/mixed order | Pass | Pass | Pass (compile) | TC-0042; all 24 C99 headers, all 15 C89 headers, two C99 mixed orders, one C89 mixed order |
-| C89 TC-0001--TC-0015 | 15/15 Pass native | 15/15 Pass native | 15/15 Pass compile/link; native Unknown | ARM64 outputs are PE `0xAA64` and explicitly say `DeferredToArm64CI` |
-| C99 TC-0019, 0021--0033, 0035--0042 | 22/22 Pass native | 22/22 Pass native | Native Unknown | ARM64 TC-0042 compile matrix passes; behavior is not inferred |
-| Microsoft compatibility TC-0020, 0043--0049 | 8/8 Pass native | 8/8 Pass native | Native Unknown | No ARM64 behavior Pass is claimed |
-| C89 isolation and constant-expression/type checks | Pass | Pass | Header/ABI compile Pass; behavior Unknown | Controlled header/presence tests and TC-0042 |
-| Clause/facility inventory | Pass | Pass | Profile complete; required behavior Unknown where shown | 25 clauses, 24 headers, 75 facility rows; profile validator Pass |
-| WSP common tools | Pass | Pass | N/A host gate | PowerShell syntax, logging, traceability/evidence negative tests, report, source-quality, warning, checksum, and documentation negative test Pass |
+| TinyCC language/data model | Pass | Pass | Pass | Ten probes per target: seven Supported and three controlled compiler-blocked ExpectedFail pragmas; no unexpected failure |
+| Header self-containment/repetition/mixed order | Pass | Pass | Pass | TC-0042; all 24 C99 headers, all 15 C89 headers, two C99 mixed orders, and one C89 mixed order |
+| C89 TC-0001--TC-0015 | 15/15 Pass native | 15/15 Pass native | 15/15 Pass native | Exact-revision architecture artifacts from run `32027269426` |
+| C99 TC-0019, 0021--0033, 0035--0042 | 22/22 Pass native | 22/22 Pass native | 22/22 Pass native | Exact-revision extension aggregates |
+| Microsoft compatibility TC-0020, 0043--0049 | 8/8 Pass native | 8/8 Pass native | 8/8 Pass native | Exact-revision extension aggregates; 30/30 combined cases per target |
+| C89 isolation and constant-expression/type checks | Pass | Pass | Pass | TC-0040/TC-0042 presence, declaration, expression-type, layout, and ABI cases |
+| Clause/facility inventory | Pass | Pass | Pass | 25 clauses, 24 headers, 75 classified facility rows; profile validator Pass |
+| WSP common tools | Pass | Pass | N/A host gate | Syntax, logging, traceability/evidence negative tests, reports, source quality, warning, checksum, and documentation negative tests |
 | Traceability | Pass | Pass | Pass inventory | 48 requirements, 48 test specifications, 48 implementations |
-| Source quality | Pass | Pass | Pass source | TC-0016: 181 C/header files, zero violations, Doxygen 1.17.0 |
-| Debug and Release builds | Pass | Pass | Pass compile/link | Six DLL/static/startup build sets produced |
-| Static and DLL consumers | Pass native | Pass native | Pass compile/link; native Unknown | Debug and Release; C89 and complex consumers |
-| Console and GUI startup | Pass native | Pass native | Compile/link Pass; native Blocked/Unknown | TC-0017/TC-0018 on Debug and Release |
-| Windows 2000 imports | Pass | N/A | N/A | x86 Debug and Release machine `0x014C`; Release DLL hash `f5a6dee9...` has 27 allowlisted `kernel32.dll` imports and no unexpected import |
-| Package structure | Pass | Pass | Pass | One multi-architecture unsigned archive; required entries and complex profiles checked by `build-wpm-package.ps1` |
+| Source quality | Pass | Pass | Pass source | TC-0016: 182 C/header files, zero violations, Doxygen 1.17.0 |
+| Debug build | Pass | Pass | Pass | Native CI DLL/static/startup builds and retained build artifacts |
+| Debug static/DLL consumers | Pass | Pass | Pass | C89 and complex consumers execute natively; ARM64 DLL path proves public exports via `LoadLibraryA`/`GetProcAddress` and links only the private helper companion |
+| Debug console/GUI startup | Pass | Pass | Pass | TC-0017/TC-0018 execute natively; no host CRT import |
+| Release build | Pass | Pass | Pass compile/link | Local rebuild with executable hashes matching the exact CI dependency record |
+| Release static/DLL consumers | Pass native | Pass native | Pass compile/link; native Unknown | Local ARM64 execution is target-blocked and is not inferred from Debug or link evidence |
+| Release console/GUI startup | Pass native | Pass native | Compile/link Pass; native Unknown | Local ARM64 outputs are PE `0xAA64`; native Release execution is absent |
+| Windows 2000 imports | Pass | N/A | N/A | x86 Release DLL `ddd4051a...`, machine `0x014C`, 27 allowlisted `kernel32.dll` imports, zero unexpected |
+| Automatic built-in failure diagnostics | Pass | Pass | Pass | TinyCC crash trace identifies functions on all targets |
+| Independent GDB backtrace | Pass | Pass | Unknown | GDB 17.1 Completed on x86/x64; ARM64 GDB 16.2 is `UnsupportedTarget`, not Pass |
+| Package structure | Pass | Pass | Pass | One exact unsigned multi-architecture archive; required entries and complex profiles checked by `build-wpm-package.ps1` |
 | WPM signature verification | Fail | Fail | Fail | WPM 1.0.16 exits 1: `unsigned packages are not allowed` |
 | Authenticode/timestamp | Fail | Fail | Fail | Each Release DLL is `NotSigned`; no signer or timestamp exists |
-| Defender | Informational clean | Informational clean | Informational clean | Engine 1.1.26070.7 / intelligence 1.457.196.0 found no threats in the unsigned DLLs and package; final signed bytes do not exist, so the release gate is Unknown |
+| Defender release gate | Unknown | Unknown | Unknown | One local scan found no new detections in unsigned candidate directories, but is informational only; further design is deferred and final signed bytes do not exist |
 | Installation/removal/rollback | Unknown | Unknown | Unknown | Not executed because it changes Program Files/registry and no separate authority was given |
-| Exact-revision native CI | Unknown | Unknown | Unknown | No push/workflow dispatch was authorized; local x86/x64 evidence is separate |
+| Exact-revision native CI | Pass | Pass | Pass | Run `32027269426` succeeded and retained per-target detailed results, build artifacts, and dependency provenance |
 
-## Build Identities
+## Build and Artifact Identities
 
-| Architecture | Configuration | DLL SHA-256 |
-| --- | --- | --- |
-| x86 | Debug | `6810c7452fa5bd24324f73017886c113a91d979aee78a2e666653392b0ffcbcb` |
-| x86 | Release | `f5a6dee96bb2c12342bcfe7ed9cd77aca86d88fe0bf328006a470e4c4d365ace` |
-| x64 | Debug | `4dc021fdffde9055be94e4a4bc715d99706358b9be0f070527b58e9d43b0acd9` |
-| x64 | Release | `f9160b9f42531af614867c059e707e713e9d4cdced1f06e0a9f8c94e104fa78d` |
-| ARM64 | Debug | `1df49f6287e1f208ce7635a6cfb6f942eb60f04e82d2d37c27567fbf63657685` |
-| ARM64 | Release | `f70c3a65668f5dcb457b56204d8583f158df585844e6c989117582fb16a81dd5` |
+| Architecture | Configuration and origin | DLL SHA-256 | Length |
+| --- | --- | --- | ---: |
+| x86 | Debug, exact CI | `53adb2e934a5584be275288ec61bd0845f96fa7a6c36f99b16979bb8ed0e8e51` | 623212 |
+| x64 | Debug, exact CI | `1bcbf15cc61d341ed6a602794b99b21408954fd61eb7a45d09eb8613c62a22d6` | 669804 |
+| ARM64 | Debug, exact CI | `eafcb442cd243e10583677630420a0e8cba56a45fc8aed02713be86d8b578098` | 689772 |
+| x86 | Release, local exact dependency | `ddd4051a236e9c278ba1a3833e0f60d362dcf5218b79c0e45a85dac5e0d5791b` | 150528 |
+| x64 | Release, local exact dependency | `af0784a7570aa3c472ed796d2e28a6801a8c56e823f15250d41c357651c27511` | 170496 |
+| ARM64 | Release, local exact dependency | `a43dae26b787476429c3a7a1931003f14436a810816e89ccacb51b5195ffcb8b` | 196096 |
 
-All three Release DLLs report file/product version
-`1.0.0-rc.1.17+3fa0b1a3`. The exact package and internal artifact hashes are in
+All Release DLLs report file/product version
+`1.0.0-rc.1.23+aea690d2`. The exact unsigned package is
+`wcrt-any-1.0.0-rc.1.23+aea690d2.zip`, 418316 bytes, SHA-256
+`18be4aa5086d07ed9ff31e4f808b107d14c399408e394877c57e9f51f288e68b`.
+The package member and checksum-file identities are in
 `docs/evidence/c99-t6/release-candidate-manifest.json`.
 
-## Findings and Reruns
+The exact CI Debug package is
+`wcrt-debug-any-0.0.0-dev.23+aea690d2.zip`, 1555555 bytes, SHA-256
+`a94c6bda2289623cf03c798b41a21bf15789e802a2cdbfd2400574d3d01438f5`.
+It is verification evidence, not the Release candidate.
 
-The first frozen candidate, source
-`23497525bd0be03b0d53d79686376e93ade94046`, failed ARM64 C89 TC-0007 during
-link with these exact diagnostics:
+## Exact CI Evidence
 
-```text
-tcc: error: unresolved reference to 'fegetround'
-tcc: error: unresolved reference to 'feraiseexcept'
-tcc: error: unresolved reference to 'fegetexceptflag'
-tcc: error: unresolved reference to 'fesetexceptflag'
-```
+GitHub Actions run `32027269426` at the candidate revision concluded
+successfully. The retained jobs are source quality `95379192945`, x86
+`95379408246`, ARM64 `95379408254`, x64 `95379408264`, and package
+`95379833779`. Artifact identifiers are:
 
-T6-D017 records that the ARM64 cross runner omitted `src/fenv.c` after the T6
-`fma` correction made that dependency necessary. The runner was corrected in
-`3fa0b1a3a22bbd93ff9185dbb24689d83e057e56`. All 15 ARM64 C89 cross units then
-passed, and x86/x64 TC-0007, TC-0035, and TC-0036 passed focused reruns. The
-complete exact-candidate x86/x64 aggregates and ARM64 cross aggregate were then
-rerun and passed within their stated scopes.
+- `wcrt-x86-debug` `9287578726` and build artifact `9287579859`;
+- `wcrt-x64-debug` `9287579186` and build artifact `9287580348`;
+- `wcrt-arm64-debug` `9287591165` and build artifact `9287592047`;
+- `wcrt-debug-any-package` `9287613328`.
 
-An attempted ARM64 native extension aggregate on the x64 host produced 27
-process-launch errors and three compile/document Pass results. T6-D018 records
-this as an invalid verification procedure, not a product Pass or Fail. The
-failed aggregate is not used to infer ARM64 behavior; native ARM64 remains
-Unknown.
+Each architecture artifact retains `dependency-provenance.json`. The ARM64
+named evidence artifact also retains `libwcrt-tinycc-complex-abi.a` (19600
+bytes, SHA-256
+`f637597ea9e38b8ff7afb85a77f94346a789e90eab56b506680e6039eb52cb71`).
 
-The first WPM verification attempt could not use the sandbox-disallowed
-`C:\ProgramData\WPM` temporary directory. Repeating with repository-local
-`WPM_DATA_DIR` reached the package trust check and failed for the substantive
-reason that the candidate is unsigned. Package structure Pass and WPM
-cryptographic verification Fail are retained separately.
+## Findings, Corrections, and Reruns
 
-Two unused bootstrap dependency scripts still inventory absent miniz and
-libsodium directories. They are not invoked by the workflow and do not affect
-the pinned build, but their freshness output is not provenance and is excluded
-from Pass evidence.
+T6-D017 corrected the ARM64 C89 cross runner after TC-0007 exposed a missing
+`src/fenv.c` link dependency. T6-D022 corrected CRLF/LF comparison in the
+generated FMA and complex-vector validators after exact CI failed before
+product behavior. T6-D023 corrected the selected TinyCC ARM64 private complex
+helper ABI after a native access violation; the retained automatic backtrace
+identified `wcrt_check_exact` at `tests/c99/complex.c:101` and `main` at line
+253. T6-D024--D026 added automatic built-in/GDB diagnostics, corrected their
+exit-status enforcement, and made the DLL complex consumer prove exact dynamic
+exports. T6-D027 retained dependency provenance and the ARM64 companion in the
+named architecture artifact.
+
+The final exact-revision rerun passed all three native C89 and 30-case
+C99/compatibility aggregates, consumers, startup tests, source-quality gate,
+and package assembly. ARM64 GDB remains an explicit `UnsupportedTarget`; the
+TinyCC built-in trace is Pass and provides the required automatic failure
+diagnostic on that runner.
+
+The local Release rebuild initially used sibling repository compilers whose
+x64/ARM64 executable hashes did not match CI. Those outputs were rejected as
+provenance evidence. The retained candidate was rebuilt from the three exact
+release archives and each extracted `tcc.exe` hash was verified against the
+CI provenance before build and test.
+
+WPM verification reached the trust check with repository-local `WPM_DATA_DIR`
+and failed because the package is unsigned. Package structure Pass and WPM
+cryptographic verification Fail remain separate.
 
 ## Commands
 
-The verification used the repository entry points below with each exact
-architecture compiler path:
+The controlled verification entry points were:
 
 ```powershell
 ./tools/test-tinycc-capabilities.ps1 -Architecture <arch> -TinyCc <tcc>
-./tools/run-c89-tests.ps1 -Architecture <x86-or-x64> -TinyCc <tcc>
-./tools/run-c89-arm64-cross.ps1 -TinyCc <arm64-tcc>
-./tools/run-extension-tests.ps1 -Architecture <x86-or-x64> -TinyCc <tcc>
-./tests/c99/run-tc-0042.ps1 -TinyCc <arm64-tcc>
+./tools/run-c89-tests.ps1 -Architecture <arch> -TinyCc <tcc>
+./tools/run-extension-tests.ps1 -Architecture <arch> -TinyCc <tcc>
 ./tools/build-wcrt.ps1 -Architecture <arch> -Configuration <Debug-or-Release> -TinyCc <tcc> -Version 1.0.0-rc.1
 ./tools/test-built-libraries.ps1 -Architecture <arch> -Configuration <configuration> -TinyCc <tcc> [-CompileOnly]
 ./tools/test-startup-objects.ps1 -Architecture <arch> -Configuration <configuration> -TinyCc <tcc>
 ./tools/test-windows-2000-imports.ps1 -Binary <x86-wcrt.dll>
 ./tools/build-wpm-package.ps1 -Version 1.0.0-rc.1 -Configuration Release -Wpm 'C:\Program Files\WPM\wpm.exe'
+./wsp/tools/New-ArtifactChecksum.ps1 -Path <package> -OutputPath <SHA256SUMS>
 ./wsp/tools/tests/run-tests.ps1
 ./tests/verify-traceability.ps1
 ./tests/c99/Verify-C99ConformanceProfile.ps1

@@ -1,44 +1,45 @@
 {
   "candidate": "WCRT 1.0.0-rc.1 local unsigned candidate",
-  "sourceRevision": "3fa0b1a3a22bbd93ff9185dbb24689d83e057e56",
+  "sourceRevision": "aea690d2caf108054d1644eefb176efde779f524",
   "sourceVersion": "1.0.0-rc.1",
-  "packageVersion": "1.0.0-rc.1.17+3fa0b1a3",
+  "packageVersion": "1.0.0-rc.1.23+aea690d2",
   "package": {
-    "name": "wcrt-any-1.0.0-rc.1.17+3fa0b1a3.zip",
-    "length": 412482,
-    "sha256": "c1aa305e465d1b93dbb29ba13cfde54aa0472dc356ada450f96e4b225debe812",
+    "name": "wcrt-any-1.0.0-rc.1.23+aea690d2.zip",
+    "length": 418316,
+    "sha256": "18be4aa5086d07ed9ff31e4f808b107d14c399408e394877c57e9f51f288e68b",
     "structuralVerification": "Pass",
     "wpmSignatureVerification": "Fail: unsigned packages are not allowed",
     "publication": "Not published"
   },
   "checksumFile": {
     "name": "SHA256SUMS",
-    "sha256": "d2d193585588f1aeb50999461b30b60787ca92acec16c63f644ad2bfcee0eaac"
+    "length": 103,
+    "sha256": "29fcc6f24ce41bf7ea66f72162beb081c38951fa519e78f029efd789a11503ce"
   },
   "releaseDlls": [
     {
       "architecture": "x86",
       "length": 150528,
-      "sha256": "f5a6dee96bb2c12342bcfe7ed9cd77aca86d88fe0bf328006a470e4c4d365ace",
-      "version": "1.0.0-rc.1.17+3fa0b1a3",
+      "sha256": "ddd4051a236e9c278ba1a3833e0f60d362dcf5218b79c0e45a85dac5e0d5791b",
+      "version": "1.0.0-rc.1.23+aea690d2",
       "authenticode": "NotSigned",
-      "defenderInformationalScan": "NoThreats"
+      "defenderInformationalScan": "NoNewDetections"
     },
     {
       "architecture": "x64",
       "length": 170496,
-      "sha256": "f9160b9f42531af614867c059e707e713e9d4cdced1f06e0a9f8c94e104fa78d",
-      "version": "1.0.0-rc.1.17+3fa0b1a3",
+      "sha256": "af0784a7570aa3c472ed796d2e28a6801a8c56e823f15250d41c357651c27511",
+      "version": "1.0.0-rc.1.23+aea690d2",
       "authenticode": "NotSigned",
-      "defenderInformationalScan": "NoThreats"
+      "defenderInformationalScan": "NoNewDetections"
     },
     {
       "architecture": "arm64",
       "length": 196096,
-      "sha256": "f70c3a65668f5dcb457b56204d8583f158df585844e6c989117582fb16a81dd5",
-      "version": "1.0.0-rc.1.17+3fa0b1a3",
+      "sha256": "a43dae26b787476429c3a7a1931003f14436a810816e89ccacb51b5195ffcb8b",
+      "version": "1.0.0-rc.1.23+aea690d2",
       "authenticode": "NotSigned",
-      "defenderInformationalScan": "NoThreats"
+      "defenderInformationalScan": "NoNewDetections"
     }
   ],
   "packageMembers": [
@@ -48,26 +49,40 @@
     { "path": "x64/lib/libwcrt.a", "sha256": "e2286ccdbd259b5ca7a98168223bc076b5ff2146aabc0e9374abf3aa58a7c1af" },
     { "path": "x64/lib/wcrt-startup-console.o", "sha256": "5782fd943f8bb6c48a7d82fb41aac2c374fc4f2ccbb75153e7399199c1f83f20" },
     { "path": "x64/lib/wcrt-startup-gui.o", "sha256": "d51fc7d367eb62cd9b1ffd91806c4e7acc06ec00544c9fd6cbf63bf72578b9e4" },
-    { "path": "arm64/lib/libwcrt.a", "sha256": "47cf243bce90a29b641bf60679a322f8b034cd80452f341c941d80dc9ad9eec0" },
+    { "path": "arm64/lib/libwcrt.a", "sha256": "d9885cc8de54c1e29909265951744d09a3ba70c02aed8273bddfe4d4b7a49119" },
+    { "path": "arm64/lib/libwcrt-tinycc-complex-abi.a", "sha256": "5cdce4d614eb9e89522323d7ec1be205db6ce483d5c3148a41e09eec536cf897" },
     { "path": "arm64/lib/wcrt-startup-console.o", "sha256": "2a2178055aa0bdcfb78bc2248eac93107544ffd4dc3241ae7726e30f73b6709a" },
     { "path": "arm64/lib/wcrt-startup-gui.o", "sha256": "bef37bfb9c9c117b3bb22e62a71115736f5bae3c287454c0836513415e137037" }
   ],
+  "exactRevisionCi": {
+    "runId": 32027269426,
+    "sourceRevision": "aea690d2caf108054d1644eefb176efde779f524",
+    "conclusion": "success",
+    "debugPackage": {
+      "name": "wcrt-debug-any-0.0.0-dev.23+aea690d2.zip",
+      "length": 1555555,
+      "sha256": "a94c6bda2289623cf03c798b41a21bf15789e802a2cdbfd2400574d3d01438f5"
+    }
+  },
   "defender": {
-    "scannerPlatform": "4.18.26070.9-0",
     "engineVersion": "1.1.26070.7",
-    "intelligenceVersion": "1.457.196.0",
-    "intelligenceUpdated": "2026-08-16T08:15:47-05:00",
-    "scanPeriod": "2026-08-17T00:50:28.8260077-05:00/2026-08-17T00:50:28.9693274-05:00",
-    "packageResult": "NoThreats",
+    "intelligenceVersion": "1.457.203.0",
+    "intelligenceUpdated": "2026-08-16T19:15:00-05:00",
+    "scanPeriod": "2026-08-17T12:07:44.2190280-05:00/2026-08-17T12:07:47.7730996-05:00",
+    "targets": [
+      "output/candidate-packages-exact",
+      "output/candidate-build-exact"
+    ],
+    "newDetections": 0,
+    "use": "Informational only; further Defender work is deferred pending a repeatable release or GitHub Actions design",
     "finalSignedBytes": false,
     "releaseGate": "Unknown: final signed bytes do not exist"
   },
   "notPerformed": [
     "Authenticode signing and RFC 3161 timestamping",
     "WPM private-key signing",
-    "native ARM64 execution",
-    "exact-revision GitHub Actions run",
+    "native ARM64 Release execution",
     "clean-system install, uninstall, and rollback",
-    "tag, push, release creation, or upload"
+    "release tag, release creation, artifact upload, or publication"
   ]
 }

@@ -1,6 +1,6 @@
 {
   "recordedAt": "2026-08-17",
-  "candidateSourceRevision": "3fa0b1a3a22bbd93ff9185dbb24689d83e057e56",
+  "candidateSourceRevision": "aea690d2caf108054d1644eefb176efde779f524",
   "wsp": {
     "revision": "2198ccab08f969a789448767fe7017b774369adc",
     "source": "pinned gitlink"
@@ -22,27 +22,73 @@
     "releaseKeySha256": "e141a5f383b8d2e7096080beb2920b37a007de727d1c8ff47a520453460f23a6",
     "executableSha256": {
       "x86": "2ba43fde75ee6795c83dafdd896b726b3d6c11d7c90c6e54a79aba9c300d5328",
-      "x64": "deea187e49165b6110e0d3719e01d11db5f1729e18179dbe5e48eae4f5f55d54",
-      "arm64": "868d1c84426953f89a7720ae3a91ed04a127e57ae4b7fad8a44ae46ceef4d55c"
+      "x64": "e232a3c334076b76b3be5dc81402bb225ff7574b7b5bec5cece2693120139881",
+      "arm64": "7988e2f9cc4d4bb615c994a039f0aa63a7c2d03f47d0e8d62a6834ea8076b8c1"
     },
-    "archiveSha256": "Unknown: release-package archive digests were not retained in local evidence"
+    "archiveSha256": {
+      "x86": "21329f54fec387a125f2ce8ec6825b5603d38ddd53646f2dc982d8c3cf145069",
+      "x64": "6b48a403cb2f6c2f96bcdf78ac259417f9c9920125d59358dbfe3082e19c2650",
+      "arm64": "69c192dc391a5de96101cbada0c5669866a5c749a2fc8b756b6f0ff72508678a"
+    }
   },
   "cv2pdb": {
     "version": "0.54.0",
     "releaseTag": "cv2pdb-0.54.0",
     "sourceRevision": "25cfecaad700550a49cd7ddbf7773254ea438d07",
     "releaseKeySha256": "dc3245f3cab87c6e53cd8bad9c0fbeaf2951029adf819e900479e47cbf13285e",
-    "archiveSha256": "Unknown: the release-package archive digest was not retained in local evidence",
+    "archiveSha256": "3501a0ec7107dded367d7e943a2e7380d985c3ded15681e64a833fd93b759095",
     "installedExecutableSha256": "a2f2f61f8a1abc30e91fc18b93577891ed26a9eb8088a964bb441f5767dc9f21"
   },
   "githubActions": {
+    "runId": 32027269426,
+    "runUrl": "https://github.com/Thewafflication/wcrt/actions/runs/32027269426",
+    "runnerVersion": "2.336.0",
+    "runnerProvisionerVersion": "20260729.566",
+    "images": {
+      "x86": "windows-2025-vs2026 20260810.198.2",
+      "x64": "windows-2025-vs2026 20260810.198.2",
+      "arm64": "windows-11-arm64 20260809.134.1"
+    },
+    "jobs": {
+      "sourceQuality": 95379192945,
+      "x86": 95379408246,
+      "arm64": 95379408254,
+      "x64": 95379408264,
+      "package": 95379833779
+    },
+    "artifacts": {
+      "wcrt-debug-any-package": 9287613328,
+      "wcrt-arm64-debug-build": 9287592047,
+      "wcrt-arm64-debug": 9287591165,
+      "wcrt-x64-debug-build": 9287580348,
+      "wcrt-x86-debug-build": 9287579859,
+      "wcrt-x64-debug": 9287579186,
+      "wcrt-x86-debug": 9287578726
+    },
     "actions/checkout@v6": "d23441a48e516b6c34aea4fa41551a30e30af803",
     "actions/upload-artifact@v6": "b7c566a772e6b6bfb58ed0dc250532a479d7789f",
     "actions/download-artifact@v6": "018cc2cf5baa6db3ef3c5f8a56943fffe632ef53"
   },
+  "diagnosticTools": {
+    "x86": {
+      "gdbVersion": "17.1",
+      "gdbSha256": "296a89029bbe043f605b4b06e26dd481b36e2d1518fe6f92cde56fd4aab067b9",
+      "status": "Completed"
+    },
+    "x64": {
+      "gdbVersion": "17.1",
+      "gdbSha256": "296a89029bbe043f605b4b06e26dd481b36e2d1518fe6f92cde56fd4aab067b9",
+      "status": "Completed"
+    },
+    "arm64": {
+      "gdbVersion": "16.2",
+      "gdbSha256": "407ff5a34c87e1d529a4e8bffc54ef45776cf9fa820d995aabed7c98bb23efb6",
+      "status": "UnsupportedTarget; built-in TinyCC backtrace Pass"
+    }
+  },
   "limitations": [
-    "The exact candidate workflow was not pushed or run in GitHub Actions.",
-    "Runner-image provenance and native ARM64 dependency hashes are Unknown.",
+    "Native ARM64 Release execution is not present; the exact-revision native CI evidence is Debug.",
+    "The ARM64 runner GDB cannot read the ARM64 PE image, so independent GDB backtraces are UnsupportedTarget rather than Pass.",
     "The two legacy tests/check-dependency-releases.ps1 inventory entries for absent miniz and libsodium directories are stale, non-gating bootstrap artifacts."
   ]
 }

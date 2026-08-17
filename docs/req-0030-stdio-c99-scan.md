@@ -2,7 +2,7 @@
 
 **Content type:** Project requirement
 
-**Status:** Implemented; native ARM64 verification pending
+**Status:** Implemented; exact native Debug x86/x64/ARM64 verification passes
 
 **Source:** ISO/IEC 9899:1999 as corrected through TC3, §7.19.6.2,
 §7.19.6.4, §7.19.6.7, §7.19.6.9, §7.19.6.11, and §7.19.6.14
@@ -88,9 +88,8 @@ byte is read ahead and it is restored before return.
 
 `vfscanf`, `vscanf`, and `vsscanf` are the primary `va_list` entry points and
 the variadic functions are wrappers. TC-0030 and the complete C89/extension
-aggregates pass on x86 and x64. The same controlled source and tests
-compile/link for ARM64; native ARM64 execution remains required before
-target-complete acceptance.
+aggregates pass natively on x86, x64, and ARM64 in exact-revision run
+`32027269426`.
 
 ## T3 Wide-character Implementation Impact
 
@@ -98,5 +97,6 @@ T3 routes `lc`, `ls`, and `l[` through the accepted REQ-0033 C-locale rules.
 The scanner's shared input abstraction now has an internal wide-input mode
 that preserves orientation and lookahead while selecting the inverse wide
 `c`/`s` destination rules. The destination, width, termination, encoding, and
-first-unread matrices pass on x86/x64 and compile/link for ARM64. Wide stream
-entry points remain owned by REQ-0031 rather than this requirement.
+first-unread matrices pass on native x86/x64/ARM64 in exact-revision run
+`32027269426`. Wide stream entry points remain owned by REQ-0031 rather than
+this requirement.

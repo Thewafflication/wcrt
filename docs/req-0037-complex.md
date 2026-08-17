@@ -2,9 +2,8 @@
 
 **Content type:** Project requirement
 
-**Status:** Corrective implementation baselined; selected TinyCC 1442 local
-x86/x64 verification and ARM64 compile/link verification pass; corrected
-exact-candidate native ARM64 verification and independent review remain open
+**Status:** Corrective implementation verified on exact-revision native
+x86/x64/ARM64 Debug; native ARM64 Release and independent review remain open
 
 **Source:** ISO/IEC 9899:1999 as corrected through TC3, §7.3
 
@@ -102,6 +101,8 @@ result pointer in `x4`, while the packaged C helper reads `d0`--`d3` and `x0`.
 The ARM64 assembly bridge normalizes that boundary and tail-calls scaled WCRT
 scalar helpers. `libwcrt.a` contains the bridge; DLL consumers link
 `wcrt.def` plus the packaged `libwcrt-tinycc-complex-abi.a` companion so C99
-functions still resolve from `wcrt.dll`. Local native x86/x64 behavior and
-ARM64 compile/link verification pass. Corrected exact-candidate native ARM64
-execution and independent review remain open.
+functions still resolve from `wcrt.dll`. Exact-revision run `32027269426`
+passes TC-0037 and static/DLL consumers natively on x86, x64, and ARM64 and
+retains the ARM64 companion in the named architecture artifact. Local Release
+x86/x64 behavior and ARM64 compile/link pass; native ARM64 Release and
+independent review remain open.

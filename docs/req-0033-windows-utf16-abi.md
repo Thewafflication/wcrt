@@ -2,7 +2,7 @@
 
 **Content type:** Project requirement
 
-**Status:** Implemented locally; native ARM64 verification pending
+**Status:** Implemented; exact native Debug x86/x64/ARM64 verification passes
 
 **Source:** ISO/IEC 9899:1999 as corrected through TC3, §7.17, §7.24.1,
 §7.24.6, and §7.25.1; Windows x86, x64, and ARM64 ABI
@@ -123,7 +123,6 @@ TC-0033 verifies type promotion, size, alignment, all-zero initial state,
 partial and invalid conversions, source-pointer transitions, orientation,
 pushback, reopen/position reset, no-transfer conflicts, and C89 isolation. Its
 Windows probe passes WCRT `wchar_t` storage containing BMP and surrogate code
-units directly to `lstrlenW` on native x86 and x64; the same call and layout
-compile/link for ARM64. Native ARM64 execution, immutable exact-revision CI
-evidence, and independent review remain required before target-complete
+units directly to `lstrlenW` on native x86, x64, and ARM64 in exact-revision
+run `32027269426`. Independent review remains required before release
 acceptance.

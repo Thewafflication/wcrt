@@ -8,9 +8,9 @@ tier; it is not part of the Windows 2000 legacy tier.
 
 The workflow assigns the ARM64 build job to the native `windows-11-arm`
 runner. It runs the same C89 and C99 aggregates, capability probes, Debug
-consumers, startup objects, and package inputs used for x86/x64. Historical
-native ARM64 Debug evidence exists for T4 at source revision
-`027b324e233d4a0c1912667835dbef31d61c6dcc`.
+consumers, startup objects, and package inputs used for x86/x64. Exact source
+`aea690d2caf108054d1644eefb176efde779f524` passes 15/15 C89, 30/30 combined
+C99/compatibility, consumers, and startup in run `32027269426`.
 
 On an x64 development host, `tools/run-c89-arm64-cross.ps1` and the focused
 C99 runners use the AArch64 Windows TinyCC toolchain. Each generated binary is
@@ -40,10 +40,10 @@ ABI. TC-0037 and the static/DLL consumers are the required native gate.
 
 ## Candidate evidence boundary
 
-An exact release candidate requires retained native ARM64 results for the full
-C89/C99/compatibility aggregates, complex and floating ABI behavior,
-nonvolatile integer and floating register preservation around `setjmp` and
-`longjmp`, default signal termination, assertion diagnostics, static and DLL
-consumers, and both optional startup objects. Until those results are produced
-at the candidate source and dependency revision, the native ARM64 gate is
-Unknown. Windows 2000 import enforcement applies only to x86.
+The exact Debug candidate evidence covers the full C89/C99/compatibility
+aggregates, complex and floating ABI behavior, nonvolatile integer and floating
+register preservation around `setjmp` and `longjmp`, default signal
+termination, assertion diagnostics, static and DLL consumers, and both
+optional startup objects. Native ARM64 Release execution is still absent and
+remains Unknown; local compile/link does not replace it. Windows 2000 import
+enforcement applies only to x86.

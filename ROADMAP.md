@@ -65,8 +65,9 @@ conformance claim.
 - [x] Add enforced x86 import-table inspection against the Windows 2000 API
       allowlist for Debug and tagged Release DLLs.
 - [x] Create conformance, implementation-defined behavior, and deviation
-      documents; target result cells remain Unknown until exact evidence is
-      retained.
+      documents; exact native Debug target cells now cite retained run
+      `32027269426`, while native ARM64 Release and release gates remain
+      explicitly Unknown/Fail where applicable.
 
 **Exit condition:** a trivial program can be compiled with TinyCC, linked with
 WCRT, started, tested, and terminated on the baseline x86 target.

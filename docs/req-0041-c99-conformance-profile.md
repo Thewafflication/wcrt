@@ -2,7 +2,7 @@
 
 **Content type:** Project requirement
 
-**Status:** Baselined for T6; profile verification pending
+**Status:** Implemented and automatically verified; independent review pending
 
 **Source:** ISO/IEC 9899:1999 as corrected through TC3, clauses 7.1--7.25 and
 Annex J
@@ -47,3 +47,13 @@ cited exact-revision evidence.
 - **Depends on:** REQ-0040 and all controlled C99 facility requirements
 - **Required by:** REQ-0042 and release readiness
 - **Conflicts with:** A blanket or self-declared C99 conformance claim
+
+## Implementation Record
+
+`docs/c99-conformance-profile.md` contains 75 classified rows over all 25
+library clauses and 24 standard headers. TC-0041 passes its positive and
+negative inventory checks at source
+`aea690d2caf108054d1644eefb176efde779f524`; the target Pass cells cite exact
+native run `32027269426`. F-010, F-017, and F-037 remain compiler-blocked
+ExpectedFail, F-009 and F-055 remain omitted optional/recommended practice,
+and F-038 remains out of profile. Independent challenge remains a release gate.
