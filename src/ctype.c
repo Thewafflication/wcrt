@@ -60,6 +60,12 @@ int isspace(int character)
         (character >= '\t' && character <= '\r');
 }
 
+/** @brief Implements the public C99 isblank contract. */
+int isblank(int character)
+{
+    return character == ' ' || character == '\t';
+}
+
 /** @brief Implements the public ispunct contract. */
 int ispunct(int character)
 {

@@ -211,6 +211,53 @@ static int wcrt_test_round_trip(void)
     return 0;
 }
 
+/** @brief Verifies the documented decimal and C-locale integration profile. */
+static int wcrt_test_decimal_profile(void)
+{
+    static const unsigned long long round_trip_bits[] = {
+        0x0000000000000000ULL,
+        0x8000000000000000ULL,
+        0x3ff0000000000000ULL,
+        0xbff0000000000000ULL,
+        0x3ff8000000000000ULL,
+        0x3fc0000000000000ULL,
+        0x4090000000000000ULL,
+        0x3f50000000000000ULL
+    };
+    const char *accuracy_counterexample =
+        "1.84420264470505631627654034273169716465594916268499065920945e-81";
+    union wcrt_double_bits original;
+    union wcrt_double_bits converted;
+    char buffer[64];
+    char *end;
+    size_t index;
+
+    errno = EDOM;
+    converted.value = strtod("9007199254740993!", &end);
+    if (converted.bits != 0x4340000000000000ULL || *end != '!' ||
+        errno != EDOM) {
+        return 1;
+    }
+    converted.value = strtod(accuracy_counterexample, &end);
+    if (converted.bits != 0x2f2bfd59a7dd4b00ULL || *end != '\0') {
+        return 2;
+    }
+    converted.value = strtod("12,5", &end);
+    if (converted.value != 12.0 || *end != ',') return 3;
+    for (index = 0; index < sizeof(round_trip_bits) /
+        sizeof(round_trip_bits[0]); ++index) {
+        original.bits = round_trip_bits[index];
+        if (snprintf(buffer, sizeof(buffer), "%.17g", original.value) <= 0) {
+            return 4;
+        }
+        converted.value = strtod(buffer, &end);
+        if (*end != '\0' || converted.bits != original.bits) {
+            return 10 + (int)index;
+        }
+    }
+    return 0;
+}
+
 /** @brief Runs C99 narrow numeric-text tests. */
 int main(void)
 {
@@ -222,5 +269,7 @@ int main(void)
     if (result != 0) return 20 + result;
     result = wcrt_test_round_trip();
     if (result != 0) return 30 + result;
+    result = wcrt_test_decimal_profile();
+    if (result != 0) return 40 + result;
     return 0;
 }

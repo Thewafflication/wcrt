@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param([string]$TinyCc, [switch]$CompileOnly)
 
-& (Join-Path $PSScriptRoot 'Invoke-C99HeaderTest.ps1') `
+$result = & (Join-Path $PSScriptRoot 'Invoke-C99HeaderTest.ps1') `
     -TestCase 'TC-0035' -Requirement 'REQ-0035' `
     -Name 'math' `
     -PublicHeader 'include/math.h' `
@@ -12,3 +12,6 @@ param([string]$TinyCc, [switch]$CompileOnly)
     -C89Source 'tests/c99/presence/math-c89.c' `
     -C89Regression 'tests/c89/run-tc-0007.ps1' `
     -CompileOnly:$CompileOnly
+& (Join-Path $PSScriptRoot 'Verify-FmaVectors.ps1') -TinyCc $TinyCc `
+    -CompileOnly:$CompileOnly | Out-Null
+$result

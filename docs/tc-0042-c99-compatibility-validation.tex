@@ -1,0 +1,29 @@
+% TC-0042 fragment; intended for the C99 test report.
+\def\TCID{TC-0042}
+\def\TCTitle{C99 compatibility and target validation}
+\def\TCPurpose{Verify header self-containment, C89 isolation, ABI, regression,
+build, consumer, import, package, and retained evidence gates.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0042}
+\def\TCDesignRef{ISO/IEC 9899:1999 7.1.2 and 7.1.4; WCRT platform model.}
+\def\TCFeatureRef{\texttt{tests/c99/Verify-C99HeaderMatrix.ps1};
+\texttt{tests/c99/compatibility-abi.c};
+\texttt{tests/c99/run-tc-0042.ps1}; build and package tools.}
+\def\TCTestTechnique{Generated include-order matrix, static ABI assertions,
+serial regression, native execution, PE inspection, consumer and package tests,
+and exact-evidence validation.}
+\def\TCPreconditions{REQ-0040 and REQ-0041 are baselined; selected dependency
+and source identities are recorded.}
+\def\TCEnvironment{TinyCC C89/C99 modes on Windows x86, x64, and ARM64 in Debug
+and Release, including native target runners.}
+\def\TCAssumptions{Cross-only and unavailable checks are Unknown or Blocked.}
+\def\TCInputData{All standard headers, both controlled include orders, public
+ABI types, all test manifests, binaries, packages, hashes, and result records.}
+\def\TCInitialState{Architecture-specific clean build and result roots exist.}
+\def\TCProcedure{Compile the header/ABI matrices; run every controlled suite and
+product gate serially; retain exact outputs; reconcile target states.}
+\def\TCExpectedResult{Every required local and native target gate passes at one
+baseline; missing or failed required evidence remains visibly blocking.}
+\def\TCPostConditions{Evidence and artifact identities are retained for the
+release-readiness audit.}
+\TCTemplate

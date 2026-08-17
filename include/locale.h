@@ -41,6 +41,16 @@ struct lconv {
     char n_sep_by_space;       /**< Currency spacing for negative values. */
     char p_sign_posn;          /**< Sign position for positive values. */
     char n_sign_posn;          /**< Sign position for negative values. */
+#if defined(WCRT_BUILD_C99_LAYOUT) || \
+    (!defined(WCRT_C89) && defined(__STDC_VERSION__) && \
+        __STDC_VERSION__ >= 199901L)
+    char int_p_cs_precedes;    /**< International positive currency position. */
+    char int_n_cs_precedes;    /**< International negative currency position. */
+    char int_p_sep_by_space;   /**< International positive currency spacing. */
+    char int_n_sep_by_space;   /**< International negative currency spacing. */
+    char int_p_sign_posn;      /**< International positive sign position. */
+    char int_n_sign_posn;      /**< International negative sign position. */
+#endif
 };
 
 #ifdef __cplusplus

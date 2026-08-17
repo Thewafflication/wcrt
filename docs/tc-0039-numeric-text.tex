@@ -1,8 +1,9 @@
 % TC-0039 fragment; intended for the C99 test report.
 \def\TCID{TC-0039}
 \def\TCTitle{C99 narrow numeric text interchange}
-\def\TCPurpose{Verify hexadecimal floating syntax, special values, signed
-zero, rounding, range behavior, and narrow formatted-I/O integration.}
+\def\TCPurpose{Verify hexadecimal floating syntax, documented decimal
+accuracy, special values, signed zero, range behavior, and formatted-I/O
+integration.}
 \def\TCPriority{\TCPriorityHigh}
 \def\TCRequirementRef{REQ-0039}
 \def\TCDesignRef{ISO/IEC 9899:1999 7.19.6 and 7.20.1.3; documented
@@ -11,7 +12,8 @@ binary32/binary64 model.}
 \texttt{src/stdio\_format.c}; \texttt{src/stdio\_scan.c};
 \texttt{tests/c99/numeric-text.c}; \texttt{tests/c99/run-tc-0039.ps1}.}
 \def\TCTestTechnique{Boundary-value analysis using exact bit patterns,
-metamorphic round trips, and adjacent-value rounding partitions.}
+metamorphic hexadecimal and decimal round trips, adjacent-value rounding
+partitions, and a retained decimal recommended-practice counterexample.}
 \def\TCPreconditions{REQ-0024 and REQ-0028 pass and the target floating model
 matches the documented binary32/binary64 ABI.}
 \def\TCEnvironment{C99 compilation and native execution on x86, x64, and
@@ -26,7 +28,8 @@ partitions.}
 \def\TCProcedure{Convert exact hexadecimal and special subjects through each
 strto function; retain the REQ-0028 decimal regression; inspect values and end
 pointers; format and scan the same bit patterns; exercise precision boundaries
-and verify default-a round trips.}
+and verify default-a and 17-digit decimal round trips; compare the shared wide
+partitions controlled by REQ-0031.}
 \def\TCExpectedResult{Hexadecimal conversions are correctly rounded, signed
 zero and classifications are retained, range errors follow the controlled
 policy, ordinary success preserves errno, and finite default-a output round

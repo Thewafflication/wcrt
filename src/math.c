@@ -19,7 +19,8 @@
 #define WCRT_LN10 2.30258509299404568402
 #define WCRT_LOG_SQRT_PI 0.57236494292470008707
 #define WCRT_TWO_OVER_SQRT_PI 1.12837916709551257390
-#define WCRT_SPLITTER 134217729.0
+#define WCRT_FMA_BASE_EXP (-2200)
+#define WCRT_FMA_WORDS 140
 
 union wcrt_double_shape {
     double value;
@@ -1145,76 +1146,313 @@ double fdim(double lhs, double rhs)
     return result;
 }
 
-static double wcrt_fma_core(double lhs, double middle, double rhs)
-{
-    double product;
-    double split_lhs;
-    double split_middle;
-    double lhs_high;
-    double lhs_low;
-    double middle_high;
-    double middle_low;
-    double product_error;
-    double sum;
-    double virtual_rhs;
-    double sum_error;
+/** @brief Exact finite operand decomposition used by fused operations. */
+struct wcrt_fma_operand {
+    unsigned long long significand;
+    int exponent;
+    int negative;
+    int zero;
+    int infinite;
+    int not_a_number;
+};
 
-    product = lhs * middle;
-    if (!wcrt_is_finite(product) || !wcrt_is_finite(rhs) ||
-        fabs(lhs) > 1.0e300 || fabs(middle) > 1.0e300)
-        return product + rhs;
-    split_lhs = WCRT_SPLITTER * lhs;
-    split_middle = WCRT_SPLITTER * middle;
-    lhs_high = split_lhs - (split_lhs - lhs);
-    lhs_low = lhs - lhs_high;
-    middle_high = split_middle - (split_middle - middle);
-    middle_low = middle - middle_high;
-    product_error = ((lhs_high * middle_high - product) +
-        lhs_high * middle_low + lhs_low * middle_high) +
-        lhs_low * middle_low;
-    sum = product + rhs;
-    virtual_rhs = sum - product;
-    sum_error = (product - (sum - virtual_rhs)) + (rhs - virtual_rhs);
-    return sum + (product_error + sum_error);
+/** @brief Fixed exact magnitude spanning every binary64 product and addend. */
+struct wcrt_fma_magnitude {
+    unsigned int word[WCRT_FMA_WORDS];
+};
+
+/** @brief Decodes a binary64 operand without a floating-point operation. */
+static struct wcrt_fma_operand wcrt_fma_decode(double value)
+{
+    union wcrt_double_shape shape;
+    struct wcrt_fma_operand result;
+    unsigned int encoded_exponent;
+
+    shape.value = value;
+    encoded_exponent = (unsigned int)((shape.bits >> 52) & 0x7ffULL);
+    result.negative = (int)(shape.bits >> 63);
+    result.significand = shape.bits & 0x000fffffffffffffULL;
+    result.zero = encoded_exponent == 0U && result.significand == 0ULL;
+    result.infinite = encoded_exponent == 0x7ffU &&
+        result.significand == 0ULL;
+    result.not_a_number = encoded_exponent == 0x7ffU &&
+        result.significand != 0ULL;
+    if (encoded_exponent == 0U) {
+        result.exponent = -1074;
+    } else {
+        result.significand |= 0x0010000000000000ULL;
+        result.exponent = (int)encoded_exponent - 1023 - 52;
+    }
+    return result;
+}
+
+/** @brief Clears an exact fused-operation magnitude. */
+static void wcrt_fma_clear(struct wcrt_fma_magnitude *value)
+{
+    int index;
+    for (index = 0; index < WCRT_FMA_WORDS; ++index) {
+        value->word[index] = 0U;
+    }
+}
+
+/** @brief Adds one exact power-of-two bit to a fused magnitude. */
+static void wcrt_fma_add_bit(struct wcrt_fma_magnitude *value, int bit)
+{
+    while (bit < WCRT_FMA_WORDS * 32) {
+        int word = bit / 32;
+        unsigned int mask = 1U << (bit % 32);
+        if ((value->word[word] & mask) == 0U) {
+            value->word[word] |= mask;
+            return;
+        }
+        value->word[word] &= ~mask;
+        ++bit;
+    }
+}
+
+/** @brief Adds an exact decoded operand at its binary exponent. */
+static void wcrt_fma_add_operand(struct wcrt_fma_magnitude *value,
+    const struct wcrt_fma_operand *operand)
+{
+    int bit;
+    for (bit = 0; bit < 53; ++bit) {
+        if ((operand->significand & (1ULL << bit)) != 0ULL) {
+            wcrt_fma_add_bit(value,
+                operand->exponent + bit - WCRT_FMA_BASE_EXP);
+        }
+    }
+}
+
+/** @brief Forms an exact product of two decoded binary64 significands. */
+static void wcrt_fma_product(struct wcrt_fma_magnitude *value,
+    const struct wcrt_fma_operand *lhs,
+    const struct wcrt_fma_operand *middle)
+{
+    int lhs_bit;
+    int middle_bit;
+
+    for (lhs_bit = 0; lhs_bit < 53; ++lhs_bit) {
+        if ((lhs->significand & (1ULL << lhs_bit)) == 0ULL) continue;
+        for (middle_bit = 0; middle_bit < 53; ++middle_bit) {
+            if ((middle->significand & (1ULL << middle_bit)) != 0ULL) {
+                wcrt_fma_add_bit(value, lhs->exponent + middle->exponent +
+                    lhs_bit + middle_bit - WCRT_FMA_BASE_EXP);
+            }
+        }
+    }
+}
+
+/** @brief Compares two exact fused-operation magnitudes. */
+static int wcrt_fma_compare(const struct wcrt_fma_magnitude *lhs,
+    const struct wcrt_fma_magnitude *rhs)
+{
+    int index;
+    for (index = WCRT_FMA_WORDS - 1; index >= 0; --index) {
+        if (lhs->word[index] > rhs->word[index]) return 1;
+        if (lhs->word[index] < rhs->word[index]) return -1;
+    }
+    return 0;
+}
+
+/** @brief Adds two exact magnitudes. */
+static void wcrt_fma_add(struct wcrt_fma_magnitude *result,
+    const struct wcrt_fma_magnitude *rhs)
+{
+    unsigned long long carry = 0ULL;
+    int index;
+    for (index = 0; index < WCRT_FMA_WORDS; ++index) {
+        unsigned long long sum = (unsigned long long)result->word[index] +
+            rhs->word[index] + carry;
+        result->word[index] = (unsigned int)sum;
+        carry = sum >> 32;
+    }
+}
+
+/** @brief Subtracts a no-larger exact magnitude. */
+static void wcrt_fma_subtract(struct wcrt_fma_magnitude *result,
+    const struct wcrt_fma_magnitude *rhs)
+{
+    unsigned long long borrow = 0ULL;
+    int index;
+    for (index = 0; index < WCRT_FMA_WORDS; ++index) {
+        unsigned long long left = result->word[index];
+        unsigned long long subtrahend =
+            (unsigned long long)rhs->word[index] + borrow;
+        if (left < subtrahend) {
+            result->word[index] = (unsigned int)(
+                left + 0x100000000ULL - subtrahend);
+            borrow = 1ULL;
+        } else {
+            result->word[index] = (unsigned int)(left - subtrahend);
+            borrow = 0ULL;
+        }
+    }
+}
+
+/** @brief Returns one bit from an exact magnitude. */
+static int wcrt_fma_bit(const struct wcrt_fma_magnitude *value, int bit)
+{
+    if (bit < 0 || bit >= WCRT_FMA_WORDS * 32) return 0;
+    return (value->word[bit / 32] >> (bit % 32)) & 1U;
+}
+
+/** @brief Reports whether any exact magnitude bit below a limit is set. */
+static int wcrt_fma_any_below(const struct wcrt_fma_magnitude *value,
+    int limit)
+{
+    int bit;
+    for (bit = 0; bit < limit; ++bit) {
+        if (wcrt_fma_bit(value, bit)) return 1;
+    }
+    return 0;
+}
+
+/** @brief Finds the most significant set bit in an exact magnitude. */
+static int wcrt_fma_high_bit(const struct wcrt_fma_magnitude *value)
+{
+    int bit;
+    for (bit = WCRT_FMA_WORDS * 32 - 1; bit >= 0; --bit) {
+        if (wcrt_fma_bit(value, bit)) return bit;
+    }
+    return -1;
+}
+
+/** @brief Determines whether discarded bits increment the target encoding. */
+static int wcrt_fma_round_up(const struct wcrt_fma_magnitude *value,
+    int cutoff, unsigned long long retained, int negative)
+{
+    int discarded = wcrt_fma_any_below(value, cutoff);
+    int mode;
+
+    if (!discarded) return 0;
+    mode = fegetround();
+    if (mode == FE_UPWARD) return !negative;
+    if (mode == FE_DOWNWARD) return negative;
+    if (mode == FE_TOWARDZERO) return 0;
+    return wcrt_fma_bit(value, cutoff - 1) &&
+        (wcrt_fma_any_below(value, cutoff - 1) ||
+            (retained & 1ULL) != 0ULL);
+}
+
+/** @brief Rounds an exact magnitude to a selected IEEE binary format. */
+static unsigned long long wcrt_fma_round(
+    const struct wcrt_fma_magnitude *value, int negative, int precision,
+    int minimum_exponent, int maximum_exponent, int bias,
+    unsigned long long sign_mask, unsigned long long maximum_bits)
+{
+    int high = wcrt_fma_high_bit(value);
+    int exponent;
+    int cutoff;
+    int bit;
+    int underflow;
+    unsigned long long retained = 0ULL;
+    unsigned long long fraction_mask =
+        (1ULL << (precision - 1)) - 1ULL;
+
+    if (high < 0) return negative ? sign_mask : 0ULL;
+    exponent = WCRT_FMA_BASE_EXP + high;
+    if (exponent > maximum_exponent) {
+        errno = ERANGE;
+        return maximum_bits | (negative ? sign_mask : 0ULL);
+    }
+    underflow = exponent < minimum_exponent;
+    cutoff = underflow ?
+        minimum_exponent - (precision - 1) - WCRT_FMA_BASE_EXP :
+        high - (precision - 1);
+    for (bit = high; bit >= cutoff; --bit) {
+        retained = (retained << 1) |
+            (unsigned long long)wcrt_fma_bit(value, bit);
+    }
+    if (wcrt_fma_round_up(value, cutoff, retained, negative)) {
+        ++retained;
+    }
+    if (underflow) {
+        errno = ERANGE;
+        if (retained >= (1ULL << (precision - 1))) {
+            return (1ULL << (precision - 1)) |
+                (negative ? sign_mask : 0ULL);
+        }
+        return retained | (negative ? sign_mask : 0ULL);
+    }
+    if (retained == (1ULL << precision)) {
+        retained >>= 1;
+        ++exponent;
+        if (exponent > maximum_exponent) {
+            errno = ERANGE;
+            return maximum_bits | (negative ? sign_mask : 0ULL);
+        }
+    }
+    return ((unsigned long long)(exponent + bias) << (precision - 1)) |
+        (retained & fraction_mask) | (negative ? sign_mask : 0ULL);
+}
+
+/** @brief Computes exact finite product-plus-addend target bits. */
+static unsigned long long wcrt_fma_finite_bits(
+    const struct wcrt_fma_operand *lhs,
+    const struct wcrt_fma_operand *middle,
+    const struct wcrt_fma_operand *rhs, int precision,
+    int minimum_exponent, int maximum_exponent, int bias,
+    unsigned long long sign_mask, unsigned long long maximum_bits)
+{
+    struct wcrt_fma_magnitude product;
+    struct wcrt_fma_magnitude addend;
+    int product_negative = lhs->negative != middle->negative;
+    int result_negative;
+    int order;
+
+    wcrt_fma_clear(&product);
+    wcrt_fma_clear(&addend);
+    wcrt_fma_product(&product, lhs, middle);
+    wcrt_fma_add_operand(&addend, rhs);
+    if (product_negative == rhs->negative) {
+        wcrt_fma_add(&product, &addend);
+        result_negative = product_negative;
+    } else {
+        order = wcrt_fma_compare(&product, &addend);
+        if (order > 0) {
+            wcrt_fma_subtract(&product, &addend);
+            result_negative = product_negative;
+        } else if (order < 0) {
+            wcrt_fma_subtract(&addend, &product);
+            product = addend;
+            result_negative = rhs->negative;
+        } else {
+            wcrt_fma_clear(&product);
+            result_negative = fegetround() == FE_DOWNWARD;
+        }
+    }
+    return wcrt_fma_round(&product, result_negative, precision,
+        minimum_exponent, maximum_exponent, bias, sign_mask, maximum_bits);
 }
 
 double fma(double lhs, double middle, double rhs)
 {
-    int lhs_exponent;
-    int middle_exponent;
-    int product_exponent;
-    double scaled;
-    double scale_down = 7.4583407312002070e-155;
-    double scale_up = 1.3407807929942597e+154;
+    struct wcrt_fma_operand left = wcrt_fma_decode(lhs);
+    struct wcrt_fma_operand center = wcrt_fma_decode(middle);
+    struct wcrt_fma_operand addend = wcrt_fma_decode(rhs);
+    int product_negative = left.negative != center.negative;
+    union wcrt_double_shape result;
 
-    if (!wcrt_is_finite(lhs) || !wcrt_is_finite(middle) ||
-        !wcrt_is_finite(rhs) || lhs == 0.0 || middle == 0.0)
-        return lhs * middle + rhs;
-    lhs_exponent = ilogb(fabs(lhs));
-    middle_exponent = ilogb(fabs(middle));
-    product_exponent = lhs_exponent + middle_exponent;
-    if (product_exponent > 1530) {
-        scaled = wcrt_fma_core(lhs * scale_down, middle * scale_down,
-            rhs * scale_down * scale_down);
-        scaled *= scale_up;
-        scaled *= scale_up;
-        if (wcrt_is_infinite(scaled)) {
-            errno = ERANGE;
-            return copysign(HUGE_VAL, scaled);
-        }
-        return scaled;
+    if (left.not_a_number || center.not_a_number || addend.not_a_number) {
+        return lhs + middle + rhs;
     }
-    if (product_exponent > 1000) {
-        if (lhs_exponent >= middle_exponent) lhs *= scale_down;
-        else middle *= scale_down;
-        scaled = wcrt_fma_core(lhs, middle, rhs * scale_down) * scale_up;
-        if (wcrt_is_infinite(scaled)) {
-            errno = ERANGE;
-            return copysign(HUGE_VAL, scaled);
-        }
-        return scaled;
+    if ((left.infinite && center.zero) ||
+        (center.infinite && left.zero)) {
+        errno = EDOM;
+        return wcrt_quiet_nan();
     }
-    return wcrt_fma_core(lhs, middle, rhs);
+    if (left.infinite || center.infinite) {
+        if (addend.infinite && product_negative != addend.negative) {
+            errno = EDOM;
+            return wcrt_quiet_nan();
+        }
+        return copysign(wcrt_infinity(), product_negative ? -1.0 : 1.0);
+    }
+    if (addend.infinite) return rhs;
+    result.bits = wcrt_fma_finite_bits(&left, &center, &addend, 53,
+        -1022, 1023, 1023, 0x8000000000000000ULL,
+        0x7fefffffffffffffULL);
+    return result.value;
 }
 
 static double wcrt_erfc_positive(double value)
@@ -1439,7 +1677,32 @@ long double remquol(long double numerator, long double denominator,
 
 float fmaf(float lhs, float middle, float rhs)
 {
-    return wcrt_float_result((double)lhs * (double)middle + (double)rhs);
+    struct wcrt_fma_operand left = wcrt_fma_decode((double)lhs);
+    struct wcrt_fma_operand center = wcrt_fma_decode((double)middle);
+    struct wcrt_fma_operand addend = wcrt_fma_decode((double)rhs);
+    int product_negative = left.negative != center.negative;
+    union wcrt_float_shape result;
+
+    if (left.not_a_number || center.not_a_number || addend.not_a_number) {
+        return lhs + middle + rhs;
+    }
+    if ((left.infinite && center.zero) ||
+        (center.infinite && left.zero)) {
+        errno = EDOM;
+        return wcrt_quiet_nanf();
+    }
+    if (left.infinite || center.infinite) {
+        if (addend.infinite && product_negative != addend.negative) {
+            errno = EDOM;
+            return wcrt_quiet_nanf();
+        }
+        return copysignf(wcrt_infinityf(),
+            product_negative ? -1.0F : 1.0F);
+    }
+    if (addend.infinite) return rhs;
+    result.bits = (unsigned int)wcrt_fma_finite_bits(&left, &center,
+        &addend, 24, -126, 127, 127, 0x80000000ULL, 0x7f7fffffULL);
+    return result.value;
 }
 
 long double fmal(long double lhs, long double middle, long double rhs)

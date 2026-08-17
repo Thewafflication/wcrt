@@ -68,7 +68,15 @@ static unsigned long wcrt_append_number(char *destination,
     return position;
 }
 
-void __wcrt_assert_fail(const char *expression, const char *file, int line)
+/**
+ * @brief Formats and emits an assertion diagnostic.
+ * @param expression Text of the failed expression.
+ * @param file Source file containing the assertion.
+ * @param line Source line containing the assertion.
+ * @param function Enclosing function, or null for the C89 diagnostic.
+ */
+static void wcrt_assert_fail_impl(const char *expression, const char *file,
+    int line, const char *function)
 {
     char diagnostic[512];
     unsigned long length = 0;
@@ -83,8 +91,25 @@ void __wcrt_assert_fail(const char *expression, const char *file, int line)
     length = wcrt_append(diagnostic, length, sizeof(diagnostic), ", line ");
     length = wcrt_append_number(diagnostic, length, sizeof(diagnostic),
         (unsigned int)line);
+    if (function != (const char *)0) {
+        length = wcrt_append(diagnostic, length, sizeof(diagnostic),
+            ", function ");
+        length = wcrt_append(diagnostic, length, sizeof(diagnostic),
+            function);
+    }
     length = wcrt_append(diagnostic, length, sizeof(diagnostic), "\r\n");
     standard_error = GetStdHandle(WCRT_STD_ERROR_HANDLE);
     WriteFile(standard_error, diagnostic, length, &written, (void *)0);
     ExitProcess(3);
+}
+
+void __wcrt_assert_fail(const char *expression, const char *file, int line)
+{
+    wcrt_assert_fail_impl(expression, file, line, (const char *)0);
+}
+
+void __wcrt_assert_fail_c99(const char *expression, const char *file,
+    int line, const char *function)
+{
+    wcrt_assert_fail_impl(expression, file, line, function);
 }

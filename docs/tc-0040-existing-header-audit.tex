@@ -1,0 +1,32 @@
+% TC-0040 fragment; intended for the C99 test report.
+\def\TCID{TC-0040}
+\def\TCTitle{Existing-header C99 integration audit}
+\def\TCPurpose{Verify every C99 change to the C89 header and runtime families,
+including diagnostics, declarations, expression types, behavior, and isolation.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0040}
+\def\TCDesignRef{ISO/IEC 9899:1999 clauses 7.1--7.25; REQ-0040.}
+\def\TCFeatureRef{\texttt{include}; \texttt{src};
+\texttt{tests/c99/existing-headers.c};
+\texttt{tests/c99/Verify-T6ExistingHeaders.ps1};
+\texttt{tests/c99/run-tc-0040.ps1}.}
+\def\TCTestTechnique{Compile-time type and constant-expression checks,
+behavioral partitions, inventory review, negative C89 exposure checks, and
+focused C89/C99 regression.}
+\def\TCPreconditions{REQ-0001 through REQ-0039 are available and the selected
+TinyCC target matches the documented ABI.}
+\def\TCEnvironment{C99 compilation and native execution on x86, x64, and
+ARM64; selected C89 isolation on the same compilers.}
+\def\TCAssumptions{The C locale and documented Windows type model are active.}
+\def\TCInputData{Assertion diagnostic fields; blank/nonblank bytes; locale
+members; expression types; multibyte, numeric, I/O, string, time, and math
+boundary inventory.}
+\def\TCInitialState{Locale, errno, and floating environment are reset where
+observed.}
+\def\TCProcedure{Compile the controlled declarations and type assertions;
+execute focused behavior; verify the family-to-test inventory; rerun dependent
+C89 and C99 cases.}
+\def\TCExpectedResult{Every required changed facility is present and behaves as
+specified, C89 isolation holds, and all inventory references resolve.}
+\def\TCPostConditions{Only ignored build and result artifacts remain.}
+\TCTemplate

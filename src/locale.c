@@ -3,6 +3,8 @@
  * @brief Implements the mandatory C locale and its conventions.
  */
 
+#define WCRT_BUILD_C99_LAYOUT 1
+
 #include <limits.h>
 #include <locale.h>
 
@@ -26,6 +28,12 @@ static struct lconv wcrt_c_conventions = {
     wcrt_empty,
     wcrt_empty,
     wcrt_empty,
+    CHAR_MAX,
+    CHAR_MAX,
+    CHAR_MAX,
+    CHAR_MAX,
+    CHAR_MAX,
+    CHAR_MAX,
     CHAR_MAX,
     CHAR_MAX,
     CHAR_MAX,

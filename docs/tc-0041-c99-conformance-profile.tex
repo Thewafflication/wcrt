@@ -1,0 +1,27 @@
+% TC-0041 fragment; intended for the C99 test report.
+\def\TCID{TC-0041}
+\def\TCTitle{C99 clause-level conformance profile}
+\def\TCPurpose{Verify profile coverage, classification, evidence states, and
+direct artifact references for every C99 library clause and header.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0041}
+\def\TCDesignRef{ISO/IEC 9899:1999 clauses 7.1--7.25 and Annex J; REQ-0041.}
+\def\TCFeatureRef{\texttt{docs/c99-conformance-profile.md};
+\texttt{tests/c99/Verify-C99ConformanceProfile.ps1};
+\texttt{tests/c99/run-tc-0041.ps1}.}
+\def\TCTestTechnique{Complete-inventory, schema, controlled-vocabulary, and
+reference-existence analysis followed by independent challenge of every Pass.}
+\def\TCPreconditions{All facility requirements and target result artifacts have
+stable identities.}
+\def\TCEnvironment{Repository analysis plus exact-revision x86, x64, and ARM64
+evidence.}
+\def\TCAssumptions{Unknown and unapproved exceptions are blocking states.}
+\def\TCInputData{Clauses 7.1--7.25, 24 headers, optional facilities, pragmas,
+implementation-defined choices, deviations, and target results.}
+\def\TCInitialState{The profile names the exact evidence baseline.}
+\def\TCProcedure{Validate all required rows and references, then compare each
+claimed target state with the cited evidence and review exceptions.}
+\def\TCExpectedResult{No row or reference is missing and no required Unknown,
+Fail, or unapproved exception is represented as Pass.}
+\def\TCPostConditions{The profile remains the evidence index for release review.}
+\TCTemplate

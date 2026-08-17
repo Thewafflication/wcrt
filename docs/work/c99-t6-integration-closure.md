@@ -396,20 +396,21 @@ command wall time, commit timestamps, or CI duration.
 
 | ID | Type | Affected baseline | Priority | Owner | Injected | Removed | Fix minutes | Related artifact | Disposition |
 | --- | --- | --- | --- | --- | --- | --- | ---: | --- | --- |
-| T6-D001 | build/tooling | T5 entry | critical | WCRT maintainer | T5 implementation | -- | -- | Git working tree, T5 work log | Open: the implementation has no clean immutable revision. |
-| T6-D002 | requirements | C99 closure planning | critical | WCRT maintainer | Program planning | -- | -- | REQ/TC-0040--0042 | Open: controlled records and evidence do not exist. |
-| T6-D003 | interface/ABI | C89 assertion baseline | high | WCRT maintainer | C89 implementation | -- | -- | `include/assert.h`, `src/assert.c` | Open: C99 function-name diagnostic is absent. |
-| T6-D004 | interface/ABI | C89 character baseline | high | WCRT maintainer | C89 implementation | -- | -- | `include/ctype.h`, `src/ctype.c` | Open: required C99 `isblank` is absent. |
-| T6-D005 | interface/ABI | C89 locale baseline | high | WCRT maintainer | C89 implementation | -- | -- | `include/locale.h`, `src/locale.c` | Open: six C99 international monetary members are absent. |
-| T6-D006 | interface/ABI | C89 utility baseline | high | WCRT maintainer | C89 implementation | -- | -- | `include/stdlib.h` | Open: `MB_CUR_MAX` has the wrong C99 expression type. |
-| T6-D007 | test | T0--T5 test design | critical | WCRT maintainer | Earlier tranche design | -- | -- | C99 manifest/runners | Open: no exhaustive 24-header or TC-0040--0042 gate exists. |
+| T6-D001 | build/tooling | T5 entry | critical | WCRT maintainer | T5 implementation | T6 implementation | -- | commit `1d681da8ab439a0e63ee7433ed289037806a26c7` | Removed: reviewed T5 implementation and the approved T6 baseline were committed after x86/x64 C89, C99, compatibility, build, consumer, startup, traceability, WSP-tool, and source-quality checks. ARM64 execution remains separately Unknown. |
+| T6-D002 | requirements | C99 closure planning | critical | WCRT maintainer | Program planning | T6 specification | -- | REQ/TC-0040--0042 | Removed: project requirements, test specifications, index, manifest, traceability, and aggregate entries are controlled. |
+| T6-D003 | interface/ABI | C89 assertion baseline | high | WCRT maintainer | C89 implementation | T6 implementation | -- | `include/assert.h`, `src/assert.c`, TC-0040 | Removed: C99 diagnostics include `__func__`; the C89 helper and surface remain separately selected. |
+| T6-D004 | interface/ABI | C89 character baseline | high | WCRT maintainer | C89 implementation | T6 implementation | -- | `include/ctype.h`, `src/ctype.c`, TC-0040 | Removed: edition-selected `isblank` implements space/tab and unsigned-character/EOF partitions. |
+| T6-D005 | interface/ABI | C89 locale baseline | high | WCRT maintainer | C89 implementation | T6 implementation | -- | `include/locale.h`, `src/locale.c`, TC-0040/0042 | Removed: the six international monetary members and full runtime layout are present while the C89 prefix surface remains selected. |
+| T6-D006 | interface/ABI | C89 utility baseline | high | WCRT maintainer | C89 implementation | T6 implementation | -- | `include/stdlib.h`, TC-0040/0042 | Removed: `MB_CUR_MAX` is the positive constant expression `(size_t)1`. |
+| T6-D007 | test | T0--T5 test design | critical | WCRT maintainer | Earlier tranche design | T6 implementation | -- | C99 manifest/runners, TC-0040--0042 | Removed: all 24 C99 headers, all 15 C89 headers, repeated/mixed inclusion, ABI, profile, and existing-family inventory gates are controlled. |
 | T6-D008 | documentation | T0--T5 status | high | WCRT maintainer | Earlier verification | -- | -- | work logs, roadmap, ARM64 record | Open: status and evidence records are unreconciled or stale. |
-| T6-D009 | documentation | Conformance documentation | critical | WCRT maintainer | Project bootstrap | -- | -- | profile, implementation-defined, deviation records | Open: referenced release-claim documents are absent. |
-| T6-D010 | requirements/numeric | REQ-0028/REQ-0039 | high | WCRT maintainer | Earlier requirements/implementation | -- | -- | decimal conversion and tests | Open: normative, accuracy, and recommended-practice claims/evidence are incomplete. |
-| T6-D011 | numeric | T4 | critical | WCRT maintainer | T4 implementation | -- | -- | `fma` family, T4-D012 | Open unapproved required-behavior deviation. |
+| T6-D009 | documentation | Conformance documentation | critical | WCRT maintainer | Project bootstrap | T6 specification | -- | `docs/c99-conformance-profile.md`, `docs/implementation-defined.md`, `docs/c99-deviations.md` | Removed: 75 facility rows cover clauses 7.1--7.25 and all 24 headers with independent classifications and target states. |
+| T6-D010 | requirements/numeric | REQ-0028/REQ-0039 | high | WCRT maintainer | Earlier requirements/implementation | T6 specification/verification | -- | REQ/TC-0039; decimal profile test | Removed: mandatory hexadecimal rounding, implementation-defined decimal accuracy, omitted recommended practice, C-locale syntax, wide dependencies, and a one-ULP counterexample are explicit. |
+| T6-D011 | numeric | T4 | critical | WCRT maintainer | T4 implementation | T6 implementation | -- | `src/math.c`, TC-0035, `tests/c99/data/fma-vectors.json` | Removed: exact integer product/addend accumulation and single active-direction binary32/binary64 rounding replace the sample-only compensated implementation. Native exact-revision ARM64 evidence remains pending. |
 | T6-D012 | build/tooling | CI dependency provisioning | high | WCRT maintainer | CI design | -- | -- | `.github/workflows/build.yml` | Open: `latest` inputs do not establish a pinned reproducible baseline. |
 | T6-D013 | documentation/evidence | ARM64 support | high | WCRT maintainer | Earlier platform documentation | -- | -- | ARM64 record and local result inventory | Open: documentation is stale and current native local evidence is absent. |
 | T6-D014 | test | Startup aggregate runner | critical | WCRT maintainer | Earlier test implementation | T6 implementation | -- | `tools/test-startup-objects.ps1` | Removed: the runner reported Pass and returned success even when TC-0017 and TC-0018 returned Fail. It now throws for Fail, reports Blocked without Pass wording, and only reports Pass when every child result passes. |
+| T6-D015 | documentation/dependency | T5 compiler baseline | high | WCRT maintainer | T5 verification | -- | -- | T5 records; TinyCC package `d5c02f0fcdfdf75265d38df6ff9db2f8067367ac` | Open: records name TinyCC 1441, while the locally selected package is `v0.9.28-rc.1442+2474e1c2`; exact executable digests and target results must be reconciled without transferring claims. |
 
 Fix effort is unknown and shall be recorded when each defect is diagnosed and
 removed. Planning findings are not silently converted into implementation.
@@ -424,9 +425,9 @@ removed. Planning findings are not silently converted into implementation.
       order are proposed.
 - [x] Known discrepancies and defects are recorded without correction or Pass
       inference.
-- [ ] T5 has a clean reviewed exact source baseline.
+- [x] T5 has a clean reviewed exact source baseline (`1d681da8ab439a0e63ee7433ed289037806a26c7`).
 - [ ] T0--T5 inherited gates are closed or explicitly accepted as exceptions.
-- [ ] REQ-0039 and REQ/TC-0040--0042 are reviewed and baselined.
+- [x] REQ-0039 and REQ/TC-0040--0042 are reviewed and baselined.
 - [x] T6 implementation is authorized.
 - [ ] Actual measures, verification, review, and postmortem are complete.
 

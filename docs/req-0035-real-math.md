@@ -2,8 +2,8 @@
 
 **Content type:** Project requirement
 
-**Status:** Implemented with native x86, x64, and ARM64 CI evidence;
-fused-operation deviation disposition and independent review pending
+**Status:** T6 fused-operation correction implemented; exact-revision native
+target verification and independent review pending
 
 **Source:** ISO/IEC 9899:1999 as corrected through TC3, §7.12
 
@@ -120,10 +120,12 @@ and x64 and compiles/links for ARM64. The x86/x64 C89 and extension aggregates,
 all three Release builds, native consumer/startup tests, ARM64 consumer link,
 and Windows 2000 x86 import gate pass locally.
 
-The compensated `fma` implementation passes controlled single-rounding
-cancellation and intermediate-overflow vectors, but it is not yet proven
-correctly rounded for every operand and rounding mode. That remains an explicit
-T4 deviation requiring approval or a stronger implementation/evidence set.
-GitHub Actions run `31463268579` passed TC-0035 natively on x86, x64, and ARM64
-at `027b324e233d4a0c1912667835dbef31d61c6dcc`; independent review remains
-required before requirement closure.
+T6 replaces the compensated `fma` approximation with fixed-size exact integer
+accumulation spanning every supported binary64 product/addend bit, followed by
+one binary32 or binary64 rounding under the active direction. `fmaf` rounds
+directly to binary32; Windows `fmal` uses the binary64 model. TC-0035 retains
+hand-selected cancellation/direction cases and 260 reproducible exact-rational
+binary64 vectors in `tests/c99/data/fma-vectors.json`. These pass on local x86
+and x64 and compile/link on ARM64. Exact-revision native ARM64 and independent
+review remain required; older GitHub Actions run `31463268579` does not prove
+the T6 correction.

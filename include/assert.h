@@ -27,6 +27,20 @@ extern "C" {
  */
 void __wcrt_assert_fail(const char *expression, const char *file, int line);
 
+#if !defined(WCRT_C89) && defined(__STDC_VERSION__) && \
+    __STDC_VERSION__ >= 199901L
+/**
+ * @brief Reports a C99 assertion with its enclosing function name.
+ * @param expression Text of the expression that evaluated to zero.
+ * @param file Source file containing the failed assertion.
+ * @param line Source line containing the failed assertion.
+ * @param function Enclosing function containing the assertion.
+ * @note This function does not return.
+ */
+void __wcrt_assert_fail_c99(const char *expression, const char *file,
+    int line, const char *function);
+#endif
+
 #ifdef __cplusplus
 }
 #endif
@@ -38,6 +52,12 @@ void __wcrt_assert_fail(const char *expression, const char *file, int line);
 #ifdef NDEBUG
 /** @brief Discards an assertion expression when diagnostics are disabled. */
 #define assert(expression) ((void)0)
+#elif !defined(WCRT_C89) && defined(__STDC_VERSION__) && \
+    __STDC_VERSION__ >= 199901L
+/** @brief Tests an expression and reports the complete C99 diagnostic. */
+#define assert(expression) \
+    ((expression) ? (void)0 : \
+        __wcrt_assert_fail_c99(#expression, __FILE__, __LINE__, __func__))
 #else
 /** @brief Tests an expression and reports a diagnostic when it is zero. */
 #define assert(expression) \

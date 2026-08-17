@@ -38,7 +38,13 @@ $probes = @(
         "(?:_Complex is not yet supported|'\{' expected \(got ';'\))"),
     @('complex-constants', 'complex imaginary constants', $true,
         '(?:_Complex is not yet supported|invalid number)'),
-    @('type-generic-macros', 'type-generic macros', $true, '')
+    @('type-generic-macros', 'type-generic macros', $true, ''),
+    @('fenv-access-pragma', 'FENV_ACCESS pragma', $false,
+        '#pragma STDC ignored'),
+    @('fp-contract-pragma', 'FP_CONTRACT pragma', $false,
+        '#pragma STDC ignored'),
+    @('cx-limited-range-pragma', 'CX_LIMITED_RANGE pragma', $false,
+        '#pragma STDC ignored')
 )
 
 $probeResults = foreach ($probe in $probes) {

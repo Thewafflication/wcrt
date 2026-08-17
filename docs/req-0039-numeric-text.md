@@ -2,20 +2,16 @@
 
 **Content type:** Project requirement
 
-**Status:** T2 narrow allocation implemented; native ARM64 verification pending
+**Status:** T6 integration baselined; exact-revision target verification pending
 
 **Source:** ISO/IEC 9899:1999 as corrected through TC3, §7.19.6 and §7.20.1.3
 
 ## Scope
 
-The T2 allocation controls narrow hexadecimal floating syntax, infinity, NaN,
-signed zero, rounding, range errors, and integration among `strtof`, `strtod`,
-`strtold`, formatted output, and formatted input. It applies to binary32
-`float` and the Windows binary64 `double`/`long double` model in the C locale.
-
-Wide numeric text, additional locales, public C99 classification macros,
-floating-environment control, and the final clause-level integration audit
-remain allocated to later tranches.
+The requirement controls narrow and wide numeric text, infinity, NaN, signed
+zero, rounding, range errors, and integration among the `strto*`, formatted
+output, and formatted input families. It applies to binary32 `float` and the
+Windows binary64 `double`/`long double` model in WCRT's only locale, C.
 
 ### Required files
 
@@ -37,6 +33,11 @@ remain allocated to later tranches.
   documented round-to-nearest, ties-to-even model for binary32 and binary64,
   and hexadecimal `strtof` shall avoid a binary64 intermediate and consequent
   double rounding.
+- For decimal subjects, WCRT shall document the implementation-defined
+  accuracy of its 19-significant-digit accumulation and binary scaling path.
+  The C99 recommended practice of universal correct rounding through
+  `DECIMAL_DIG` is not claimed. Its known above-halfway counterexample and
+  controlled decimal round-trip envelope shall remain visible in TC-0039.
 - A negative subject that converts to zero shall produce negative zero. An
   infinity subject shall produce signed infinity, and an accepted NaN subject
   shall produce a quiet NaN. WCRT accepts but does not preserve NaN payload
@@ -49,6 +50,9 @@ remain allocated to later tranches.
   rounding, sign, and range model. A finite value written with the default
   `%a` precision shall round-trip exactly through the corresponding input
   conversion.
+- Narrow and wide conversions shall agree on accepted C-locale subject
+  sequences, end positions, signs, classifications, values, and range errors.
+  The locale decimal point is `.`; a comma terminates the subject.
 - Successful finite conversions that do not overflow or underflow shall not
   change `errno`.
 
@@ -69,7 +73,11 @@ TC-0039 shall use exact bit patterns and adjacent boundary values for positive
 and negative zero, minimum subnormal, minimum normal, halfway cases, powers of
 two, maximum finite, overflow, underflow, infinity, and quiet NaN. It shall
 verify case, end pointers, malformed input, `errno`, precision rounding, and
-round trips through the narrow formatted-I/O interfaces on every target.
+round trips through the narrow formatted-I/O interfaces on every target. It
+shall also retain the documented decimal accuracy counterexample, exact-integer
+boundary, C-locale termination, and a controlled 17-digit decimal format/parse
+envelope.
+REQ-0031 supplies matching wide-interface partitions.
 
 ## Relationships
 
@@ -79,12 +87,10 @@ round trips through the narrow formatted-I/O interfaces on every target.
 
 ## Tailoring
 
-The T2 narrow allocation and T3 wide allocation are approved. The remaining
-REQ-0039 scope cannot be reported complete until later work closes the decimal-
-accuracy audit, additional locale, math-environment, and clause-integration
-allocations. T2 retains the REQ-0028 decimal regression baseline but does not
-represent that earlier algorithm as a newly verified correctly rounded decimal
-implementation.
+WCRT supports the C locale only. Decimal universal correct rounding is C99
+recommended practice rather than a required hosted-library result and is
+explicitly omitted from the 1.0.0 profile. Hexadecimal correct rounding remains
+required. The selected conversion policy is independent of Annex F claims.
 
 ## Implementation Record
 
@@ -96,9 +102,11 @@ behavior; `strtof` does not pass hexadecimal input through binary64 first.
 The Windows `long double` path intentionally follows the documented binary64
 model.
 
-TC-0039 passes exact and adjacent binary vectors, binary32 halfway cases,
-range cases, known boundary spellings, and 519 finite `%a` round trips on x86
-and x64. ARM64 compile/link passes, while native execution remains open.
+TC-0039 covers exact and adjacent binary vectors, binary32 halfway cases,
+range cases, known boundary spellings, 519 finite `%a` round trips, controlled
+17-digit decimal format/parse values, and the documented one-ULP decimal
+accuracy counterexample. Exact-revision x86/x64/ARM64 result
+claims remain pending T6 verification.
 
 ## T3 Wide-character Implementation Allocation
 

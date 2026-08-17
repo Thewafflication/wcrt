@@ -153,10 +153,10 @@ Implemented behavior includes:
 - GitHub Actions execution of the controlled aggregates on x86, x64, and
   ARM64, with failed test diagnostics rendered on each job summary.
 
-`fma` passes the controlled cancellation and intermediate-overflow vectors but
-is not proven correctly rounded for all inputs and active rounding modes. It is
-therefore recorded as an unapproved deviation/pending completion item rather
-than silently represented as full C99 fused-operation evidence.
+T6 subsequently replaced the compensated `fma` path with exact integer
+product/addend accumulation and one active-direction target rounding. The T4
+deviation is removed by that correction and its stronger controlled evidence;
+exact-revision native ARM64 evidence for the later change remains a T6 gate.
 
 ## Verification Record
 
@@ -185,7 +185,8 @@ revision. The corresponding native x86 and x64 jobs and source-quality job also
 passed, and the workflow assembled the multi-architecture Debug package.
 Release jobs were not part of this push run; the local Release evidence above
 remains supporting evidence rather than exact-revision CI Release evidence.
-Independent review and the fused-operation disposition remain pending.
+Independent T4 review remains pending. The fused-operation disposition was
+removed by the later T6 correction and evidence set.
 
 ## Time Log
 
@@ -209,7 +210,7 @@ No focused minutes are entered from chat or command wall time; neither is a reli
 | T4-D009 | test/tooling | Preliminary implementation | Focused test | — | `Invoke-C99HeaderTest.ps1`, T4 runners | Behavior tests did not link WCRT math/fenv sources and failed with unresolved symbols. Added explicit runtime-source inputs. |
 | T4-D010 | test/tooling | T4 runner extension | Aggregate verification | — | `Invoke-C99HeaderTest.ps1` | Empty and singleton optional source lists were respectively passed as a directory or character-splatted path. Normalized the value to an array; the full aggregates pass. |
 | T4-D011 | numeric/range | Implementation | Numerical review | — | `src/math.c`, TC-0035 | Large `acosh`/`asinh`, float-family range conversion, subnormal remainder, and intermediate-overflow fused paths needed separate scaling/range logic. Added controlled cases and corrections. |
-| T4-D012 | numeric/deviation | Implementation | Verification | — | `fma`/`fmaf`/`fmal` | Compensated/scaled behavior passes controlled vectors but universal correctly-rounded single-operation behavior is unproven. Approval or stronger implementation/evidence remains required. |
+| T4-D012 | numeric/deviation | Implementation | T6 implementation | — | `fma`/`fmaf`/`fmal`; TC-0035; `tests/c99/data/fma-vectors.json` | Removed in T6 by exact integer accumulation, direct binary32/binary64 rounding under the active direction, hard cases, and 260 reproducible exact-rational vectors. Exact-revision native target evidence remains separately open. |
 | T4-D013 | build/tooling | CI review | Workflow verification | — | `.github/workflows/build.yml` | Failed aggregate rows did not expose captured diagnostics, and a missing or unreadable result file could suppress useful summary evidence. Added robust result-file fallbacks and expandable, HTML-encoded failure details. |
 
 ## Review Checklist
@@ -225,7 +226,7 @@ No focused minutes are entered from chat or command wall time; neither is a reli
 - [x] Compiler-blocked, unsupported, or deviating facilities are explicitly classified.
 - [x] Local aggregate C99, C89 regression, build, consumer, and retained evidence review is complete.
 - [x] Native ARM64 execution evidence is retained at the exact T4 revision.
-- [ ] The fused-operation deviation is approved or removed with stronger evidence.
+- [x] The fused-operation deviation is removed with stronger T6 implementation and evidence.
 - [ ] Independent review is complete.
 
 ## Postmortem Status
@@ -242,6 +243,6 @@ bit-pattern vectors, volatile hardware probes, and complete aggregates. They
 found the incomplete preliminary surface, multiply-evaluated macros, shadow
 environment, adjacent-value algorithm, runner integration defects, and large
 range partitions before handoff. Native ARM64 execution was subsequently
-retained at the exact T4 revision. Remaining closure work is independent review
-and the explicit fused-operation decision; the postmortem is provisional until
-those gates close.
+retained at the exact T4 revision. T6 removed the fused-operation deviation;
+independent review remains open, so the postmortem is provisional until that
+gate closes.

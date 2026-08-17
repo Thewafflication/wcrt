@@ -16,11 +16,14 @@
 | REQ-0033 | [TC-0033](../../docs/tc-0033-windows-utf16-abi.tex) | `presence/wchar.c`, `presence/wchar-c89.c`, `wide-abi.c` | Wide scalar/state ABI, conversions, orientation, pushback, and architecture interoperability |
 | REQ-0031 | [TC-0031](../../docs/tc-0031-wchar.tex) | `presence/wchar.c`, `presence/wchar-c89.c`, `wchar.c` | Complete wide I/O, strings/memory, numeric text, time, conversion, and C89 isolation |
 | REQ-0032 | [TC-0032](../../docs/tc-0032-wctype.tex) | `presence/wctype.c`, `presence/wctype-c89.c`, `wctype.c` | Exhaustive C-locale classes, descriptors, mappings, ABI, and C89 isolation |
-| REQ-0035 | [TC-0035](../../docs/tc-0035-real-math.tex) | `presence/math.c`, `presence/math-c89.c`, `math.c` | Real-math classification, comparisons, NaN/inf/signed-zero, special values, and C89 isolation |
+| REQ-0035 | [TC-0035](../../docs/tc-0035-real-math.tex) | `presence/math.c`, `presence/math-c89.c`, `math.c`, `data/fma-vectors.json`, `Verify-FmaVectors.ps1` | Real-math classification, exact fused rounding, comparisons, NaN/inf/signed-zero, special values, and C89 isolation |
 | REQ-0036 | [TC-0036](../../docs/tc-0036-fenv.tex) | `presence/fenv.c`, `presence/fenv-c89.c`, `fenv.c` | Floating-point environment, flags, rounding control, saved environments, and C89 isolation |
 | REQ-0037 | [TC-0037](../../docs/tc-0037-complex.tex) | `presence/complex.c`, `presence/complex-c89.c`, `complex.c`, `data/complex-vectors.json`, `Verify-ComplexVectors.ps1`, `Verify-T5Inventory.ps1` | Complete complex inventory, reproducible 100-digit ordinary vectors, components, branch cuts, signed zero, exceptional/range values, C89 isolation, and supported TinyCC execution |
 | REQ-0038 | [TC-0038](../../docs/tc-0038-tgmath.tex) | `presence/tgmath.c`, `presence/tgmath-c89.c`, `tgmath.c`, `Verify-T5Inventory.ps1` | Complete 60-name inventory, exhaustive result-type groups, dispatch, mixed arguments, macro suppression, single evaluation, C89 isolation, and supported TinyCC execution |
 | REQ-0039 | [TC-0039](../../docs/tc-0039-numeric-text.tex) | `presence/stdlib.c`, `presence/stdlib-c89.c`, `numeric-text.c` | Hexadecimal floating text, classification, signed zero, rounding, range, and round trips |
+| REQ-0040 | [TC-0040](../../docs/tc-0040-existing-header-audit.tex) | `existing-headers.c`, `Verify-T6ExistingHeaders.ps1` | C99 changes to C89 header/runtime families, expression types, behavior, and isolation |
+| REQ-0041 | [TC-0041](../../docs/tc-0041-c99-conformance-profile.tex) | `Verify-C99ConformanceProfile.ps1` | Clause/header inventory, classifications, target states, and direct references |
+| REQ-0042 | [TC-0042](../../docs/tc-0042-c99-compatibility-validation.tex) | `compatibility-abi.c`, `Verify-C99HeaderMatrix.ps1` | Header self-containment/include order, C89 isolation, ABI, and target gate matrix |
 
 The suite compiles against WCRT headers without host standard-library headers.
 Every row is controlled by `tools/run-extension-tests.ps1`; the runner rejects

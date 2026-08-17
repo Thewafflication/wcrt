@@ -4,8 +4,10 @@
  */
 
 #include <errno.h>
+#include <fenv.h>
 #include <float.h>
 #include <math.h>
+#include <stddef.h>
 
 union wcrt_test_double {
     double value;
@@ -176,6 +178,82 @@ static int check_function_families(void)
     return 0;
 }
 
+/** @brief Verifies exact fused results and active-direction rounding. */
+static int check_fused_rounding(void)
+{
+    static const struct {
+        double lhs;
+        double middle;
+        double rhs;
+        unsigned long long expected;
+    } vectors[] = {
+        { -0x1.1433a6aa79987p-70, -0x1.6f86c029a7245p+288,
+            -0x1.778e7d340bbcdp+217, 0x4d8a1805f6292926ULL },
+        { 0x1.015788e7ae9afp-410, 0x1.14f84147de9b0p+1004,
+            -0x1.b342b2a3a4667p+584, 0x65115ff1d593896aULL },
+        { -0x1.76b4fdb35227ep+498, 0x1.f72c1177e844cp-639,
+            0x1.36f4187111aa9p-174, 0xb73703f0f93ee5bfULL },
+        { -0x1.9a5ab205cffe0p+897, -0x1.0d4af1c972534p-722,
+            -0x1.8f3f45dd5428ep+120, 0x4aeafa96ed9db4b1ULL },
+        { 0x1.14ecdb6a18337p+207, 0x1.7934628238d0fp-956,
+            -0x1.f7391a11a8931p-781, 0x112980979c961b37ULL },
+        { -0x1.82cdd7371f5a2p+290, 0x1.7f231e2a13c96p+190,
+            -0x1.b142dc0c23166p+473, 0xde02324c535d7cd5ULL },
+        { -0x1.07a8ba98aad7dp+911, -0x1.5edc0d00ddbc4p-468,
+            -0x1.d2198a17dbeebp+428, 0x5ba6957ad4e766e7ULL },
+        { -0x1.d8b1a2f4c3046p+647, -0x1.e56970ca5e129p-997,
+            0x1.b323c816287d1p-394, 0x2a2c0259d6c768fdULL },
+        { -0x1.5cb9c658f4593p-311, -0x1.79d69988dee6cp-506,
+            -0x1.e7843b2acd63fp-823, 0x0cefb13d89d9cde0ULL },
+        { 0x1.ed7ba4d3f0285p-340, 0x1.9d97a69c465e0p+735,
+            -0x1.b1eb47e727da2p+377, 0x58b8ea230c45eac6ULL },
+        { -0x1.ec1ce84edd146p-454, 0x1.8f516f3186b5fp-216,
+            -0x1.5e61901c676a5p-711, 0x9627fcecc7c14b6bULL },
+        { -0x1.c5cb42d4fa37ep+388, -0x1.2c80eaa37bb51p-532,
+            0x1.c4c32e66c732ap-143, 0x371678d452b8939fULL }
+    };
+    union wcrt_test_double result;
+    union wcrt_test_double adjacent;
+    double (*operation)(double, double, double) = fma;
+    size_t index;
+
+    if (fesetround(FE_TONEAREST) != 0) return 1;
+    for (index = 0; index < sizeof(vectors) / sizeof(vectors[0]); ++index) {
+        result.value = operation(vectors[index].lhs,
+            vectors[index].middle, vectors[index].rhs);
+        if (result.bits != vectors[index].expected) {
+            if (result.bits == vectors[index].expected + 1ULL) {
+                return 30 + (int)index;
+            }
+            if (result.bits + 1ULL == vectors[index].expected) {
+                return 50 + (int)index;
+            }
+            return 10 + (int)index;
+        }
+    }
+    if (fmaf(0x1.001p+0F, 0x1.ffep-1F, -1.0F) != -0x1p-24F) {
+        return 3;
+    }
+    adjacent.bits = 0x3ff0000000000001ULL;
+    if (operation(1.0, 1.0, 0x1p-54) != 1.0) return 4;
+    if (fesetround(FE_UPWARD) != 0 ||
+        operation(1.0, 1.0, 0x1p-54) != adjacent.value) {
+        return 5;
+    }
+    if (fesetround(FE_DOWNWARD) != 0 ||
+        operation(1.0, 1.0, 0x1p-54) != 1.0) {
+        return 6;
+    }
+    adjacent.bits = 0xbff0000000000001ULL;
+    if (operation(-1.0, 1.0, -0x1p-54) != adjacent.value) return 7;
+    if (fesetround(FE_TOWARDZERO) != 0 ||
+        operation(-1.0, 1.0, -0x1p-54) != -1.0) {
+        return 8;
+    }
+    if (fesetround(FE_TONEAREST) != 0) return 9;
+    return 0;
+}
+
 static int check_errors(void)
 {
     errno = 0;
@@ -217,7 +295,9 @@ int main(void)
     if (check != 0) return 30 + check;
     check = check_function_families();
     if (check != 0) return 50 + check;
-    check = check_errors();
+    check = check_fused_rounding();
     if (check != 0) return 70 + check;
+    check = check_errors();
+    if (check != 0) return 90 + check;
     return 0;
 }

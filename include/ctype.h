@@ -43,6 +43,12 @@ int isupper(int character);
 /** @brief Tests whether a character is a hexadecimal digit. */
 int isxdigit(int character);
 
+#if !defined(WCRT_C89) && defined(__STDC_VERSION__) && \
+    __STDC_VERSION__ >= 199901L
+/** @brief Tests whether a character is a space or horizontal tab. */
+int isblank(int character);
+#endif
+
 /** @brief Converts an uppercase letter to lowercase when possible. */
 int tolower(int character);
 

@@ -110,9 +110,9 @@ identifiers remain planned.
 
 | Planned ID | Conformance unit | Principal obligations |
 | --- | --- | --- |
-| REQ-0040 | Existing-header C99 audit | Changed declarations, `restrict` contracts, macros, constraints, and behavior across the C89 baseline |
-| REQ-0041 | C99 conformance profile | Clause-level matrix of implemented, optional, implementation-defined, compiler-blocked, and deviating behavior |
-| REQ-0042 | C99 compatibility validation | Header self-containment, C89 isolation, ABI checks, and regression execution on x86, x64, and ARM64 |
+| REQ-0040 (baselined) | Existing-header C99 audit | Changed declarations, `restrict` contracts, macros, constraints, and behavior across the C89 baseline |
+| REQ-0041 (baselined) | C99 conformance profile | Clause-level matrix of implemented, optional, implementation-defined, compiler-blocked, and deviating behavior |
+| REQ-0042 (baselined) | C99 compatibility validation | Header self-containment, C89 isolation, ABI checks, and regression execution on x86, x64, and ARM64 |
 
 ## Sequencing rule
 
