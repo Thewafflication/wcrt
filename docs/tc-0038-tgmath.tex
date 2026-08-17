@@ -1,0 +1,32 @@
+% TC-0038 fragment; intended for the C99 test report.
+\def\TCID{TC-0038}
+\def\TCTitle{C99 type-generic mathematics}
+\def\TCPurpose{Verify the complete generic map, target and result types,
+mixed arguments, macro suppression, and single evaluation.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0038}
+\def\TCDesignRef{ISO/IEC 9899:1999 7.22; ADR-0005.}
+\def\TCFeatureRef{\texttt{include/tgmath.h};
+\texttt{tests/c99/tgmath.c}; \texttt{tests/c99/run-tc-0038.ps1}.}
+\def\TCTestTechnique{Macro inventory, compile-time type assertions, dispatch
+sentinels, mixed-type equivalence partitions, and side-effect instrumentation.}
+\def\TCPreconditions{All REQ-0035 and REQ-0037 targets are independently
+verified, or the selected compiler is recorded as complex-blocked.}
+\def\TCEnvironment{C99 compilation and native x86, x64, and ARM64 execution;
+C89 isolation compilation.}
+\def\TCAssumptions{The selected TinyCC \texttt{\_Generic} extension has
+unevaluated controlling expressions. Mixed selection is explicit and does not
+depend on TinyCC's Windows \texttt{float + long double} conversion.}
+\def\TCInputData{All 60 generic names; float, double, long double, integer, and
+complex arguments; mixed generic parameters; side-effecting argument forms.}
+\def\TCInitialState{Dispatch counters and side-effect counters are zero.}
+\def\TCProcedure{Compile the name and result-type inventory; execute target
+sentinels and each side-effect position; verify parenthesized function access
+and selected numerical forwarding; compile C89 absence.}
+\def\TCExpectedResult{Every macro chooses the prescribed target and result
+type and evaluates each run-time argument once. TinyCC 1441 passes the
+capability gate; ADR-0005's exact diagnostic matrix remains only as a
+controlled regression fallback.}
+\def\TCPostConditions{Detailed dispatch and diagnostic evidence remains in the
+architecture-specific ignored output directories.}
+\TCTemplate

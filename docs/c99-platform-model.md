@@ -2,7 +2,7 @@
 
 **Content type:** Implementation-defined behavior and compiler capability record
 
-**Status:** Implemented T0 baseline
+**Status:** Implemented T0 baseline with ADR-0005 T5 expected-failure profile
 
 **Baseline compiler observed locally:** TinyCC 0.9.28rc for i386 Windows,
 x86_64 Windows, and AArch64 Windows
@@ -60,8 +60,10 @@ character behavior and is updated during T3 for the exact public `wint_t`.
 
 ## TinyCC C99 Facility Matrix
 
-The following compile-only probes use `-std=c99 -Wall -Werror`. Results are
-the same for the three observed TinyCC targets.
+The following compile-only probes use `-std=c99 -Wall -Werror`. Results record
+TinyCC `0.9.28-rc.1441+0af32d51` on 2026-08-13 for all three Windows targets;
+ADR-0005 retains the older controlled diagnostic matrix as a regression
+fallback.
 
 | Facility | Result | Release interpretation |
 | --- | --- | --- |
@@ -69,13 +71,15 @@ the same for the three observed TinyCC targets.
 | `long long` | Supported | Required and enforced for REQ-0022 and REQ-0023 |
 | `restrict` | Supported | Required and enforced for REQ-0025 |
 | variadic macros | Supported | Available for later header design; no runtime claim |
-| complex arithmetic | Unsupported | TinyCC reports `_Complex is not yet supported`; compiler-blocked input to T5 |
-| type-generic macros | Supported extension | TinyCC accepts `_Generic` in C99 mode; complete `<tgmath.h>` dispatch and single evaluation remain unverified until T5 |
+| complex arithmetic/types | Supported | Required on x86, x64, and ARM64; the complex runtime and all 66 exports become mandatory |
+| complex imaginary constants | Supported | Standard `fi`, `i`, and `Li` constants compile on all three targets |
+| type-generic macros | Supported extension | Expanded `_Generic` type and single-evaluation probes pass; WCRT explicitly dispatches mixed arguments to avoid TinyCC's Windows `float + long double` conversion defect |
 
-Complex arithmetic is therefore a known dependency risk, not a passing C99
-complex-library result. T5 must not be represented as implementable on this
-compiler baseline without a compiler change, an approved alternative design
-consistent with C99, or an explicit compiler-blocked/deviation disposition.
+Complex arithmetic remains a compiler dependency, but TinyCC 1441 now passes
+the language gate. T5 runtime symbols are included and TC-0037/TC-0038 are
+ordinary required tests. ADR-0005 still defines the only allowed ExpectedFail
+fallback if a selected compiler regresses to one of the exact retained
+diagnostics; a different failure cannot use that disposition.
 
 ## Edition Selection
 

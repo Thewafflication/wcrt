@@ -19,14 +19,18 @@ your option) any later version.
 
 ## Project status
 
-WCRT has a working C89 library baseline and has completed the first C99
-fundamental-header tranche. The C89 headers and runtime are covered by
+WCRT has a working C89 library baseline and has implemented C99 work through
+the complex and type-generic mathematics tranche. The C89 headers and runtime
+are covered by
 requirement-linked presence and behavioral tests (TC-0001 through TC-0015),
 while source quality and the optional console and GUI startup paths are covered
 by TC-0016 through TC-0018.
-`snprintf`, `vsnprintf`, and REQ-0021 through REQ-0026 are implemented C99
-additions. The remaining C99 work and the 1.0.0 release boundary are defined in
-the [C99 to 1.0.0 work plan](docs/C99-1.0-WORK-PLAN.md).
+The implemented C99 allocations include REQ-0019, REQ-0021 through REQ-0033,
+and REQ-0035 through REQ-0039 as detailed by the
+[C99 to 1.0.0 work plan](docs/C99-1.0-WORK-PLAN.md). The supported TinyCC
+package `0.9.28-rc.1441+0af32d51` accepts the T5 complex and type-generic
+interfaces on x86, x64, and ARM64; native ARM64 execution and independent
+review remain acceptance work.
 
 Continuous integration builds and tests x86, x64, and ARM64 on native Windows
 runners. WCRT is still pre-release and is not yet suitable for production use;
@@ -96,7 +100,16 @@ The current ARM64 support boundary and cross-build procedure are documented in
 TinyCC compatibility is a release gate, not a best-effort port. Public headers,
 runtime sources, build scripts, and the conformance test harness must remain
 usable with the supported TinyCC versions. Compiler limitations will be
-recorded separately from runtime limitations.
+recorded separately from runtime limitations. ADR-0005 permits only the exact,
+source-specific `_Complex` type/parser and imaginary-literal diagnostics in its
+controlled matrix as non-fatal ExpectedFail results.
+The current `0.9.28-rc.1441+0af32d51` package passes those probes, so WCRT
+builds include the complex runtime and require its complete export inventory.
+If a controlled diagnostic recurs, packages include `complex.h` and `tgmath.h`
+for implementation
+review but omit complex runtime symbols and disclose that state in
+`C99-COMPLEX-PROFILE.txt` and per-architecture JSON. Any other failure remains
+release-blocking.
 
 ## Repository layout
 
@@ -163,6 +176,9 @@ Each architecture build produces the shared `wcrt.dll`, its TinyCC import defini
 `wcrt-startup-console.o` and `wcrt-startup-gui.o` startup objects, and a copy of
 the public headers. The WPM package installs shared headers beneath `include`
 and target files beneath `x86`, `x64`, and `arm64` architecture directories.
+The package also contains the C99 complex capability/profile records. A target
+whose compiler passes the probe contains the complex runtime; a controlled
+ExpectedFail target remains packageable with that runtime explicitly omitted.
 After all Debug architecture jobs pass, a semantic-version tag builds signed
 Release artifacts for x86, x64, and ARM64. The workflow publishes one
 `arch=any` WPM package containing every target, the public signing key, and the

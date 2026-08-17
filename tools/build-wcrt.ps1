@@ -79,6 +79,35 @@ if ($compilerDescription -notmatch [regex]::Escape($expectedTarget)) {
     throw "TinyCC target mismatch. Expected '$expectedTarget', got '$compilerDescription'."
 }
 
+$complexProbe = & (Join-Path $repoRoot `
+    'tests/c99/Test-TinyCcComplexCapability.ps1') -TinyCc $tinyCcPath `
+    -BuildDirectory (Join-Path $outputDirectory 'complex-capability')
+$complexSupported = [bool]$complexProbe.Supported
+$complexExpectedFailure = [bool]$complexProbe.ExpectedFailure
+if (-not $complexSupported -and -not $complexExpectedFailure) {
+    throw "Unexpected TinyCC complex capability failure:`n" +
+        $complexProbe.Diagnostic
+}
+$compilerPackage = if ($tinyCcPath -match
+    '[\\/]TinyCC[\\/]([^\\/]+)[\\/](?:i386-win32-|x86_64-win32-|' +
+    'arm64-win32-)?tcc\.exe$') {
+    $Matches[1]
+} else {
+    'local-package'
+}
+$complexCapability = [PSCustomObject]@{
+    Architecture = $Architecture
+    Compiler = $compilerDescription
+    CompilerPackage = $compilerPackage
+    Status = if ($complexSupported) { 'Supported' } else { 'ExpectedFail' }
+    RuntimeIncluded = $complexSupported
+    Diagnostic = $complexProbe.Diagnostic
+    Probes = @($complexProbe.Probes)
+}
+$complexCapability | ConvertTo-Json -Depth 4 |
+    Set-Content -LiteralPath (Join-Path $outputDirectory `
+        'c99-complex-capability.json') -Encoding utf8NoBOM
+
 $sources = @(
     'src/assert.c', 'src/ctype.c', 'src/errno.c', 'src/fenv.c', 'src/locale.c',
     'src/math.c', 'src/setjmp.c', 'src/signal.c', 'src/stdio.c',
@@ -100,6 +129,25 @@ $consoleStartup = Join-Path $outputDirectory 'wcrt-startup-console.o'
 $guiStartup = Join-Path $outputDirectory 'wcrt-startup-gui.o'
 $staticObjectDirectory = Join-Path $outputDirectory 'static-objects'
 $includeOutput = Join-Path $outputDirectory 'include'
+$complexObject = Join-Path $outputDirectory 'complex-runtime.o'
+$complexInputs = @()
+if ($complexSupported) {
+    $complexArguments = @('-std=c99', '-Wall', '-Werror', '-c', '-I',
+        (Join-Path $repoRoot 'include'))
+    if ($Configuration -eq 'Debug') {
+        $complexArguments += '-g'
+    } else {
+        $complexArguments += '-O2'
+    }
+    $complexArguments += @((Join-Path $repoRoot 'src/complex.c'), '-o',
+        $complexObject)
+    & $tinyCcPath @complexArguments
+    if ($LASTEXITCODE -ne 0 -or
+        -not (Test-Path -LiteralPath $complexObject -PathType Leaf)) {
+        throw 'TinyCC accepts _Complex but failed to build src/complex.c.'
+    }
+    $complexInputs += $complexObject
+}
 $arguments = @('-std=c89', '-Wall', '-Werror', '-shared',
     '-Wl,-export-all-symbols', '-I',
     (Join-Path $repoRoot 'include'))
@@ -110,6 +158,7 @@ if ($Configuration -eq 'Debug') {
     $arguments += '-O2'
 }
 $arguments += $sources
+$arguments += $complexInputs
 $arguments += @('-o', $dllPath)
 
 & $tinyCcPath @arguments
@@ -121,6 +170,32 @@ if (-not (Test-Path -LiteralPath $dllPath -PathType Leaf)) {
 }
 if (-not (Test-Path -LiteralPath $definitionPath -PathType Leaf)) {
     throw "TinyCC did not produce the import definition $definitionPath."
+}
+$definitionText = Get-Content -LiteralPath $definitionPath -Raw
+$complexBaseNames = @(
+    'cacos', 'casin', 'catan', 'ccos', 'csin', 'ctan',
+    'cacosh', 'casinh', 'catanh', 'ccosh', 'csinh', 'ctanh',
+    'cexp', 'clog', 'cpow', 'csqrt', 'cabs', 'carg', 'cimag',
+    'conj', 'cproj', 'creal'
+)
+$complexExportNames = @($complexBaseNames | ForEach-Object {
+    $_
+    "${_}f"
+    "${_}l"
+})
+$presentComplexExports = @($complexExportNames | Where-Object {
+    $definitionText -match ('(?m)^' + [regex]::Escape($_) + '\r?$')
+})
+if ($complexSupported -and
+    $presentComplexExports.Count -ne $complexExportNames.Count) {
+    $missing = @($complexExportNames | Where-Object {
+        $_ -notin $presentComplexExports
+    }) -join ', '
+    throw "The complex-capable DLL is missing required exports: $missing"
+}
+if (-not $complexSupported -and $presentComplexExports.Count -ne 0) {
+    throw ('The compiler-blocked DLL unexpectedly contains complex exports: ' +
+        ($presentComplexExports -join ', '))
 }
 & (Join-Path $PSScriptRoot 'add-win32-resources.ps1') -Binary $dllPath `
     -CompiledResource $compiledResource
@@ -150,6 +225,7 @@ $staticObjects = foreach ($source in $sources) {
     }
     $object
 }
+$staticObjects += $complexInputs
 if (Test-Path -LiteralPath $staticLibrary) {
     Remove-Item -LiteralPath $staticLibrary -Force
 }
@@ -196,4 +272,7 @@ Copy-Item -Path (Join-Path $repoRoot 'include/*') -Destination $includeOutput `
     ConsoleStartup = $consoleStartup
     GuiStartup = $guiStartup
     IncludeDirectory = $includeOutput
+    ComplexRuntime = if ($complexSupported) { 'Included' } else {
+        'ExpectedFail'
+    }
 }

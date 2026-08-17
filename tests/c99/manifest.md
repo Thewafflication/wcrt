@@ -18,10 +18,15 @@
 | REQ-0032 | [TC-0032](../../docs/tc-0032-wctype.tex) | `presence/wctype.c`, `presence/wctype-c89.c`, `wctype.c` | Exhaustive C-locale classes, descriptors, mappings, ABI, and C89 isolation |
 | REQ-0035 | [TC-0035](../../docs/tc-0035-real-math.tex) | `presence/math.c`, `presence/math-c89.c`, `math.c` | Real-math classification, comparisons, NaN/inf/signed-zero, special values, and C89 isolation |
 | REQ-0036 | [TC-0036](../../docs/tc-0036-fenv.tex) | `presence/fenv.c`, `presence/fenv-c89.c`, `fenv.c` | Floating-point environment, flags, rounding control, saved environments, and C89 isolation |
+| REQ-0037 | [TC-0037](../../docs/tc-0037-complex.tex) | `presence/complex.c`, `presence/complex-c89.c`, `complex.c`, `data/complex-vectors.json`, `Verify-ComplexVectors.ps1`, `Verify-T5Inventory.ps1` | Complete complex inventory, reproducible 100-digit ordinary vectors, components, branch cuts, signed zero, exceptional/range values, C89 isolation, and supported TinyCC execution |
+| REQ-0038 | [TC-0038](../../docs/tc-0038-tgmath.tex) | `presence/tgmath.c`, `presence/tgmath-c89.c`, `tgmath.c`, `Verify-T5Inventory.ps1` | Complete 60-name inventory, exhaustive result-type groups, dispatch, mixed arguments, macro suppression, single evaluation, C89 isolation, and supported TinyCC execution |
 | REQ-0039 | [TC-0039](../../docs/tc-0039-numeric-text.tex) | `presence/stdlib.c`, `presence/stdlib-c89.c`, `numeric-text.c` | Hexadecimal floating text, classification, signed zero, rounding, range, and round trips |
 
 The suite compiles against WCRT headers without host standard-library headers.
 Every row is controlled by `tools/run-extension-tests.ps1`; the runner rejects
-an inventory that differs from this manifest, records every case in the
-architecture-specific aggregate JSON, and fails when any controlled case does
-not pass.
+an inventory that differs from this manifest and records every case in the
+architecture-specific aggregate JSON. TinyCC 1441 makes TC-0037 and TC-0038
+required Pass results. If a later selected compiler again emits ADR-0005's
+exact source-specific complex-type/parser and imaginary-literal matrix, those
+two cases may report non-conforming ExpectedFail; every other outcome fails
+the suite.

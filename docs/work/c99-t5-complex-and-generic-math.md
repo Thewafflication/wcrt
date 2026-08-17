@@ -1,8 +1,8 @@
 # C99 T5 Complex and Type-Generic Math Work Log
 
-**Status:** Planning baseline proposed; implementation No-Go because the
-supported TinyCC package rejects `_Complex`; T4 fused-operation disposition
-and independent review also remain open
+**Status:** Requirements, design, implementation, and tests baselined; TinyCC
+1441 x86/x64 native verification and ARM64 compile/link verification pass;
+native ARM64 execution, T4 disposition, and independent reviews remain open
 
 **Owner:** WCRT maintainer
 
@@ -13,39 +13,51 @@ and independent review also remain open
 **Inspected source baseline:** `027b324e233d4a0c1912667835dbef31d61c6dcc`
 (`Implement C99 T4 math and floating environment`)
 
+**Implementation base:** planning commit `00d3f45` (`Baseline C99 T5 complex
+and generic math`); implementation changes remain in the following working
+tree until separately reviewed and committed
+
 **Exact-revision CI evidence:** GitHub Actions run `31463268579` completed
 successfully for source quality, native x86, x64, and ARM64 Debug jobs, and the
 multi-architecture Debug package at the inspected revision. Release jobs were
 not part of that push run.
 
-**Fresh capability evidence:** Local package
+**Planning-entry capability evidence:** Local package
 `TinyCC 0.9.28-rc.1437+2be0218b` was probed on 2026-08-12 with its i386,
 x86_64, and AArch64 Windows compilers. All three reject `_Complex` with
-`_Complex is not yet supported`; all three accept the existing narrow
-`_Generic` probe.
+`_Complex is not yet supported` in the original narrow probe; all three accept
+the existing narrow `_Generic` probe. The expanded implementation probes below
+retain the additional x86/ARM64 declaration and literal diagnostics.
+
+**Compiler-gate recheck:** WPM package `TinyCC
+0.9.28-rc.1441+0af32d51` was probed on 2026-08-13. Its i386, x86_64, and
+AArch64 Windows compilers pass the complex arithmetic, imaginary-constant,
+expanded `_Generic`, and data-model probes. ADR-0005's Supported transition is
+active; ExpectedFail is no longer the current result.
 
 ## Tranche Decision
 
-This record plans REQ-0037 complex arithmetic and REQ-0038 type-generic
-mathematics. No T5 implementation is authorized by this planning baseline.
-The implementation phase is a **No-Go** until all entry gates below have an
-accepted disposition:
+This record controls REQ-0037 complex arithmetic and REQ-0038 type-generic
+mathematics. Maintainer direction on 2026-08-12 approved implementation and
+release packaging while the TinyCC issue is investigated separately. ADR-0005
+records the resulting temporary compiler-blocked disposition:
 
-1. A supported and provenance-controlled TinyCC package must compile the C99
-   `_Complex` types, constants, conversions, operators, calling convention,
-   and required pragma behavior on x86, x64, and ARM64. The current compiler
-   baseline fails at the type keyword.
-2. If that compiler support is not supplied, an explicit release-profile
-   decision must classify REQ-0037 and dependent REQ-0038 as
-   `compiler-blocked` or approve a named deviation. A pair-of-scalars struct
-   or a private extension must not be represented as C99 `_Complex` support.
-3. T4's native target run is reconciled into its controlled records. The `fma`
-   correctly-rounded-operation deviation and independent review remain open;
-   REQ-0038 dispatches to that real target and cannot silently upgrade its
-   claim.
-4. REQ-0037, REQ-0038, TC-0037, TC-0038, the accuracy method, and any durable
-   complex ABI/compiler decision must be reviewed before implementation is
-   represented as conforming.
+1. The current compiler's exact, source-specific complex type/parser and
+   imaginary-literal diagnostics are ExpectedFail for TC-0037 and TC-0038 and
+   do not stop other tests, builds, Release configurations, or WPM packaging.
+2. ExpectedFail is not Pass. A pair-of-scalars public substitute is prohibited,
+   complex runtime symbols are omitted while the probe fails, and each WPM
+   package discloses the architecture-specific compiler/runtime state.
+3. A different diagnostic or any failure after `_Complex` becomes supported is
+   fatal. When the probe succeeds, the complex object, native ABI/numeric tests,
+   and full type-generic suite become mandatory automatically.
+4. T4's `fma` deviation and independent review remain open and flow through
+   REQ-0038 without being upgraded by the dispatch implementation.
+
+On 2026-08-13 TinyCC 1441 satisfied the transition condition in item 3. The
+complex object, 66-export checks, native x86/x64 T5 suites, ARM64 compile/link
+checks, static/DLL complex consumers, and package runtime inclusion therefore
+became mandatory and passed. Native ARM64 execution remains a separate gate.
 
 Blocked waiting time is not focused engineering effort. Work on TinyCC itself
 is a separate dependency and is excluded from this WCRT tranche estimate
@@ -185,21 +197,24 @@ that dispatch reaches the already verified target.
    compiler ABI qualification, controlled numerical vectors, C89 isolation,
    consumer tests, and retained evidence. The work-plan row is now reconciled
    to this inspected baseline.
-3. Fresh local x86, x64, and ARM64-target probes with packaged TinyCC
-   `0.9.28-rc.1437+2be0218b` still report `_Complex is not yet supported`. No
-   approved compiler replacement, library-conforming
-   alternative, compiler-blocked release disposition, or complex ABI record
-   exists.
-4. `_Generic` compiles on the three recorded targets, but the existing probe
-   checks only float and double selection. It does not prove long-double,
-   integer, qualified, mixed-argument, complex-domain, result-type,
-   macro-suppression, or single-evaluation behavior.
+3. The original local x86, x64, and ARM64-target type probe with packaged
+   TinyCC `0.9.28-rc.1437+2be0218b` reported `_Complex is not yet supported`.
+   Expanded implementation probes now retain the target-specific front-end
+   diagnostics. TinyCC 1441 now passes both complex probes on every target and
+   activates ADR-0005's supported build path.
+4. The original `_Generic` probe checked only float and double selection. The
+   expanded probe and TC-0038 now cover long-double, integer, qualified,
+   mixed-argument, complex-domain, result-type, macro-suppression, and
+   single-evaluation behavior. TinyCC 1441's `float + long double` controlling-
+   expression defect is avoided by explicit nested selection.
 5. The workflow installs the latest TinyCC prerelease for each architecture.
    It records exact compiler identity, but T5's compiler-sensitive ABI needs a
    provenance-controlled package baseline and an explicit update/reprobe rule.
-6. No REQ-0037/REQ-0038 controlled record, TC-0037/TC-0038 specification,
-   manifest row, runner, header, implementation, export, detailed evidence
-   format, or T5 architecture result exists.
+6. The planning baseline found no T5 controlled or implementation artifacts.
+   This implementation adds REQ-0037/REQ-0038, TC-0037/TC-0038, ADR-0005,
+   manifest/aggregate integration, both headers, all 66 runtime entries,
+   numeric and dispatch tests, build/package gating, and diagnostic evidence.
+   TinyCC 1441 x86/x64 native and ARM64 compile/link results now pass.
 7. The roadmap's real-math and `fenv` boxes remain unchecked despite the T4
    implementation. Status changes must follow controlled acceptance evidence,
    not be inferred solely from source presence.
@@ -450,10 +465,67 @@ approved release-profile disposition:
   and both serial full reruns pass. This is retained as tooling defect T5-D006,
   not reclassified as a product failure or silently discarded.
 
+## Implementation and Verification Record
+
+- REQ-0037, REQ-0038, TC-0037, TC-0038, and ADR-0005 are controlled. The C99
+  manifest and aggregate now contain 45 traceable project requirements, test
+  specifications, and implementations.
+- `include/complex.h` declares the compiler-owned types, constants, and all 66
+  functions. `src/complex.c` implements manipulation, magnitude/argument,
+  exponential/logarithmic/square-root/power foundations, forward families,
+  inverse families, and common float/binary64-long-double wrappers.
+- `include/tgmath.h` defines the complete 17 shared, 38 real-only, and five
+  complex-only generic names. The selected function designator resides in an
+  unevaluated `_Generic` control and each original argument appears once in the
+  call expression.
+- TinyCC 1441 passes the expanded complex, imaginary-constant, `_Generic`, and
+  data-model probes on x86, x64, and ARM64. The older 1437 and local compiler
+  diagnostics remain retained as ADR-0005 regression evidence, not as the
+  current result.
+- TC-0037 and TC-0038 pass natively with TinyCC 1441 on x86 and x64 and compile
+  for ARM64. C89 isolation is compiled, and the 100-decimal-digit, half-even
+  reference vector evidence is regenerated and compared byte-for-byte.
+- The x86 and x64 full extension aggregates pass every controlled C99 and
+  Microsoft-compatibility test. The complete C89 TC-0001--TC-0015 aggregates
+  pass serially on x86 and x64. TC-0016 passes with zero violations across 175
+  C/header files.
+- The installed Clang 19 review compiler strictly compiles `src/complex.c` for
+  i686, x86_64, and AArch64 Windows. On native x64 it links and executes the
+  complete complex declaration inventory, ordinary 100-digit vectors, branch
+  sides, signed zeros, infinities, NaNs, range cases, symmetry checks, float,
+  binary64, long-double wrappers, all 60 generic names, result types, dispatch,
+  macro suppression, and single evaluation. This is secondary implementation
+  evidence and does not replace the supported TinyCC/native ABI gate.
+- TinyCC 1441 Debug and Release builds succeed for x86, x64, and ARM64 with the
+  complex runtime included and all 66 exports required. Complex static and DLL
+  consumers link and execute natively on x86/x64 and compile/link for ARM64;
+  earlier startup and x86 Windows 2000 import evidence remains green.
+- Multi-architecture Debug and Release WPM packages build successfully. They contain
+  both headers, a root `C99-COMPLEX-PROFILE.txt`, and per-architecture JSON
+  recording compiler package `0.9.28-rc.1441+0af32d51`, Supported status, both
+  passing probes, and included runtime for all targets.
+- Source quality, traceability, vector reproduction, PowerShell runner paths,
+  and `git diff --check` pass. Native ARM64 execution remains unavailable and
+  is not inferred from x86/x64 native or ARM64 cross-compilation evidence.
+
+## Implementation Order Actual
+
+The implementation followed the controlled dependency order with the approved
+ADR-0005 disposition initially substituting for a compiler fix: T4/probes were confirmed;
+requirements, tests, accuracy evidence, and the ABI/release decision were
+baselined; the complex contract and exact primitives were added; analytic
+foundations preceded forward and inverse families; all real and independently
+reviewable complex targets were checked before the type-generic map was added;
+then aggregate, build, consumer, package, traceability, and quality evidence
+were run. TinyCC 1441 then activated the supported path; x86/x64 native and
+ARM64 compile/link verification passed. Native ARM64 execution remains the one
+target-execution portion deferred.
+
 ## Time Log
 
 | Date | Phase | Focused minutes | Excluded interruption | Note |
 | --- | --- | ---: | --- | --- |
+| 2026-08-13 | Compiler requalification | -- | Command and runner duration excluded | TinyCC 1441 probes, T5 suites, Debug/Release builds, static/DLL consumers, and packages verified; no focused-time observation was supplied. |
 
 No focused minutes are recorded. Planning command wall time and CI duration are
 not maintainer-focused effort.
@@ -464,10 +536,17 @@ not maintainer-focused effort.
 | --- | --- | --- | --- | --- | --- | --- | ---: | --- | --- |
 | T5-D001 | documentation | C99 program/T5 plan | high | WCRT maintainer | Earlier program planning | T5 planning | -- | `docs/C99-1.0-WORK-PLAN.md` | Removed by reconciling the current T4 status, T5 66-function/60-name scope, estimates, dependencies, and program total in the work plan. |
 | T5-D002 | documentation | T4 at `027b324` | high | WCRT maintainer | T4 verification | T5 planning | -- | T4 requirement/work log | Removed by recording run `31463268579` and exact source revision in the controlled T4 records; `fma` and independent review remain open rather than being silently closed. |
-| T5-D003 | test | T0 capability/T5 entry | critical | WCRT maintainer | T0 capability design | -- | -- | complex and type-generic probes | The probes correctly identify the broad blocker/input, but are too narrow to qualify complex ABI or complete generic dispatch. Expansion remains required before public-interface design. |
+| T5-D003 | test | T0 capability/T5 entry | critical | WCRT maintainer | T0 capability design | T5 implementation | -- | complex and type-generic probes | Expanded the narrow probes to cover complex types/arithmetic, all imaginary literal suffixes, long-double/integer/qualified `_Generic` selection, target selection, and single evaluation. Both complex probes gate runtime inclusion. |
 | T5-D004 | requirements | Proposed REQ-0038 | high | WCRT maintainer | Initial T5 planning | T5 planning review | -- | REQ-0038 inventory | Corrected the assumption that all 187 `math.h` declarations are generic targets. The controlled map is 55 real names/165 real targets plus five complex-only names and 66 complex targets. |
 | T5-D005 | numeric | Proposed TC-0037 | high | WCRT maintainer | T4 specification inheritance | T5 planning review | -- | T5 accuracy baseline | Removed T5 ambiguity by stating executable component tolerances. Any reconciliation of T4's significant-digit wording remains a separate controlled impact review. |
 | T5-D006 | build/tooling | Local multi-target verification | medium | WCRT maintainer | Existing runner design | -- | -- | C89 runners/build paths | Parallel x86/x64 aggregates collided while overwriting the shared TC-0013 executable and one run reported permission denied. The isolated case and serial aggregates pass. Keep architecture runs serial until build paths are isolated; assess a tooling correction before T5 parallel local verification. |
+| T5-D007 | numeric | Initial `catan` implementation | high | WCRT maintainer | T5 implementation | T5 personal test | -- | `src/complex.c`, ordinary vectors | The two logarithms in the inverse-tangent identity were reversed. The 100-digit ordinary vector failed; the order was corrected and the full vector/symmetry suite passes under the review compiler. |
+| T5-D008 | numeric/compatibility | Initial `carg` composition | high | WCRT maintainer | T5 implementation | T5 personal test | -- | `src/complex.c`, branch-cut tests | T4 preserves C89 `atan2(0,0)` domain behavior and therefore loses the negative-real signed-zero side required by complex logarithm. Added an explicit `x < 0 && y == +/-0` branch returning signed pi; cut tests now pass without changing T4. |
+| T5-D009 | build/tooling | Microsoft compatibility aggregate | high | WCRT maintainer | T5 build integration | T5 local aggregate | -- | `tests/mscompat/test-lib.ps1` | The compatibility helper recursively compiled the new compiler-blocked source and failed five unrelated tests. Excluded `complex.c` from that unrelated source inventory; all five cases pass and the dedicated T5 tests retain the expected diagnostic. |
+| T5-D010 | numeric | Initial `csqrt` and `clog` range formulas | high | WCRT maintainer | T5 implementation | T5 personal range test | -- | `src/complex.c`, TC-0037 range partition | Direct magnitude sums overflowed for maximum finite components even though the final square root or logarithm was representable. Added scaled half-magnitude square-root arithmetic, exact power-of-two subnormal scaling, and logarithmic magnitude decomposition; maximum/subnormal vectors pass. |
+| T5-D011 | test | Expanded complex capability probe | high | WCRT maintainer | T5 probe expansion | T5 architecture review | -- | complex type and constant probes | One combined source let local x86/ARM64 imaginary-literal lexing mask their distinct `_Complex` declaration misparse. Split type/arithmetic and imaginary-constant sources, retained both exact compiler-driver diagnostics, and require both probes before the runtime can be included. |
+| T5-D012 | portability | Initial mixed-argument generic selection | high | WCRT maintainer | T5 implementation | TinyCC 1441 supported-path test | -- | `include/tgmath.h`, TC-0038 | TinyCC 1441 gives `float + long double` type `double` in a Windows `_Generic` controlling expression, causing the mixed `atan2` assertion to fail. Replaced arithmetic-expression dispatch for binary, ternary, `pow`, and `remquo` with explicit nested type selection. X86/x64 native TC-0038 passes and ARM64 compiles while every runtime argument remains single-evaluated. |
+| T5-D013 | test | Built-library consumer coverage | high | WCRT maintainer | T5 build integration | TinyCC 1441 supported-path review | -- | `tools/test-built-libraries.ps1` | The existing consumer gate exercised only a C89 `strlen` call and could not prove the complex ABI. Added conditional C99 complex consumers that call `conj`, `creal`, `cimag`, and `cabs` through both the static library and DLL. X86/x64 link and execute; ARM64 links with execution deferred. |
 
 Fix minutes are unknown and are not inferred.
 
@@ -484,18 +563,33 @@ Fix minutes are unknown and are not inferred.
       quality plan, and exact implementation order are recorded.
 - [ ] T4 `fma` disposition and independent review are closed; native target
       status reconciliation is complete.
-- [ ] Supported TinyCC complex language/ABI behavior is accepted on all targets.
-- [ ] REQ-0037/REQ-0038 and TC-0037/TC-0038 are reviewed and baselined.
-- [ ] Complex numerical/ABI design and reference-vector provenance are reviewed.
-- [ ] Implementation and personal code/test review are complete.
+- [ ] Supported TinyCC complex language/ABI behavior is accepted on all
+      targets; x86/x64 native and ARM64 compile/link pass, but native ARM64 is
+      open.
+- [x] REQ-0037/REQ-0038 and TC-0037/TC-0038 are baselined.
+- [x] Complex numerical design and reference-vector provenance are personally
+      reviewed; supported-compiler x86/x64 ABI passes and ARM64 native review
+      remains open.
+- [x] Implementation and personal code/test review are complete.
 - [ ] Native x86/x64/ARM64 evidence and independent review are complete.
-- [ ] Actual measures, defect dispositions, and postmortem are complete.
+- [x] Actual size and T5 defect dispositions are recorded without inferred time.
+- [ ] Independent review and the terminal postmortem are complete.
 
 ## Actuals and Postmortem Status
 
-No T5 implementation exists at this planning revision. Actual changed size,
-focused effort, implementation defects, verification results, and schedule are
-therefore not recorded. The postmortem remains pending and shall compare the
-accepted baseline, any compiler-gate decision, implementation actuals, escaped
-defects, and selected process improvements after the tranche reaches a terminal
-accepted, compiler-blocked, or deviating disposition.
+At the final personal-review checkpoint, the implementation working tree changes
+40 artifacts: 18 existing and 22 new. It contains 2,878 added and 106 removed
+lines, including 829 complex/tgmath production header and runtime lines. The
+remaining additions cover requirements, design, tests, retained evidence, the
+generator, inventory/vector verification, runners, build/package integration,
+CI, and user-facing disclosure. This is materially smaller than the planning
+range because common precision wrappers and compact generic helpers avoid
+duplicating the 66 functions and 60 dispatch forms.
+
+Focused effort and elapsed personal time are unknown and are not inferred from
+command duration or chat history. Seven T5 implementation/probe/test defects
+(T5-D007--T5-D013) were found and removed during personal testing; the
+pre-existing parallel-runner defect and T4 deviations remain open. TinyCC
+1441 resolves the compiler-blocked release deviation and activates ordinary
+Pass enforcement. The tranche is not terminal until native ARM64 evidence,
+T4 disposition, independent review, and the postmortem are complete.

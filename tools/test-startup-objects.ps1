@@ -27,9 +27,35 @@ $arguments = @{
 Write-WspInfo "Testing $Architecture $Configuration startup objects."
 $results = @(
     & (Join-Path $repoRoot 'tests/c89/run-tc-0017.ps1') @arguments
-    Write-WspPass "TC-0017 console startup passed on $Architecture."
     & (Join-Path $repoRoot 'tests/c89/run-tc-0018.ps1') @arguments
-    Write-WspPass "TC-0018 GUI startup passed on $Architecture."
 )
-Write-WspPass "$Architecture $Configuration startup-object tests passed."
 $results
+
+$failures = @($results | Where-Object Status -eq 'Fail')
+if ($failures.Count -ne 0) {
+    foreach ($failure in $failures) {
+        Write-WspError (
+            "$($failure.TestCase) startup verification failed on " +
+            "$Architecture`: $($failure.Output)")
+    }
+    throw "$Architecture $Configuration startup-object tests failed."
+}
+
+$blocked = @($results | Where-Object Status -eq 'Blocked')
+if ($blocked.Count -ne 0) {
+    foreach ($result in $blocked) {
+        Write-WspWarning (
+            "$($result.TestCase) startup verification is blocked on " +
+            "$Architecture`: $($result.Rationale)")
+    }
+    Write-WspWarning (
+        "$Architecture $Configuration startup-object tests completed " +
+        'with target execution blocked.')
+} else {
+    foreach ($result in $results) {
+        Write-WspPass (
+            "$($result.TestCase) startup verification passed on " +
+            "$Architecture.")
+    }
+    Write-WspPass "$Architecture $Configuration startup-object tests passed."
+}

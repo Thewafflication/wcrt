@@ -1,0 +1,33 @@
+% TC-0037 fragment; intended for the C99 test report.
+\def\TCID{TC-0037}
+\def\TCTitle{C99 complex arithmetic}
+\def\TCPurpose{Verify complex types, constants, the complete function surface,
+ordinary accuracy, branch cuts, signed zeros, and exceptional values.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0037}
+\def\TCDesignRef{ISO/IEC 9899:1999 7.3; ADR-0005.}
+\def\TCFeatureRef{\texttt{include/complex.h}; \texttt{src/complex.c};
+\texttt{tests/c99/complex.c}; retained 100-digit vector JSON and generator;
+\texttt{tests/c99/run-tc-0037.ps1}.}
+\def\TCTestTechnique{Inventory checks, controlled vectors, exact components,
+equivalence partitions, boundary analysis, and metamorphic symmetry checks.}
+\def\TCPreconditions{REQ-0035 real targets are available; the compiler
+capability result and exact identity have been recorded.}
+\def\TCEnvironment{C99 compilation and native x86, x64, and ARM64 execution;
+selected C89 isolation and earlier mathematics regression.}
+\def\TCAssumptions{Float is binary32; double and long double are binary64;
+Annex G and correctly rounded transcendental results are not claimed.}
+\def\TCInputData{All 66 functions; exact components; ordinary finite vectors;
+both sides of cuts; signed zero, infinity, NaN, overflow, and underflow.}
+\def\TCInitialState{Inputs are created from compiler complex constants and
+controlled component values; errno and relevant floating state are cleared.}
+\def\TCProcedure{Compile the declaration and C89 inventories; verify exact
+manipulation; execute ordinary, cut, special, range, and symmetry partitions;
+exercise static and DLL calls; rerun TC-0007 and TC-0035.}
+\def\TCExpectedResult{All targets link and meet their component, type,
+tolerance, branch, sign, classification, and error expectations. TinyCC 1441
+passes the capability gate; ADR-0005's exact diagnostic matrix remains only as
+a controlled regression fallback.}
+\def\TCPostConditions{Detailed results and compiler diagnostics remain in the
+architecture-specific ignored output directories.}
+\TCTemplate

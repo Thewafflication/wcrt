@@ -71,7 +71,10 @@ the narrow allocation of REQ-0039 are implemented locally for tranche T2.
 REQ-0031 through REQ-0033 and the wide REQ-0039 allocation are implemented
 locally for tranche T3. REQ-0035 and REQ-0036 are implemented for T4 with
 native x86, x64, and ARM64 evidence; fused-operation disposition and independent
-review remain pending. Other later identifiers remain planned backlog items.
+review remain pending. REQ-0037 and REQ-0038 are baselined and implemented for
+T5. TinyCC 1441 passes their x86/x64 native and ARM64 compile/link verification;
+native ARM64 execution and independent review remain open. Other later
+identifiers remain planned.
 
 | ID | Conformance unit | Primary C99 clauses | Principal obligations |
 | --- | --- | --- | --- |
@@ -99,8 +102,8 @@ review remain pending. Other later identifiers remain planned backlog items.
 | --- | --- | --- | --- |
 | REQ-0035 (implemented; disposition/review open) | C99 real mathematics | 7.12 | Classification/comparison macros and complete float, double, and long-double families |
 | REQ-0036 (implemented; review open) | Floating-point environment | 7.6 | `fenv.h`, flags, rounding control, saved environments, and architecture profile |
-| REQ-0037 | Complex arithmetic | 7.3 | `complex.h`, constants, accessors, and complete complex function families |
-| REQ-0038 | Type-generic mathematics | 7.22 | Correct real/complex dispatch without multiple evaluation |
+| REQ-0037 (implemented; review open) | Complex arithmetic | 7.3 | `complex.h`, constants, accessors, and complete complex function families |
+| REQ-0038 (implemented; review open) | Type-generic mathematics | 7.22 | Correct real/complex dispatch without multiple evaluation |
 | REQ-0039 (T2 allocation baselined) | Numeric text interchange | 7.12, 7.19, 7.20 | Hexadecimal floating syntax, rounding, range errors, and formatted I/O integration |
 
 ## Priority 5 — Conformance closure

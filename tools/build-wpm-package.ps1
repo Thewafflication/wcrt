@@ -49,10 +49,49 @@ foreach ($architecture in $architectures) {
     foreach ($file in @('libwcrt.a', 'wcrt-startup-console.o', 'wcrt-startup-gui.o', 'wcrt.def')) {
         Copy-Item -LiteralPath (Join-Path $buildDirectory $file) -Destination $libDirectory
     }
+    Copy-Item -LiteralPath (Join-Path $buildDirectory `
+        'c99-complex-capability.json') -Destination $architectureRoot
 }
 Copy-Item -Path (Join-Path $repoRoot 'include/*') -Destination (Join-Path $staging 'include') -Recurse
 Copy-Item -LiteralPath (Join-Path $repoRoot 'LICENSE.txt') -Destination $staging
 Copy-Item -LiteralPath (Join-Path $repoRoot 'README.md') -Destination $staging
+$complexProfiles = foreach ($architecture in $architectures) {
+    $profilePath = Join-Path $staging `
+        "$architecture/c99-complex-capability.json"
+    $profile = Get-Content -LiteralPath $profilePath -Raw | ConvertFrom-Json
+    if ($profile.Status -notin 'Supported', 'ExpectedFail') {
+        throw "Invalid complex capability status for $architecture."
+    }
+    if ([bool]$profile.RuntimeIncluded -ne
+        ($profile.Status -eq 'Supported')) {
+        throw "Complex runtime/profile mismatch for $architecture."
+    }
+    if (@($profile.Probes).Count -ne 2) {
+        throw "Complex capability evidence is incomplete for $architecture."
+    }
+    if (@($profile.Probes | Where-Object {
+            -not $_.Supported -and -not $_.ExpectedFailure
+        }).Count -ne 0) {
+        throw "Unexpected complex diagnostic for $architecture."
+    }
+    if ($profile.Status -eq 'Supported' -and
+        @($profile.Probes | Where-Object { -not $_.Supported }).Count -ne 0) {
+        throw "Supported complex profile is inconsistent for $architecture."
+    }
+    if ($profile.Status -eq 'ExpectedFail' -and
+        @($profile.Probes | Where-Object { $_.ExpectedFailure }).Count -eq 0) {
+        throw "ExpectedFail complex profile has no expected failure for $architecture."
+    }
+    "$architecture=$($profile.Status);runtime-included=" +
+        $profile.RuntimeIncluded.ToString().ToLowerInvariant()
+}
+@(
+    'C99 complex and type-generic mathematics release profile'
+    'ExpectedFail means TinyCC emitted ADR-0005 controlled complex diagnostics.'
+    'Such a package contains the headers but omits complex runtime symbols.'
+    $complexProfiles
+) | Set-Content -LiteralPath (Join-Path $staging `
+    'C99-COMPLEX-PROFILE.txt') -Encoding ascii
 
 $metadata = @(
     "name=$PackageName"
@@ -121,7 +160,12 @@ try {
     foreach ($entry in $archive.Entries) {
         $entries[$entry.FullName.Replace('\', '/')] = $entry.Length
     }
-    $requiredEntries = @('include/stdio.h')
+    $requiredEntries = @(
+        'include/stdio.h'
+        'include/complex.h'
+        'include/tgmath.h'
+        'C99-COMPLEX-PROFILE.txt'
+    )
     foreach ($architecture in $architectures) {
         $requiredEntries += @(
             "$architecture/bin/wcrt.dll"
@@ -129,6 +173,7 @@ try {
             "$architecture/lib/wcrt-startup-console.o"
             "$architecture/lib/wcrt-startup-gui.o"
             "$architecture/lib/wcrt.def"
+            "$architecture/c99-complex-capability.json"
         )
     }
     foreach ($entry in $requiredEntries) {

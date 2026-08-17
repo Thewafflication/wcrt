@@ -30,12 +30,15 @@ if ($compiler -notmatch [regex]::Escape($expectedTarget)) {
 }
 
 $probes = @(
-    @('bool', '_Bool', $true),
-    @('long-long', 'long long', $true),
-    @('restrict', 'restrict', $true),
-    @('variadic-macros', 'variadic macros', $false),
-    @('complex-arithmetic', 'complex arithmetic', $false),
-    @('type-generic-macros', 'type-generic macros', $false)
+    @('bool', '_Bool', $true, ''),
+    @('long-long', 'long long', $true, ''),
+    @('restrict', 'restrict', $true, ''),
+    @('variadic-macros', 'variadic macros', $false, ''),
+    @('complex-arithmetic', 'complex arithmetic', $true,
+        "(?:_Complex is not yet supported|'\{' expected \(got ';'\))"),
+    @('complex-constants', 'complex imaginary constants', $true,
+        '(?:_Complex is not yet supported|invalid number)'),
+    @('type-generic-macros', 'type-generic macros', $true, '')
 )
 
 $probeResults = foreach ($probe in $probes) {
@@ -48,13 +51,26 @@ $probeResults = foreach ($probe in $probes) {
         -o $object 2>&1)
     $supported = $LASTEXITCODE -eq 0 -and
         (Test-Path -LiteralPath $object -PathType Leaf)
+    $diagnosticText = ($diagnostic |
+        ForEach-Object { $_.ToString() }) -join "`n"
+    $diagnosticText = $diagnosticText.Replace(
+        $repoRoot.Replace('\', '/') + '/', '')
+    $expectedFailure = -not $supported -and
+        -not [string]::IsNullOrWhiteSpace($probe[3]) -and
+        $diagnostic.Count -eq 1 -and
+        $diagnosticText -match ('(?s)^[^\r\n]*' +
+            [regex]::Escape("$($probe[0]).c") + ':\d+: error: ' +
+            $probe[3] + '\s*$')
     [PSCustomObject]@{
         Facility = $probe[1]
-        Status = if ($supported) { 'Supported' } else { 'Unsupported' }
+        Status = if ($supported) { 'Supported' }
+            elseif ($expectedFailure) { 'ExpectedFail' }
+            else { 'Unsupported' }
         RequiredForCurrentBaseline = [bool]$probe[2]
+        ExpectedFailure = $expectedFailure
         Source = [IO.Path]::GetRelativePath($repoRoot, $source).
             Replace('\', '/')
-        Diagnostic = ($diagnostic | ForEach-Object { $_.ToString() }) -join "`n"
+        Diagnostic = $diagnosticText
     }
 }
 
@@ -107,10 +123,10 @@ $record
 
 $requiredFailures = @(
     $probeResults | Where-Object {
-        $_.RequiredForCurrentBaseline -and $_.Status -ne 'Supported'
+        $_.RequiredForCurrentBaseline -and
+        $_.Status -notin 'Supported', 'ExpectedFail'
     }
 )
 if (-not $dataModelPass -or $requiredFailures.Count -ne 0) {
     throw "TinyCC capability baseline failed on $Architecture. Results: $jsonPath"
 }
-

@@ -21,7 +21,7 @@ WPM packages. Developer-only exploratory checks are not release evidence.
 | Startup integration | Static link, PE inspection, and native execution | `REQ-0017`–`REQ-0018`, `TC-0017`–`TC-0018` |
 | API presence | C89 compile-time verification without host-header fallback | `TC-0001`–`TC-0015`, `tests/c89/presence/` |
 | Component behavior | Dynamic functional and boundary testing | `tests/c89/*.c`, PowerShell runners |
-| C99 interface and isolation | Compile-time, behavioral, C89-isolation, numeric-boundary, and ABI testing | `TC-0019`, `TC-0021`–`TC-0033`, `TC-0035`, `TC-0036`, `TC-0039`, `tests/c99/` |
+| C99 interface and isolation | Compile-time, behavioral, C89-isolation, numeric-boundary, and ABI testing | `TC-0019`, `TC-0021`–`TC-0033`, `TC-0035`–`TC-0039`, `tests/c99/` |
 | Compiler and data model | Targeted compile-only capability and width assertions | `tests/c99/capabilities/`, `docs/c99-platform-model.md` |
 | Library integration | DLL and static-library consumer builds and execution | `tools/test-built-libraries.ps1` |
 | Legacy import compatibility | Repository-owned PE import parsing and Windows 2000 x86 allowlist | `tools/test-windows-2000-imports.ps1` |
@@ -67,9 +67,13 @@ Every change runs pinned WSP tool self-tests, traceability validation,
 TC-0016, architecture-specific builds, consumer verification, the C89 test
 suite, the complete controlled C99 aggregate, compiler/data-model probes, and
 the Windows 2000 import gate for the x86 DLL. A required non-Pass result fails
-its job. Compiler facilities planned for later tranches may be recorded as
-unsupported without failing the current baseline; a facility required by an
-implemented requirement fails the job when unavailable. Tagged releases additionally
+its job except for an explicitly controlled ExpectedFail release deviation.
+ADR-0005 permits TC-0037 and TC-0038 to use ExpectedFail only for TinyCC's
+exact, source-specific complex-type/parser and imaginary-literal diagnostic
+matrix. That state does not stop remaining tests, builds, or WPM packaging,
+but it is not Pass or conformance evidence. Any other diagnostic or behavioral
+failure remains fatal. TinyCC `0.9.28-rc.1441+0af32d51` passes both probes, so
+TC-0037 and TC-0038 are currently ordinary required Pass results. Tagged releases additionally
 build Release artifacts, combine all targets into one signed WPM development
 package, verify that package, generate
 SHA-256 checksums, and publish only after every architecture succeeds.

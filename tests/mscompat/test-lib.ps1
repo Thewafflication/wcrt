@@ -36,7 +36,7 @@ function Invoke-WcrtCompatibilityTest {
     }
     $sources = Get-ChildItem (Join-Path $RepositoryRoot 'src') -Recurse `
         -Filter '*.c' | Where-Object {
-            $_.Name -notin 'startup_console.c', 'startup_gui.c'
+            $_.Name -notin 'startup_console.c', 'startup_gui.c', 'complex.c'
         } | Select-Object -ExpandProperty FullName
     $executable = Join-Path $buildDirectory 'test.exe'
     $lines = @(& $TinyCc @common @sources $BehaviorSource `

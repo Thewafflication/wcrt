@@ -214,7 +214,12 @@ jobs:
           function Open-TestSuite {
             param([string]$Name, [object[]]$Results)
             $blocked = @($Results | Where-Object Status -eq 'Blocked').Count
-            $failed = @($Results | Where-Object Status -notin 'Pass', 'Blocked').Count
+            $expected = @($Results | Where-Object {
+                $_.Status -eq 'ExpectedFail'
+              }).Count
+            $failed = @($Results | Where-Object {
+                $_.Status -notin 'Pass', 'Blocked', 'ExpectedFail'
+              }).Count
             if ($Results.Count -eq 0 -or $failed -ne 0) {
               $indicator = '❌'
               $status = 'FAIL'
@@ -222,6 +227,10 @@ jobs:
             } elseif ($blocked -ne 0) {
               $indicator = '⚠️'
               $status = 'BLOCKED'
+              $open = ' open'
+            } elseif ($expected -ne 0) {
+              $indicator = '⚠️'
+              $status = 'EXPECTED FAIL'
               $open = ' open'
             } else {
               $indicator = '✅'
@@ -248,7 +257,9 @@ jobs:
               [string]$DetailProperty = 'Output'
             )
             $failures = @(
-              $Results | Where-Object Status -notin 'Pass', 'Blocked'
+              $Results | Where-Object {
+                $_.Status -notin 'Pass', 'Blocked', 'ExpectedFail'
+              }
             )
             if ($failures.Count -eq 0) { return }
             @('', "### Failure details — $Name") |
@@ -266,6 +277,26 @@ jobs:
                 ''
                 '<details open>'
                 "<summary>🔴 <strong>$title — FAIL</strong></summary>"
+                ''
+                "<pre>$encoded</pre>"
+                '</details>'
+              ) | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+            }
+          }
+
+          function Write-ExpectedFailureDetails {
+            param([string]$Name, [object[]]$Results)
+            $expected = @($Results | Where-Object Status -eq 'ExpectedFail')
+            if ($expected.Count -eq 0) { return }
+            @('', "### Expected compiler failures — $Name") |
+              Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+            foreach ($result in $expected) {
+              $encoded = [System.Net.WebUtility]::HtmlEncode(
+                [string]$result.Output)
+              @(
+                ''
+                '<details>'
+                "<summary>🟡 <strong>$($result.TestCase) — EXPECTED FAIL</strong></summary>"
                 ''
                 "<pre>$encoded</pre>"
                 '</details>'
@@ -347,12 +378,14 @@ jobs:
               Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
             $suiteResults | Sort-Object TestCase | ForEach-Object {
                 $status = $_.Status.ToUpperInvariant()
-                $indicator = if ($status -eq 'PASS') { '🟢' } else { '🔴' }
+                $indicator = if ($status -eq 'PASS') { '🟢' } `
+                  elseif ($status -eq 'EXPECTEDFAIL') { '🟡' } else { '🔴' }
                 "| $($_.TestCase) $($_.Description) | $indicator **$status** |" |
                   Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
             }
             Close-TestSuite
             Write-FailureDetails $name $suiteResults
+            Write-ExpectedFailureDetails $name $suiteResults
           }
 
           $capabilityJson = "$directory/tinycc-c99-capabilities.json"
@@ -366,6 +399,7 @@ jobs:
             foreach ($probe in $capabilityResults) {
               [PSCustomObject]@{
                 Status = if ($probe.Status -eq 'Supported') { 'Pass' }
+                  elseif ($probe.Status -eq 'ExpectedFail') { 'ExpectedFail' }
                   elseif ($probe.RequiredForCurrentBaseline) { 'Fail' }
                   else { 'Blocked' }
               }
@@ -456,6 +490,7 @@ jobs:
             output/build/${{ matrix.arch }}/Debug/wcrt-startup-console.o
             output/build/${{ matrix.arch }}/Debug/wcrt-startup-gui.o
             output/build/${{ matrix.arch }}/Debug/include/
+            output/build/${{ matrix.arch }}/Debug/c99-complex-capability.json
             output/test-results/${{ matrix.arch }}/c89-test-results.tex
             output/test-results/${{ matrix.arch }}/c89-test-results.json
             output/test-results/${{ matrix.arch }}/extension-test-results.json

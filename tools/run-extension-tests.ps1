@@ -51,6 +51,12 @@ $tests = @(
     @('TC-0036', 'REQ-0036', 'C99',
         'Floating-point environment',
         'tests\c99\run-tc-0036.ps1'),
+    @('TC-0037', 'REQ-0037', 'C99',
+        'Complex arithmetic',
+        'tests\c99\run-tc-0037.ps1'),
+    @('TC-0038', 'REQ-0038', 'C99',
+        'Type-generic mathematics',
+        'tests\c99\run-tc-0038.ps1'),
     @('TC-0039', 'REQ-0039', 'C99', 'Narrow numeric text interchange',
         'tests\c99\run-tc-0039.ps1'),
     @('TC-0020', 'REQ-0020', 'Microsoft compatibility',
@@ -102,14 +108,25 @@ if ($inventoryDifference.Count -ne 0) {
 $results = foreach ($test in $tests) {
     Write-WspInfo "Running $($test[0]) ($($test[3])) on $Architecture."
     try {
-        & (Join-Path $repoRoot $test[4]) -TinyCc $TinyCc | Out-Null
+        $testOutput = @(& (Join-Path $repoRoot $test[4]) -TinyCc $TinyCc)
+        $reported = @($testOutput | Where-Object {
+            $_ -is [PSCustomObject] -and $_.PSObject.Properties['Status']
+        } | Select-Object -Last 1)
+        $reportedStatus = if ($reported.Count -eq 1) {
+            [string]$reported[0].Status
+        } else { 'Pass' }
+        if ($reportedStatus -notin 'Pass', 'ExpectedFail') {
+            throw "$($test[0]) runner reported $reportedStatus."
+        }
         $result = [PSCustomObject]@{
             TestCase = $test[0]
             Requirement = $test[1]
             Suite = $test[2]
             Description = $test[3]
-            Status = 'Pass'
-            Output = ''
+            Status = $reportedStatus
+            Output = if ($reportedStatus -eq 'ExpectedFail') {
+                [string]$reported[0].Output
+            } else { '' }
         }
     } catch {
         $result = [PSCustomObject]@{
@@ -130,8 +147,15 @@ $results | ConvertTo-Json -Depth 4 |
     Set-Content (Join-Path $outputDirectory 'extension-test-results.json') `
         -Encoding utf8NoBOM
 $results | Format-Table TestCase, Requirement, Suite, Description, Status
-if (@($results | Where-Object Status -ne 'Pass').Count -ne 0) {
+if (@($results | Where-Object Status -notin 'Pass', 'ExpectedFail').Count `
+    -ne 0) {
     Write-WspError "Extension test suite failed on $Architecture."
     exit 1
 }
-Write-WspPass "Extension test suite passed on $Architecture."
+$expectedFailures = @($results | Where-Object Status -eq 'ExpectedFail').Count
+if ($expectedFailures -ne 0) {
+    Write-WspWarning ("Extension test suite completed on $Architecture " +
+        "with $expectedFailures expected compiler failure(s).")
+} else {
+    Write-WspPass "Extension test suite passed on $Architecture."
+}
