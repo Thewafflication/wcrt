@@ -1,7 +1,7 @@
 # C99 T6 Integration Closure Work Log
 
-**Status:** Implementation and local verification active; native
-exact-candidate ARM64 evidence and independent closure review remain open
+**Status:** Local closure audit complete; Reject/No-Go because native
+exact-candidate ARM64 evidence and independent project review remain open
 
 **Owner:** WCRT maintainer
 
@@ -19,11 +19,12 @@ the public C99 plus TC1, TC2, and TC3 committee draft
 tree. T5 and the approved T6 baseline were reviewed and committed as
 `1d681da8ab439a0e63ee7433ed289037806a26c7`.
 
-**Current implementation commits:** `5ab2e00bd899bb29ab936145ffe7a7f17d887dbb`
-contains the T6 requirements, audit, corrections, and focused evidence support;
-`d15c78d` pins CI dependencies and action inputs. The exact release-candidate
-source revision will be recorded only after documentation reconciliation is
-committed and the tree is clean.
+**Candidate source baseline:**
+`3fa0b1a3a22bbd93ff9185dbb24689d83e057e56`. Commit
+`5ab2e00bd899bb29ab936145ffe7a7f17d887dbb` contains the primary T6 audit and
+corrections, `d15c78d` pins dependency/action inputs, `23497525` reconciles
+project/release controls, and `3fa0b1a3` removes the ARM64 cross-runner defect
+found during the first candidate verification.
 
 ## Tranche Decision
 
@@ -417,6 +418,9 @@ command wall time, commit timestamps, or CI duration.
 | T6-D016 | build/tooling | Tagged release workflow | critical | WCRT maintainer | Earlier release automation | -- | -- | `.github/workflows/build.yml`, `docs/release-process.md`, WSP-SIGN-0001--0014 | Open R1 blocker: the workflow signs the WPM envelope but has no approved Authenticode identity/timestamp stage or exact-final-byte Defender evidence gate. The release process now fails this condition explicitly; signing infrastructure and exercised evidence remain required before publication. |
 | T6-D017 | build/tooling | Candidate `23497525bd0be03b0d53d79686376e93ade94046` ARM64 C89 cross aggregate | high | WCRT maintainer | T6 `fma` correction / earlier cross-runner inventory | T6 verification | -- | `tools/run-c89-arm64-cross.ps1`, failed and passing TC-0007 diagnostics | Removed: TC-0007 linked `src/math.c` without its now-required `src/fenv.c` dependency and reported unresolved `fegetround`, `feraiseexcept`, `fegetexceptflag`, and `fesetexceptflag`. The cross runner now uses the same dependency as the native runner; all 15 ARM64 C89 units compile/link as `0xAA64`, and focused x86/x64 TC-0007/0035/0036 reruns pass. Full build/consumer reruns remain in the exact-candidate matrix. |
 | T6-D018 | test | ARM64 aggregate invocation on x64 verification host | medium | WCRT maintainer | T6 verification procedure | T6 verification review | -- | `output/test-results/arm64/extension-test-results.json` | Removed as a procedure error, not a product Pass or Fail: the native aggregate was invoked with ARM64 executables on an x64 host and 27 cases reported process-launch errors; three compile/document checks passed. The result cannot support the product either way. Native ARM64 remains Unknown, while TC-0042 and the controlled cross runners provide separately identified compile/link evidence. |
+| T6-D019 | build/tooling | Bootstrap dependency helpers | medium | WCRT maintainer | Pre-C99 bootstrap | -- | -- | `tests/check-dependency-releases.ps1`, `tests/export-dependency-metadata.ps1` | Open non-gating cleanup: the unused helpers inventory absent miniz/libsodium directories and cannot establish WCRT provenance. They are excluded from Pass evidence; the pinned workflow and `docs/evidence/c99-t6/dependency-provenance.json` are authoritative. Remove or replace the helpers before enabling them as a gate. |
+| T6-D020 | test | TC-0041 profile validator | high | WCRT maintainer | T6 test implementation | T6 verification | -- | `tests/c99/Verify-C99ConformanceProfile.ps1`, REQ/TC-0041 | Removed: the controlled requirement permits approved `ExpectedFail`, but the validator rejected that state. The vocabulary now permits it only for compiler-blocked rows and prohibits compiler-blocked Pass; TC-0041 passes with 25 clauses, 24 headers, and 75 facility rows. |
+| T6-D021 | documentation/process | WSP adoption dispositions at candidate review | high | WCRT maintainer | Pre-candidate WSP adoption | R1 readiness consistency review | -- | `docs/WSP-ADOPTION.md`, `docs/security/design-for-security.md`, readiness record | Removed: the adoption record still described release readiness, DFS scope/trust/threat controls, and trust-layer separation as future work after the project-owned records existed. Those requirements now point to the implemented records; genuinely incomplete derived-security, signing, PDF, response, and evidence-retention controls remain Deferred. The DFS verification table now states the exact candidate Pass/Fail/Unknown boundaries. |
 
 Fix effort is unknown and shall be recorded when each defect is diagnosed and
 removed. Planning findings are not silently converted into implementation.
@@ -437,12 +441,49 @@ removed. Planning findings are not silently converted into implementation.
 - [x] T6 implementation is authorized.
 - [x] In-scope corrections and dependency pins are implemented and focused
       x86/x64 plus ARM64 compile/link verification passes.
-- [ ] Actual measures, verification, review, and postmortem are complete.
+- [x] Actual size, local verification, personal review, defects, and the local
+      postmortem are recorded without inferred effort.
+- [ ] Native ARM64, exact-revision CI, and independent project review are
+      complete.
 
-## Postmortem Status
+## Actuals and Postmortem
 
-Not started. The terminal postmortem shall compare this inspected baseline with
-actual artifacts, focused effort, schedule, defects by injection/removal phase,
-quality activity completion, target evidence, estimate error, and selected
-process improvements. Missing personal time shall remain unavailable rather
-than inferred.
+The candidate implementation and readiness draft span 65 controlled artifacts,
+4,640 changed lines, and four conformance units. The artifact count is three
+above the 38--62 forecast; changed lines are 160 below the 4,800--9,600
+forecast. The variance comes from adding project DFS/release
+controls and machine-readable evidence while reusing compact audit runners and
+the existing aggregate infrastructure. The source candidate itself at
+`3fa0b1a3` contains 61 changed artifacts, 3,854 additions, and 295 removals
+relative to the T6 entry commit.
+
+Focused effort and elapsed personal time remain Unknown because no time log was
+supplied. Command duration, chat duration, and commit timestamps are not used
+as effort. The planned 174--322 focused-hour base and 218--451-hour completion
+forecast therefore cannot be scored for time accuracy or converted into a
+calendar schedule.
+
+Twenty-one findings were recorded. Nineteen requirement, interface, numeric,
+test, dependency, documentation, and procedure findings were removed or
+explicitly disposed during personal review. T6-D016 remains a critical R1
+blocker because Authenticode/timestamp and final-byte Defender controls are not
+implemented. T6-D019 remains non-gating cleanup because unused bootstrap
+helpers describe dependencies WCRT does not contain. Native ARM64 and
+independent-review gaps are completion conditions rather than silently closed
+defects.
+
+The quality plan found one candidate-blocking issue after the first freeze:
+ARM64 TC-0007 omitted the new `fenv.c` dependency. Retaining the failure,
+correcting the inventory, and restarting exact-candidate verification
+demonstrated the value of the architecture-specific cross aggregate. A future
+tranche should run all cross-build inventories before naming the first
+candidate and should reject dependency helpers whose declared paths do not
+exist.
+
+The terminal local T6 decision is **Reject/No-Go**. Native x86/x64 tests,
+ARM64 compile/link, builds, consumers, header/ABI compile checks, source
+quality, traceability, Windows 2000 imports, and package structure pass within
+their stated scopes. Native ARM64 required behavior and exact-revision CI are
+Unknown, and independent project review is absent. The separate R1 readiness
+record adds signing, WPM verification, final-byte Defender, documentation, and
+installation/rollback blockers. No release approval is implied.

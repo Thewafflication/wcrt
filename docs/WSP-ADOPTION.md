@@ -66,7 +66,7 @@
 | `WSP-PROC-0004` | Applicable | Git history and pull-request review | Project changes are version controlled and reviewable. |
 | `WSP-PROC-0005` | Applicable | Pull-request review and required CI | Changes are reviewed before integration. |
 | `WSP-PROC-0006` | Applicable | GitHub issues and test failures | Issues and defects are tracked with their corrective changes. |
-| `WSP-PROC-0007` | Deferred | Future release-readiness record | Formal readiness evidence is not yet consolidated. |
+| `WSP-PROC-0007` | Applicable | `docs/release/wcrt-1.0.0-rc.1-readiness.md` | The project-owned record evaluates every required gate and rejects the candidate where evidence is failed or Unknown. |
 | `WSP-PROC-0008` | Applicable | Git tags and GitHub releases | Approved releases establish immutable baselines. |
 | `WSP-PROC-0009` | Applicable | GitHub issues and releases | Public support and corrective releases use repository records. |
 | `WSP-PROC-0010` | Deferred | Future retrospective record | Periodic improvement review requires explicit evidence. |
@@ -127,11 +127,11 @@
 
 | WSP requirement | Disposition | Project artifact | Rationale or notes |
 | --- | --- | --- | --- |
-| `WSP-SEC-0001` | Deferred | Future WCRT Design for Security | Security scope requires a controlled record. |
-| `WSP-SEC-0002` | Deferred | Future WCRT Design for Security | A controlled DFS is not yet maintained. |
-| `WSP-SEC-0003` | Deferred | Future WCRT Design for Security | Trust boundaries and assumptions require documentation. |
-| `WSP-SEC-0004` | Deferred | Future WCRT Design for Security | Threat analysis requires documentation. |
-| `WSP-SEC-0005` | Deferred | Future WCRT Design for Security | Derived security requirements require documentation and traceability. |
+| `WSP-SEC-0001` | Applicable | `docs/security/design-for-security.md` | The controlled DFS defines scope, environment, assets, consequences, assumptions, and non-goals; independent approval remains a release gate. |
+| `WSP-SEC-0002` | Applicable | `docs/security/design-for-security.md` | The DFS traces security goals, threats, controls, verification, and residual risks and remains version controlled. |
+| `WSP-SEC-0003` | Applicable | `docs/security/design-for-security.md` | The trust model identifies callers, build/release services, dependencies, data, trust anchors, inputs, privileges, and boundaries. |
+| `WSP-SEC-0004` | Applicable | `docs/security/design-for-security.md` | THR-001--THR-008 trace credible product, build, target, import, signing, and evidence threats to controls and residual risks. |
+| `WSP-SEC-0005` | Deferred | Future controlled derived-security requirements | DFS goals and threats have not yet been converted into independently controlled, bidirectionally traced security requirements. |
 | `WSP-SEC-0006` | Applicable | Runtime requirements and tests | Input bounds, resource behavior, and failure cases are verified per implemented API. |
 | `WSP-SEC-0007` | Not applicable | Runtime library scope | WCRT has no authorization boundary or privileged service role. |
 | `WSP-SEC-0008` | Applicable | Release-key handling and WPM verification workflow | Package trust uses controlled keys; secrets are not committed. |
@@ -174,7 +174,7 @@
 | WSP requirement | Disposition | Project artifact | Rationale or notes |
 | --- | --- | --- | --- |
 | `WSP-SIGN-0001` | Deferred | Future release signing plan | The complete signing plan is not yet documented. |
-| `WSP-SIGN-0002` | Deferred | Future release documentation | Trust layers require explicit documentation. |
+| `WSP-SIGN-0002` | Applicable | `docs/security/design-for-security.md`, `docs/release-process.md` | Authenticode, WPM signatures, SHA-256 identities, Defender detections, and SmartScreen reputation are explicitly separated. |
 | `WSP-SIGN-0003` | Deferred | Future release signing plan | Authenticode identity controls require documentation. |
 | `WSP-SIGN-0004` | Deferred | Future release workflow | Release PE files are not yet Authenticode signed. |
 | `WSP-SIGN-0005` | Deferred | Future release workflow | RFC 3161 timestamping is not yet implemented. |

@@ -1,0 +1,48 @@
+{
+  "recordedAt": "2026-08-17",
+  "candidateSourceRevision": "3fa0b1a3a22bbd93ff9185dbb24689d83e057e56",
+  "wsp": {
+    "revision": "2198ccab08f969a789448767fe7017b774369adc",
+    "source": "pinned gitlink"
+  },
+  "wpm": {
+    "version": "1.0.16",
+    "releaseTag": "1.0.16",
+    "installedExecutableSha256": "e37e5f4d6cc7de024c3f3912cec73496c81dfd75ac0bc53862bfd1fa111d6412",
+    "archiveSha256": {
+      "x86": "a143aecee32afa6cee04023f299a98058820824df40a9e845327594e4902643c",
+      "x64": "6553898f4e0bfbf171f601c16d314259fd28f59e7398d58a0549208b011c6544",
+      "arm64": "ed685fcd26a7d37d2c814146faded71377b233939730e9e8ddaabcec455962c9"
+    }
+  },
+  "tinycc": {
+    "version": "0.9.28-rc.1442+2474e1c2",
+    "releaseTag": "v0.9.28-rc.1442+2474e1c2",
+    "sourceRevision": "d5c02f0fcdfdf75265d38df6ff9db2f8067367ac",
+    "releaseKeySha256": "e141a5f383b8d2e7096080beb2920b37a007de727d1c8ff47a520453460f23a6",
+    "executableSha256": {
+      "x86": "2ba43fde75ee6795c83dafdd896b726b3d6c11d7c90c6e54a79aba9c300d5328",
+      "x64": "deea187e49165b6110e0d3719e01d11db5f1729e18179dbe5e48eae4f5f55d54",
+      "arm64": "868d1c84426953f89a7720ae3a91ed04a127e57ae4b7fad8a44ae46ceef4d55c"
+    },
+    "archiveSha256": "Unknown: release-package archive digests were not retained in local evidence"
+  },
+  "cv2pdb": {
+    "version": "0.54.0",
+    "releaseTag": "cv2pdb-0.54.0",
+    "sourceRevision": "25cfecaad700550a49cd7ddbf7773254ea438d07",
+    "releaseKeySha256": "dc3245f3cab87c6e53cd8bad9c0fbeaf2951029adf819e900479e47cbf13285e",
+    "archiveSha256": "Unknown: the release-package archive digest was not retained in local evidence",
+    "installedExecutableSha256": "a2f2f61f8a1abc30e91fc18b93577891ed26a9eb8088a964bb441f5767dc9f21"
+  },
+  "githubActions": {
+    "actions/checkout@v6": "d23441a48e516b6c34aea4fa41551a30e30af803",
+    "actions/upload-artifact@v6": "b7c566a772e6b6bfb58ed0dc250532a479d7789f",
+    "actions/download-artifact@v6": "018cc2cf5baa6db3ef3c5f8a56943fffe632ef53"
+  },
+  "limitations": [
+    "The exact candidate workflow was not pushed or run in GitHub Actions.",
+    "Runner-image provenance and native ARM64 dependency hashes are Unknown.",
+    "The two legacy tests/check-dependency-releases.ps1 inventory entries for absent miniz and libsodium directories are stale, non-gating bootstrap artifacts."
+  ]
+}

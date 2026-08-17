@@ -35,7 +35,9 @@ $dispositions = @(
     'implemented', 'optional-omitted', 'compiler-blocked',
     'deviating', 'not-applicable'
 )
-$targetStates = @('Pass', 'Fail', 'Unknown', 'Blocked', 'N/A')
+$targetStates = @(
+    'Pass', 'Fail', 'Unknown', 'Blocked', 'ExpectedFail', 'N/A'
+)
 $rows = @(Get-Content -LiteralPath $profilePath | Where-Object {
     $_ -match '^\| F-[0-9]+ \|'
 })
@@ -56,6 +58,13 @@ foreach ($row in $rows) {
     foreach ($state in $cells[5..7]) {
         if ($state -notin $targetStates) {
             throw "Invalid target evidence state in profile row: $row"
+        }
+        if ($state -eq 'ExpectedFail' -and
+            $cells[4] -ne 'compiler-blocked') {
+            throw "ExpectedFail requires compiler-blocked disposition: $row"
+        }
+        if ($state -eq 'Pass' -and $cells[4] -eq 'compiler-blocked') {
+            throw "Compiler-blocked behavior cannot be Pass: $row"
         }
     }
     foreach ($reference in @($cells[8..10])) {

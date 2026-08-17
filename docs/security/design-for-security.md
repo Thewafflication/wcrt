@@ -99,11 +99,11 @@ are controlled by `docs/c99-conformance-profile.md` and
 
 | Requirement or threat | Verification | Evidence | Status |
 | --- | --- | --- | --- |
-| SG-001 / THR-001 | C89, C99, compatibility, negative, boundary, and source-quality tests | Controlled TC records and exact-candidate report | Pending candidate evidence |
-| SG-002 / THR-003 | Traceability, dependency pins, hashes, WSP tests, clean revision | Workflow, provenance record, test report | Implemented; exact run pending |
-| SG-004 / THR-004 | Parse x86 DLL imports and bind output to DLL SHA-256 | `tools/test-windows-2000-imports.ps1` result | Pending candidate evidence |
+| SG-001 / THR-001 | C89, C99, compatibility, negative, boundary, and source-quality tests | Controlled TC records and `docs/evidence/c99-t6/local-verification.md` | Local x86/x64 Pass; native ARM64 Unknown |
+| SG-002 / THR-003 | Traceability, dependency pins, hashes, WSP tests, clean revision | Workflow, `docs/evidence/c99-t6/dependency-provenance.json`, local verification | Local controls Pass; exact-revision CI and runner provenance Unknown |
+| SG-004 / THR-004 | Parse x86 DLL imports and bind output to DLL SHA-256 | Local verification and `docs/evidence/c99-t6/release-candidate-manifest.json` | Exact x86 Release candidate Pass |
 | THR-002 / THR-008 | Native x86/x64/ARM64 tests, consumers, and startup checks | Per-target retained results | ARM64 Unknown |
-| SG-003 / THR-005--007 | Signature verification, Defender scan, package verification, checksums | Final release trust record | Unknown; signing identity and final signed artifacts unavailable |
+| SG-003 / THR-005--007 | Signature verification, Defender scan, package verification, checksums | Candidate manifest and release-readiness record | Fail/Unknown; unsigned package and DLLs, no final signed-byte evidence |
 
 ## Vulnerability and Incident Response
 
