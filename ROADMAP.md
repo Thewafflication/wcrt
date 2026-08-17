@@ -47,9 +47,9 @@ conformance claim.
 
 - [ ] Adopt a GPL-3.0-or-later source-file notice policy.
 - [x] Create the `include`, `wcrt`, `tests`, `tools`, and `docs` structure.
-- [ ] Pin and publish the supported TinyCC package versions. T0 baselines
-      0.9.28rc target capability probes and retains the exact packaged compiler
-      identity, but CI still installs the latest prerelease package.
+- [x] Pin the supported TinyCC package version. T6 selects
+      `0.9.28-rc.1442+2474e1c2`, pins the release repository and trust key, and
+      retains the exact packaged compiler identity per target.
 - [x] Add deterministic static-library and test-executable builds.
 - [ ] Define 32-bit x86 calling conventions, object format, symbol naming, and
       ABI boundaries.
@@ -64,8 +64,9 @@ conformance claim.
       architectures.
 - [x] Add enforced x86 import-table inspection against the Windows 2000 API
       allowlist for Debug and tagged Release DLLs.
-- [ ] Create conformance, implementation-defined behavior, and deviation
-      documents.
+- [x] Create conformance, implementation-defined behavior, and deviation
+      documents; target result cells remain Unknown until exact evidence is
+      retained.
 
 **Exit condition:** a trivial program can be compiled with TinyCC, linked with
 WCRT, started, tested, and terminated on the baseline x86 target.

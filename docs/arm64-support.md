@@ -1,21 +1,28 @@
 # Windows ARM64 support
 
-WCRT supports cross-compiling the implemented C89 requirements for Windows
-ARM64 with TinyCC. Windows ARM64 belongs to the Windows 10 and Windows 11
-compatibility tier; it is not part of the Windows 2000 legacy tier.
+WCRT supports building the C89 and C99 library profiles for Windows ARM64 with
+TinyCC. Windows ARM64 belongs to the Windows 10 and Windows 11 compatibility
+tier; it is not part of the Windows 2000 legacy tier.
 
 ## Current verification
 
-`tools/run-c89-arm64-cross.ps1` builds TC-0001 through TC-0011 with the
-AArch64 Windows TinyCC toolchain. Each output is parsed as PE/COFF and must
-carry machine type `0xAA64`. Runtime execution is deliberately reported as
-`DeferredToArm64CI` until the tests run on a native or supported emulated ARM64
-GitHub runner.
+The workflow assigns the ARM64 build job to the native `windows-11-arm`
+runner. It runs the same C89 and C99 aggregates, capability probes, Debug
+consumers, startup objects, and package inputs used for x86/x64. Historical
+native ARM64 Debug evidence exists for T4 at source revision
+`027b324e233d4a0c1912667835dbef31d61c6dcc`.
+
+On an x64 development host, `tools/run-c89-arm64-cross.ps1` and the focused
+C99 runners use the AArch64 Windows TinyCC toolchain. Each generated binary is
+parsed as PE/COFF and must carry machine type `0xAA64`; execution is reported
+as deferred. Such compile/link evidence is useful, but it is not a native
+behavior result and cannot satisfy an exact-candidate ARM64 release gate.
 
 Evidence is written to:
 
 ```text
 output/test-results/c89-wcrt-arm64/
+output/test-results/arm64/
 ```
 
 The ARM64 `setjmp` implementation preserves the Windows ABI nonvolatile
@@ -23,10 +30,12 @@ integer registers X19-X28, frame pointer X29, stack pointer, return address
 X30, and the low 64-bit halves D8-D15 of vector registers V8-V15. The public
 ARM64 `jmp_buf` size is compile-time checked as 168 bytes.
 
-## Deferred runtime gates
+## Candidate evidence boundary
 
-ARM64 CI shall execute the same behavioral sources used by x64. It shall also
-exercise nonvolatile integer and floating register preservation around
-`setjmp` and `longjmp`, default signal termination, assertion diagnostics, and
-all Windows imports. Cross-build success alone is not a runtime-conformance
-claim.
+An exact release candidate requires retained native ARM64 results for the full
+C89/C99/compatibility aggregates, complex and floating ABI behavior,
+nonvolatile integer and floating register preservation around `setjmp` and
+`longjmp`, default signal termination, assertion diagnostics, static and DLL
+consumers, and both optional startup objects. Until those results are produced
+at the candidate source and dependency revision, the native ARM64 gate is
+Unknown. Windows 2000 import enforcement applies only to x86.

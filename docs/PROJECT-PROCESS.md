@@ -2,9 +2,10 @@
 
 **Content type:** Project process
 
-**Status:** Proposed
+**Status:** Adopted
 
-**Approval:** Review and merge of the change that adopts this process
+**Approval:** Adopted by commit
+`81081dd92f6e6f797208c412cab09b079160fd7a`
 
 ## Scope and Lifecycle
 

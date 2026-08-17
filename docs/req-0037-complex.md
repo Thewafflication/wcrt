@@ -2,8 +2,9 @@
 
 **Content type:** Project requirement
 
-**Status:** Implementation baselined; TinyCC 1441 x86/x64 verification passes
-and ARM64 compile/link verification passes; native ARM64 review remains open
+**Status:** Implementation baselined; selected TinyCC 1442 local x86/x64
+verification and ARM64 compile/link verification pass; exact-candidate native
+ARM64 review remains open
 
 **Source:** ISO/IEC 9899:1999 as corrected through TC3, §7.3
 
@@ -86,8 +87,9 @@ a release failure.
 `include/complex.h` exposes the compiler-owned types and complete inventory.
 `src/complex.c` implements exact manipulation, scaled magnitude and square
 root, exponential/logarithmic foundations, power, forward and inverse
-trigonometric and hyperbolic families, and three semantic precisions. The
-TinyCC `0.9.28-rc.1441+0af32d51` compiles and executes TC-0037 natively on x86
+trigonometric and hyperbolic families, and three semantic precisions. TinyCC
+`0.9.28-rc.1441+0af32d51` established the historical T5 result. The T6-selected
+`0.9.28-rc.1442+2474e1c2` package compiles and executes TC-0037 natively on x86
 and x64, compiles it for ARM64, and links complex calls through the static and
-DLL interfaces on all three targets. Native ARM64 execution and independent
-review remain open.
+DLL interfaces on all three targets. Exact-candidate native ARM64 execution
+and independent review remain open.

@@ -2,7 +2,8 @@
 
 **Content type:** Requirements planning record
 
-**Status:** Proposed
+**Status:** Controlled through REQ-0042; exact-candidate target verification
+pending
 
 **Source:** ISO/IEC 9899:1999 library clauses, as corrected through the C99
 technical corrigenda
@@ -66,15 +67,12 @@ and verified `long long` compiler behavior.
 ## Priority 2 — Integer integration
 
 REQ-0023 through REQ-0026 are baselined as the remainder of Milestone 2A.
-REQ-0027 and REQ-0028 are baselined for tranche T1. REQ-0029, REQ-0030, and
-the narrow allocation of REQ-0039 are implemented locally for tranche T2.
-REQ-0031 through REQ-0033 and the wide REQ-0039 allocation are implemented
-locally for tranche T3. REQ-0035 and REQ-0036 are implemented for T4 with
-native x86, x64, and ARM64 evidence; fused-operation disposition and independent
-review remain pending. REQ-0037 and REQ-0038 are baselined and implemented for
-T5. TinyCC 1441 passes their x86/x64 native and ARM64 compile/link verification;
-native ARM64 execution and independent review remain open. Other later
-identifiers remain planned.
+REQ-0027 through REQ-0033 and REQ-0035 through REQ-0039 are implemented.
+T6 removes the earlier `fma` implementation deviation, completes the remaining
+REQ-0039 profile allocation, and controls REQ-0040 through REQ-0042. The
+selected TinyCC 1442 package passes local x86/x64 native and ARM64 compile/link
+verification. Exact-candidate native ARM64 verification and independent review
+remain open; no historical or cross-target result is promoted to Pass.
 
 | ID | Conformance unit | Primary C99 clauses | Principal obligations |
 | --- | --- | --- | --- |
@@ -91,28 +89,28 @@ identifiers remain planned.
 | --- | --- | --- | --- |
 | REQ-0029 (baselined) | C99 formatted output | 7.19.6.1 | New length modifiers and conversions; REQ-0019 remains independently controlled |
 | REQ-0030 (baselined) | C99 formatted input | 7.19.6.2, 7.19.6.4, 7.19.6.7, 7.19.6.9, 7.19.6.11, 7.19.6.14 | New modifiers/conversions and the three `v*scanf` functions |
-| REQ-0031 (implemented locally) | Wide-character I/O and strings | 7.24, 7.8.2 | Complete `wchar.h`, wide `inttypes.h` conversions, stream orientation, conversions, strings, time, and `mbstate_t` |
-| REQ-0032 (implemented locally) | Wide-character classification | 7.25 | Complete `wctype.h` classification, descriptors, and mappings |
-| REQ-0033 (implemented locally) | Windows UTF-16 ABI | 7.17, 7.24.1, 7.24.6, 7.25.1; implementation-defined ABI | `wchar_t`, promotion-safe `wint_t`, multibyte state, locale, stream state, and Windows interoperability by architecture |
+| REQ-0031 (implemented) | Wide-character I/O and strings | 7.24, 7.8.2 | Complete `wchar.h`, wide `inttypes.h` conversions, stream orientation, conversions, strings, time, and `mbstate_t` |
+| REQ-0032 (implemented) | Wide-character classification | 7.25 | Complete `wctype.h` classification, descriptors, and mappings |
+| REQ-0033 (implemented) | Windows UTF-16 ABI | 7.17, 7.24.1, 7.24.6, 7.25.1; implementation-defined ABI | `wchar_t`, promotion-safe `wint_t`, multibyte state, locale, stream state, and Windows interoperability by architecture |
 | REQ-0034 | Unicode GUI startup | Project extension | Separately selected `wWinMain` startup after REQ-0031 through REQ-0033 |
 
 ## Priority 4 — Numeric environment and mathematics
 
 | Planned ID | Conformance unit | Primary C99 clauses | Principal obligations |
 | --- | --- | --- | --- |
-| REQ-0035 (implemented; disposition/review open) | C99 real mathematics | 7.12 | Classification/comparison macros and complete float, double, and long-double families |
+| REQ-0035 (implemented; target review open) | C99 real mathematics | 7.12 | Classification/comparison macros and complete float, double, and long-double families |
 | REQ-0036 (implemented; review open) | Floating-point environment | 7.6 | `fenv.h`, flags, rounding control, saved environments, and architecture profile |
 | REQ-0037 (implemented; review open) | Complex arithmetic | 7.3 | `complex.h`, constants, accessors, and complete complex function families |
 | REQ-0038 (implemented; review open) | Type-generic mathematics | 7.22 | Correct real/complex dispatch without multiple evaluation |
-| REQ-0039 (T2 allocation baselined) | Numeric text interchange | 7.12, 7.19, 7.20 | Hexadecimal floating syntax, rounding, range errors, and formatted I/O integration |
+| REQ-0039 (implemented/profiled) | Numeric text interchange | 7.12, 7.19, 7.20 | Hexadecimal floating syntax, rounding, range errors, formatted I/O integration, and documented decimal accuracy boundary |
 
 ## Priority 5 — Conformance closure
 
 | Planned ID | Conformance unit | Principal obligations |
 | --- | --- | --- |
-| REQ-0040 (baselined) | Existing-header C99 audit | Changed declarations, `restrict` contracts, macros, constraints, and behavior across the C89 baseline |
-| REQ-0041 (baselined) | C99 conformance profile | Clause-level matrix of implemented, optional, implementation-defined, compiler-blocked, and deviating behavior |
-| REQ-0042 (baselined) | C99 compatibility validation | Header self-containment, C89 isolation, ABI checks, and regression execution on x86, x64, and ARM64 |
+| REQ-0040 (implemented) | Existing-header C99 audit | Changed declarations, `restrict` contracts, macros, constraints, and behavior across the C89 baseline |
+| REQ-0041 (implemented) | C99 conformance profile | Clause-level matrix of implemented, optional, implementation-defined, compiler-blocked, and deviating behavior |
+| REQ-0042 (implemented; target evidence open) | C99 compatibility validation | Header self-containment, C89 isolation, ABI checks, and regression execution on x86, x64, and ARM64 |
 
 ## Sequencing rule
 

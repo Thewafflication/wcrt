@@ -2,8 +2,9 @@
 
 **Content type:** Project requirement
 
-**Status:** Implementation baselined; TinyCC 1441 x86/x64 verification passes
-and ARM64 compile verification passes; native ARM64 review remains open
+**Status:** Implementation baselined; selected TinyCC 1442 local x86/x64
+verification and ARM64 compile verification pass; exact-candidate native
+ARM64 review remains open
 
 **Source:** ISO/IEC 9899:1999 as corrected through TC3, §7.22
 
@@ -65,6 +66,7 @@ dispatch failure is a normal release-blocking failure.
 
 `include/tgmath.h` contains the complete 60-name `_Generic` dispatch map. The
 macros choose a function designator in an unevaluated controlling expression
-and invoke it once with the original arguments. TinyCC 1441 passes TC-0038
-natively on x86 and x64 and compiles it for ARM64; native ARM64 execution and
-independent review remain open.
+and invoke it once with the original arguments. TinyCC 1441 established the
+historical T5 result; the T6-selected TinyCC 1442 package passes TC-0038
+natively on x86 and x64 and compiles it for ARM64. Exact-candidate native ARM64
+execution and independent review remain open.

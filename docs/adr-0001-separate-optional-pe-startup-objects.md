@@ -2,7 +2,10 @@
 
 **Content type:** Architecture decision record
 
-**Status:** Proposed
+**Status:** Accepted and implemented
+
+**Approval:** Implementation commit
+`be503027abdad10b37fa69522b9619e731a135fe`
 
 **Date:** 2026-07-26
 

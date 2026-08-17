@@ -2,10 +2,12 @@
 
 **Content type:** Implementation-defined behavior and compiler capability record
 
-**Status:** Implemented T0 baseline with ADR-0005 T5 expected-failure profile
+**Status:** T6 selected dependency baseline; exact-candidate native ARM64
+evidence pending
 
-**Baseline compiler observed locally:** TinyCC 0.9.28rc for i386 Windows,
-x86_64 Windows, and AArch64 Windows
+**Selected compiler:** TinyCC `0.9.28-rc.1442+2474e1c2`, source revision
+`d5c02f0fcdfdf75265d38df6ff9db2f8067367ac`, for i386 Windows, x86_64
+Windows, and AArch64 Windows
 
 ## Scope
 
@@ -60,10 +62,11 @@ character behavior and is updated during T3 for the exact public `wint_t`.
 
 ## TinyCC C99 Facility Matrix
 
-The following compile-only probes use `-std=c99 -Wall -Werror`. Results record
-TinyCC `0.9.28-rc.1441+0af32d51` on 2026-08-13 for all three Windows targets;
-ADR-0005 retains the older controlled diagnostic matrix as a regression
-fallback.
+The following compile-only probes use `-std=c99 -Wall -Werror`. T5 qualified
+TinyCC `0.9.28-rc.1441+0af32d51` on 2026-08-13. T6 requalified the selected
+1442 package locally on x86/x64 and by ARM64-target compilation; exact native
+ARM64 candidate evidence remains Unknown. ADR-0005 retains the older
+controlled diagnostic matrix as a regression fallback.
 
 | Facility | Result | Release interpretation |
 | --- | --- | --- |
@@ -74,9 +77,13 @@ fallback.
 | complex arithmetic/types | Supported | Required on x86, x64, and ARM64; the complex runtime and all 66 exports become mandatory |
 | complex imaginary constants | Supported | Standard `fi`, `i`, and `Li` constants compile on all three targets |
 | type-generic macros | Supported extension | Expanded `_Generic` type and single-evaluation probes pass; WCRT explicitly dispatches mixed arguments to avoid TinyCC's Windows `float + long double` conversion defect |
+| `#pragma STDC FENV_ACCESS` | Compiler-blocked | TinyCC 1442 emits the retained `#pragma STDC ignored` diagnostic under `-Werror`; WCRT cannot claim pragma recognition |
+| `#pragma STDC FP_CONTRACT` | Compiler-blocked | TinyCC 1442 emits the retained `#pragma STDC ignored` diagnostic under `-Werror`; WCRT cannot claim pragma recognition |
+| `#pragma STDC CX_LIMITED_RANGE` | Compiler-blocked | TinyCC 1442 emits the retained `#pragma STDC ignored` diagnostic under `-Werror`; WCRT cannot claim pragma recognition |
 
-Complex arithmetic remains a compiler dependency, but TinyCC 1441 now passes
-the language gate. T5 runtime symbols are included and TC-0037/TC-0038 are
+Complex arithmetic remains a compiler dependency, but the selected TinyCC
+1442 package passes the language gate. T5 runtime symbols are included and
+TC-0037/TC-0038 are
 ordinary required tests. ADR-0005 still defines the only allowed ExpectedFail
 fallback if a selected compiler regresses to one of the exact retained
 diagnostics; a different failure cannot use that disposition.
@@ -100,3 +107,11 @@ leak into the selected C89 surface.
 Any change to supported TinyCC packages, target ABI macros, fundamental type
 definitions, `float.h`, `stddef.h`, or `stdint.h` requires this record and all
 three target results to be reviewed together.
+
+The exact local compiler executable SHA-256 values selected for the candidate
+baseline are `2ba43fde75ee6795c83dafdd896b726b3d6c11d7c90c6e54a79aba9c300d5328`
+(x86), `deea187e49165b6110e0d3719e01d11db5f1729e18179dbe5e48eae4f5f55d54`
+(x64), and
+`868d1c84426953f89a7720ae3a91ed04a127e57ae4b7fad8a44ae46ceef4d55c`
+(ARM64). These identify local inputs; they do not substitute for retained
+native target results.

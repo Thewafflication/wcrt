@@ -1,6 +1,7 @@
 # ADR-0005 — C99 complex representation and compiler-blocked release profile
 
-**Status:** Accepted; temporary compiler block resolved by TinyCC 1441
+**Status:** Accepted; temporary compiler block resolved by TinyCC 1441 and
+requalified for the T6-selected TinyCC 1442 package
 
 **Date:** 2026-08-12
 
@@ -21,6 +22,11 @@ TinyCC `0.9.28-rc.1441+0af32d51` subsequently passed both complex probes on
 2026-08-13 for i386, x86_64, and AArch64 Windows. The automatic supported path
 in this decision is therefore active; the ExpectedFail rules remain only as a
 controlled regression fallback.
+
+T6 selected `0.9.28-rc.1442+2474e1c2` (source revision
+`d5c02f0fcdfdf75265d38df6ff9db2f8067367ac`) and re-ran the same language
+gates. The selected package remains on the Supported path. This does not
+transfer T5's historical native ARM64 result to the T6 candidate baseline.
 
 ## Decision
 
@@ -54,7 +60,7 @@ controlled regression fallback.
 
 The source, headers, specifications, and tests can be reviewed and shipped
 without hiding the compiler dependency. Packages built with TinyCC 1437 omit
-complex symbols as recorded; packages built with supported TinyCC 1441 include
-the runtime and complete capability evidence. Release readiness still requires
-native behavior evidence and review rather than inferring them from probe or
-cross-compilation success.
+complex symbols as recorded; packages built with a qualified supported package
+include the runtime and complete capability evidence. The T6 baseline selects
+TinyCC 1442. Release readiness still requires native behavior evidence and
+review rather than inferring them from probe or cross-compilation success.

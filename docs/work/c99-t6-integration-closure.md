@@ -1,34 +1,37 @@
 # C99 T6 Integration Closure Work Log
 
-**Status:** Planning baseline proposed; implementation No-Go pending a clean
-T5 source baseline and disposition of inherited completion gates
+**Status:** Implementation and local verification active; native
+exact-candidate ARM64 evidence and independent closure review remain open
 
 **Owner:** WCRT maintainer
 
 **Created:** 2026-08-15
 
+**Implementation authorized:** 2026-08-16
+
+**Verification reconciliation:** 2026-08-17
+
 **Standard authority:** [WG14 N1256](https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1256.pdf),
 the public C99 plus TC1, TC2, and TC3 committee draft
 
-**Inspected repository revision:**
-`00d3f45e3f58d7332b2f5249a4596017aaff76b8` (`Baseline C99 T5 complex
-and generic math`) plus the uncommitted T5 implementation working tree
+**Inspected repository revision:** Initial planning inspected
+`00d3f45e3f58d7332b2f5249a4596017aaff76b8` plus the uncommitted T5 working
+tree. T5 and the approved T6 baseline were reviewed and committed as
+`1d681da8ab439a0e63ee7433ed289037806a26c7`.
 
-**Immutable implementation baseline:** Not yet available. The inspected
-working tree contains modified and untracked T5 implementation, test, build,
-and documentation artifacts and therefore cannot identify exact T6 inputs.
+**Current implementation commits:** `5ab2e00bd899bb29ab936145ffe7a7f17d887dbb`
+contains the T6 requirements, audit, corrections, and focused evidence support;
+`d15c78d` pins CI dependencies and action inputs. The exact release-candidate
+source revision will be recorded only after documentation reconciliation is
+committed and the tree is clean.
 
 ## Tranche Decision
 
-This record proposes the baseline for T6 integration closure. It does not
-authorize implementation. T6 implementation is No-Go until the configuration
-checkpoint in the exact implementation order establishes one reviewed source
-revision and explicitly disposes the inherited gates below.
-
-Planning and requirements work may continue without representing any current
-facility or result as a T6 Pass. A later approval to execute T6 shall not by
-itself authorize tagging, signing with private keys, pushing, publishing,
-uploading, or creating a release.
+The maintainer authorized T6 implementation on 2026-08-16. The tranche may
+produce an unsigned local release candidate and readiness inputs, but it does
+not authorize tagging, private-key signing, pushing, publishing, uploading, or
+creating a release. Every exact-candidate target result remains Unknown until
+its retained evidence is produced.
 
 ## Baseline and Scope
 
@@ -403,14 +406,15 @@ command wall time, commit timestamps, or CI duration.
 | T6-D005 | interface/ABI | C89 locale baseline | high | WCRT maintainer | C89 implementation | T6 implementation | -- | `include/locale.h`, `src/locale.c`, TC-0040/0042 | Removed: the six international monetary members and full runtime layout are present while the C89 prefix surface remains selected. |
 | T6-D006 | interface/ABI | C89 utility baseline | high | WCRT maintainer | C89 implementation | T6 implementation | -- | `include/stdlib.h`, TC-0040/0042 | Removed: `MB_CUR_MAX` is the positive constant expression `(size_t)1`. |
 | T6-D007 | test | T0--T5 test design | critical | WCRT maintainer | Earlier tranche design | T6 implementation | -- | C99 manifest/runners, TC-0040--0042 | Removed: all 24 C99 headers, all 15 C89 headers, repeated/mixed inclusion, ABI, profile, and existing-family inventory gates are controlled. |
-| T6-D008 | documentation | T0--T5 status | high | WCRT maintainer | Earlier verification | -- | -- | work logs, roadmap, ARM64 record | Open: status and evidence records are unreconciled or stale. |
+| T6-D008 | documentation | T0--T5 status | high | WCRT maintainer | Earlier verification | T6 documentation reconciliation | -- | work plan, roadmap, ARM64/platform records | Removed: current records distinguish historical evidence from the T6-selected baseline and preserve native ARM64 as Unknown at the candidate revision. Historical work logs are not rewritten as new evidence. |
 | T6-D009 | documentation | Conformance documentation | critical | WCRT maintainer | Project bootstrap | T6 specification | -- | `docs/c99-conformance-profile.md`, `docs/implementation-defined.md`, `docs/c99-deviations.md` | Removed: 75 facility rows cover clauses 7.1--7.25 and all 24 headers with independent classifications and target states. |
 | T6-D010 | requirements/numeric | REQ-0028/REQ-0039 | high | WCRT maintainer | Earlier requirements/implementation | T6 specification/verification | -- | REQ/TC-0039; decimal profile test | Removed: mandatory hexadecimal rounding, implementation-defined decimal accuracy, omitted recommended practice, C-locale syntax, wide dependencies, and a one-ULP counterexample are explicit. |
 | T6-D011 | numeric | T4 | critical | WCRT maintainer | T4 implementation | T6 implementation | -- | `src/math.c`, TC-0035, `tests/c99/data/fma-vectors.json` | Removed: exact integer product/addend accumulation and single active-direction binary32/binary64 rounding replace the sample-only compensated implementation. Native exact-revision ARM64 evidence remains pending. |
-| T6-D012 | build/tooling | CI dependency provisioning | high | WCRT maintainer | CI design | -- | -- | `.github/workflows/build.yml` | Open: `latest` inputs do not establish a pinned reproducible baseline. |
-| T6-D013 | documentation/evidence | ARM64 support | high | WCRT maintainer | Earlier platform documentation | -- | -- | ARM64 record and local result inventory | Open: documentation is stale and current native local evidence is absent. |
+| T6-D012 | build/tooling | CI dependency provisioning | high | WCRT maintainer | CI design | T6 implementation | -- | `.github/workflows/build.yml`, commit `d15c78d` | Removed: WPM 1.0.16 archives/digests, TinyCC 1442 release/key/version, cv2pdb 0.54.0 release/key/version, and GitHub actions are pinned; per-target dependency provenance is retained by CI. Workflow execution at the candidate revision remains an evidence gate. |
+| T6-D013 | documentation/evidence | ARM64 support | high | WCRT maintainer | Earlier platform documentation | T6 documentation reconciliation | -- | `docs/arm64-support.md`, local result inventory | Documentation removed the stale cross-only description. Exact-candidate native ARM64 evidence remains an open completion gate, not a documentation defect. |
 | T6-D014 | test | Startup aggregate runner | critical | WCRT maintainer | Earlier test implementation | T6 implementation | -- | `tools/test-startup-objects.ps1` | Removed: the runner reported Pass and returned success even when TC-0017 and TC-0018 returned Fail. It now throws for Fail, reports Blocked without Pass wording, and only reports Pass when every child result passes. |
-| T6-D015 | documentation/dependency | T5 compiler baseline | high | WCRT maintainer | T5 verification | -- | -- | T5 records; TinyCC package `d5c02f0fcdfdf75265d38df6ff9db2f8067367ac` | Open: records name TinyCC 1441, while the locally selected package is `v0.9.28-rc.1442+2474e1c2`; exact executable digests and target results must be reconciled without transferring claims. |
+| T6-D015 | documentation/dependency | T5 compiler baseline | high | WCRT maintainer | T5 verification | T6 documentation reconciliation | -- | T5 records; selected TinyCC source `d5c02f0fcdfdf75265d38df6ff9db2f8067367ac` | Removed: T5 retains its historical 1441 evidence, while current requirements, platform, ADR, roadmap, README, and work-plan records select 1442 and require fresh results. The three local executable digests are recorded without transferring native claims. |
+| T6-D016 | build/tooling | Tagged release workflow | critical | WCRT maintainer | Earlier release automation | -- | -- | `.github/workflows/build.yml`, `docs/release-process.md`, WSP-SIGN-0001--0014 | Open R1 blocker: the workflow signs the WPM envelope but has no approved Authenticode identity/timestamp stage or exact-final-byte Defender evidence gate. The release process now fails this condition explicitly; signing infrastructure and exercised evidence remain required before publication. |
 
 Fix effort is unknown and shall be recorded when each defect is diagnosed and
 removed. Planning findings are not silently converted into implementation.
@@ -429,6 +433,8 @@ removed. Planning findings are not silently converted into implementation.
 - [ ] T0--T5 inherited gates are closed or explicitly accepted as exceptions.
 - [x] REQ-0039 and REQ/TC-0040--0042 are reviewed and baselined.
 - [x] T6 implementation is authorized.
+- [x] In-scope corrections and dependency pins are implemented and focused
+      x86/x64 plus ARM64 compile/link verification passes.
 - [ ] Actual measures, verification, review, and postmortem are complete.
 
 ## Postmortem Status

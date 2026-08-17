@@ -10,9 +10,10 @@
 
 **Pinned commit:** `2198ccab08f969a789448767fe7017b774369adc`
 
-**Status:** Proposed
+**Status:** Adopted
 
-**Approval:** Adoption through review and merge of the `wsp_inclusion` branch
+**Approval:** Adoption commit
+`9be9216ee3f3c72dccad235a84083d4dfa8f9287`
 
 ## Common Baseline
 
