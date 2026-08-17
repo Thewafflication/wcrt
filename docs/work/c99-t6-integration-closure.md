@@ -421,6 +421,7 @@ command wall time, commit timestamps, or CI duration.
 | T6-D019 | build/tooling | Bootstrap dependency helpers | medium | WCRT maintainer | Pre-C99 bootstrap | -- | -- | `tests/check-dependency-releases.ps1`, `tests/export-dependency-metadata.ps1` | Open non-gating cleanup: the unused helpers inventory absent miniz/libsodium directories and cannot establish WCRT provenance. They are excluded from Pass evidence; the pinned workflow and `docs/evidence/c99-t6/dependency-provenance.json` are authoritative. Remove or replace the helpers before enabling them as a gate. |
 | T6-D020 | test | TC-0041 profile validator | high | WCRT maintainer | T6 test implementation | T6 verification | -- | `tests/c99/Verify-C99ConformanceProfile.ps1`, REQ/TC-0041 | Removed: the controlled requirement permits approved `ExpectedFail`, but the validator rejected that state. The vocabulary now permits it only for compiler-blocked rows and prohibits compiler-blocked Pass; TC-0041 passes with 25 clauses, 24 headers, and 75 facility rows. |
 | T6-D021 | documentation/process | WSP adoption dispositions at candidate review | high | WCRT maintainer | Pre-candidate WSP adoption | R1 readiness consistency review | -- | `docs/WSP-ADOPTION.md`, `docs/security/design-for-security.md`, readiness record | Removed: the adoption record still described release readiness, DFS scope/trust/threat controls, and trust-layer separation as future work after the project-owned records existed. Those requirements now point to the implemented records; genuinely incomplete derived-security, signing, PDF, response, and evidence-retention controls remain Deferred. The DFS verification table now states the exact candidate Pass/Fail/Unknown boundaries. |
+| T6-D022 | test/evidence | GitHub Actions run `32020177550` at `80c88d1b0b2585734edb2451f560bbf4ae282b39` | high | WCRT maintainer | T4/T5 vector reproducibility checks | Post-push exact-revision CI | -- | `tests/c99/Verify-FmaVectors.ps1`, `tests/c99/Verify-ComplexVectors.ps1`, retained run artifacts | Removed: all three native architecture jobs reported TC-0035 and TC-0037 Fail because GitHub's Windows checkout converted controlled JSON to CRLF while Python emitted LF and the validators compared raw text. Product behavior was not reached by those subchecks. Both validators now canonicalize CRLF, CR, and LF before exact content comparison; semantic content remains unchanged. Rerun the complete workflow at the correction revision. |
 
 Fix effort is unknown and shall be recorded when each defect is diagnosed and
 removed. Planning findings are not silently converted into implementation.
@@ -448,9 +449,10 @@ removed. Planning findings are not silently converted into implementation.
 
 ## Actuals and Postmortem
 
-The candidate implementation and readiness draft span 65 controlled artifacts,
-4,640 changed lines, and four conformance units. The artifact count is three
-above the 38--62 forecast; changed lines are 160 below the 4,800--9,600
+The candidate implementation, readiness draft, and first exact-CI correction
+span 66 controlled artifacts, 4,655 changed lines, and four conformance units.
+The artifact count is four above the 38--62 forecast; changed lines are 145
+below the 4,800--9,600
 forecast. The variance comes from adding project DFS/release
 controls and machine-readable evidence while reusing compact audit runners and
 the existing aggregate infrastructure. The source candidate itself at
@@ -463,7 +465,7 @@ as effort. The planned 174--322 focused-hour base and 218--451-hour completion
 forecast therefore cannot be scored for time accuracy or converted into a
 calendar schedule.
 
-Twenty-one findings were recorded. Nineteen requirement, interface, numeric,
+Twenty-two findings were recorded. Twenty requirement, interface, numeric,
 test, dependency, documentation, and procedure findings were removed or
 explicitly disposed during personal review. T6-D016 remains a critical R1
 blocker because Authenticode/timestamp and final-byte Defender controls are not

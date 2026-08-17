@@ -17,8 +17,12 @@ $generated = (& $python $generator 2>&1) -join "`n"
 if ($LASTEXITCODE -ne 0) {
     throw "Fma vector generation failed:`n$generated"
 }
-$retained = (Get-Content -LiteralPath $evidence -Raw).TrimEnd()
-if ($generated.TrimEnd() -cne $retained) {
+$generated = (($generated -replace "`r`n", "`n") -replace "`r", "`n").
+    TrimEnd()
+$retained = (Get-Content -LiteralPath $evidence -Raw)
+$retained = (($retained -replace "`r`n", "`n") -replace "`r", "`n").
+    TrimEnd()
+if ($generated -cne $retained) {
     throw 'Controlled fma vector evidence differs from its generator.'
 }
 $record = $retained | ConvertFrom-Json
