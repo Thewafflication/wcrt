@@ -15,7 +15,7 @@ jobs:
     name: TC-0016 source quality
     runs-on: windows-2025
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           submodules: true
 
@@ -90,7 +90,7 @@ jobs:
           - arch: arm64
             runner: windows-11-arm
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           submodules: true
 
@@ -101,28 +101,47 @@ jobs:
       - name: Install WPM
         shell: pwsh
         run: |
-          $installer = Join-Path $env:RUNNER_TEMP 'install-wpm.cmd'
-          Invoke-WebRequest -UseBasicParsing 'https://github.com/Thewafflication/wpm/releases/latest/download/install.cmd' -OutFile $installer
-          & $installer
+          $version = '1.0.16'
+          $archive = Join-Path $env:RUNNER_TEMP "wpm-${{ matrix.arch }}-$version.zip"
+          $expected = @{
+            x86 = 'a143aecee32afa6cee04023f299a98058820824df40a9e845327594e4902643c'
+            x64 = '6553898f4e0bfbf171f601c16d314259fd28f59e7398d58a0549208b011c6544'
+            arm64 = 'ed685fcd26a7d37d2c814146faded71377b233939730e9e8ddaabcec455962c9'
+          }['${{ matrix.arch }}']
+          $base = 'https://github.com/Thewafflication/wpm/releases/download/1.0.16'
+          Invoke-WebRequest -UseBasicParsing "$base/wpm-${{ matrix.arch }}-$version.zip" -OutFile $archive
+          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash -ne $expected) {
+            throw 'Pinned WPM archive digest mismatch.'
+          }
+          $package = Join-Path $env:RUNNER_TEMP 'wpm-package'
+          Expand-Archive -LiteralPath $archive -DestinationPath $package
+          & (Join-Path $package 'setup.cmd') (Join-Path $package 'wpm.exe')
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           $wpmDirectory = Join-Path $env:ProgramFiles 'WPM'
           if (-not (Test-Path (Join-Path $wpmDirectory 'wpm.exe'))) { throw 'WPM installation failed.' }
+          $reported = (& (Join-Path $wpmDirectory 'wpm.exe') --version 2>&1) -join "`n"
+          if ($reported -notmatch 'Version 1\.0\.16') { throw "Unexpected WPM version: $reported" }
           $wpmDirectory >> $env:GITHUB_PATH
 
       - name: Install TinyCC WPM package
         shell: pwsh
         run: |
+          $version = '0.9.28-rc.1442+2474e1c2'
+          $base = 'https://github.com/Thewafflication/tcc_package/releases/download/v0.9.28-rc.1442%2B2474e1c2'
           $key = Join-Path $env:RUNNER_TEMP 'tcc-wpm-release.public'
-          Invoke-WebRequest -UseBasicParsing 'https://github.com/Thewafflication/tcc_package/releases/latest/download/wpm-release.public' -OutFile $key
+          Invoke-WebRequest -UseBasicParsing "$base/wpm-release.public" -OutFile $key
+          if ((Get-FileHash -LiteralPath $key -Algorithm SHA256).Hash -ne 'e141a5f383b8d2e7096080beb2920b37a007de727d1c8ff47a520453460f23a6') {
+            throw 'Pinned TinyCC release-key digest mismatch.'
+          }
           wpm trust add $key
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          wpm repo add 'https://github.com/Thewafflication/tcc_package/releases/latest/download'
+          wpm repo add $base
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           wpm config set prerelease true --package tinycc
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           wpm update
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          wpm install tinycc --arch '${{ matrix.arch }}'
+          wpm install tinycc --arch '${{ matrix.arch }}' --version $version
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           $tccHome = [Environment]::GetEnvironmentVariable('TCC_HOME', 'Machine')
           $tcc = Join-Path $tccHome 'tcc.exe'
@@ -133,20 +152,46 @@ jobs:
       - name: Install cv2pdb WPM package
         shell: pwsh
         run: |
+          $version = '0.54.0'
+          $base = 'https://github.com/Thewafflication/cv2pdb_package/releases/download/cv2pdb-0.54.0'
           $key = Join-Path $env:RUNNER_TEMP 'cv2pdb-wpm-release.public'
-          Invoke-WebRequest -UseBasicParsing 'https://github.com/Thewafflication/cv2pdb_package/releases/latest/download/wpm-release.public' -OutFile $key
+          Invoke-WebRequest -UseBasicParsing "$base/wpm-release.public" -OutFile $key
+          if ((Get-FileHash -LiteralPath $key -Algorithm SHA256).Hash -ne 'dc3245f3cab87c6e53cd8bad9c0fbeaf2951029adf819e900479e47cbf13285e') {
+            throw 'Pinned cv2pdb release-key digest mismatch.'
+          }
           wpm trust add $key
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          wpm repo add 'https://github.com/Thewafflication/cv2pdb_package/releases/latest/download'
+          wpm repo add $base
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           wpm update
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          wpm install cv2pdb
+          wpm install cv2pdb --version $version
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           $cv2pdbHome = [Environment]::GetEnvironmentVariable('CV2PDB_HOME', 'Machine')
           $cv2pdb = Join-Path $cv2pdbHome 'cv2pdb.exe'
           if (-not (Test-Path -LiteralPath $cv2pdb)) { throw "cv2pdb was not installed at $cv2pdb." }
           $cv2pdbHome >> $env:GITHUB_PATH
+
+      - name: Record dependency provenance
+        shell: pwsh
+        run: |
+          $directory = 'output/test-results/${{ matrix.arch }}'
+          New-Item -ItemType Directory -Force $directory | Out-Null
+          $cv2pdbHome = [Environment]::GetEnvironmentVariable('CV2PDB_HOME', 'Machine')
+          $cv2pdb = Join-Path $cv2pdbHome 'cv2pdb.exe'
+          [PSCustomObject]@{
+            Architecture = '${{ matrix.arch }}'
+            RunnerImage = '${{ matrix.runner }}'
+            WpmVersion = '1.0.16'
+            TinyCcVersion = '0.9.28-rc.1442+2474e1c2'
+            TinyCcSourceRevision = 'd5c02f0fcdfdf75265d38df6ff9db2f8067367ac'
+            TinyCcSha256 = (Get-FileHash -LiteralPath $env:TINYCC -Algorithm SHA256).Hash
+            Cv2pdbVersion = '0.54.0'
+            Cv2pdbSourceRevision = '25cfecaad700550a49cd7ddbf7773254ea438d07'
+            Cv2pdbSha256 = (Get-FileHash -LiteralPath $cv2pdb -Algorithm SHA256).Hash
+            WspRevision = (git -C wsp rev-parse HEAD)
+          } | ConvertTo-Json -Depth 3 |
+            Set-Content "$directory/dependency-provenance.json" -Encoding utf8NoBOM
 
       - name: Build debug DLL and PDB
         shell: pwsh
@@ -479,7 +524,7 @@ jobs:
 
       - name: Upload debug artifacts and TeX report
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: wcrt-${{ matrix.arch }}-debug
           path: |
@@ -500,7 +545,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload verified debug build for packaging
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: wcrt-${{ matrix.arch }}-debug-build
           path: output/build/${{ matrix.arch }}/Debug/*
@@ -537,7 +582,7 @@ jobs:
     needs: build
     runs-on: windows-2025
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           fetch-depth: 0
           submodules: true
@@ -546,7 +591,7 @@ jobs:
         shell: pwsh
         run: '"WPM_DATA_DIR=$env:RUNNER_TEMP\wpm-data" >> $env:GITHUB_ENV'
 
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
         with:
           pattern: wcrt-*-debug-build
           path: downloaded-builds
@@ -567,17 +612,28 @@ jobs:
       - name: Install WPM
         shell: pwsh
         run: |
-          $installer = Join-Path $env:RUNNER_TEMP 'install-wpm.cmd'
-          Invoke-WebRequest -UseBasicParsing 'https://github.com/Thewafflication/wpm/releases/latest/download/install.cmd' -OutFile $installer
-          & $installer
+          $version = '1.0.16'
+          $archive = Join-Path $env:RUNNER_TEMP "wpm-x64-$version.zip"
+          $expected = '6553898f4e0bfbf171f601c16d314259fd28f59e7398d58a0549208b011c6544'
+          $base = 'https://github.com/Thewafflication/wpm/releases/download/1.0.16'
+          Invoke-WebRequest -UseBasicParsing "$base/wpm-x64-$version.zip" -OutFile $archive
+          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash -ne $expected) {
+            throw 'Pinned WPM archive digest mismatch.'
+          }
+          $package = Join-Path $env:RUNNER_TEMP 'wpm-package'
+          Expand-Archive -LiteralPath $archive -DestinationPath $package
+          & (Join-Path $package 'setup.cmd') (Join-Path $package 'wpm.exe')
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          (Join-Path $env:ProgramFiles 'WPM') >> $env:GITHUB_PATH
+          $wpmDirectory = Join-Path $env:ProgramFiles 'WPM'
+          $reported = (& (Join-Path $wpmDirectory 'wpm.exe') --version 2>&1) -join "`n"
+          if ($reported -notmatch 'Version 1\.0\.16') { throw "Unexpected WPM version: $reported" }
+          $wpmDirectory >> $env:GITHUB_PATH
 
       - name: Build unsigned Debug WPM package
         shell: pwsh
         run: ./tools/build-wpm-package.ps1 -Version '0.0.0' -Configuration Debug -PackageName wcrt-debug
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: wcrt-debug-any-package
           path: output/packages/wcrt-debug-any-*.zip
@@ -601,7 +657,7 @@ jobs:
           - arch: arm64
             runner: windows-11-arm
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           fetch-depth: 0
           submodules: true
@@ -613,28 +669,47 @@ jobs:
       - name: Install WPM
         shell: pwsh
         run: |
-          $installer = Join-Path $env:RUNNER_TEMP 'install-wpm.cmd'
-          Invoke-WebRequest -UseBasicParsing 'https://github.com/Thewafflication/wpm/releases/latest/download/install.cmd' -OutFile $installer
-          & $installer
+          $version = '1.0.16'
+          $archive = Join-Path $env:RUNNER_TEMP "wpm-${{ matrix.arch }}-$version.zip"
+          $expected = @{
+            x86 = 'a143aecee32afa6cee04023f299a98058820824df40a9e845327594e4902643c'
+            x64 = '6553898f4e0bfbf171f601c16d314259fd28f59e7398d58a0549208b011c6544'
+            arm64 = 'ed685fcd26a7d37d2c814146faded71377b233939730e9e8ddaabcec455962c9'
+          }['${{ matrix.arch }}']
+          $base = 'https://github.com/Thewafflication/wpm/releases/download/1.0.16'
+          Invoke-WebRequest -UseBasicParsing "$base/wpm-${{ matrix.arch }}-$version.zip" -OutFile $archive
+          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash -ne $expected) {
+            throw 'Pinned WPM archive digest mismatch.'
+          }
+          $package = Join-Path $env:RUNNER_TEMP 'wpm-package'
+          Expand-Archive -LiteralPath $archive -DestinationPath $package
+          & (Join-Path $package 'setup.cmd') (Join-Path $package 'wpm.exe')
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           $wpmDirectory = Join-Path $env:ProgramFiles 'WPM'
           if (-not (Test-Path (Join-Path $wpmDirectory 'wpm.exe'))) { throw 'WPM installation failed.' }
+          $reported = (& (Join-Path $wpmDirectory 'wpm.exe') --version 2>&1) -join "`n"
+          if ($reported -notmatch 'Version 1\.0\.16') { throw "Unexpected WPM version: $reported" }
           $wpmDirectory >> $env:GITHUB_PATH
 
       - name: Install TinyCC WPM package
         shell: pwsh
         run: |
+          $version = '0.9.28-rc.1442+2474e1c2'
+          $base = 'https://github.com/Thewafflication/tcc_package/releases/download/v0.9.28-rc.1442%2B2474e1c2'
           $key = Join-Path $env:RUNNER_TEMP 'tcc-wpm-release.public'
-          Invoke-WebRequest -UseBasicParsing 'https://github.com/Thewafflication/tcc_package/releases/latest/download/wpm-release.public' -OutFile $key
+          Invoke-WebRequest -UseBasicParsing "$base/wpm-release.public" -OutFile $key
+          if ((Get-FileHash -LiteralPath $key -Algorithm SHA256).Hash -ne 'e141a5f383b8d2e7096080beb2920b37a007de727d1c8ff47a520453460f23a6') {
+            throw 'Pinned TinyCC release-key digest mismatch.'
+          }
           wpm trust add $key
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          wpm repo add 'https://github.com/Thewafflication/tcc_package/releases/latest/download'
+          wpm repo add $base
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           wpm config set prerelease true --package tinycc
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           wpm update
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          wpm install tinycc --arch '${{ matrix.arch }}'
+          wpm install tinycc --arch '${{ matrix.arch }}' --version $version
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           $tccHome = [Environment]::GetEnvironmentVariable('TCC_HOME', 'Machine')
           $tcc = Join-Path $tccHome 'tcc.exe'
@@ -708,7 +783,7 @@ jobs:
         shell: pwsh
         run: throw 'Release startup-object verification failed. See the job summary.'
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: wcrt-${{ matrix.arch }}-release-build
           path: output/build/${{ matrix.arch }}/Release/*
@@ -717,7 +792,7 @@ jobs:
 
       - name: Upload release Windows 2000 x86 import evidence
         if: matrix.arch == 'x86'
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: wcrt-x86-release-import-evidence
           path: output/test-results/x86/windows-2000-imports.json
@@ -732,7 +807,7 @@ jobs:
     env:
       WPM_PRIVATE_KEY: ${{ secrets.WPM_RELEASE_PRIVATE_KEY }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           fetch-depth: 0
           submodules: true
@@ -741,7 +816,7 @@ jobs:
         shell: pwsh
         run: '"WPM_DATA_DIR=$env:RUNNER_TEMP\wpm-data" >> $env:GITHUB_ENV'
 
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
         with:
           pattern: wcrt-*-release-build
           path: downloaded-builds
@@ -762,11 +837,22 @@ jobs:
       - name: Install WPM
         shell: pwsh
         run: |
-          $installer = Join-Path $env:RUNNER_TEMP 'install-wpm.cmd'
-          Invoke-WebRequest -UseBasicParsing 'https://github.com/Thewafflication/wpm/releases/latest/download/install.cmd' -OutFile $installer
-          & $installer
+          $version = '1.0.16'
+          $archive = Join-Path $env:RUNNER_TEMP "wpm-x64-$version.zip"
+          $expected = '6553898f4e0bfbf171f601c16d314259fd28f59e7398d58a0549208b011c6544'
+          $base = 'https://github.com/Thewafflication/wpm/releases/download/1.0.16'
+          Invoke-WebRequest -UseBasicParsing "$base/wpm-x64-$version.zip" -OutFile $archive
+          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash -ne $expected) {
+            throw 'Pinned WPM archive digest mismatch.'
+          }
+          $package = Join-Path $env:RUNNER_TEMP 'wpm-package'
+          Expand-Archive -LiteralPath $archive -DestinationPath $package
+          & (Join-Path $package 'setup.cmd') (Join-Path $package 'wpm.exe')
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          (Join-Path $env:ProgramFiles 'WPM') >> $env:GITHUB_PATH
+          $wpmDirectory = Join-Path $env:ProgramFiles 'WPM'
+          $reported = (& (Join-Path $wpmDirectory 'wpm.exe') --version 2>&1) -join "`n"
+          if ($reported -notmatch 'Version 1\.0\.16') { throw "Unexpected WPM version: $reported" }
+          $wpmDirectory >> $env:GITHUB_PATH
 
       - name: Build and verify signed WPM package
         shell: pwsh
@@ -786,7 +872,7 @@ jobs:
             Remove-Item $keyPath -Force -ErrorAction SilentlyContinue
           }
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: wcrt-any-release
           path: output/packages/wcrt-any-*.zip
@@ -801,11 +887,11 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           submodules: true
 
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
         with:
           pattern: wcrt-any-release
           path: release-assets
