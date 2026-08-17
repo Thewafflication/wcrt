@@ -13,6 +13,9 @@ param(
 $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path -Parent $PSScriptRoot
 . (Join-Path $repoRoot 'tests\test-logging.ps1')
+. (Join-Path $repoRoot 'tests\native-test-diagnostics.ps1')
+$diagnosticTinyCc = Get-WcrtDiagnosticTinyCc -TinyCc $TinyCc `
+    -RepositoryRoot $repoRoot
 $outputDirectory = Join-Path $repoRoot "$OutputRoot/$Architecture"
 $texPath = Join-Path $outputDirectory 'c89-test-results.tex'
 $jsonPath = Join-Path $outputDirectory 'c89-test-results.json'
@@ -31,14 +34,18 @@ function Invoke-TestCase {
     $runner = Join-Path $repoRoot "tests/c89/run-tc-$Id.ps1"
     Write-WspInfo "Running TC-$Id ($Description) on $Architecture."
     $started = Get-Date
-    $status = 'Pass'
-    $details = ''
-    try {
-        $result = & $runner -TinyCc $TinyCc
+    $invocation = Invoke-WcrtTestRunnerWithDiagnostics `
+        -TestCase "TC-$Id" -Suite 'C89' -Architecture $Architecture `
+        -RepositoryRoot $repoRoot -Runner $runner -TinyCc $diagnosticTinyCc
+    if ($invocation.Succeeded) {
+        $status = 'Pass'
+        $result = @($invocation.RunnerOutput)
         $details = ($result | Format-List | Out-String).Trim()
-    } catch {
+        $diagnostics = $null
+    } else {
         $status = 'Fail'
-        $details = $_.Exception.Message
+        $details = $invocation.FailureReport
+        $diagnostics = $invocation.Diagnostics
     }
     Write-WcrtTestResult -Status $status `
         -Message "TC-$Id ($Description) on $Architecture."
@@ -49,6 +56,7 @@ function Invoke-TestCase {
         Started = $started.ToString('o')
         Finished = (Get-Date).ToString('o')
         Details = $details
+        Diagnostics = $diagnostics
     }
 }
 

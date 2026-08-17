@@ -11,6 +11,9 @@ param(
 $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path -Parent $PSScriptRoot
 . (Join-Path $repoRoot 'tests\test-logging.ps1')
+. (Join-Path $repoRoot 'tests\native-test-diagnostics.ps1')
+$diagnosticTinyCc = Get-WcrtDiagnosticTinyCc -TinyCc $TinyCc `
+    -RepositoryRoot $repoRoot
 $outputDirectory = Join-Path $repoRoot `
     "output\test-results\$Architecture"
 $tests = @(
@@ -115,35 +118,53 @@ if ($inventoryDifference.Count -ne 0) {
 
 $results = foreach ($test in $tests) {
     Write-WspInfo "Running $($test[0]) ($($test[3])) on $Architecture."
-    try {
-        $testOutput = @(& (Join-Path $repoRoot $test[4]) -TinyCc $TinyCc)
-        $reported = @($testOutput | Where-Object {
-            $_ -is [PSCustomObject] -and $_.PSObject.Properties['Status']
-        } | Select-Object -Last 1)
-        $reportedStatus = if ($reported.Count -eq 1) {
-            [string]$reported[0].Status
-        } else { 'Pass' }
-        if ($reportedStatus -notin 'Pass', 'ExpectedFail') {
-            throw "$($test[0]) runner reported $reportedStatus."
+    $invocation = Invoke-WcrtTestRunnerWithDiagnostics `
+        -TestCase $test[0] -Suite $test[2] -Architecture $Architecture `
+        -RepositoryRoot $repoRoot -Runner (Join-Path $repoRoot $test[4]) `
+        -TinyCc $diagnosticTinyCc
+    if ($invocation.Succeeded) {
+        try {
+            $testOutput = @($invocation.RunnerOutput)
+            $reported = @($testOutput | Where-Object {
+                $_ -is [PSCustomObject] -and $_.PSObject.Properties['Status']
+            } | Select-Object -Last 1)
+            $reportedStatus = if ($reported.Count -eq 1) {
+                [string]$reported[0].Status
+            } else { 'Pass' }
+            if ($reportedStatus -notin 'Pass', 'ExpectedFail') {
+                throw "$($test[0]) runner reported $reportedStatus."
+            }
+            $result = [PSCustomObject]@{
+                TestCase = $test[0]
+                Requirement = $test[1]
+                Suite = $test[2]
+                Description = $test[3]
+                Status = $reportedStatus
+                Output = if ($reportedStatus -eq 'ExpectedFail') {
+                    [string]$reported[0].Output
+                } else { '' }
+                Diagnostics = $null
+            }
+        } catch {
+            $result = [PSCustomObject]@{
+                TestCase = $test[0]
+                Requirement = $test[1]
+                Suite = $test[2]
+                Description = $test[3]
+                Status = 'Fail'
+                Output = $_.Exception.Message
+                Diagnostics = $null
+            }
         }
-        $result = [PSCustomObject]@{
-            TestCase = $test[0]
-            Requirement = $test[1]
-            Suite = $test[2]
-            Description = $test[3]
-            Status = $reportedStatus
-            Output = if ($reportedStatus -eq 'ExpectedFail') {
-                [string]$reported[0].Output
-            } else { '' }
-        }
-    } catch {
+    } else {
         $result = [PSCustomObject]@{
             TestCase = $test[0]
             Requirement = $test[1]
             Suite = $test[2]
             Description = $test[3]
             Status = 'Fail'
-            Output = $_.Exception.Message
+            Output = $invocation.FailureReport
+            Diagnostics = $invocation.Diagnostics
         }
     }
     Write-WcrtTestResult -Status $result.Status `

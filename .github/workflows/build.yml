@@ -193,6 +193,12 @@ jobs:
           } | ConvertTo-Json -Depth 3 |
             Set-Content "$directory/dependency-provenance.json" -Encoding utf8NoBOM
 
+      - name: Verify automatic native failure diagnostics
+        id: native_diagnostics
+        continue-on-error: true
+        shell: pwsh
+        run: ./tests/verify-native-test-diagnostics.ps1 -Architecture '${{ matrix.arch }}' -TinyCc $env:TINYCC
+
       - name: Build debug DLL and PDB
         shell: pwsh
         run: ./tools/build-wcrt.ps1 -Architecture '${{ matrix.arch }}' -Configuration Debug -TinyCc $env:TINYCC
@@ -471,6 +477,26 @@ jobs:
           }
           Close-TestSuite
 
+          $diagnosticJson = "$directory/native-test-diagnostics.json"
+          $nativeDiagnostics = if (Test-Path $diagnosticJson) {
+            Get-Content $diagnosticJson -Raw | ConvertFrom-Json
+          } else { $null }
+          $diagnosticRows = if ($null -eq $nativeDiagnostics) { @() } else {
+            @([PSCustomObject]@{ Status = $nativeDiagnostics.Status })
+          }
+          Open-TestSuite 'Native crash diagnostics' $diagnosticRows
+          @(
+            '| Built-in backtrace | GDB | Result |'
+            '| --- | --- | --- |'
+          ) | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+          if ($null -ne $nativeDiagnostics) {
+            $status = $nativeDiagnostics.Status.ToUpperInvariant()
+            $indicator = if ($status -eq 'PASS') { '🟢' } else { '🔴' }
+            "| $($nativeDiagnostics.BuiltInBacktrace) | $($nativeDiagnostics.DebuggerStatus) | $indicator **$status** |" |
+              Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+          }
+          Close-TestSuite
+
           if ('${{ matrix.arch }}' -eq 'x86') {
             $importJson = "$directory/windows-2000-imports.json"
             $importResult = if (Test-Path $importJson) {
@@ -542,6 +568,8 @@ jobs:
             output/test-results/${{ matrix.arch }}/tinycc-c99-capabilities.json
             output/test-results/${{ matrix.arch }}/windows-2000-imports.json
             output/test-results/${{ matrix.arch }}/startup-test-results.json
+            output/test-results/${{ matrix.arch }}/native-test-diagnostics.json
+            output/test-results/${{ matrix.arch }}/diagnostics/
           if-no-files-found: error
 
       - name: Upload verified debug build for packaging
@@ -556,6 +584,11 @@ jobs:
         if: steps.c89.outcome != 'success'
         shell: pwsh
         run: throw 'C89 verification failed. See the job summary.'
+
+      - name: Enforce native failure diagnostics
+        if: steps.native_diagnostics.outcome != 'success'
+        shell: pwsh
+        run: throw 'Native failure-diagnostic verification failed. See the job summary.'
 
       - name: Enforce Windows startup result
         if: steps.startup.outcome != 'success'

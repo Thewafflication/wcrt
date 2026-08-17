@@ -29,7 +29,11 @@ if (-not $TinyCc -or -not (Test-Path -LiteralPath $TinyCc)) {
 
 New-Item -ItemType Directory -Force -Path $buildDirectory | Out-Null
 
-$tinyCcInclude = Join-Path (Split-Path -Parent $TinyCc) 'include'
+$tinyCcInstallation = if ($TinyCc -like '*tcc-diagnostic-wrapper.cmd' -and
+    $env:WCRT_TEST_TINYCC) {
+    $env:WCRT_TEST_TINYCC
+} else { $TinyCc }
+$tinyCcInclude = Join-Path (Split-Path -Parent $tinyCcInstallation) 'include'
 $tinyCcDefinitions = Join-Path $tinyCcInclude 'tccdefs.h'
 if (-not (Test-Path -LiteralPath $tinyCcDefinitions)) {
     throw "TinyCC intrinsic header not found: $tinyCcDefinitions"

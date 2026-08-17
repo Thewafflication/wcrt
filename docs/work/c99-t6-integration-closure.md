@@ -423,6 +423,12 @@ command wall time, commit timestamps, or CI duration.
 | T6-D021 | documentation/process | WSP adoption dispositions at candidate review | high | WCRT maintainer | Pre-candidate WSP adoption | R1 readiness consistency review | -- | `docs/WSP-ADOPTION.md`, `docs/security/design-for-security.md`, readiness record | Removed: the adoption record still described release readiness, DFS scope/trust/threat controls, and trust-layer separation as future work after the project-owned records existed. Those requirements now point to the implemented records; genuinely incomplete derived-security, signing, PDF, response, and evidence-retention controls remain Deferred. The DFS verification table now states the exact candidate Pass/Fail/Unknown boundaries. |
 | T6-D022 | test/evidence | GitHub Actions run `32020177550` at `80c88d1b0b2585734edb2451f560bbf4ae282b39` | high | WCRT maintainer | T4/T5 vector reproducibility checks | Post-push exact-revision CI | -- | `tests/c99/Verify-FmaVectors.ps1`, `tests/c99/Verify-ComplexVectors.ps1`, retained run artifacts | Removed: all three native architecture jobs reported TC-0035 and TC-0037 Fail because GitHub's Windows checkout converted controlled JSON to CRLF while Python emitted LF and the validators compared raw text. Product behavior was not reached by those subchecks. Both validators now canonicalize CRLF, CR, and LF before exact content comparison; semantic content remains unchanged. Rerun the complete workflow at the correction revision. |
 | T6-D023 | implementation/compiler ABI | GitHub Actions run `32020695485` at `c75b259cfdabadee1e2ab6de5cdaa6dbe03c65c2` | critical | WCRT maintainer | T5 complex implementation or selected ARM64 compiler ABI | Native ARM64 exact-revision CI | -- | Native ARM64 TC-0037 result artifact and job `95359866116` | Open T6 blocker: after T6-D022 was removed, x86/x64 passed the full matrix and native ARM64 passed C89, build, consumers, startup, TC-0035, TC-0036, TC-0038, TC-0040--0042, and every other C99/compatibility case, but TC-0037 terminated with access violation `0xC0000005` (`-1073741819`). Do not classify ARM64 complex behavior or the aggregate as Pass. Isolate the crashing complex operation and distinguish WCRT implementation memory corruption from TinyCC ARM64 complex calling-convention failure before correction or compiler-blocked disposition. |
+| T6-D024 | test/evidence | Native test failure handling through `145dac64136ba5881f43cdce27634aa9bff8d02d` | high | WCRT maintainer | Earlier aggregate test implementation | T6 corrective implementation | -- | native diagnostic helper, TinyCC wrapper, diagnostic self-test, architecture artifacts | Removed locally; exact-CI verification pending: ordinary C89/C99/compatibility executables now link with TinyCC `-g -bt30`, and runner exceptions retain captured output, transcript, executable digest, and a bounded GDB rerun when available. The self-test deliberately faults and requires `crash_probe` and `main` in TinyCC's original-crash trace; local GDB 17.1 independently reports `SIGSEGV`, `#0 crash_probe`, and `#1 main`. GDB absence or failure has an explicit non-Pass status. Custom `-nostdlib` startup links remain excluded because injecting TinyCC's backtrace runtime would change the runtime under test. |
+
+Local GDB uses the approved MinGW-w64 16.1.0 archive with SHA-256
+`ecaceb42639d21c695f875800a29b2dea76bbb05eb2a1cca3049b65499b8d867` in the
+ignored project tool cache. It is diagnostic support, not a release input. The
+self-test evidence records each actual GDB version and executable digest.
 
 Fix effort is unknown and shall be recorded when each defect is diagnosed and
 removed. Planning findings are not silently converted into implementation.
@@ -450,12 +456,11 @@ removed. Planning findings are not silently converted into implementation.
 
 ## Actuals and Postmortem
 
-The candidate implementation, readiness draft, exact-CI correction, and
-retained native ARM64 finding span 66 controlled artifacts, 4,662 changed
-lines, and four conformance units. The artifact count is four above the
-38--62 forecast; changed lines are 138
-below the 4,800--9,600
-forecast. The variance comes from adding project DFS/release
+The candidate implementation, readiness draft, exact-CI corrections, retained
+native ARM64 finding, and failure diagnostics span 71 controlled artifacts,
+5,250 changed lines, and four conformance units. The artifact count is nine
+above the 38--62 forecast; changed lines are within the 4,800--9,600 forecast
+and 450 above its lower bound. The variance comes from adding project DFS/release
 controls and machine-readable evidence while reusing compact audit runners and
 the existing aggregate infrastructure. The source candidate itself at
 `3fa0b1a3` contains 61 changed artifacts, 3,854 additions, and 295 removals
@@ -467,7 +472,7 @@ as effort. The planned 174--322 focused-hour base and 218--451-hour completion
 forecast therefore cannot be scored for time accuracy or converted into a
 calendar schedule.
 
-Twenty-three findings were recorded. Twenty requirement, interface, numeric,
+Twenty-four findings were recorded. Twenty-one requirement, interface, numeric,
 test, dependency, documentation, and procedure findings were removed or
 explicitly disposed during personal review. T6-D016 remains a critical R1
 blocker because Authenticode/timestamp and final-byte Defender controls are not

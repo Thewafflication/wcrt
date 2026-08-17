@@ -11,7 +11,11 @@ param(
 $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 $tinyCcPath = (Resolve-Path -LiteralPath $TinyCc).Path
-$tinyCcInclude = Join-Path (Split-Path -Parent $tinyCcPath) 'include'
+$tinyCcInstallation = if ($tinyCcPath -like '*tcc-diagnostic-wrapper.cmd' -and
+    $env:WCRT_TEST_TINYCC) {
+    (Resolve-Path -LiteralPath $env:WCRT_TEST_TINYCC).Path
+} else { $tinyCcPath }
+$tinyCcInclude = Join-Path (Split-Path -Parent $tinyCcInstallation) 'include'
 $buildDirectory = Join-Path $repoRoot `
     "build/tests/c99/header-matrix/$Architecture"
 New-Item -ItemType Directory -Force $buildDirectory | Out-Null

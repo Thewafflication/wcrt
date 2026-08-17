@@ -52,6 +52,24 @@ runners receive the target architecture and compiler path explicitly. Outputs
 are isolated below `output/` and build intermediates below `build/` or `tmp/`;
 runners shall not reuse prior-run results as current evidence.
 
+The C89, C99, and Microsoft-compatibility aggregates route ordinary TinyCC
+test-executable links through `tests/tcc-diagnostic-wrapper.cmd`. The wrapper
+adds `-g -bt30`, so a hardware exception emits TinyCC's source-level backtrace
+at the original failure. Compile-only, shared-library, relocatable, archive,
+`-run`, import-definition, and custom `-nostdlib` links are not changed.
+`tests/verify-native-test-diagnostics.ps1` deliberately faults a probe on each
+architecture and requires the in-process trace to identify both the crashing
+function and its caller.
+
+After a runner exception, the aggregate retains emitted output and the
+executable, records its SHA-256 digest, and attempts a 30-second batch GDB
+rerun when GDB is available. The GDB result is independently classified as
+Completed, NoBacktrace, TimedOut, Failed, or Unavailable. cv2pdb remains the
+converter used for the WCRT DLL PDB; it is not required for TinyCC's embedded
+test trace or GDB's reading of the test executable. Logical failures that do
+not raise an exception retain their test diagnostics but may have no native
+stack to report.
+
 ## Identifiers and Locations
 
 - Requirements use `REQ-NNNN` and reside in `docs/req-NNNN-*.md`.
@@ -87,6 +105,13 @@ Architecture jobs retain JSON results, TeX test tables, binaries, symbols,
 headers, and build artifacts in GitHub Actions. Job summaries expose the final
 status of each test case. Project report tools can combine controlled
 specifications and execution results into the C89 report.
+
+Failure artifacts below `output/test-results/<architecture>/diagnostics/`
+retain the test transcript, captured process output, exact executable and
+digest, GDB output and status, and a machine-readable diagnostic record. The
+native diagnostic self-test record is retained even when all product tests
+pass. A missing debugger is Unavailable, not evidence that the GDB rerun
+passed; the separately verified TinyCC in-process trace remains available.
 
 The controlled C99 aggregate rejects drift between its inventory and
 `tests/c99/manifest.md`. Per-target capability/data-model evidence is retained
