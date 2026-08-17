@@ -40,7 +40,8 @@ $tests = @(
     @{ Id = '0006'; Name = 'locale'; Sources = @(
         'src\ctype.c', 'src\locale.c', 'tests\c89\locale.c') },
     @{ Id = '0007'; Name = 'math'; Sources = @(
-        'src\errno.c', 'src\math.c', 'tests\c89\math.c') },
+        'src\errno.c', 'src\fenv.c', 'src\math.c',
+        'tests\c89\math.c') },
     @{ Id = '0008'; Name = 'setjmp'; Sources = @(
         'src\setjmp.c', 'src\platform\windows\setjmp.S',
         'tests\c89\setjmp.c') },
