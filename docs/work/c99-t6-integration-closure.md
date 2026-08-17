@@ -422,6 +422,7 @@ command wall time, commit timestamps, or CI duration.
 | T6-D020 | test | TC-0041 profile validator | high | WCRT maintainer | T6 test implementation | T6 verification | -- | `tests/c99/Verify-C99ConformanceProfile.ps1`, REQ/TC-0041 | Removed: the controlled requirement permits approved `ExpectedFail`, but the validator rejected that state. The vocabulary now permits it only for compiler-blocked rows and prohibits compiler-blocked Pass; TC-0041 passes with 25 clauses, 24 headers, and 75 facility rows. |
 | T6-D021 | documentation/process | WSP adoption dispositions at candidate review | high | WCRT maintainer | Pre-candidate WSP adoption | R1 readiness consistency review | -- | `docs/WSP-ADOPTION.md`, `docs/security/design-for-security.md`, readiness record | Removed: the adoption record still described release readiness, DFS scope/trust/threat controls, and trust-layer separation as future work after the project-owned records existed. Those requirements now point to the implemented records; genuinely incomplete derived-security, signing, PDF, response, and evidence-retention controls remain Deferred. The DFS verification table now states the exact candidate Pass/Fail/Unknown boundaries. |
 | T6-D022 | test/evidence | GitHub Actions run `32020177550` at `80c88d1b0b2585734edb2451f560bbf4ae282b39` | high | WCRT maintainer | T4/T5 vector reproducibility checks | Post-push exact-revision CI | -- | `tests/c99/Verify-FmaVectors.ps1`, `tests/c99/Verify-ComplexVectors.ps1`, retained run artifacts | Removed: all three native architecture jobs reported TC-0035 and TC-0037 Fail because GitHub's Windows checkout converted controlled JSON to CRLF while Python emitted LF and the validators compared raw text. Product behavior was not reached by those subchecks. Both validators now canonicalize CRLF, CR, and LF before exact content comparison; semantic content remains unchanged. Rerun the complete workflow at the correction revision. |
+| T6-D023 | implementation/compiler ABI | GitHub Actions run `32020695485` at `c75b259cfdabadee1e2ab6de5cdaa6dbe03c65c2` | critical | WCRT maintainer | T5 complex implementation or selected ARM64 compiler ABI | Native ARM64 exact-revision CI | -- | Native ARM64 TC-0037 result artifact and job `95359866116` | Open T6 blocker: after T6-D022 was removed, x86/x64 passed the full matrix and native ARM64 passed C89, build, consumers, startup, TC-0035, TC-0036, TC-0038, TC-0040--0042, and every other C99/compatibility case, but TC-0037 terminated with access violation `0xC0000005` (`-1073741819`). Do not classify ARM64 complex behavior or the aggregate as Pass. Isolate the crashing complex operation and distinguish WCRT implementation memory corruption from TinyCC ARM64 complex calling-convention failure before correction or compiler-blocked disposition. |
 
 Fix effort is unknown and shall be recorded when each defect is diagnosed and
 removed. Planning findings are not silently converted into implementation.
@@ -444,14 +445,15 @@ removed. Planning findings are not silently converted into implementation.
       x86/x64 plus ARM64 compile/link verification passes.
 - [x] Actual size, local verification, personal review, defects, and the local
       postmortem are recorded without inferred effort.
-- [ ] Native ARM64, exact-revision CI, and independent project review are
-      complete.
+- [ ] Native ARM64 correction, passing exact-revision CI, and independent
+      project review are complete.
 
 ## Actuals and Postmortem
 
-The candidate implementation, readiness draft, and first exact-CI correction
-span 66 controlled artifacts, 4,655 changed lines, and four conformance units.
-The artifact count is four above the 38--62 forecast; changed lines are 145
+The candidate implementation, readiness draft, exact-CI correction, and
+retained native ARM64 finding span 66 controlled artifacts, 4,662 changed
+lines, and four conformance units. The artifact count is four above the
+38--62 forecast; changed lines are 138
 below the 4,800--9,600
 forecast. The variance comes from adding project DFS/release
 controls and machine-readable evidence while reusing compact audit runners and
@@ -465,14 +467,14 @@ as effort. The planned 174--322 focused-hour base and 218--451-hour completion
 forecast therefore cannot be scored for time accuracy or converted into a
 calendar schedule.
 
-Twenty-two findings were recorded. Twenty requirement, interface, numeric,
+Twenty-three findings were recorded. Twenty requirement, interface, numeric,
 test, dependency, documentation, and procedure findings were removed or
 explicitly disposed during personal review. T6-D016 remains a critical R1
 blocker because Authenticode/timestamp and final-byte Defender controls are not
 implemented. T6-D019 remains non-gating cleanup because unused bootstrap
-helpers describe dependencies WCRT does not contain. Native ARM64 and
-independent-review gaps are completion conditions rather than silently closed
-defects.
+helpers describe dependencies WCRT does not contain. T6-D023 is an open
+critical native ARM64 complex-runtime fault. Independent-review gaps remain
+completion conditions rather than silently closed defects.
 
 The quality plan found one candidate-blocking issue after the first freeze:
 ARM64 TC-0007 omitted the new `fenv.c` dependency. Retaining the failure,
@@ -482,10 +484,11 @@ tranche should run all cross-build inventories before naming the first
 candidate and should reject dependency helpers whose declared paths do not
 exist.
 
-The terminal local T6 decision is **Reject/No-Go**. Native x86/x64 tests,
-ARM64 compile/link, builds, consumers, header/ABI compile checks, source
-quality, traceability, Windows 2000 imports, and package structure pass within
-their stated scopes. Native ARM64 required behavior and exact-revision CI are
-Unknown, and independent project review is absent. The separate R1 readiness
-record adds signing, WPM verification, final-byte Defender, documentation, and
+The terminal T6 decision is **Reject/No-Go**. Native x86/x64 tests and native
+ARM64 C89, build, consumer, startup, header/ABI, and all but TC-0037 extension
+results pass at `c75b259`; native ARM64 TC-0037 fails with access violation
+`0xC0000005`. Source quality, traceability, and Windows 2000 x86 imports pass.
+Package construction was correctly blocked by the failed architecture job,
+and independent project review is absent. The separate R1 readiness record
+adds signing, WPM verification, final-byte Defender, documentation, and
 installation/rollback blockers. No release approval is implied.
