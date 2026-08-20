@@ -473,6 +473,13 @@ and `git diff --check`. It does not generate tagged Release evidence. This
 post-candidate process correction is not included in the 79-artifact/5,729-line
 size measured at `aea690d2`.
 
+GitHub Actions run `32334013469` at
+`b5cbd22ef5644ca24692bede032f17f0b206a546` then passes source quality, native
+x86/x64/ARM64 Debug builds and complete test matrices, and multi-architecture
+Debug package assembly. The tag-only optimized Release, signed-package, and
+publication jobs are skipped, so this run verifies the committed-candidate
+boundary without being misrepresented as Release evidence.
+
 Local GDB uses the approved MinGW-w64 16.1.0 archive with SHA-256
 `ecaceb42639d21c695f875800a29b2dea76bbb05eb2a1cca3049b65499b8d867` in the
 ignored project tool cache. It is diagnostic support, not a release input. The
