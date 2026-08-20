@@ -491,10 +491,15 @@ TC-0016's 182 files with zero violations, PowerShell parsing, JSON parsing, and
 `Jordan Waughtal`; both target consumer and startup suites pass, and x86 still
 has 27 allowed Windows 2000 imports with none unexpected. Fail-closed negative
 tests reject all three unsigned DLLs and the unsigned package and retain the
-findings. This is source/design evidence only: no Azure identity/profile or
-GitHub OIDC configuration was available, no Authenticode or WPM private-key
-operation ran, the changed ARM64 resource was not rebuilt natively, and no
-actual signature, timestamp, tagged package, or zero-exit WPM result is claimed.
+findings. Exact-revision GitHub Actions run `32337055333` at
+`3637a71b95c5b5cf9398b1813ba2577d8ea8d62e` then passes source quality, native
+x86/x64/ARM64 Debug builds and full matrices (including the changed ARM64
+version resource), and Debug package assembly. Its tag-only Release, sign,
+package, and publish jobs are skipped. This is source/design evidence only: no
+Azure identity/profile or GitHub OIDC configuration was available, no
+Authenticode or WPM private-key operation ran, ARM64 Release remains unrun, and
+no actual signature, timestamp, tagged package, or zero-exit WPM result is
+claimed.
 
 Local GDB uses the approved MinGW-w64 16.1.0 archive with SHA-256
 `ecaceb42639d21c695f875800a29b2dea76bbb05eb2a1cca3049b65499b8d867` in the

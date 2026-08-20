@@ -2,8 +2,15 @@
   "recordedAt": "2026-08-20",
   "status": "Prepared; external identity provisioning and exercised release evidence are Unknown",
   "sourceBaseline": {
-    "selector": "the reviewed Git commit containing this record",
-    "exactRevision": "Unknown until the signing change is committed; the tag run must record github.sha"
+    "signingImplementationRevision": "3637a71b95c5b5cf9398b1813ba2577d8ea8d62e",
+    "releaseCandidateRevision": "Unknown until a final candidate is approved; the tag run must record github.sha"
+  },
+  "debugCiValidation": {
+    "runId": 32337055333,
+    "runUrl": "https://github.com/Thewafflication/wcrt/actions/runs/32337055333",
+    "revision": "3637a71b95c5b5cf9398b1813ba2577d8ea8d62e",
+    "result": "Pass for source quality, native x86/x64/ARM64 Debug matrices, and Debug package assembly",
+    "releaseSignPackagePublish": "Skipped because the revision was pushed as a branch rather than a tag; no trust result is inferred"
   },
   "authenticode": {
     "logicalPublisher": "Jordan Waughtal",

@@ -61,6 +61,7 @@ release creation, artifact upload, or publication is part of this candidate.
 | Installation, rollback, and recovery | `docs/release-process.md` | Unknown | Procedure exists; clean-system install/remove/rollback was not authorized or executed |
 | Support and communication | `docs/release-process.md`; DFS | Pass | GitHub issue/security-advisory intake and 1.x support boundary are documented; no response-time promise |
 | Exact-revision CI | run `32027269426`; retained artifacts | Pass | Source quality, x86, x64, ARM64, and package jobs concluded success at the candidate source |
+| Signing-control exact-revision CI | run `32337055333` at `3637a71b95c5b5cf9398b1813ba2577d8ea8d62e` | Pass | Workflow parsed; source quality, native x86/x64/ARM64 Debug matrices, and Debug package assembly passed. Tag-only Release/sign/package/publish jobs skipped, so Authenticode and WPM remain Unknown |
 
 ## Artifacts
 
