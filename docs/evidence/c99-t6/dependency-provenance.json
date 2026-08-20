@@ -87,7 +87,7 @@
     }
   },
   "limitations": [
-    "Native ARM64 Release execution is not present; the exact-revision native CI evidence is Debug.",
+    "The tagged optimized Release matrix is not present and remains an R1 prepublication Unknown; the exact-revision native conformance CI evidence is Debug.",
     "The ARM64 runner GDB cannot read the ARM64 PE image, so independent GDB backtraces are UnsupportedTarget rather than Pass.",
     "The two legacy tests/check-dependency-releases.ps1 inventory entries for absent miniz and libsodium directories are stale, non-gating bootstrap artifacts."
   ]

@@ -3,7 +3,8 @@
 **Content type:** Project requirement
 
 **Status:** Corrective implementation verified on exact-revision native
-x86/x64/ARM64 Debug; native ARM64 Release and independent review remain open
+x86/x64/ARM64 Debug; independent review remains open; tagged Release smoke is
+an R1 gate
 
 **Source:** ISO/IEC 9899:1999 as corrected through TC3, §7.3
 
@@ -104,5 +105,5 @@ scalar helpers. `libwcrt.a` contains the bridge; DLL consumers link
 functions still resolve from `wcrt.dll`. Exact-revision run `32027269426`
 passes TC-0037 and static/DLL consumers natively on x86, x64, and ARM64 and
 retains the ARM64 companion in the named architecture artifact. Local Release
-x86/x64 behavior and ARM64 compile/link pass; native ARM64 Release and
-independent review remain open.
+x86/x64 behavior and ARM64 compile/link pass. Independent review remains open;
+tagged optimized Release smoke is a separate R1 prepublication gate.

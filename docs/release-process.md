@@ -10,7 +10,8 @@ approval pending
 A WCRT release is identified by a semantic version, a full Git source
 revision, the pinned WSP gitlink, exact build dependencies, and the SHA-256 of
 every distributed artifact. A release-candidate version uses
-`1.0.0-rc.<number>`. Candidate preparation does not create a tag or external
+`1.0.0-rc.<number>`. Candidate preparation may commit the exact source revision
+before tagged Release evidence exists; it does not create a tag or external
 release.
 
 The 1.0.0 artifact set is one `wcrt-any-<package-version>.zip` WPM package
@@ -22,11 +23,18 @@ digest are not approved artifacts.
 
 ## Build and Trust Order
 
-1. Freeze a clean source revision and pinned dependency baseline.
-2. Build Debug verification outputs and Release x86/x64/ARM64 outputs.
-3. Run all controlled tests, consumers, startup, ABI, source-quality,
-   traceability, import, and evidence checks on the exact baseline.
-4. Finalize PE version resources and manifests.
+1. Freeze and commit a clean source revision and pinned dependency baseline.
+2. Build Debug verification outputs and run the complete controlled C89, C99,
+   compatibility, consumer, startup, ABI, source-quality, traceability, import,
+   package-assembly, and evidence matrix on x86, x64, and ARM64.
+3. Finalize PE version resources, manifests, documentation, and the proposed
+   release-readiness record at that committed candidate revision.
+4. After all other prepublication blockers are closed and separate tag/
+   publication authority is granted, push the semantic-version tag. The tag
+   starts optimized Release builds and native library-consumer/startup smoke
+   tests on x86, x64, and ARM64 and repeats the x86 legacy-import check. The
+   full behavior inventory is not duplicated because each Release job depends
+   on the successful exact-source Debug matrix.
 5. Authenticode-sign every distributed `wcrt.dll` with the approved publisher
    identity and an RFC 3161 SHA-256 timestamp. Verify the signature and trust
    chain independently.
@@ -38,14 +46,17 @@ digest are not approved artifacts.
    `release_keys/wpm-release.public`.
 8. Hash the final package and release documents, validate their identities,
    and approve the exact set in the release-readiness record.
-9. Only after separate explicit authorization, create the tag, push, create the
-   release, and upload the approved bytes.
+9. Permit the downstream publication job to create the GitHub Release and
+   upload only after every Release architecture and signed-package verification
+   succeeds and the exact set is approved.
 
-The repository workflow currently builds and WPM-signs tagged artifacts but
-does not provide an approved Authenticode identity/timestamp stage or retained
-Defender gate. Until those controls are implemented and exercised, the 1.0.0
-release decision is Reject. An unsigned local candidate is preparation
-evidence only.
+The repository workflow already orders `build` -> `release` -> `package` ->
+`publish`, so a failed or cancelled architecture or package job prevents
+publication. It currently builds and WPM-signs tagged artifacts but does not
+provide an approved Authenticode identity/timestamp stage, retained Defender
+gate, or a post-artifact approval checkpoint. Until those controls are
+implemented and exercised, the 1.0.0 release decision is Reject and no tag may
+be pushed. An unsigned local candidate is preparation evidence only.
 
 ## Verification Commands
 

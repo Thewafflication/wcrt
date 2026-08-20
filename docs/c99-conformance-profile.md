@@ -105,12 +105,13 @@ the unsigned release candidate or erase a compiler-blocked ExpectedFail.
 ## Blocking summary
 
 - Exact-revision native x86/x64/ARM64 Debug behavior, ABI, consumers, and
-  startup results pass in run `32027269426`. Native ARM64 Release execution is
-  still Unknown and is not inferred from the Debug or local compile/link result.
+  startup results pass in run `32027269426`. The tagged optimized Release
+  matrix is still an R1 Unknown and is not inferred from the Debug or local
+  compile/link result.
 - F-010, F-017, and F-037 are compiler-blocked ExpectedFail results for the
   selected TinyCC package; they are not Pass.
 - F-055 is omitted recommended practice. The retained decimal counterexample
   prevents a universal correct-rounding claim.
-- Release readiness is Reject while independent review, native ARM64 Release,
-  signing/timestamp, final-byte Defender, WPM signature verification, and
-  installation/rollback gates are incomplete.
+- Release readiness is Reject while independent review, the tagged optimized
+  Release matrix, signing/timestamp, final-byte Defender, WPM signature
+  verification, and installation/rollback gates are incomplete.

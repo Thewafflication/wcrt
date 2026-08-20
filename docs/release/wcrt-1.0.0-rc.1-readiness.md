@@ -13,6 +13,8 @@ template `2198ccab08f969a789448767fe7017b774369adc`
 
 **Approval:** None
 
+**Release-gate reconciliation:** 2026-08-20
+
 ## Release Scope
 
 This candidate contains the C89 hosted-library baseline, C99 REQ-0019,
@@ -27,8 +29,10 @@ The intended platform matrix is Windows 2000 x86 for the legacy import tier
 and Windows 10/11 x86, x64, and ARM64. Exact-revision native Debug evidence
 exists for all three architectures in GitHub Actions run `32027269426`. Local
 Release x86/x64 execution and ARM64 compile/link evidence use the exact pinned
-TinyCC executables. Native ARM64 Release execution remains Unknown. Windows
-2000 support is not claimed for x64 or ARM64.
+TinyCC executables. The optimized tagged Release matrix has not run and remains
+an R1 prepublication Unknown. This does not prevent committing a successor
+candidate source revision, but it does prevent publication. Windows 2000
+support is not claimed for x64 or ARM64.
 
 REQ-0034 optional `wWinMain`, C11 and later library work, and the remaining
 Microsoft CRT roadmap are excluded. No tag, private-key operation, signature,
@@ -42,7 +46,7 @@ release creation, artifact upload, or publication is part of this candidate.
 | C99 clause/facility profile | `docs/c99-conformance-profile.md`; TC-0041 | Pass | 25 clauses, 24 headers, 75 classified rows; compiler-blocked and optional rows remain explicit |
 | Architecture and DFS review | `docs/security/design-for-security.md`; ADR-0001--0005 | Unknown | DFS and exact target evidence exist, but independent approval is absent |
 | Build and package | verification record and candidate manifest | Fail | Build/package structure passes; WPM verification exits 1 because the package is unsigned |
-| Verification and test report | `docs/evidence/c99-t6/local-verification.md` | Unknown | Exact native Debug matrix passes; native ARM64 Release consumers/startup remain Unknown |
+| Verification and test report | `docs/evidence/c99-t6/local-verification.md`; tagged workflow | Unknown | Exact native Debug matrix passes; the required tagged optimized Release consumer/startup matrix has not run |
 | Header/C89 isolation/ABI | TC-0040/TC-0042 and exact CI | Pass | All target header, constant-expression, layout, ABI, C89 isolation, and Debug native cases pass |
 | Windows 2000 x86 imports | exact local Release import inspection | Pass | DLL `ddd4051a...`, machine `0x014C`, 27 allowlisted `kernel32.dll` imports, zero unexpected |
 | Automatic built-in failure diagnostics | exact CI diagnostic JSON | Pass | TinyCC built-in crash trace identifies functions on all three targets |
@@ -92,7 +96,7 @@ No release-blocking item is accepted for publication.
 
 | Item | Impact | Owner | Approval | Completion or review condition |
 | --- | --- | --- | --- | --- |
-| Native ARM64 Release verification | Release consumers and startup behavior are unproved | Maintainer | None | Native ARM64 Release build/consumer/startup run at this source and dependency baseline with retained output and hashes |
+| Tagged optimized Release matrix | Optimized Release consumers/startup and exact release artifact behavior are not proved on all supported targets | Maintainer | None | Successful tag-triggered x86, x64, and ARM64 Release jobs at the committed candidate baseline, including native consumers/startup, x86 imports, and retained outputs/hashes; package and publication must remain downstream |
 | Authenticode publisher identity | Distributed PE publisher and integrity cannot be verified | Maintainer | None | Approve managed/hardware-backed identity; sign every final DLL with SHA-256 and trusted RFC 3161 SHA-256 timestamp; retain verification |
 | Defender release gate design | An ad hoc unsigned scan cannot prove final release bytes | Maintainer | None | Design and review a repeatable release/GitHub Actions scan after signing; retain exact hashes, timestamps, engine/intelligence versions, exit status, and detections |
 | WPM package signature | `wpm verify` rejects the candidate | Maintainer | None | Sign with protected WPM key after PE signing; trust the public key and obtain exit 0 on the unchanged package |
@@ -109,25 +113,36 @@ No release-blocking item is accepted for publication.
   absent
 - **Date:** 2026-08-17
 - **Rationale:** Exact-revision native Debug evidence passes on x86, x64, and
-  ARM64, but native ARM64 Release execution remains Unknown. The package and
+  ARM64, but the tagged optimized Release matrix has not run. The package and
   DLLs are unsigned, WPM verification fails, final-signed-byte Defender
   evidence and its repeatable design do not exist, install/rollback is
   Unknown, release documentation is incomplete, and independent review is
-  absent.
+  absent. The source may be committed in this state; publication may not occur.
 - **Support or communication actions:** Do not tag, sign, publish, create a
   release, upload, or announce availability. Retain this candidate for
   corrective verification only.
 
 ## Minimum Corrective Commands or Evidence
 
-On a native Windows ARM64 host, use the exact compiler executable identified
-in the dependency record and retain output from:
+The final candidate source may be committed before Release evidence exists.
+The minimum Release evidence is the successful GitHub tagged workflow, not a
+maintainer-local ARM64 substitution. After every other prepublication blocker
+is closed and separate tag/publication authority is given, the workflow order
+is:
 
-```powershell
-./tools/build-wcrt.ps1 -Architecture arm64 -Configuration Release -TinyCc <exact-arm64-tcc> -Version 1.0.0-rc.1 -OutputRoot <clean-build-root>
-./tools/test-built-libraries.ps1 -Architecture arm64 -Configuration Release -TinyCc <exact-arm64-tcc> -BuildRoot <clean-build-root>
-./tools/test-startup-objects.ps1 -Architecture arm64 -Configuration Release -TinyCc <exact-arm64-tcc> -BuildRoot <clean-build-root>
+```text
+build (complete Debug matrix)
+  -> release (native optimized x86, x64, and ARM64 consumers/startup; x86 imports)
+  -> package (signed WPM assembly and verification)
+  -> publish (GitHub Release creation and upload)
 ```
+
+Retain the tagged run URL, source SHA, runner images, dependency records,
+per-target Release artifacts and hashes, startup JSON, x86 import JSON, signed
+package identity, and WPM verification output. Because the current tag workflow
+publishes automatically after those dependencies succeed, do not push the tag
+merely to collect evidence; tagging requires the final authorization to
+publish.
 
 An independent reviewer must inspect the candidate source, this readiness
 record, run `32027269426`, and the exact local candidate manifest. Every

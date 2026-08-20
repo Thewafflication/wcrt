@@ -93,10 +93,17 @@ exact, source-specific complex-type/parser and imaginary-literal diagnostic
 matrix. That state does not stop remaining tests, builds, or WPM packaging,
 but it is not Pass or conformance evidence. Any other diagnostic or behavioral
 failure remains fatal. TinyCC `0.9.28-rc.1442+2474e1c2` passes both probes, so
-TC-0037 and TC-0038 are currently ordinary required Pass results. Tagged releases additionally
-build Release artifacts, combine all targets into one signed WPM development
-package, verify that package, generate
-SHA-256 checksums, and publish only after every architecture succeeds.
+TC-0037 and TC-0038 are currently ordinary required Pass results. A candidate
+source revision may be committed before the tagged Release matrix runs; that
+commit is neither release approval nor publication evidence. Tagged releases
+additionally build optimized Release artifacts and run native library-consumer
+and startup smoke tests on every target, repeat the x86 legacy-import check,
+combine all targets into one signed WPM development package, verify that
+package, and generate SHA-256 checksums. The full C89/C99/compatibility
+inventory is not duplicated under Release because each tagged Release job
+depends on the successful exact-source Debug matrix. The publication job
+depends on successful package verification, which in turn depends on every
+Release architecture succeeding.
 After all ordinary Debug architecture jobs pass, CI combines their outputs into
 one unsigned `wcrt-debug` multi-architecture WPM package and retains it as a
 workflow artifact.

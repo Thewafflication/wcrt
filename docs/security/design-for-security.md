@@ -73,7 +73,7 @@ are controlled by `docs/c99-conformance-profile.md` and
 | THR-005 | Artifact is replaced, modified after scan, or bound to stale evidence | Release integrity | Signing order, SHA-256 manifest, immutable artifact names, evidence digest checks | External publication controls must preserve reviewed bytes |
 | THR-006 | Signing credential is copied or misused | Release identity | Managed or hardware-backed key, least privilege, audit trail, no repository key | Signing service and identity are not yet selected for 1.0.0 |
 | THR-007 | A Defender result is assumed from no reported failure | Users | Exact final-byte scan record with engine/intelligence versions | New detections can occur after release |
-| THR-008 | Required target result is inferred from another target | Conformance and availability | Per-target Pass/Fail/Unknown profile and retained native output | Native ARM64 Debug passes; native ARM64 Release remains Unknown |
+| THR-008 | Required target result is inferred from another target | Conformance and availability | Per-target Pass/Fail/Unknown profile and retained native output | Native ARM64 Debug passes; tagged ARM64 Release remains an R1 Unknown |
 
 ## Security Controls
 
@@ -99,10 +99,10 @@ are controlled by `docs/c99-conformance-profile.md` and
 
 | Requirement or threat | Verification | Evidence | Status |
 | --- | --- | --- | --- |
-| SG-001 / THR-001 | C89, C99, compatibility, negative, boundary, and source-quality tests | Controlled TC records and `docs/evidence/c99-t6/local-verification.md` | Exact-revision native Debug matrix Pass; native ARM64 Release Unknown |
+| SG-001 / THR-001 | C89, C99, compatibility, negative, boundary, and source-quality tests | Controlled TC records and `docs/evidence/c99-t6/local-verification.md` | Exact-revision native Debug matrix Pass; tagged optimized Release matrix is an R1 Unknown |
 | SG-002 / THR-003 | Traceability, dependency pins, hashes, WSP tests, clean revision | Workflow, `docs/evidence/c99-t6/dependency-provenance.json`, local verification | Pass: exact archives/executables, sources, actions, runner images, jobs, and artifact IDs retained |
 | SG-004 / THR-004 | Parse x86 DLL imports and bind output to DLL SHA-256 | Local verification and `docs/evidence/c99-t6/release-candidate-manifest.json` | Exact x86 Release candidate Pass |
-| THR-002 / THR-008 | Native x86/x64/ARM64 tests, consumers, and startup checks | Per-target retained results | Debug Pass all targets; native ARM64 Release Unknown |
+| THR-002 / THR-008 | Native x86/x64/ARM64 tests, consumers, and startup checks | Per-target retained results | Debug Pass all targets; tagged optimized Release matrix is an R1 Unknown |
 | SG-003 / THR-005--007 | Signature verification, Defender scan, package verification, checksums | Candidate manifest and release-readiness record | Fail/Unknown; unsigned package and DLLs, no final signed-byte evidence |
 
 ## Vulnerability and Incident Response
@@ -126,7 +126,7 @@ repository references and marking the release withdrawn.
 | Memory-unsafe implementation language | Required by project scope; testing reduces but cannot eliminate defects | Maintainer | Release decision | Every security defect or major parser/allocator change |
 | External compiler, runner, OS, and package tools | WCRT cannot reproduce their full supply chains | Maintainer | Release decision | Dependency or runner baseline change |
 | Signing identity and service not selected | Candidate preparation may remain unsigned, but release may not proceed | Maintainer | None | Before 1.0.0 approval |
-| Native ARM64 Release evidence unavailable | Debug behavior and cross-build cannot prove Release behavior | Maintainer | None | Exact-candidate native Release run |
+| Tagged optimized Release evidence unavailable | Debug behavior and cross-build cannot prove optimized Release behavior on every target | Maintainer | None | Successful tag-triggered native x86/x64/ARM64 Release matrix before publication |
 
 ## Change History
 

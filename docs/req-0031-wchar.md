@@ -129,5 +129,6 @@ conversion, stream, time, and numeric tests natively on x86, x64, and ARM64 in
 exact-revision run `32027269426`. Full C89 and extension aggregates, Debug
 library/consumer/startup builds, source-quality, traceability, and WSP-tool
 gates also pass there. Exact local Release x86/x64 behavior, ARM64 compile/link,
-and the Windows 2000 x86 import gate pass; native ARM64 Release and independent
-review remain completion work.
+and the Windows 2000 x86 import gate pass. Independent review remains
+completion work; tagged optimized Release smoke is a separate R1
+prepublication gate.

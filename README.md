@@ -162,9 +162,11 @@ always run first. Each job publishes the debug DLL, PDB, and a TeX test-results
 table. After every Debug job passes, the workflow also publishes an unsigned
 `wcrt-debug-any-<version>.zip` WPM package containing all three targets. It
 installs separately beneath `%ProgramFiles%\WCRT\Debug` and sets
-`WCRT_DEBUG_HOME`. A `MAJOR.MINOR.PATCH` or `vMAJOR.MINOR.PATCH` tag additionally gates a
-Release build and combines all three architectures into one WPM development
-package whose base version is taken from the tag.
+`WCRT_DEBUG_HOME`. The candidate source may be committed before optimized
+Release evidence exists. A `MAJOR.MINOR.PATCH` or `vMAJOR.MINOR.PATCH` tag
+starts Release builds and native consumer/startup smoke tests on all three
+architectures, then combines them into one WPM development package whose base
+version is taken from the tag.
 As with the TinyCC package, WPM versions normalize a tag suffix, add a
 development commit distance when applicable, append the eight-character Git
 revision as build metadata, and add `.dirty` for modified working trees. An
@@ -184,10 +186,14 @@ and target files beneath `x86`, `x64`, and `arm64` architecture directories.
 The package also contains the C99 complex capability/profile records. A target
 whose compiler passes the probe contains the complex runtime; a controlled
 ExpectedFail target remains packageable with that runtime explicitly omitted.
-After all Debug architecture jobs pass, a semantic-version tag builds signed
-Release artifacts for x86, x64, and ARM64. The workflow publishes one
-`arch=any` WPM package containing every target, the public signing key, and the
-WPM repository `index.json` to the corresponding GitHub Release.
+After all Debug architecture jobs pass, a semantic-version tag builds Release
+artifacts for x86, x64, and ARM64. Package verification depends on every
+Release architecture succeeding, and publication depends on package
+verification. Only then does the workflow publish one WPM-signed `arch=any`
+package containing every target, the public signing key, and the WPM repository
+`index.json` to the corresponding GitHub Release. The current workflow does not
+yet Authenticode-sign the DLLs or retain the deferred Defender release scan, so
+the project release-readiness record still blocks a 1.0.0 tag.
 
 An ARM64 C99 consumer that links the DLL uses both the import definition and
 the compiler-private companion archive (in this order):

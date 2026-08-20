@@ -44,6 +44,8 @@ The exact Debug candidate evidence covers the full C89/C99/compatibility
 aggregates, complex and floating ABI behavior, nonvolatile integer and floating
 register preservation around `setjmp` and `longjmp`, default signal
 termination, assertion diagnostics, static and DLL consumers, and both
-optional startup objects. Native ARM64 Release execution is still absent and
-remains Unknown; local compile/link does not replace it. Windows 2000 import
-enforcement applies only to x86.
+optional startup objects. Tagged native ARM64 Release execution is still absent
+and remains an R1 prepublication Unknown; local compile/link does not replace
+it. It is not a T6 conformance failure because the complete native Debug matrix
+passes, but publication still requires the optimized Release consumer/startup
+smoke job. Windows 2000 import enforcement applies only to x86.

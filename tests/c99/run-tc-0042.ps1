@@ -19,13 +19,20 @@ $architecture = if ($compiler -match 'i386 Windows') { 'x86' }
 
 $result = & (Join-Path $PSScriptRoot 'Verify-C99HeaderMatrix.ps1') `
     -Architecture $architecture -TinyCc $TinyCc
+$releaseGate = & (Join-Path $PSScriptRoot `
+    'Verify-ReleaseWorkflowGate.ps1')
 [PSCustomObject]@{
     TestCase = 'TC-0042'
     Requirement = 'REQ-0042'
     Status = 'Pass'
-    Scope = 'Header and ABI compile matrix'
+    Scope = 'Header/ABI compile and release workflow gate matrix'
     Architecture = $architecture
     C99StandaloneHeaders = $result.C99StandaloneHeaders
     C89StandaloneHeaders = $result.C89StandaloneHeaders
     MixedOrders = $result.MixedOrders
+    DebugDependency = $releaseGate.DebugDependency
+    ReleaseArchitectures = $releaseGate.ReleaseArchitectures
+    ReleaseDependency = $releaseGate.ReleaseDependency
+    PackageDependency = $releaseGate.PackageDependency
+    PublishDependency = $releaseGate.PublishDependency
 }
