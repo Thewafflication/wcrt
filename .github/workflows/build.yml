@@ -680,7 +680,6 @@ jobs:
     name: ${{ matrix.arch }} release
     needs: build
     runs-on: ${{ matrix.runner }}
-    environment: release
     strategy:
       fail-fast: false
       matrix:
@@ -833,14 +832,151 @@ jobs:
           path: output/test-results/x86/windows-2000-imports.json
           if-no-files-found: error
 
-  package:
+  sign:
     if: startsWith(github.ref, 'refs/tags/')
-    name: Build multi-architecture WPM package
+    name: Authenticode-sign release DLLs
     needs: release
     runs-on: windows-2025
     environment: release
-    env:
-      WPM_PRIVATE_KEY: ${{ secrets.WPM_RELEASE_PRIVATE_KEY }}
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+          submodules: true
+
+      - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
+        with:
+          pattern: wcrt-*-release-build
+          path: signed-builds
+
+      - name: Validate signing configuration and unsigned inputs
+        shell: pwsh
+        env:
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          ARTIFACT_SIGNING_ENDPOINT: ${{ secrets.ARTIFACT_SIGNING_ENDPOINT }}
+          ARTIFACT_SIGNING_ACCOUNT_NAME: ${{ secrets.ARTIFACT_SIGNING_ACCOUNT_NAME }}
+          ARTIFACT_SIGNING_CERTIFICATE_PROFILE: ${{ secrets.ARTIFACT_SIGNING_CERTIFICATE_PROFILE }}
+          AUTHENTICODE_EXPECTED_SUBJECT: ${{ secrets.AUTHENTICODE_EXPECTED_SUBJECT }}
+        run: |
+          $required = @(
+            'AZURE_CLIENT_ID'
+            'AZURE_TENANT_ID'
+            'AZURE_SUBSCRIPTION_ID'
+            'ARTIFACT_SIGNING_ENDPOINT'
+            'ARTIFACT_SIGNING_ACCOUNT_NAME'
+            'ARTIFACT_SIGNING_CERTIFICATE_PROFILE'
+            'AUTHENTICODE_EXPECTED_SUBJECT'
+          )
+          foreach ($name in $required) {
+            if ([string]::IsNullOrWhiteSpace([Environment]::GetEnvironmentVariable($name))) {
+              throw "The release environment must define $name."
+            }
+          }
+          $inputs = foreach ($architecture in @('x86', 'x64', 'arm64')) {
+            $path = "signed-builds/wcrt-$architecture-release-build/wcrt.dll"
+            if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
+              throw "Release DLL was not downloaded: $path"
+            }
+            $item = Get-Item -LiteralPath $path
+            [PSCustomObject]@{
+              architecture = $architecture
+              path = $item.FullName
+              length = $item.Length
+              sha256 = (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLowerInvariant()
+            }
+          }
+          New-Item -ItemType Directory -Force output/test-results/release | Out-Null
+          [PSCustomObject]@{
+            schemaVersion = 1
+            generatedAtUtc = [DateTime]::UtcNow.ToString('o')
+            sourceRevision = '${{ github.sha }}'
+            files = @($inputs)
+          } | ConvertTo-Json -Depth 5 |
+            Set-Content output/test-results/release/unsigned-dll-identities.json -Encoding utf8NoBOM
+
+      - name: Authenticate to Azure with GitHub OIDC
+        uses: Azure/login@d54469830ea7d513b7371e02a077c3ee5cb7b112 # v3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Sign release DLLs with Azure Artifact Signing
+        uses: Azure/artifact-signing-action@c0ae2c1d0c1847ab81ac0ab8521bee597cfedd30 # v2
+        with:
+          endpoint: ${{ secrets.ARTIFACT_SIGNING_ENDPOINT }}
+          signing-account-name: ${{ secrets.ARTIFACT_SIGNING_ACCOUNT_NAME }}
+          certificate-profile-name: ${{ secrets.ARTIFACT_SIGNING_CERTIFICATE_PROFILE }}
+          files: |
+            ${{ github.workspace }}\signed-builds\wcrt-x86-release-build\wcrt.dll
+            ${{ github.workspace }}\signed-builds\wcrt-x64-release-build\wcrt.dll
+            ${{ github.workspace }}\signed-builds\wcrt-arm64-release-build\wcrt.dll
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
+          description: Waughtal C Run Time
+          description-url: https://github.com/Thewafflication/wcrt
+
+      - name: Verify every Authenticode signature and timestamp
+        shell: pwsh
+        env:
+          AUTHENTICODE_EXPECTED_SUBJECT: ${{ secrets.AUTHENTICODE_EXPECTED_SUBJECT }}
+        run: |
+          $paths = foreach ($architecture in @('x86', 'x64', 'arm64')) {
+            "signed-builds/wcrt-$architecture-release-build/wcrt.dll"
+          }
+          ./tools/test-authenticode-signatures.ps1 `
+            -Path $paths `
+            -ExpectedSubject $env:AUTHENTICODE_EXPECTED_SUBJECT `
+            -SourceRevision '${{ github.sha }}' `
+            -OutputPath output/test-results/release/authenticode-signatures.json
+
+      - name: Reverify signed Windows 2000 x86 imports
+        shell: pwsh
+        run: ./tools/test-windows-2000-imports.ps1 -Binary signed-builds/wcrt-x86-release-build/wcrt.dll
+
+      - name: Retain Authenticode evidence
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: wcrt-authenticode-evidence
+          path: |
+            output/test-results/release/*.json
+            output/test-results/x86/windows-2000-imports.json
+          if-no-files-found: warn
+
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: wcrt-x86-release-signed
+          path: signed-builds/wcrt-x86-release-build/*
+          if-no-files-found: error
+          compression-level: 0
+
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: wcrt-x64-release-signed
+          path: signed-builds/wcrt-x64-release-build/*
+          if-no-files-found: error
+          compression-level: 0
+
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: wcrt-arm64-release-signed
+          path: signed-builds/wcrt-arm64-release-build/*
+          if-no-files-found: error
+          compression-level: 0
+
+  package:
+    if: startsWith(github.ref, 'refs/tags/')
+    name: Build multi-architecture WPM package
+    needs: sign
+    runs-on: windows-2025
+    environment: release
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -853,17 +989,17 @@ jobs:
 
       - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
         with:
-          pattern: wcrt-*-release-build
+          pattern: wcrt-*-release-signed
           path: downloaded-builds
 
       - name: Assemble architecture build directories
         shell: pwsh
         run: |
           foreach ($architecture in @('x86', 'x64', 'arm64')) {
-            $source = "downloaded-builds/wcrt-$architecture-release-build"
+            $source = "downloaded-builds/wcrt-$architecture-release-signed"
             $destination = "output/build/$architecture/Release"
             if (-not (Test-Path -LiteralPath "$source/wcrt.dll" -PathType Leaf)) {
-              throw "Release build for $architecture was not downloaded."
+              throw "Signed Release build for $architecture was not downloaded."
             }
             New-Item -ItemType Directory -Force $destination | Out-Null
             Copy-Item -Path "$source/*" -Destination $destination -Recurse
@@ -891,6 +1027,8 @@ jobs:
 
       - name: Build and verify signed WPM package
         shell: pwsh
+        env:
+          WPM_PRIVATE_KEY: ${{ secrets.WPM_RELEASE_PRIVATE_KEY }}
         run: |
           if ([string]::IsNullOrWhiteSpace($env:WPM_PRIVATE_KEY)) { throw 'The release environment must define WPM_RELEASE_PRIVATE_KEY.' }
           $keyPath = Join-Path $env:RUNNER_TEMP 'wcrt-release.private'
@@ -901,11 +1039,46 @@ jobs:
             if ($package.Count -ne 1) { throw "Expected one package, found $($package.Count)." }
             wpm trust add release_keys/wpm-release.public
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-            wpm verify $package[0].FullName
-            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            $verifyOutput = @(wpm verify $package[0].FullName 2>&1)
+            $verifyExitCode = $LASTEXITCODE
+            $verifyOutput | Write-Output
+            New-Item -ItemType Directory -Force output/test-results/release | Out-Null
+            [PSCustomObject]@{
+              schemaVersion = 1
+              generatedAtUtc = [DateTime]::UtcNow.ToString('o')
+              package = $package[0].Name
+              packageSha256 = (Get-FileHash -LiteralPath $package[0].FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+              trustedPublicKeySha256 = (Get-FileHash -LiteralPath release_keys/wpm-release.public -Algorithm SHA256).Hash.ToLowerInvariant()
+              exitCode = $verifyExitCode
+              result = if ($verifyExitCode -eq 0) { 'Pass' } else { 'Fail' }
+              output = @($verifyOutput | ForEach-Object ToString)
+            } | ConvertTo-Json -Depth 5 |
+              Set-Content output/test-results/release/wpm-verification.json -Encoding utf8NoBOM
+            if ($verifyExitCode -ne 0) { exit $verifyExitCode }
           } finally {
             Remove-Item $keyPath -Force -ErrorAction SilentlyContinue
           }
+
+      - name: Verify packaged DLL signatures and unchanged identities
+        shell: pwsh
+        env:
+          AUTHENTICODE_EXPECTED_SUBJECT: ${{ secrets.AUTHENTICODE_EXPECTED_SUBJECT }}
+        run: |
+          $package = @(Get-ChildItem output/packages/wcrt-any-*.zip -File)
+          if ($package.Count -ne 1) { throw "Expected one package, found $($package.Count)." }
+          ./tools/test-wpm-package-authenticode.ps1 `
+            -Package $package[0].FullName `
+            -ExpectedSubject $env:AUTHENTICODE_EXPECTED_SUBJECT `
+            -SourceRevision '${{ github.sha }}' `
+            -OutputPath output/test-results/release/package-authenticode-signatures.json
+
+      - name: Retain signed-package trust evidence
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: wcrt-signed-package-evidence
+          path: output/test-results/release/*.json
+          if-no-files-found: warn
 
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:

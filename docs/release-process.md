@@ -2,8 +2,9 @@
 
 **Content type:** Project release-control baseline
 
-**Status:** Implemented candidate process; signing infrastructure and external
-approval pending
+**Status:** Implemented candidate and signing workflow; Azure provisioning,
+exercised trust evidence, deferred Defender design, and external approval
+pending
 
 ## Release Identity and Scope
 
@@ -50,20 +51,24 @@ digest are not approved artifacts.
    upload only after every Release architecture and signed-package verification
    succeeds and the exact set is approved.
 
-The repository workflow already orders `build` -> `release` -> `package` ->
-`publish`, so a failed or cancelled architecture or package job prevents
-publication. It currently builds and WPM-signs tagged artifacts but does not
-provide an approved Authenticode identity/timestamp stage, retained Defender
-gate, or a post-artifact approval checkpoint. Until those controls are
-implemented and exercised, the 1.0.0 release decision is Reject and no tag may
-be pushed. An unsigned local candidate is preparation evidence only.
+The repository workflow orders `build` -> `release` -> `sign` -> `package` ->
+`publish`, so a failed or cancelled architecture, Authenticode, or package job
+prevents publication. ADR-0006 and `docs/windows-signing-plan.md` approve Azure
+Artifact Signing Public Trust for the `Jordan Waughtal` publisher identity and
+Microsoft's RFC 3161 service. The workflow is fail-closed but the Azure account,
+validated certificate subject, OIDC federation, and first exact tagged signing
+evidence do not yet exist. It also does not provide the deferred retained
+Defender gate or a post-artifact approval checkpoint. Until those controls are
+available, exercised, and approved as required by the release-readiness record,
+the 1.0.0 release decision is Reject and no tag may be pushed. An unsigned local
+candidate is preparation evidence only.
 
 ## Verification Commands
 
 The exact readiness record supplies resolved paths. Typical local checks are:
 
 ```powershell
-Get-AuthenticodeSignature <wcrt.dll>
+./tools/test-authenticode-signatures.ps1 -Path <three-wcrt.dll-paths> -ExpectedSubject <exact-subject>
 Get-FileHash -Algorithm SHA256 <artifact>
 wpm trust add release_keys/wpm-release.public
 wpm verify <package.zip>
@@ -75,6 +80,14 @@ The last scan is a release Pass only for final signed bytes with retained
 Defender versions and a matching digest. `NotSigned`, unavailable Defender,
 or a scan of earlier bytes is Unknown or Fail as specified by the readiness
 record, never Pass.
+
+The Authenticode private key is managed by Azure and is never placed in a
+GitHub secret. After its protection policy is approved, GitHub's `release`
+environment stores OIDC/account/profile identifiers and the expected public
+certificate subject; the distinct `WPM_RELEASE_PRIVATE_KEY` secret remains only
+for WPM package signing. The currently repository-scoped WPM secret must be
+migrated into that environment before a tag. See the controlled signing plan
+for access, verification, evidence, renewal, and compromise response.
 
 ## Installation and Rollback
 

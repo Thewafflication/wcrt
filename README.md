@@ -187,13 +187,17 @@ The package also contains the C99 complex capability/profile records. A target
 whose compiler passes the probe contains the complex runtime; a controlled
 ExpectedFail target remains packageable with that runtime explicitly omitted.
 After all Debug architecture jobs pass, a semantic-version tag builds Release
-artifacts for x86, x64, and ARM64. Package verification depends on every
-Release architecture succeeding, and publication depends on package
-verification. Only then does the workflow publish one WPM-signed `arch=any`
-package containing every target, the public signing key, and the WPM repository
-`index.json` to the corresponding GitHub Release. The current workflow does not
-yet Authenticode-sign the DLLs or retain the deferred Defender release scan, so
-the project release-readiness record still blocks a 1.0.0 tag.
+artifacts for x86, x64, and ARM64. Azure Artifact Signing then applies and
+independently verifies a SHA-256 Authenticode signature and RFC 3161 SHA-256
+timestamp on every DLL. Package assembly consumes only those verified signed
+artifacts, applies the separate WPM signature, requires `wpm verify` exit zero,
+and verifies every packaged DLL again. Publication depends on that complete
+`build` -> `release` -> `sign` -> `package` chain. Only then can the workflow
+publish one WPM-signed `arch=any` package containing every target, the public
+WPM key, and repository `index.json` to the corresponding GitHub Release. The
+Azure identity/profile and first exact signing evidence are not yet provisioned,
+and the Defender release scan remains explicitly deferred, so the project
+release-readiness record still blocks a 1.0.0 tag.
 
 An ARM64 C99 consumer that links the DLL uses both the import definition and
 the compiler-private companion archive (in this order):
@@ -288,6 +292,9 @@ Release trust order, rollback, and support are defined in
 [`docs/release-process.md`](docs/release-process.md); the project threat and
 dependency model is in
 [`docs/security/design-for-security.md`](docs/security/design-for-security.md).
+The approved Authenticode service, identity, GitHub OIDC values, verification,
+evidence, and certificate lifecycle are controlled by
+[`docs/windows-signing-plan.md`](docs/windows-signing-plan.md).
 
 ## Contributing
 

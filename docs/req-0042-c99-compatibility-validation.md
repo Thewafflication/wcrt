@@ -34,12 +34,15 @@ x86, x64, and ARM64.
   exist. Before publication, the tagged workflow shall build the optimized
   Release static/DLL artifacts and run the native library-consumer and startup
   smoke tests on x86, x64, and ARM64, repeat the x86 Windows 2000 import check,
-  assemble and verify the signed package, and retain the exact results and
-  artifact identities. The complete C89/C99/compatibility behavior inventory
+  Authenticode-sign and independently verify every DLL with the approved
+  identity and timestamp, repeat the import check on the signed x86 DLL,
+  assemble and WPM-sign the unchanged DLLs, require `wpm verify` exit zero,
+  reverify the packaged signatures, and retain the exact results and artifact
+  identities. The complete C89/C99/compatibility behavior inventory
   need not be duplicated in Release because the tagged Release jobs depend on
   the successful exact-source Debug matrix.
 - The publication job shall depend on every tagged Release architecture and
-  signed-package verification succeeding. A committed source revision, tag,
+  Authenticode and signed-package verification succeeding. A committed source revision, tag,
   cross-build, PE inspection, missing artifact, or unavailable check is not a
   publication Pass. Native Debug execution and the selected native Release
   smoke tests are required on every supported architecture; absent evidence
@@ -76,8 +79,10 @@ Each named target artifact retains detailed results and dependency provenance.
 The local exact-dependency Release rebuild passes x86/x64 consumers/startup,
 all ARM64 links, and the x86 Windows 2000 import gate. The tagged Release matrix
 has not run and remains an R1 prepublication Unknown; it is no longer a T6
-completion result. WPM signature verification, release trust, install/rollback,
-and independent audit remain incomplete and are not represented as Pass.
+completion result. The controlled Azure signing workflow and verification
+tools are implemented, but Azure identity provisioning, exercised Authenticode
+and WPM verification, release trust, install/rollback, and independent audit
+remain incomplete and are not represented as Pass.
 
 ## Impact Note — 2026-08-20
 
@@ -87,8 +92,8 @@ supported target, security control, test inventory, ABI check, or release
 artifact. The complete behavior matrix remains required in native Debug CI,
 while optimized Release native consumers/startup, legacy imports, signing,
 package verification, and exact artifact evidence remain mandatory before
-publication. The workflow already enforces `build` -> `release` -> `package`
--> `publish`; documentation and readiness records now classify an unrun tagged
+publication. The workflow enforces `build` -> `release` -> `sign` -> `package`
+-> `publish`; documentation and readiness records classify an unrun tagged
 Release matrix as an expected R1 `Unknown` instead of a T6 failure. This moves
 the Release-matrix schedule after the candidate source commit without inferring
 Pass or weakening the publication gate.

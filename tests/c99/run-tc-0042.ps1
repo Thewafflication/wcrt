@@ -25,7 +25,7 @@ $releaseGate = & (Join-Path $PSScriptRoot `
     TestCase = 'TC-0042'
     Requirement = 'REQ-0042'
     Status = 'Pass'
-    Scope = 'Header/ABI compile and release workflow gate matrix'
+    Scope = 'Header/ABI compile and release/sign/package workflow gate matrix'
     Architecture = $architecture
     C99StandaloneHeaders = $result.C99StandaloneHeaders
     C89StandaloneHeaders = $result.C89StandaloneHeaders
@@ -33,6 +33,7 @@ $releaseGate = & (Join-Path $PSScriptRoot `
     DebugDependency = $releaseGate.DebugDependency
     ReleaseArchitectures = $releaseGate.ReleaseArchitectures
     ReleaseDependency = $releaseGate.ReleaseDependency
+    SigningDependency = $releaseGate.SigningDependency
     PackageDependency = $releaseGate.PackageDependency
     PublishDependency = $releaseGate.PublishDependency
 }
