@@ -113,5 +113,6 @@ the unsigned release candidate or erase a compiler-blocked ExpectedFail.
 - F-055 is omitted recommended practice. The retained decimal counterexample
   prevents a universal correct-rounding claim.
 - Release readiness is Reject while independent review, the tagged optimized
-  Release matrix, signing/timestamp, final-byte Defender, WPM signature
-  verification, and installation/rollback gates are incomplete.
+  Release matrix, WPM signature verification, successor-candidate identities,
+  and installation/rollback gates are incomplete. Authenticode/timestamping
+  and Defender scanning are explicitly Deferred from 1.0, not Pass.

@@ -26,7 +26,7 @@ WPM packages. Developer-only exploratory checks are not release evidence.
 | Library integration | DLL and static-library consumer builds and execution | `tools/test-built-libraries.ps1` |
 | Legacy import compatibility | Repository-owned PE import parsing and Windows 2000 x86 allowlist | `tools/test-windows-2000-imports.ps1` |
 | Compatibility comparison | Equivalent test input against Microsoft UCRT | `tools/run-c89-comparison.ps1` |
-| Release verification | Release builds, consumer checks, Authenticode signing/verification, package signing, and package verification | `.github/workflows/build.yml`; signing verification tools |
+| Release verification | Release builds, consumer checks, WPM package signing/verification, and packaged-DLL identity comparison | `.github/workflows/build.yml`; package verification tools |
 
 The authoritative procedure and pass criteria for each controlled test are in
 the corresponding `docs/tc-NNNN-*.tex` specification.
@@ -98,15 +98,15 @@ source revision may be committed before the tagged Release matrix runs; that
 commit is neither release approval nor publication evidence. Tagged releases
 additionally build optimized Release artifacts and run native library-consumer
 and startup smoke tests on every target, repeat the x86 legacy-import check,
-Authenticode-sign and verify every DLL, repeat the signed x86 import check,
-combine all targets into one signed WPM development package, require
-`wpm verify` exit zero, reverify the unchanged packaged DLLs, and generate
-SHA-256 identities. The full C89/C99/compatibility inventory is not duplicated
-under Release because each tagged Release job depends on the successful
-exact-source Debug matrix. The publication job depends on successful package
-verification, which depends on successful Authenticode verification, which in
-turn depends on every Release architecture succeeding. Missing Azure
-configuration or target trust evidence is a failed job, not Pass.
+combine all targets into one WPM-signed package, require `wpm verify` exit zero,
+compare the packaged DLLs with their Release inputs, and generate SHA-256
+identities. The full C89/C99/compatibility inventory is not duplicated under
+Release because each tagged Release job depends on the successful exact-source
+Debug matrix. The publication job depends on successful WPM package
+verification, which depends directly on every Release architecture succeeding.
+Missing target or WPM verification evidence is a failed job, not Pass.
+Authenticode signing/timestamping and Defender scanning are explicitly Deferred
+from 1.0.0 and are not release Pass results.
 After all ordinary Debug architecture jobs pass, CI combines their outputs into
 one unsigned `wcrt-debug` multi-architecture WPM package and retains it as a
 workflow artifact.
@@ -162,9 +162,8 @@ WSP adoption record.
 
 - Manual tests are not currently used as requirement-verification evidence.
 - PAdES documentation signing is not selected.
-- Exercised Authenticode evidence is Unknown until the approved Azure profile
-  is provisioned and a qualifying tagged run succeeds. Defender release
-  evidence and its repeatable design remain deferred.
+- Authenticode signing/timestamping and Defender release scanning are Deferred
+  from WCRT 1.0.0. Existing DLLs remain `NotSigned`; no Pass is inferred.
 - Microsoft UCRT comparison results do not substitute for WCRT results.
 
 ## Responsibilities

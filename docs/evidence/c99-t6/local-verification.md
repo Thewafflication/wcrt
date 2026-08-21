@@ -13,8 +13,13 @@ PowerShell 7.6.3
 
 **Decision:** Exact-revision native Debug conformance matrix Pass; T6
 completion Reject because independent review is incomplete; R1 readiness
-Reject because trust, installation, and the tagged optimized Release matrix
-remain incomplete
+Reject because WPM trust, installation, and the tagged optimized Release
+matrix remain incomplete
+
+**Scope reconciliation:** On 2026-08-21 the maintainer deferred Authenticode
+and Defender from WCRT 1.0.0. The observed `NotSigned` and scan rows below are
+retained historical candidate evidence and are not rewritten as Pass. WPM
+signing/verification remains an active release gate.
 
 ## Dependency Baseline
 

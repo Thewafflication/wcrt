@@ -1,9 +1,23 @@
 # ADR-0006 — Managed Authenticode identity and timestamp service
 
-**Status:** Accepted for release automation; Azure identity provisioning and
-first exact-subject evidence pending
+**Status:** Deferred from WCRT 1.0.0; retained as a possible future design
 
 **Date:** 2026-08-20
+
+**Deferral date:** 2026-08-21
+
+## Deferral
+
+The maintainer explicitly deferred the Authenticode identity, timestamp, and
+Azure provisioning objective from WCRT 1.0.0. The design below remains a
+reviewed option, but it is not an active release requirement, workflow job, or
+approval blocker. It supplies no signature evidence and must be reassessed
+before reactivation, including the signing provider, publisher identity,
+credential protection, cost, and current platform requirements.
+
+WPM package signing is independent and remains required for 1.0.0. The WPM
+key is not an Authenticode identity and this deferral does not authorize key
+reuse.
 
 ## Context
 
@@ -19,7 +33,7 @@ long-lived private key and would not meet the selected WSP protected-identity
 control. The signing design also has to cover ARM64 output even though the
 signing action executes on a hosted x64 Windows runner.
 
-## Decision
+## Deferred Design
 
 - The approved logical Authenticode publisher is **Jordan Waughtal**, the
   WCRT maintainer named by the package metadata. Windows `VERSIONINFO`
@@ -65,17 +79,16 @@ signing action executes on a hosted x64 Windows runner.
 
 ## Consequences
 
-The repository now contains a fail-closed `build -> release -> sign -> package
--> publish` dependency chain and retained JSON trust evidence. A missing Azure
-value, unprovisioned profile, unexpected subject, absent timestamp, invalid
-trust chain, changed packaged DLL, or nonzero `wpm verify` result blocks the
-downstream job.
+Commit `3637a71b95c5b5cf9398b1813ba2577d8ea8d62e` demonstrated a fail-closed
+`build -> release -> sign -> package -> publish` design and verification
+tools, but no signing operation ran. The 1.0 workflow now uses `build ->
+release -> package -> publish`; package signing, unchanged-DLL identity checks,
+and `wpm verify` remain fail-closed.
 
-The source design can be reviewed and committed before the external identity
-exists. Until Azure identity validation, certificate-profile creation, RBAC,
-GitHub OIDC federation, environment values, and an exact tagged run are
-complete, every actual Authenticode and signed-package result remains
-`Unknown`; this ADR is not signature evidence.
+Actual Authenticode results for the existing candidate remain `NotSigned`.
+Future Authenticode status is `Deferred`, not Pass or an Unknown 1.0 gate.
+Azure identity validation, certificate-profile creation, RBAC, GitHub OIDC
+federation, and environment values are no longer requested for 1.0.
 
 Azure owns certificate issuance and renewal. On suspected principal or signing
 service compromise, disable the federated credential and certificate profile,

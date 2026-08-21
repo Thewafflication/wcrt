@@ -76,7 +76,12 @@
     "newDetections": 0,
     "use": "Informational only; further Defender work is deferred pending a repeatable release or GitHub Actions design",
     "finalSignedBytes": false,
-    "releaseGate": "Unknown: final signed bytes do not exist"
+    "releaseGate": "Deferred from WCRT 1.0.0 on 2026-08-21; no Pass inferred"
+  },
+  "scopeDeferrals": {
+    "approvedAt": "2026-08-21",
+    "authenticode": "Deferred from 1.0.0; candidate DLL status remains NotSigned",
+    "defender": "Deferred from 1.0.0; informational historical scan is not release evidence"
   },
   "notPerformed": [
     "Authenticode signing and RFC 3161 timestamping",

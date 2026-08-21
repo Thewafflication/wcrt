@@ -74,8 +74,8 @@ The following are completion work rather than supporting observations:
 - Debug builds, package assembly, static and DLL consumers, startup objects,
   x86 Windows 2000 imports, source quality, traceability, and retained
   machine-readable evidence; candidate-local Release feasibility is an R1
-  input, while native optimized Release smoke and signed-package verification
-  are tagged R1 prepublication gates; and
+  input, while native optimized Release smoke and WPM-signed-package
+  verification are tagged R1 prepublication gates; and
 - personal and independent review, defect disposition, actual measures, and
   the terminal postmortem.
 
@@ -86,9 +86,10 @@ The following are completion work rather than supporting observations:
 - C11 and later library facilities and the remaining Microsoft CRT roadmap are
   excluded, while already controlled Microsoft-compatibility tests remain
   mandatory regressions.
-- R1 tagged Release validation, signing, Defender scanning, release approval,
-  tag creation, publication, and upload are separate work. T6 produces inputs
-  to R1 but does not approve or publish a release.
+- R1 tagged Release validation, WPM signing, release approval, tag creation,
+  publication, and upload are separate work. T6 produces inputs to R1 but does
+  not approve or publish a release. Authenticode and Defender were later
+  deferred from 1.0 by T6-D031.
 - Work in the TinyCC, cv2pdb, WPM, or WSP repositories is dependency work and
   requires its own scope and authority.
 
@@ -173,9 +174,9 @@ reconciled exact local Release candidate is
 `wcrt-any-1.0.0-rc.1.23+aea690d2.zip`, SHA-256
 `18be4aa5086d07ed9ff31e4f808b107d14c399408e394877c57e9f51f288e68b`.
 Independent review remains a T6 completion condition. The tagged Release
-matrix, signing/timestamp, WPM verification, final-signed-byte Defender
-design/evidence, documentation, and install/rollback remain R1 prepublication
-conditions; they are not converted to Pass.
+matrix, WPM verification, documentation, and install/rollback remain R1
+prepublication conditions. Authenticode/Defender were later deferred from 1.0
+by T6-D031; they are not converted to Pass.
 
 ## Size and Effort Estimate
 
@@ -314,7 +315,7 @@ and blocks T6.
 - Debug DLL/static builds, package assembly, static and DLL consumers, startup
   objects, ABI checks, and the x86 Windows 2000 import allowlist pass and
   retain exact artifact digests. Tagged optimized Release native
-  consumer/startup, import, signed-package, and exact-artifact checks are
+  consumer/startup, import, WPM-signed-package, and exact-artifact checks are
   mandatory R1 prepublication work, not T6 completion evidence.
 - Traceability, WSP common-tool self-tests, TC-0016/source warnings, Doxygen,
   dependency metadata, evidence validation, and `git diff --check` pass.
@@ -419,9 +420,9 @@ and blocks T6.
     readiness record from the pinned WSP template, commit the exact candidate
     source, prepare safe local evidence, then perform a separate read-only
     independent readiness audit. With separate tag authority, the tagged
-    workflow runs optimized Release native smoke and signed-package
+    workflow runs optimized Release native smoke and WPM-signed-package
     verification; publication remains downstream of their success. Tagging,
-    signing, and external writes still require explicit authority.
+    WPM signing, and external writes still require explicit authority.
 
 ## Time Log
 
@@ -450,7 +451,7 @@ command wall time, commit timestamps, or CI duration.
 | T6-D013 | documentation/evidence | ARM64 support | high | WCRT maintainer | Earlier platform documentation | T6 documentation reconciliation | -- | `docs/arm64-support.md`, run `32027269426` | Removed: current documentation records exact native ARM64 Debug Pass and preserves tagged ARM64 Release execution as an R1 Unknown until its native runner produces evidence. |
 | T6-D014 | test | Startup aggregate runner | critical | WCRT maintainer | Earlier test implementation | T6 implementation | -- | `tools/test-startup-objects.ps1` | Removed: the runner reported Pass and returned success even when TC-0017 and TC-0018 returned Fail. It now throws for Fail, reports Blocked without Pass wording, and only reports Pass when every child result passes. |
 | T6-D015 | documentation/dependency | T5 compiler baseline | high | WCRT maintainer | T5 verification | T6 documentation reconciliation | -- | T5 records; selected TinyCC source `d5c02f0fcdfdf75265d38df6ff9db2f8067367ac` | Removed: T5 retains its historical 1441 evidence, while current requirements, platform, ADR, roadmap, README, and work-plan records select 1442 and require fresh results. The three local executable digests are recorded without transferring native claims. |
-| T6-D016 | build/tooling | Tagged release workflow | critical | WCRT maintainer | Earlier release automation | -- | -- | `.github/workflows/build.yml`, ADR-0006, `docs/windows-signing-plan.md`, WSP-SIGN-0001--0018 | Open R1 blocker, narrowed on 2026-08-20: the source workflow now selects Azure Artifact Signing, requires exact-subject/SHA-256/RFC-3161 verification for every DLL before and after WPM packaging, repeats signed x86 imports, and records a mandatory zero `wpm verify` exit. Azure identity/profile/OIDC/RBAC configuration, first exact tagged evidence, and the separately deferred final-byte Defender gate remain Unknown; no Pass is inferred. |
+| T6-D016 | build/tooling | Tagged release workflow | critical | WCRT maintainer | Earlier release automation | R1 scope review | -- | `.github/workflows/build.yml`, ADR-0006, `docs/windows-signing-plan.md`, WSP-SIGN-0001--0018 | Deferred from 1.0 by maintainer decision on 2026-08-21: the historical Azure/Authenticode design is retained but removed from the active workflow and approval gate. Existing DLLs remain `NotSigned`; Authenticode/Defender are Deferred, not Pass. WPM signing, `wpm verify` exit zero, and unchanged packaged-DLL identities remain active R1 requirements. |
 | T6-D017 | build/tooling | Candidate `23497525bd0be03b0d53d79686376e93ade94046` ARM64 C89 cross aggregate | high | WCRT maintainer | T6 `fma` correction / earlier cross-runner inventory | T6 verification | -- | `tools/run-c89-arm64-cross.ps1`, failed diagnostics, run `32027269426` | Removed: TC-0007 linked `src/math.c` without its now-required `src/fenv.c` dependency. The cross runner now uses the native dependency; all 15 ARM64 C89 units compile/link locally and pass natively in the final exact CI run. |
 | T6-D018 | test | ARM64 aggregate invocation on x64 verification host | medium | WCRT maintainer | T6 verification procedure | T6 verification review | -- | invalid local output; run `32027269426` | Removed as a procedure error, not a product result: the x64-host invocation produced launch errors and was excluded. The same aggregate later passes natively on the exact ARM64 Debug runner; tagged ARM64 Release smoke remains a separate R1 Unknown. |
 | T6-D019 | build/tooling | Bootstrap dependency helpers | medium | WCRT maintainer | Pre-C99 bootstrap | -- | -- | `tests/check-dependency-releases.ps1`, `tests/export-dependency-metadata.ps1` | Open non-gating cleanup: the unused helpers inventory absent miniz/libsodium directories and cannot establish WCRT provenance. They are excluded from Pass evidence; the pinned workflow and `docs/evidence/c99-t6/dependency-provenance.json` are authoritative. Remove or replace the helpers before enabling them as a gate. |
@@ -464,7 +465,8 @@ command wall time, commit timestamps, or CI duration.
 | T6-D027 | evidence | Commit `af3b42fb01f78f365e58db162c1c91e27426b597`, runs `32026514992` and `32027269426` | high | WCRT maintainer | CI artifact-retention list | T6 corrective implementation/verification | -- | workflow and downloaded architecture artifacts | Removed: all named target artifacts retain dependency provenance; the named ARM64 artifact also contains the companion archive. Runner image, job, artifact, source, tool, and digest evidence was inspected. |
 | T6-D028 | evidence/provenance | First local `aea690d2` Release rebuild | high | WCRT maintainer | Local candidate preparation | T6 release-readiness verification | -- | exact TinyCC release archives, dependency record, candidate manifest | Removed: the first local rebuild used sibling-repository x64/ARM64 compiler executables whose hashes differed from CI, so those outputs were rejected. The three pinned release archives were obtained, archive and extracted executable hashes matched CI, and the candidate was rebuilt/tested under distinct exact-evidence paths. |
 | T6-D029 | requirements/process | Original REQ/TC-0042 and T6 completion wording | high | WCRT maintainer | T6 planning/specification | T6 postmortem reconciliation | -- | REQ/TC-0042, release-workflow verifier, test strategy, work plan, readiness record, workflow | Removed from T6 and retained in R1: the original wording conflated requirement/tranche completion with optimized Release publication evidence. The approved lifecycle permits committing the candidate source before tagged Release CI completes, but still requires native x86/x64/ARM64 Release consumers/startup, x86 imports, signed-package verification, and exact evidence before the downstream publish job can run. TC-0042 now rejects loss of that workflow dependency chain. No missing Release result is reclassified as Pass. |
-| T6-D030 | security/configuration | GitHub `release` environment inspected 2026-08-20 | critical | WCRT maintainer | Earlier release configuration | -- | -- | GitHub environment/secret APIs; ADR-0006; signing plan | Open R1 blocker: the environment has `protection_rules: []`, no deployment branch policy, and `can_admins_bypass: true`; `WPM_RELEASE_PRIVATE_KEY` exists only at repository scope. The workflow now defers its first environment boundary until `sign`, after all Release tests, but an explicit tag/reviewer/self-review/admin-bypass policy and reviewer identity must be approved, then WPM and Azure values must be environment-scoped and the repository WPM secret removed before a tag. |
+| T6-D030 | security/configuration | GitHub `release` environment inspected 2026-08-20 | critical | WCRT maintainer | Earlier release configuration | -- | -- | GitHub environment/secret APIs; release process; workflow | Open R1 blocker, narrowed on 2026-08-21: the environment has `protection_rules: []`, no deployment branch policy, and `can_admins_bypass: true`; `WPM_RELEASE_PRIVATE_KEY` exists only at repository scope. The first environment boundary is now `package`, after all Release tests. Approve the tag/reviewer/self-review/admin-bypass policy, migrate the WPM key into environment scope, verify use, and remove the repository-scoped copy before a tag. No Azure values are required for 1.0. |
+| T6-D031 | requirements/process | 1.0 Authenticode and Defender scope | high | WCRT maintainer | R1 signing-control preparation | R1 requirements/process review | -- | REQ/TC-0042, ADR-0006, work plan, workflow, readiness/DFS/WSP records | Removed as a 1.0 blocker through explicit maintainer deferral on 2026-08-21. The impact review found no API, ABI, target, or package-content change. The workflow now enforces `build` -> `release` -> `package` -> `publish`; WPM signing/verification and exact packaged-DLL identities remain required. The release claim must disclose unsigned DLLs and no Defender assurance; future reactivation requires a new impact review. |
 
 The 2026-08-20 T6-D029 reconciliation passes all 15 pinned WSP common-tool
 self-tests, 48/48/48 traceability, TC-0016 over 182 C/header files with zero
@@ -500,6 +502,27 @@ Azure identity/profile or GitHub OIDC configuration was available, no
 Authenticode or WPM private-key operation ran, ARM64 Release remains unrun, and
 no actual signature, timestamp, tagged package, or zero-exit WPM result is
 claimed.
+
+On 2026-08-21 the maintainer explicitly deferred Authenticode publisher
+identity/timestamping and Defender scanning from WCRT 1.0.0. REQ/TC-0042, the
+workflow gate, release process, DFS, readiness, WSP adoption, evidence baseline,
+and public documentation were reconciled without changing C89/C99 behavior or
+target support. The active chain is `build` -> `release` -> `package` ->
+`publish`; WPM signing/verification and unchanged packaged-DLL identities
+remain fail-closed. Historical unsigned failures remain retained and no Pass is
+inferred from the deferral.
+
+The 2026-08-21 affected-gate rerun passes the release-workflow verifier with
+`build` -> `release` -> `package` -> `publish`, x64 TC-0042 with 24 C99
+headers/15 C89 headers/three mixed orders, all 15 WSP common-tool self-tests,
+48/48/48 traceability, TC-0041 with 25 clauses/24 headers/75 facility rows,
+and TC-0016 over 182 C/header files with zero violations. PowerShell syntax,
+both changed JSON records, and `git diff --check` pass. The new unsigned-DLL
+package mode compares all three candidate DLL hashes successfully and its
+negative test rejects three missing Release inputs. No general local YAML
+parser is installed; the repository-owned structural workflow verifier passes,
+while exact-revision GitHub workflow parsing/execution remains Unknown until a
+successor revision is pushed. No external write or private-key operation ran.
 
 Local GDB uses the approved MinGW-w64 16.1.0 archive with SHA-256
 `ecaceb42639d21c695f875800a29b2dea76bbb05eb2a1cca3049b65499b8d867` in the
@@ -552,13 +575,12 @@ as effort. The planned 174--322 focused-hour base and 218--451-hour completion
 forecast therefore cannot be scored for time accuracy or converted into a
 calendar schedule.
 
-Thirty findings were recorded. Requirement, interface, numeric, test,
+Thirty-one findings were recorded. Requirement, interface, numeric, test,
 dependency, documentation, and procedure corrections are recorded per defect,
 including the newly exposed diagnostic exit-status and DLL-consumer evidence
-faults. T6-D016 remains a critical R1 blocker: Authenticode/timestamp automation
-is implemented and reviewed locally, but external identity provisioning and
-exercised exact-artifact evidence are Unknown, while a repeatable final-byte
-Defender control remains deferred. T6-D019 remains
+faults. T6-D016 is an approved 1.0 scope deferral, not Pass. T6-D030 remains a
+critical R1 blocker because the active WPM key is not protected by an approved
+release environment and no exact tagged WPM verification exists. T6-D019 remains
 non-gating cleanup because unused bootstrap helpers describe dependencies WCRT
 does not contain. T6-D023--D027 are removed by exact-revision run
 `32027269426`; T6-D028 preserves and corrects the local dependency-provenance
@@ -581,6 +603,7 @@ traceability, and package results pass at `aea690d2`; independent project
 review is absent. Local exact-provenance Release x86/x64 behavior, ARM64
 compile/link, and Windows 2000 x86 imports are readiness inputs, not substitutes
 for the tagged matrix. The separate R1 readiness record keeps tagged native
-Release execution, signing, WPM verification, final-signed-byte Defender
-design/evidence, documentation, and installation/rollback blocking before
-publication. No release approval is implied.
+Release execution, WPM verification, protected environment controls, exact
+artifact identities, documentation, and installation/rollback blocking before
+publication. Authenticode/Defender are recorded as Deferred with a reduced
+trust claim. No release approval is implied.

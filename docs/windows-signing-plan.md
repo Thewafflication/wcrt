@@ -2,14 +2,21 @@
 
 **Content type:** Controlled release signing plan
 
-**Status:** Approved design; external Azure identity and exercised evidence
-pending
+**Status:** Deferred from WCRT 1.0.0; retained for future reassessment
 
 **Decision:** ADR-0006
 
+The maintainer deferred Authenticode signing and timestamping on 2026-08-21.
+This plan therefore describes a dormant design, not the WCRT 1.0 release
+workflow or a 1.0 approval gate. WPM package signing remains active and
+independent. Before this plan is reactivated, its provider, identity, access,
+cost, certificate rules, action revisions, and evidence requirements must be
+revalidated.
+
 ## Scope and Identity
 
-Every Release `wcrt.dll` distributed in the WPM package is in scope:
+If Authenticode is reactivated, every distributed Release `wcrt.dll` is in
+scope:
 
 | Architecture | Build input | Package entry |
 | --- | --- | --- |
@@ -47,7 +54,8 @@ signatures. The final WPM ZIP receives the separate WPM signature.
   secret is materialized only as a temporary file for `wpm build --sign`, then
   deleted. It cannot be reused for Authenticode.
 
-Required GitHub `release` environment secrets are:
+The deferred Azure design would require these GitHub `release` environment
+secrets:
 
 | Secret | Purpose |
 | --- | --- |
@@ -69,15 +77,17 @@ Its expected GitHub subject is
 
 The repository API inspection on 2026-08-20 reports that `release` currently
 has no protection rules or deployment branch/tag policy and permits admin
-bypass. Do not provision the Azure or WPM values into that environment until a
-tag policy and required-review/bypass policy are explicitly approved. The
-workflow deliberately places the first `environment: release` boundary on the
-`sign` job, after all architecture-specific Release tests have succeeded.
-The same inspection found `WPM_RELEASE_PRIVATE_KEY` only at repository-secret
-scope. Re-enter it as a `release` environment secret, verify the environment
-copy, and remove the repository-scoped copy before an authorized tag.
+bypass. Do not provision Azure values for WCRT 1.0. The workflow places its
+first `environment: release` boundary on the WPM `package` job, after all
+architecture-specific Release tests have succeeded. The same inspection found
+`WPM_RELEASE_PRIVATE_KEY` only at repository-secret scope. Re-enter it as a
+`release` environment secret, verify the environment copy, and remove the
+repository-scoped copy before an authorized tag.
 
-## Required Order and Verification
+## Deferred Authenticode Order and Verification
+
+The following order applies only after an explicit decision reactivates
+Authenticode. It is not the 1.0 workflow baseline.
 
 1. The complete Debug matrix passes at the candidate revision.
 2. Tagged optimized x86, x64, and ARM64 Release jobs build final PE content and
@@ -100,15 +110,16 @@ copy, and remove the repository-scoped copy before an authorized tag.
    under the explicitly deferred design. Publication is not approved until
    the release-readiness record dispositions that separate gate.
 
-The workflow pins Azure Login and Artifact Signing actions by full commit. A
-dependency update requires source review, a workflow-gate test update, and an
-impact note. A warning, missing file, missing tool, missing value, unavailable
+The historical implementation pinned Azure Login and Artifact Signing actions
+by full commit. The current 1.0 workflow does not load those actions. A future
+reactivation requires source review, a workflow-gate test update, and an impact
+note. A warning, missing file, missing tool, missing value, unavailable
 service, invalid or untrusted signature, absent timestamp, subject mismatch,
 hash mismatch, or missing evidence is not Pass.
 
 ## Retained Evidence
 
-The tag run must retain:
+A future Authenticode-enabled tag run must retain:
 
 - source revision, tag, workflow/run/job identities, runner image, action
   commits, Azure signing account/profile identifiers, and timestamp URL;

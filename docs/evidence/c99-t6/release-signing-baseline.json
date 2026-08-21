@@ -1,100 +1,86 @@
 {
-  "recordedAt": "2026-08-20",
-  "status": "Prepared; external identity provisioning and exercised release evidence are Unknown",
+  "recordedAt": "2026-08-21",
+  "status": "Authenticode and Defender deferred from WCRT 1.0.0; WPM package signing remains required and unexercised",
   "sourceBaseline": {
-    "signingImplementationRevision": "3637a71b95c5b5cf9398b1813ba2577d8ea8d62e",
-    "releaseCandidateRevision": "Unknown until a final candidate is approved; the tag run must record github.sha"
+    "historicalSigningImplementationRevision": "3637a71b95c5b5cf9398b1813ba2577d8ea8d62e",
+    "releaseCandidateRevision": "Unknown until a successor candidate is approved; the tag run must record github.sha"
   },
   "debugCiValidation": {
     "runId": 32337055333,
     "runUrl": "https://github.com/Thewafflication/wcrt/actions/runs/32337055333",
     "revision": "3637a71b95c5b5cf9398b1813ba2577d8ea8d62e",
     "result": "Pass for source quality, native x86/x64/ARM64 Debug matrices, and Debug package assembly",
-    "releaseSignPackagePublish": "Skipped because the revision was pushed as a branch rather than a tag; no trust result is inferred"
+    "releaseTrustJobs": "Skipped because the revision was pushed as a branch rather than a tag; no Authenticode or WPM result is inferred"
   },
   "authenticode": {
-    "logicalPublisher": "Jordan Waughtal",
-    "versionInfoCompanyName": "Jordan Waughtal",
-    "service": "Microsoft Azure Artifact Signing",
-    "trustModel": "Public Trust",
-    "sku": "Basic",
-    "exactCertificateSubject": "Unknown until Azure identity validation and first qualifying certificate; supplied by AUTHENTICODE_EXPECTED_SUBJECT",
-    "fileDigest": "SHA256",
-    "timestampService": "http://timestamp.acs.microsoft.com",
-    "timestampProtocol": "RFC3161",
-    "timestampDigest": "SHA256",
-    "privateKeyLocation": "Azure-managed non-exportable storage; never a GitHub secret"
+    "disposition": "Deferred from WCRT 1.0.0 by maintainer decision on 2026-08-21",
+    "candidateStatus": "NotSigned",
+    "releaseClaim": "No Authenticode publisher, timestamp, PE-level trust, or Defender assurance is claimed for 1.0",
+    "historicalDesign": "ADR-0006 Azure Artifact Signing Public Trust design retained for future reassessment",
+    "requiredFor1_0": false,
+    "passInferred": false
   },
-  "githubOidc": {
-    "environment": "release",
-    "environmentProtection": "Fail: 2026-08-20 API inspection returned no protection rules, no deployment branch policy, and admin bypass enabled",
-    "privateClientSecretSelected": false,
-    "requiredSecretNames": [
-      "AZURE_CLIENT_ID",
-      "AZURE_TENANT_ID",
-      "AZURE_SUBSCRIPTION_ID",
-      "ARTIFACT_SIGNING_ENDPOINT",
-      "ARTIFACT_SIGNING_ACCOUNT_NAME",
-      "ARTIFACT_SIGNING_CERTIFICATE_PROFILE",
-      "AUTHENTICODE_EXPECTED_SUBJECT"
-    ],
-    "requiredAzureRole": "Artifact Signing Certificate Profile Signer",
-    "federatedSubjectRestriction": "repo:Thewafflication/wcrt:environment:release"
-  },
-  "actions": {
-    "Azure/login@v3": "d54469830ea7d513b7371e02a077c3ee5cb7b112",
-    "Azure/artifact-signing-action@v2": "c0ae2c1d0c1847ab81ac0ab8521bee597cfedd30"
+  "historicalAzureDesign": {
+    "provisioningRequiredFor1_0": false,
+    "secretsRequiredFor1_0": [],
+    "actionsLoadedBy1_0Workflow": false,
+    "identityProvisioned": false,
+    "signatureEvidenceProduced": false
   },
   "dlls": [
     {
       "architecture": "x86",
       "releaseArtifact": "wcrt-x86-release-build",
-      "signedArtifact": "wcrt-x86-release-signed",
-      "packageEntry": "x86/bin/wcrt.dll"
+      "packageEntry": "x86/bin/wcrt.dll",
+      "expectedAuthenticodeFor1_0": "NotSigned"
     },
     {
       "architecture": "x64",
       "releaseArtifact": "wcrt-x64-release-build",
-      "signedArtifact": "wcrt-x64-release-signed",
-      "packageEntry": "x64/bin/wcrt.dll"
+      "packageEntry": "x64/bin/wcrt.dll",
+      "expectedAuthenticodeFor1_0": "NotSigned"
     },
     {
       "architecture": "arm64",
       "releaseArtifact": "wcrt-arm64-release-build",
-      "signedArtifact": "wcrt-arm64-release-signed",
-      "packageEntry": "arm64/bin/wcrt.dll"
+      "packageEntry": "arm64/bin/wcrt.dll",
+      "expectedAuthenticodeFor1_0": "NotSigned"
     }
   ],
   "workflowOrder": [
     "build",
     "release",
-    "sign",
     "package",
     "publish"
   ],
-  "retainedEvidence": [
-    "unsigned-dll-identities.json",
-    "authenticode-signatures.json",
-    "windows-2000-imports.json for the signed x86 DLL",
+  "retainedEvidenceRequiredFor1_0": [
+    "native x86/x64/ARM64 Release artifacts and hashes",
+    "x86 Windows 2000 import evidence",
     "wpm-verification.json with exitCode 0",
-    "package-authenticode-signatures.json"
+    "package-dll-identities.json with unchanged true for all three DLLs",
+    "exact final package identity and SHA-256"
   ],
   "wpm": {
+    "disposition": "Required for WCRT 1.0.0",
     "signingSecret": "WPM_RELEASE_PRIVATE_KEY",
     "observedSecretScope": "repository secret present; no release-environment secrets were listed on 2026-08-20",
-    "requiredSecretScope": "release environment after its protection policy is approved",
+    "requiredSecretScope": "protected release environment after its policy is approved",
     "keyReuseForAuthenticode": false,
     "trustKey": "release_keys/wpm-release.public",
-    "requiredVerificationExitCode": 0
+    "requiredVerificationExitCode": 0,
+    "exerciseStatus": "Unknown until a qualifying tag run"
   },
-  "unknownBlockers": [
-    "paid Azure Artifact Signing account and Public Trust identity validation",
-    "certificate profile and exact X.509 subject",
-    "profile-scoped Azure RBAC and GitHub OIDC federation",
-    "seven GitHub release-environment values",
+  "remainingReleaseBlockers": [
+    "approved release-environment tag/reviewer/self-review/admin-bypass policy",
     "migration of WPM_RELEASE_PRIVATE_KEY from repository scope to the protected release environment",
-    "successful exact tagged x86/x64/ARM64 Release, sign, and package jobs",
-    "exact signed DLL and WPM package identities",
-    "deferred Defender design and final-signed-byte evidence"
+    "successful exact tagged x86/x64/ARM64 Release and package jobs",
+    "wpm verify exit code zero and unchanged packaged-DLL identities",
+    "exact final WPM package identity",
+    "clean-system install, remove, and rollback evidence",
+    "final release documentation and independent review"
+  ],
+  "deferredObjectives": [
+    "Authenticode publisher identity and RFC 3161 timestamping",
+    "Microsoft Defender release scanning and retained scan evidence"
   ]
 }

@@ -61,10 +61,10 @@ are controlled by `docs/c99-conformance-profile.md` and
   metadata, trust keys, and SHA-256 values provide the selected controls.
 - The WPM Ed25519 signature, Authenticode signature, SHA-256 checksum,
   Defender result, and SmartScreen reputation are distinct trust layers.
-- ADR-0006 selects Azure Artifact Signing Public Trust and GitHub OIDC for
-  Authenticode. Azure controls the non-exportable signing key; the repository
-  and GitHub secrets do not contain it. The WPM key remains a separate trust
-  credential.
+- ADR-0006 retains a dormant Azure Artifact Signing design. Authenticode and
+  Defender were explicitly deferred from WCRT 1.0.0 on 2026-08-21; no
+  Authenticode identity or key is provisioned. The WPM key remains a separate,
+  active package-trust credential.
 
 ## Threats and Abuse Cases
 
@@ -74,9 +74,9 @@ are controlled by `docs/c99-conformance-profile.md` and
 | THR-002 | ABI mismatch corrupts calls or saved state | Consumer process | Per-target type assertions, native ABI tests, consumers, setjmp/fenv tests | Native target evidence is mandatory; cross-linking is insufficient |
 | THR-003 | Dependency or action drifts after review | Build integrity | Exact versions/revisions, release-key hashes, action SHAs, executable hashes | Runner image contents remain externally maintained |
 | THR-004 | New Windows import breaks the legacy target | Availability | Repository-owned PE import parser and allowlist | Runtime-only OS differences still require supported-system tests |
-| THR-005 | Artifact is replaced, modified after scan, or bound to stale evidence | Release integrity | Signing order, SHA-256 manifest, immutable artifact names, evidence digest checks | External publication controls must preserve reviewed bytes |
-| THR-006 | Signing credential is copied or misused | Release identity | Azure-managed HSM-backed key, GitHub OIDC, profile-scoped signer role, audit trail, no repository Authenticode key | Service and logical identity are selected; external profile, RBAC, federation, exact subject, and exercised audit evidence remain Unknown |
-| THR-007 | A Defender result is assumed from no reported failure | Users | Exact final-byte scan record with engine/intelligence versions | New detections can occur after release |
+| THR-005 | Artifact is replaced, modified, or bound to stale evidence | Release integrity | WPM signature, packaged-DLL identity comparison, SHA-256 manifest, immutable artifact names, evidence digest checks | External publication controls must preserve reviewed bytes |
+| THR-006 | Signing credential is copied or misused | Release identity | WPM key restricted to the protected package job; no Authenticode credential for 1.0; dormant future design selects managed non-exportable use | WPM secret is still repository-scoped and the `release` environment lacks approved protection rules; Authenticode supplies no 1.0 publisher assurance |
+| THR-007 | A Defender result is assumed from no reported failure | Users | Explicit Deferred disposition and documentation that 1.0 makes no scan assurance claim | The release receives no project-owned malware-scan assurance; detections can occur before or after release |
 | THR-008 | Required target result is inferred from another target | Conformance and availability | Per-target Pass/Fail/Unknown profile and retained native output | Native ARM64 Debug passes; tagged ARM64 Release remains an R1 Unknown |
 
 ## Security Controls
@@ -90,20 +90,18 @@ are controlled by `docs/c99-conformance-profile.md` and
   the Windows 2000 allowlist.
 - Required tests fail closed. Compiler-blocked, optional, deviating, and
   Unknown states are separate from Pass.
-- The controlled signing plan selects publisher `Jordan Waughtal`, Azure
-  Artifact Signing Public Trust, and Microsoft's RFC 3161 SHA-256 timestamp
-  endpoint. The tag workflow pins both Azure actions, verifies every target
-  before and after packaging, repeats the signed x86 import gate, and requires
-  `wpm verify` exit zero. Missing external provisioning is a blocking Unknown.
+- The 1.0 tag workflow does not load an Authenticode provider. It requires
+  native Release verification on every target, WPM-signs the package, requires
+  `wpm verify` exit zero, and compares every packaged DLL with its Release
+  input. Authenticode and Defender remain Deferred, not Pass.
 - Release order is: freeze source and dependencies; build and verify PEs;
-  Authenticode-sign and timestamp final PEs; verify signatures; scan those
-  exact PEs; package without modifying them; sign and verify the WPM envelope;
-  calculate checksums; approve exact identities; publish only with separate
-  authorization.
+  package without modifying them; sign and verify the WPM envelope; calculate
+  checksums; approve exact identities; publish only through the downstream
+  job. The dormant Authenticode/Defender order requires a future impact review.
 - Private keys must not enter source control, packages, command output, or
-  retained logs. Azure owns the Authenticode private key; the distinct WPM key
-  is materialized only as a temporary package-job file and then deleted. No
-  private-key operation is implied by candidate preparation.
+  retained logs. The WPM key is materialized only as a temporary package-job
+  file and then deleted. No Authenticode key exists for 1.0, and no private-key
+  operation is implied by candidate preparation.
 
 ## Security Verification
 
@@ -113,7 +111,7 @@ are controlled by `docs/c99-conformance-profile.md` and
 | SG-002 / THR-003 | Traceability, dependency pins, hashes, WSP tests, clean revision | Workflow, `docs/evidence/c99-t6/dependency-provenance.json`, local verification | Pass: exact archives/executables, sources, actions, runner images, jobs, and artifact IDs retained |
 | SG-004 / THR-004 | Parse x86 DLL imports and bind output to DLL SHA-256 | Local verification and `docs/evidence/c99-t6/release-candidate-manifest.json` | Exact x86 Release candidate Pass |
 | THR-002 / THR-008 | Native x86/x64/ARM64 tests, consumers, and startup checks | Per-target retained results | Debug Pass all targets; tagged optimized Release matrix is an R1 Unknown |
-| SG-003 / THR-005--007 | Signature verification, Defender scan, package verification, checksums | Signing plan, workflow, candidate manifest, and release-readiness record | Authenticode/WPM workflow implemented but unexercised and therefore Unknown; old candidate unsigned; Defender design/evidence deferred |
+| SG-003 / THR-005--007 | Package verification, deferred PE signing/scan, checksums | Workflow, candidate manifest, deferred signing plan, and release-readiness record | WPM signing/verification remains required and unexercised; old package is unsigned. Authenticode and Defender are Deferred from 1.0 and supply no Pass evidence |
 
 ## Vulnerability and Incident Response
 
@@ -135,7 +133,8 @@ repository references and marking the release withdrawn.
 | --- | --- | --- | --- | --- |
 | Memory-unsafe implementation language | Required by project scope; testing reduces but cannot eliminate defects | Maintainer | Release decision | Every security defect or major parser/allocator change |
 | External compiler, runner, OS, and package tools | WCRT cannot reproduce their full supply chains | Maintainer | Release decision | Dependency or runner baseline change |
-| Selected signing identity and service not provisioned or exercised | The source workflow cannot prove identity validation, protected GitHub authorization, Azure access, certificate subject, signatures, timestamps, or package trust until environment policy, the external profile, and qualifying tag run exist | Maintainer | Service/design approved in ADR-0006; evidence none | Approve the `release` tag/reviewer/bypass policy, environment-scope secrets, configure Azure profile/OIDC/RBAC, and complete a successful exact tagged signing/package run before 1.0.0 approval |
+| Distributed DLLs have no Authenticode publisher identity | Windows can verify package hashes and the WPM signature, but cannot authenticate the PE publisher or preserve PE-level trust after extraction | Maintainer | Explicitly deferred from WCRT 1.0.0 on 2026-08-21; not Pass | Document the unsigned-PE trust limitation for 1.0; require a new impact review and qualifying evidence before any future publisher claim |
+| WPM key is not protected by an approved release environment | A repository-scoped secret can be invoked without the intended tag/reviewer boundary | Maintainer | None | Approve the `release` environment policy, migrate and verify the secret, remove the repository-scoped copy, then obtain `wpm verify` exit zero on the exact candidate |
 | Tagged optimized Release evidence unavailable | Debug behavior and cross-build cannot prove optimized Release behavior on every target | Maintainer | None | Successful tag-triggered native x86/x64/ARM64 Release matrix before publication |
 
 ## Change History
@@ -144,3 +143,4 @@ repository references and marking the release withdrawn.
 | --- | --- | --- | --- |
 | 2026-08-17 | 1.0 candidate baseline | Initial project-owned DFS from pinned WSP template | Pending release review |
 | 2026-08-20 | Authenticode preparation | Select managed signing identity/service, OIDC, timestamp, verification, package immutability, and incident controls | ADR-0006 accepted; external evidence pending |
+| 2026-08-21 | WCRT 1.0 trust-scope change | Remove Authenticode/Azure and Defender from the active 1.0 gate; retain WPM package trust and exact DLL identity checks | Maintainer-approved deferral; no Pass inferred |

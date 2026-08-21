@@ -3,9 +3,10 @@ param(
     [Parameter(Mandatory = $true)]
     [string]$Package,
 
-    [Parameter(Mandatory = $true)]
     [ValidateNotNullOrEmpty()]
     [string]$ExpectedSubject,
+
+    [switch]$SkipAuthenticode,
 
     [string]$ExpectedCompanyName = 'Jordan Waughtal',
 
@@ -20,6 +21,10 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+if (-not $SkipAuthenticode -and
+    [string]::IsNullOrWhiteSpace($ExpectedSubject)) {
+    throw 'ExpectedSubject is required unless Authenticode verification is skipped.'
+}
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $architectures = @('x86', 'x64', 'arm64')
 
@@ -77,7 +82,7 @@ try {
             $source = Resolve-RepositoryPath -Candidate (
                 "$BuildRoot/$architecture/Release/wcrt.dll")
             if (-not (Test-Path -LiteralPath $source -PathType Leaf)) {
-                $failures.Add("Signed build input is missing: $source")
+                $failures.Add("Release build input is missing: $source")
                 continue
             }
             $sourceHash = (Get-FileHash -LiteralPath $source `
@@ -87,13 +92,13 @@ try {
             $match = $sourceHash -eq $packageHash
             if (-not $match) {
                 $failures.Add(
-                    "Packaged $architecture DLL differs from the signed build input.")
+                    "Packaged $architecture DLL differs from the Release build input.")
             }
             $comparisons += [ordered]@{
                 architecture = $architecture
                 packageEntry = $entryName
-                signedBuildPath = $source
-                signedBuildSha256 = $sourceHash
+                releaseBuildPath = $source
+                releaseBuildSha256 = $sourceHash
                 packagedSha256 = $packageHash
                 unchanged = $match
             }
@@ -102,7 +107,8 @@ try {
         $archive.Dispose()
     }
 
-    if ($extracted.Count -eq $architectures.Count) {
+    if (-not $SkipAuthenticode -and
+        $extracted.Count -eq $architectures.Count) {
         $arguments = @{
             Path = $extracted
             ExpectedSubject = $ExpectedSubject
@@ -133,9 +139,19 @@ try {
         packageLength = $packageItem.Length
         packageSha256 = (Get-FileHash -LiteralPath $packagePath `
             -Algorithm SHA256).Hash.ToLowerInvariant()
-        expectedSubject = $ExpectedSubject
-        expectedCompanyName = $ExpectedCompanyName
+        expectedSubject = if ($SkipAuthenticode) {
+            $null
+        } else {
+            $ExpectedSubject
+        }
+        expectedCompanyName = if ($SkipAuthenticode) {
+            $null
+        } else {
+            $ExpectedCompanyName
+        }
         sourceRevision = $SourceRevision
+        authenticodeRequired = -not $SkipAuthenticode
+        authenticodeVerificationSkipped = [bool]$SkipAuthenticode
         result = if ($failures.Count -eq 0) { 'Pass' } else { 'Fail' }
         unchangedDlls = $comparisons
         authenticodeVerification = $signatureRecord
@@ -152,7 +168,7 @@ try {
 }
 
 if ($failures.Count -ne 0) {
-    throw "Packaged Authenticode verification failed with " +
+    throw "Packaged DLL verification failed with " +
         "$($failures.Count) findings. Evidence: $resolvedOutput"
 }
 
