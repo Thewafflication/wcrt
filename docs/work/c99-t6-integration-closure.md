@@ -468,6 +468,7 @@ command wall time, commit timestamps, or CI duration.
 | T6-D030 | security/configuration | GitHub `release` environment inspected 2026-08-20 | critical | WCRT maintainer | Earlier release configuration | -- | -- | GitHub environment/secret APIs; release process; workflow | Open R1 blocker, narrowed on 2026-08-21: the environment has `protection_rules: []`, no deployment branch policy, and `can_admins_bypass: true`; `WPM_RELEASE_PRIVATE_KEY` exists only at repository scope. The first environment boundary is now `package`, after all Release tests. Approve the tag/reviewer/self-review/admin-bypass policy, migrate the WPM key into environment scope, verify use, and remove the repository-scoped copy before a tag. No Azure values are required for 1.0. |
 | T6-D031 | requirements/process | 1.0 Authenticode and Defender scope | high | WCRT maintainer | R1 signing-control preparation | R1 requirements/process review | -- | REQ/TC-0042, ADR-0006, work plan, workflow, readiness/DFS/WSP records | Removed as a 1.0 blocker through explicit maintainer deferral on 2026-08-21. The impact review found no API, ABI, target, or package-content change. The workflow now enforces `build` -> `release` -> `package` -> `publish`; WPM signing/verification and exact packaged-DLL identities remain required. The release claim must disclose unsigned DLLs and no Defender assurance; future reactivation requires a new impact review. |
 | T6-D032 | build/dependency | Maintainer review of TinyCC selection policy | high | WCRT maintainer | Pinned T6 compiler baseline | R1 dependency-policy correction | -- | `tools/install-latest-tinycc-wpm-package.ps1`, workflow, TC-0042, dependency policy records | Removed in implementation on 2026-08-21, pending exact CI evidence: the hard-coded 1442 selection contradicted the required latest-package policy. Both Debug and Release now call WPM without `--version` against `tcc_package/releases/latest/download`, retain the resolved package/source/key/executable identities, reject mixed target versions, and reject a Debug/Release change rather than combining baselines. The publisher key remains pinned. |
+| T6-D033 | compiler ABI/runtime | Exact latest-package run `32533021170`, ARM64 job `96928888494` | critical | WCRT maintainer | T6-D032 latest TinyCC selection | T6 corrective implementation/verification | -- | TinyCC 1444 source comparison, ARM64 consumer failure, complex helper bridge and TC-0037 | Opened before correction on 2026-08-21: TinyCC 1444 deliberately changed its complex runtime helper call type to the standard function ABI (d0--d3 scalar arguments and x0 result pointer). WCRT's 1442 compatibility bridge still remapped x0--x4 and corrupted the now-correct call, so the ARM64 complex static consumer returned 1. The correction preserves the new registers and tail-branches to the scalar helpers; static inventory rejects the obsolete remap. Native ARM64 TC-0037 and static/DLL consumers remain Unknown until rerun. |
 
 The 2026-08-20 T6-D029 reconciliation passes all 15 pinned WSP common-tool
 self-tests, 48/48/48 traceability, TC-0016 over 182 C/header files with zero
@@ -544,6 +545,18 @@ violations, all 15 WSP common-tool self-tests, and `git diff --check` pass
 locally. Native behavior with the newly selected package remains Unknown until
 the exact-revision x86/x64/ARM64 workflow completes.
 
+Run `32533021170` at `87cd0bfb45fc42e10f70724ac8548168ed1465ea`
+then proves latest-package installation/provenance and all required gates on x86
+and x64, but fails the ARM64 complex static-library consumer at runtime before
+the remaining ARM64 suites. The retained package identity is
+`0.9.28-rc.1444+9a4be30f`, source `9a4be30f`, ARM64 archive SHA-256
+`0a025fc1ddbe2ac5ec701b472b87600e8b67067c581d6d924bb7a725c70c55c0`.
+The upstream 1442--1444 comparison identifies the helper-ABI correction; WCRT's
+obsolete remap is recorded as T6-D033 rather than treated as a flaky run. With
+the correction applied, actual TinyCC 1444 ARM64 cross-build, TC-0037 compile,
+and static/DLL consumer compile/link checks pass locally. Native runtime remains
+Unknown pending the corrective exact-revision run.
+
 Local GDB uses the approved MinGW-w64 16.1.0 archive with SHA-256
 `ecaceb42639d21c695f875800a29b2dea76bbb05eb2a1cca3049b65499b8d867` in the
 ignored project tool cache. It is diagnostic support, not a release input. The
@@ -595,7 +608,7 @@ as effort. The planned 174--322 focused-hour base and 218--451-hour completion
 forecast therefore cannot be scored for time accuracy or converted into a
 calendar schedule.
 
-Thirty-two findings were recorded. Requirement, interface, numeric, test,
+Thirty-three findings were recorded. Requirement, interface, numeric, test,
 dependency, documentation, and procedure corrections are recorded per defect,
 including the newly exposed diagnostic exit-status and DLL-consumer evidence
 faults. T6-D016 is an approved 1.0 scope deferral, not Pass. T6-D030 remains a

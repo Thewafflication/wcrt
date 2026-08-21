@@ -28,6 +28,15 @@ T6 selected `0.9.28-rc.1442+2474e1c2` (source revision
 gates. The selected package remains on the Supported path. This does not
 transfer T5's historical native ARM64 result to the T6 candidate baseline.
 
+On 2026-08-21 the latest-package policy selected TinyCC
+`0.9.28-rc.1444+9a4be30f`. Upstream revision `9a4be30f` corrected its complex
+runtime helper declaration to a standard function returning through an output
+pointer. On Windows ARM64 this places the four scalar arguments in `d0`--`d3`
+and the pointer in `x0`. The earlier WCRT 1442 register remap therefore became
+incorrect and was removed; the target assembly now supplies only symbol aliases
+that preserve the corrected ABI. This is controlled by TC-0037 and the
+static/DLL consumer gates, not inferred from the compiler change.
+
 ## Decision
 
 - The public type remains compiler-owned `_Complex`; WCRT will not substitute
@@ -61,6 +70,8 @@ transfer T5's historical native ARM64 result to the T6 candidate baseline.
 The source, headers, specifications, and tests can be reviewed and shipped
 without hiding the compiler dependency. Packages built with TinyCC 1437 omit
 complex symbols as recorded; packages built with a qualified supported package
-include the runtime and complete capability evidence. The T6 baseline selects
-TinyCC 1442. Release readiness still requires native behavior evidence and
-review rather than inferring them from probe or cross-compilation success.
+include the runtime and complete capability evidence. T6 retains exact TinyCC
+1442 evidence; successor workflows select the latest eligible WPM package and
+record its exact identity. Release readiness still requires native behavior
+evidence and review rather than inferring them from probe or cross-compilation
+success.
