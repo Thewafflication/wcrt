@@ -24,7 +24,9 @@ ABI types, all test manifests, the release workflow, binaries, packages,
 hashes, and result records.}
 \def\TCInitialState{Architecture-specific clean build and result roots exist.}
 \def\TCProcedure{Compile the header/ABI matrices; run every controlled suite and
-Debug product gate serially; retain exact outputs; reconcile target states. For
+Debug product gate serially using the latest eligible \texttt{tinycc} WPM
+package without a version selector; retain its exact identity; reject mixed
+target versions or a Debug/Release selection change; reconcile target states. For
 a release tag, require the successful Debug dependency, build optimized
 artifacts, execute native library-consumer and startup smoke tests, repeat the
 x86 legacy-import check, WPM-sign and verify the package with exit zero,
@@ -32,7 +34,7 @@ compare each packaged DLL with its Release input, and permit publication only
 after all those jobs succeed. Authenticode signing and timestamping are
 explicitly deferred from 1.0.0 and are not represented as Pass.}
 \def\TCExpectedResult{Every required Debug target gate passes at one committed
-baseline. A candidate may be committed while tagged Release evidence is
+source and run-resolved latest dependency baseline. A candidate may be committed while tagged Release evidence is
 Unknown, but publication remains blocked until every required Release target
 and package result passes; missing or failed evidence remains visible.}
 \def\TCPostConditions{Evidence and artifact identities are retained for the

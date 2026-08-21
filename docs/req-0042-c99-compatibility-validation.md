@@ -30,6 +30,11 @@ x86, x64, and ARM64.
   C99, Microsoft-compatibility, header, ABI, source-quality, traceability,
   Debug static/DLL build, native consumer, startup-object, x86 Windows 2000
   import, Debug package-assembly, and retained-evidence matrix shall pass.
+- CI shall resolve the latest eligible `tinycc` package from the
+  `tcc_package` WPM latest index without a version selector. It shall retain
+  the exact resolved version, source revision, package/executable hashes, and
+  publisher-key hash; require one version across x86, x64, and ARM64 and across
+  Debug/Release; and fail for a rerun if the latest entry changes mid-workflow.
 - The candidate source revision may be committed before tagged Release results
   exist. Before publication, the tagged workflow shall build the optimized
   Release static/DLL artifacts and run the native library-consumer and startup
@@ -112,3 +117,10 @@ exact artifact identities, and downstream-only publication. Existing unsigned
 candidate results remain `NotSigned`; future Authenticode work is `Deferred`,
 never inferred Pass. ADR-0006 and the signing plan are retained for later
 reassessment.
+
+The same-day dependency-policy amendment replaces the hard-coded TinyCC 1442
+workflow selection with latest-package resolution. The repository name is
+`tcc_package`; its live index declares the installable WPM package name
+`tinycc`. This amendment changes dependency selection and evidence, not API,
+ABI, target support, or the gate inventory. The pinned publisher key and every
+required compiler/data-model/product test remain fail-closed.

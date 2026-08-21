@@ -92,8 +92,11 @@ ADR-0005 permits TC-0037 and TC-0038 to use ExpectedFail only for TinyCC's
 exact, source-specific complex-type/parser and imaginary-literal diagnostic
 matrix. That state does not stop remaining tests, builds, or WPM packaging,
 but it is not Pass or conformance evidence. Any other diagnostic or behavioral
-failure remains fatal. TinyCC `0.9.28-rc.1442+2474e1c2` passes both probes, so
-TC-0037 and TC-0038 are currently ordinary required Pass results. A candidate
+failure remains fatal. The workflow selects the latest eligible `tinycc` WPM
+package without a version selector, records its exact identity, and requires
+the same selected version across x86/x64/ARM64 and Debug/Release. The retained
+`0.9.28-rc.1442+2474e1c2` baseline passes both probes, so TC-0037 and TC-0038
+remain ordinary required Pass results for every newly selected package. A candidate
 source revision may be committed before the tagged Release matrix runs; that
 commit is neither release approval nor publication evidence. Tagged releases
 additionally build optimized Release artifacts and run native library-consumer

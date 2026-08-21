@@ -23,7 +23,10 @@ digest are not approved artifacts.
 
 ## Build and Trust Order
 
-1. Freeze and commit a clean source revision and pinned dependency baseline.
+1. Freeze and commit a clean source revision. Let WPM resolve the latest
+   eligible TinyCC package at workflow execution, retain the exact resolved
+   version/source/hashes, and require one identity across every Debug and
+   Release target; rerun if the latest entry changes during the workflow.
 2. Build Debug verification outputs and run the complete controlled C89, C99,
    compatibility, consumer, startup, ABI, source-quality, traceability, import,
    package-assembly, and evidence matrix on x86, x64, and ARM64.

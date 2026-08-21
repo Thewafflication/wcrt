@@ -447,7 +447,7 @@ command wall time, commit timestamps, or CI duration.
 | T6-D009 | documentation | Conformance documentation | critical | WCRT maintainer | Project bootstrap | T6 specification | -- | `docs/c99-conformance-profile.md`, `docs/implementation-defined.md`, `docs/c99-deviations.md` | Removed: 75 facility rows cover clauses 7.1--7.25 and all 24 headers with independent classifications and target states. |
 | T6-D010 | requirements/numeric | REQ-0028/REQ-0039 | high | WCRT maintainer | Earlier requirements/implementation | T6 specification/verification | -- | REQ/TC-0039; decimal profile test | Removed: mandatory hexadecimal rounding, implementation-defined decimal accuracy, omitted recommended practice, C-locale syntax, wide dependencies, and a one-ULP counterexample are explicit. |
 | T6-D011 | numeric | T4 | critical | WCRT maintainer | T4 implementation | T6 implementation | -- | `src/math.c`, TC-0035, `tests/c99/data/fma-vectors.json` | Removed: exact integer product/addend accumulation and single active-direction binary32/binary64 rounding replace the sample-only compensated implementation. Exact-revision native x86/x64/ARM64 Debug TC-0035 passes in run `32027269426`. |
-| T6-D012 | build/tooling | CI dependency provisioning | high | WCRT maintainer | CI design | T6 implementation/verification | -- | `.github/workflows/build.yml`, dependency record, run `32027269426` | Removed: WPM 1.0.16 archives/digests, TinyCC 1442 release/key/version, cv2pdb 0.54.0 release/key/version, and GitHub actions are pinned; exact per-target provenance, runner images, jobs, and artifact identifiers are retained and inspected. |
+| T6-D012 | build/tooling | CI dependency provisioning | high | WCRT maintainer | CI design | T6 implementation/verification | -- | dependency record, run `32027269426` | Removed for the retained T6 baseline: WPM 1.0.16, TinyCC 1442, cv2pdb 0.54.0, exact release keys/digests, GitHub actions, per-target provenance, runner images, jobs, and artifact identifiers were retained and inspected. T6-D032 controls the successor latest-TinyCC policy. |
 | T6-D013 | documentation/evidence | ARM64 support | high | WCRT maintainer | Earlier platform documentation | T6 documentation reconciliation | -- | `docs/arm64-support.md`, run `32027269426` | Removed: current documentation records exact native ARM64 Debug Pass and preserves tagged ARM64 Release execution as an R1 Unknown until its native runner produces evidence. |
 | T6-D014 | test | Startup aggregate runner | critical | WCRT maintainer | Earlier test implementation | T6 implementation | -- | `tools/test-startup-objects.ps1` | Removed: the runner reported Pass and returned success even when TC-0017 and TC-0018 returned Fail. It now throws for Fail, reports Blocked without Pass wording, and only reports Pass when every child result passes. |
 | T6-D015 | documentation/dependency | T5 compiler baseline | high | WCRT maintainer | T5 verification | T6 documentation reconciliation | -- | T5 records; selected TinyCC source `d5c02f0fcdfdf75265d38df6ff9db2f8067367ac` | Removed: T5 retains its historical 1441 evidence, while current requirements, platform, ADR, roadmap, README, and work-plan records select 1442 and require fresh results. The three local executable digests are recorded without transferring native claims. |
@@ -467,6 +467,7 @@ command wall time, commit timestamps, or CI duration.
 | T6-D029 | requirements/process | Original REQ/TC-0042 and T6 completion wording | high | WCRT maintainer | T6 planning/specification | T6 postmortem reconciliation | -- | REQ/TC-0042, release-workflow verifier, test strategy, work plan, readiness record, workflow | Removed from T6 and retained in R1: the original wording conflated requirement/tranche completion with optimized Release publication evidence. The approved lifecycle permits committing the candidate source before tagged Release CI completes, but still requires native x86/x64/ARM64 Release consumers/startup, x86 imports, signed-package verification, and exact evidence before the downstream publish job can run. TC-0042 now rejects loss of that workflow dependency chain. No missing Release result is reclassified as Pass. |
 | T6-D030 | security/configuration | GitHub `release` environment inspected 2026-08-20 | critical | WCRT maintainer | Earlier release configuration | -- | -- | GitHub environment/secret APIs; release process; workflow | Open R1 blocker, narrowed on 2026-08-21: the environment has `protection_rules: []`, no deployment branch policy, and `can_admins_bypass: true`; `WPM_RELEASE_PRIVATE_KEY` exists only at repository scope. The first environment boundary is now `package`, after all Release tests. Approve the tag/reviewer/self-review/admin-bypass policy, migrate the WPM key into environment scope, verify use, and remove the repository-scoped copy before a tag. No Azure values are required for 1.0. |
 | T6-D031 | requirements/process | 1.0 Authenticode and Defender scope | high | WCRT maintainer | R1 signing-control preparation | R1 requirements/process review | -- | REQ/TC-0042, ADR-0006, work plan, workflow, readiness/DFS/WSP records | Removed as a 1.0 blocker through explicit maintainer deferral on 2026-08-21. The impact review found no API, ABI, target, or package-content change. The workflow now enforces `build` -> `release` -> `package` -> `publish`; WPM signing/verification and exact packaged-DLL identities remain required. The release claim must disclose unsigned DLLs and no Defender assurance; future reactivation requires a new impact review. |
+| T6-D032 | build/dependency | Maintainer review of TinyCC selection policy | high | WCRT maintainer | Pinned T6 compiler baseline | R1 dependency-policy correction | -- | `tools/install-latest-tinycc-wpm-package.ps1`, workflow, TC-0042, dependency policy records | Removed in implementation on 2026-08-21, pending exact CI evidence: the hard-coded 1442 selection contradicted the required latest-package policy. Both Debug and Release now call WPM without `--version` against `tcc_package/releases/latest/download`, retain the resolved package/source/key/executable identities, reject mixed target versions, and reject a Debug/Release change rather than combining baselines. The publisher key remains pinned. |
 
 The 2026-08-20 T6-D029 reconciliation passes all 15 pinned WSP common-tool
 self-tests, 48/48/48 traceability, TC-0016 over 182 C/header files with zero
@@ -529,6 +530,20 @@ four-job dependency design. The tag-only optimized Release, WPM-signed package,
 and publish jobs are skipped, so they remain Unknown until a qualifying tag
 run; the branch result is not Release evidence. No private-key operation ran.
 
+The subsequent 2026-08-21 dependency-policy review records T6-D032 before
+correction. The live `tcc_package` latest index identifies its installable WPM
+package as `tinycc` and, when inspected, selected
+`0.9.28-rc.1444+9a4be30f`. The new repository installer uses
+`wpm install tinycc --arch <architecture>` without `--version`, verifies the
+pinned publisher key, and exports the exact resolved provenance. The workflow
+also rejects mixed target versions and any Debug/Release selection change.
+PowerShell syntax, the release-workflow verifier, x64 TC-0042 (24 C99 headers,
+15 C89 headers, and three mixed orders), TC-0041 (25 clauses/24 headers/75
+rows), 48/48/48 traceability, TC-0016 over 182 C/header files with zero
+violations, all 15 WSP common-tool self-tests, and `git diff --check` pass
+locally. Native behavior with the newly selected package remains Unknown until
+the exact-revision x86/x64/ARM64 workflow completes.
+
 Local GDB uses the approved MinGW-w64 16.1.0 archive with SHA-256
 `ecaceb42639d21c695f875800a29b2dea76bbb05eb2a1cca3049b65499b8d867` in the
 ignored project tool cache. It is diagnostic support, not a release input. The
@@ -580,7 +595,7 @@ as effort. The planned 174--322 focused-hour base and 218--451-hour completion
 forecast therefore cannot be scored for time accuracy or converted into a
 calendar schedule.
 
-Thirty-one findings were recorded. Requirement, interface, numeric, test,
+Thirty-two findings were recorded. Requirement, interface, numeric, test,
 dependency, documentation, and procedure corrections are recorded per defect,
 including the newly exposed diagnostic exit-status and DLL-consumer evidence
 faults. T6-D016 is an approved 1.0 scope deferral, not Pass. T6-D030 remains a

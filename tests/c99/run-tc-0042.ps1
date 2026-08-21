@@ -31,6 +31,7 @@ $releaseGate = & (Join-Path $PSScriptRoot `
     C89StandaloneHeaders = $result.C89StandaloneHeaders
     MixedOrders = $result.MixedOrders
     DebugDependency = $releaseGate.DebugDependency
+    TinyCcSelection = $releaseGate.TinyCcSelection
     ReleaseArchitectures = $releaseGate.ReleaseArchitectures
     ReleaseDependency = $releaseGate.ReleaseDependency
     AuthenticodeDisposition = $releaseGate.AuthenticodeDisposition

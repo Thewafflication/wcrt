@@ -27,10 +27,12 @@ while source quality and the optional console and GUI startup paths are covered
 by TC-0016 through TC-0018.
 The implemented C99 allocations include REQ-0019, REQ-0021 through REQ-0033,
 and REQ-0035 through REQ-0042 as detailed by the
-[C99 to 1.0.0 work plan](docs/C99-1.0-WORK-PLAN.md). The supported TinyCC
-package selected for T6 is `0.9.28-rc.1442+2474e1c2` (source revision
-`d5c02f0fcdfdf75265d38df6ff9db2f8067367ac`). Exact-revision native Debug
-x86/x64/ARM64 suites pass in GitHub Actions run `32027269426`. Native ARM64
+[C99 to 1.0.0 work plan](docs/C99-1.0-WORK-PLAN.md). CI resolves the latest
+eligible `tinycc` package from the `tcc_package` WPM repository at workflow
+execution, records the exact selected version and hashes, and rejects a mixed
+compiler baseline across targets. The retained T6 closure baseline is
+`0.9.28-rc.1442+2474e1c2`. Exact-revision native Debug x86/x64/ARM64 suites
+pass in GitHub Actions run `32027269426`. Native ARM64
 Release execution, release trust, installation/rollback, and independent
 release review remain acceptance work.
 
@@ -105,8 +107,9 @@ usable with the supported TinyCC versions. Compiler limitations will be
 recorded separately from runtime limitations. ADR-0005 permits only the exact,
 source-specific `_Complex` type/parser and imaginary-literal diagnostics in its
 controlled matrix as non-fatal ExpectedFail results.
-The selected `0.9.28-rc.1442+2474e1c2` package passes those probes, so WCRT
-builds include the complex runtime and require its complete export inventory.
+The retained `0.9.28-rc.1442+2474e1c2` baseline passes those probes. Every
+newer package selected by WPM must pass the same probes and complete matrix, so
+WCRT builds include the complex runtime and require its complete export inventory.
 If a controlled diagnostic recurs, packages include `complex.h` and `tgmath.h`
 for implementation
 review but omit complex runtime symbols and disclose that state in
