@@ -31,8 +31,9 @@ and REQ-0035 through REQ-0042 as detailed by the
 eligible `tinycc` package from the `tcc_package` WPM repository at workflow
 execution, records the exact selected version and hashes, and rejects a mixed
 compiler baseline across targets. The retained T6 closure baseline is
-`0.9.28-rc.1442+2474e1c2`. Exact-revision native Debug x86/x64/ARM64 suites
-pass in GitHub Actions run `32027269426`. Native ARM64
+`0.9.28-rc.1442+2474e1c2`; successor run `32533622277` passes the complete
+native Debug matrix and package assembly with latest-selected
+`0.9.28-rc.1444+9a4be30f`. Native ARM64
 Release execution, release trust, installation/rollback, and independent
 release review remain acceptance work.
 

@@ -11,6 +11,10 @@ PowerShell 7.6.3
 
 **Exact CI:** GitHub Actions run `32027269426`, conclusion `success`
 
+**Latest-dependency successor CI:** GitHub Actions run `32533622277` at
+`eb27920bf5ceaa28874a78e05a3efb39da6761fc`, conclusion `success`; exact
+machine-readable identities are in `latest-tinycc-provenance.json`
+
 **Decision:** Exact-revision native Debug conformance matrix Pass; T6
 completion Reject because independent review is incomplete; R1 readiness
 Reject because WPM trust, installation, and the tagged optimized Release

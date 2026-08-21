@@ -1,0 +1,65 @@
+{
+  "recordedAt": "2026-08-21",
+  "purpose": "Exact successor verification of the latest-TinyCC WPM selection policy and the ARM64 helper-ABI correction",
+  "sourceRevision": "eb27920bf5ceaa28874a78e05a3efb39da6761fc",
+  "workflowRun": {
+    "id": 32533622277,
+    "url": "https://github.com/Thewafflication/wcrt/actions/runs/32533622277",
+    "conclusion": "success",
+    "jobs": {
+      "sourceQuality": 96930346505,
+      "arm64": 96930527276,
+      "x64": 96930527297,
+      "x86": 96930527339,
+      "debugPackage": 96930859346
+    }
+  },
+  "tinycc": {
+    "repositoryName": "tcc_package",
+    "packageName": "tinycc",
+    "repository": "https://github.com/Thewafflication/tcc_package/releases/latest/download",
+    "selection": "latest eligible WPM package at job execution; no version selector",
+    "version": "0.9.28-rc.1444+9a4be30f",
+    "sourceRevision": "9a4be30f",
+    "releaseKeySha256": "e141a5f383b8d2e7096080beb2920b37a007de727d1c8ff47a520453460f23a6",
+    "targets": {
+      "x86": {
+        "packageSha256": "1debf23835ea9c08336ba09233b36d7ba07b796b82cc8b40e0fece2cce06d248",
+        "executableSha256": "2ba43fde75ee6795c83dafdd896b726b3d6c11d7c90c6e54a79aba9c300d5328"
+      },
+      "x64": {
+        "packageSha256": "4022fec1a5ed732e99010f6b0bb8bc8eeabdbebeb376707ca6d265101ca5831d",
+        "executableSha256": "b2220f0e8605f119acafa78606b4cf1a6e7bff231004824e6020d206eaa31179"
+      },
+      "arm64": {
+        "packageSha256": "0a025fc1ddbe2ac5ec701b472b87600e8b67067c581d6d924bb7a725c70c55c0",
+        "executableSha256": "85293dbef8f063ecac7a78248e921dba3e0a5e98df3fee5e60646006f5738267"
+      }
+    }
+  },
+  "verification": {
+    "sourceQuality": "Pass",
+    "x86DebugCompleteMatrix": "Pass",
+    "x64DebugCompleteMatrix": "Pass",
+    "arm64DebugCompleteMatrix": "Pass",
+    "arm64ComplexStaticAndDllConsumers": "Pass",
+    "x86Windows2000Imports": "Pass",
+    "sameVersionAcrossDebugTargets": "Pass",
+    "debugPackageAssembly": "Pass",
+    "taggedOptimizedRelease": "Unknown; tag-only job skipped",
+    "wpmSignedReleasePackage": "Unknown; tag-only job skipped",
+    "publication": "Unknown; tag-only job skipped"
+  },
+  "artifacts": {
+    "wcrt-debug-any-package": { "id": 9464751626, "digest": "sha256:3372fbfd0ac7f0a3305512f27ab222b05489f357eb82c32c99f21f2f18552f72" },
+    "wcrt-arm64-debug-build": { "id": 9464739033, "digest": "sha256:a4a96dafc748711e6441ddaf2c7dd6b4c4e2fe9820ab44895bbacf2ab11c9afc" },
+    "wcrt-arm64-debug": { "id": 9464738078, "digest": "sha256:9b715a3df5997230d6a5de6aa412a1a89c4b368510fddbd50a38f10827eed324" },
+    "wcrt-x64-debug-build": { "id": 9464730655, "digest": "sha256:dd75d93882ea37a895dd845852be45c50237d9c0e3d7b6923c9be06eb4ad3b3b" },
+    "wcrt-x64-debug": { "id": 9464730066, "digest": "sha256:458b8e24cb786519dc0c7eefd1917481f4c0875a1370c467852574ea57c5ba17" },
+    "wcrt-x86-debug-build": { "id": 9464736060, "digest": "sha256:d20293ffa659a0ff7368034136991a1e4e95ff5a86c4cdd9658b977c1d3e4752" },
+    "wcrt-x86-debug": { "id": 9464735246, "digest": "sha256:4799724597009543effd4bd107c09ee21b5f50e4a8ca1e9971b5827b8de18e1f" }
+  },
+  "wpmVersion": "1.0.16",
+  "cv2pdbVersion": "0.54.0",
+  "wspRevision": "2198ccab08f969a789448767fe7017b774369adc"
+}

@@ -62,6 +62,7 @@ release creation, artifact upload, or publication is part of this candidate.
 | Support and communication | `docs/release-process.md`; DFS | Pass | GitHub issue/security-advisory intake and 1.x support boundary are documented; no response-time promise |
 | Exact-revision CI | run `32027269426`; retained artifacts | Pass | Source quality, x86, x64, ARM64, and package jobs concluded success at the candidate source |
 | Historical signing-control CI | run `32337055333` at `3637a71b95c5b5cf9398b1813ba2577d8ea8d62e` | Pass | Source quality, native x86/x64/ARM64 Debug matrices, and Debug package assembly passed. Tag-only trust jobs skipped; the later Authenticode deferral supplies no signature evidence and WPM remains unexercised |
+| Latest-TinyCC successor CI | `docs/evidence/c99-t6/latest-tinycc-provenance.json`; run `32533622277` | Pass | Latest-selected TinyCC 1444 passes native x86/x64/ARM64 complete Debug matrices, corrected ARM64 complex consumers, same-version enforcement, and Debug package assembly; tagged Release/package/publish remain Unknown |
 
 ## Artifacts
 
