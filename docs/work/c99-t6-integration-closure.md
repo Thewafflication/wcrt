@@ -520,9 +520,14 @@ and TC-0016 over 182 C/header files with zero violations. PowerShell syntax,
 both changed JSON records, and `git diff --check` pass. The new unsigned-DLL
 package mode compares all three candidate DLL hashes successfully and its
 negative test rejects three missing Release inputs. No general local YAML
-parser is installed; the repository-owned structural workflow verifier passes,
-while exact-revision GitHub workflow parsing/execution remains Unknown until a
-successor revision is pushed. No external write or private-key operation ran.
+parser is installed; the repository-owned structural workflow verifier passes.
+GitHub Actions run `32495435347` at
+`95fad2ae60882912dda4876b6f57baba497fe2b7` then passes source quality, native
+x86/x64/ARM64 Debug builds and complete test matrices, and multi-architecture
+Debug package assembly. GitHub therefore parsed and executed the committed
+four-job dependency design. The tag-only optimized Release, WPM-signed package,
+and publish jobs are skipped, so they remain Unknown until a qualifying tag
+run; the branch result is not Release evidence. No private-key operation ran.
 
 Local GDB uses the approved MinGW-w64 16.1.0 archive with SHA-256
 `ecaceb42639d21c695f875800a29b2dea76bbb05eb2a1cca3049b65499b8d867` in the
