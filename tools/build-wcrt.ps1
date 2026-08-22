@@ -129,32 +129,14 @@ $consoleStartup = Join-Path $outputDirectory 'wcrt-startup-console.o'
 $guiStartup = Join-Path $outputDirectory 'wcrt-startup-gui.o'
 $staticObjectDirectory = Join-Path $outputDirectory 'static-objects'
 $includeOutput = Join-Path $outputDirectory 'include'
-$complexAbiLibrary = Join-Path $outputDirectory `
-    'libwcrt-tinycc-complex-abi.a'
 $complexInputs = @()
-$complexAbiInputs = @()
 if ($complexSupported) {
     $complexSources = @(
         [PSCustomObject]@{
             Source = 'src/complex.c'
             Object = 'complex-runtime.o'
-            AbiBridge = $false
         }
     )
-    if ($Architecture -eq 'arm64') {
-        $complexSources += @(
-            [PSCustomObject]@{
-                Source = 'src/platform/windows/tinycc_complex_abi.c'
-                Object = 'tinycc-complex-abi.o'
-                AbiBridge = $true
-            }
-            [PSCustomObject]@{
-                Source = 'src/platform/windows/tinycc_complex_abi.S'
-                Object = 'tinycc-complex-abi-bridge.o'
-                AbiBridge = $true
-            }
-        )
-    }
     foreach ($complexSource in $complexSources) {
         $complexObject = Join-Path $outputDirectory $complexSource.Object
         $complexArguments = @('-std=c99', '-Wall', '-Werror', '-c', '-I',
@@ -171,21 +153,7 @@ if ($complexSupported) {
             -not (Test-Path -LiteralPath $complexObject -PathType Leaf)) {
             throw "TinyCC failed to build $($complexSource.Source)."
         }
-        if ($complexSource.AbiBridge) {
-            $complexAbiInputs += $complexObject
-        } else {
-            $complexInputs += $complexObject
-        }
-    }
-    if ($complexAbiInputs.Count -ne 0) {
-        if (Test-Path -LiteralPath $complexAbiLibrary) {
-            Remove-Item -LiteralPath $complexAbiLibrary -Force
-        }
-        & $tinyCcPath -ar rcs $complexAbiLibrary @complexAbiInputs
-        if ($LASTEXITCODE -ne 0 -or
-            -not (Test-Path -LiteralPath $complexAbiLibrary -PathType Leaf)) {
-            throw 'TinyCC failed to create the complex ABI bridge archive.'
-        }
+        $complexInputs += $complexObject
     }
 }
 $arguments = @('-std=c89', '-Wall', '-Werror', '-shared',
@@ -266,7 +234,6 @@ $staticObjects = foreach ($source in $sources) {
     $object
 }
 $staticObjects += $complexInputs
-$staticObjects += $complexAbiInputs
 if (Test-Path -LiteralPath $staticLibrary) {
     Remove-Item -LiteralPath $staticLibrary -Force
 }
@@ -310,9 +277,6 @@ Copy-Item -Path (Join-Path $repoRoot 'include/*') -Destination $includeOutput `
     Pdb = if ($Configuration -eq 'Debug') { $pdbPath } else { $null }
     ImportDefinition = $definitionPath
     StaticLibrary = $staticLibrary
-    ComplexAbiLibrary = if ($complexAbiInputs.Count -ne 0) {
-        $complexAbiLibrary
-    } else { $null }
     ConsoleStartup = $consoleStartup
     GuiStartup = $guiStartup
     IncludeDirectory = $includeOutput

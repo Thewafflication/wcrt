@@ -33,9 +33,14 @@ On 2026-08-21 the latest-package policy selected TinyCC
 runtime helper declaration to a standard function returning through an output
 pointer. On Windows ARM64 this places the four scalar arguments in `d0`--`d3`
 and the pointer in `x0`. The earlier WCRT 1442 register remap therefore became
-incorrect and was removed; the target assembly now supplies only symbol aliases
-that preserve the corrected ABI. This is controlled by TC-0037 and the
-static/DLL consumer gates, not inferred from the compiler change.
+incorrect and was removed; at that stage, the target assembly retained only
+symbol aliases that preserved the corrected ABI. This is controlled by TC-0037
+and the static/DLL consumer gates, not inferred from the compiler change.
+
+The selected TinyCC now supplies the corresponding private helper entries with
+that ABI in its ordinary compiler-support library. WCRT therefore removed the
+remaining ARM64 symbol aliases, scalar helper copies, and companion archive.
+TC-0037 and the static/DLL consumer gates continue to verify the dependency.
 
 ## Decision
 

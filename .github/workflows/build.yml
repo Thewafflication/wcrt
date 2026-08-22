@@ -540,7 +540,6 @@ jobs:
             output/build/${{ matrix.arch }}/Debug/wcrt.pdb
             output/build/${{ matrix.arch }}/Debug/wcrt.def
             output/build/${{ matrix.arch }}/Debug/libwcrt.a
-            output/build/${{ matrix.arch }}/Debug/libwcrt-tinycc-complex-abi.a
             output/build/${{ matrix.arch }}/Debug/wcrt-startup-console.o
             output/build/${{ matrix.arch }}/Debug/wcrt-startup-gui.o
             output/build/${{ matrix.arch }}/Debug/include/

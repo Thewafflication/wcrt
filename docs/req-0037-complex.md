@@ -19,8 +19,6 @@ conformance, and `CMPLX` construction macros are outside scope.
 
 - `include/complex.h` — edition-selected macros and declarations.
 - `src/complex.c` — self-contained complex mathematics implementation.
-- `src/platform/windows/tinycc_complex_abi.c` and `.S` — selected TinyCC
-  ARM64 operator-helper ABI adaptation.
 - `tests/c99/complex.c` and presence tests — inventory, numerical, special-
   value, representation, branch-cut, and isolation verification.
 - `tools/generate-complex-vectors.py` and retained JSON — deterministic
@@ -99,11 +97,11 @@ trigonometric and hyperbolic families, and three semantic precisions. TinyCC
 and x64. Native ARM64 run `32020695485` exposed a compiler-private mismatch:
 operator call sites pass the four binary64 components in `x0`--`x3` and the
 result pointer in `x4`, while the packaged C helper reads `d0`--`d3` and `x0`.
-The ARM64 assembly bridge normalizes that boundary and tail-calls scaled WCRT
-scalar helpers. `libwcrt.a` contains the bridge; DLL consumers link
-`wcrt.def` plus the packaged `libwcrt-tinycc-complex-abi.a` companion so C99
-functions still resolve from `wcrt.dll`. Exact-revision run `32027269426`
-passes TC-0037 and static/DLL consumers natively on x86, x64, and ARM64 and
-retains the ARM64 companion in the named architecture artifact. Local Release
-x86/x64 behavior and ARM64 compile/link pass. Independent review remains open;
-tagged optimized Release smoke is a separate R1 prepublication gate.
+WCRT temporarily normalized that boundary with an ARM64 assembly bridge.
+TinyCC now supplies matching caller and helper ABIs through its ordinary
+compiler-support library, so the WCRT bridge and companion archive are removed;
+DLL consumers link only `wcrt.def` and C99 functions still resolve from
+`wcrt.dll`. Exact-revision run `32027269426` passes TC-0037 and static/DLL
+consumers natively on x86, x64, and ARM64. Local Release x86/x64 behavior and
+ARM64 compile/link pass. Independent review remains open; tagged optimized
+Release smoke is a separate R1 prepublication gate.

@@ -117,10 +117,9 @@ workflow artifact.
 The integration consumer constructs nonconstant complex operands and executes
 multiplication and division. It resolves DLL complex functions by exact export
 name at runtime so TinyCC builtins cannot turn the DLL test into static or
-compiler-only evidence. ARM64 DLL consumers link `wcrt.def` plus the packaged
-`libwcrt-tinycc-complex-abi.a`; the companion archive supplies only the
-selected compiler's private operator bridge, while the standard functions
-must still resolve from `wcrt.dll`.
+compiler-only evidence. On every target, DLL consumers link `wcrt.def` while
+TinyCC supplies its private operator helpers through its compiler-support
+library; the standard functions must still resolve from `wcrt.dll`.
 
 ## Evidence and Reporting
 

@@ -16,8 +16,8 @@ release.
 
 The 1.0.0 artifact set is one `wcrt-any-<package-version>.zip` WPM package
 containing x86, x64, and ARM64 headers, DLLs, static libraries, import
-definitions, the ARM64 TinyCC complex-ABI companion archive, optional
-console/GUI startup objects, license, README, and C99 capability records;
+definitions, optional console/GUI startup objects, license, README, and C99
+capability records;
 `SHA256SUMS`; and the release-readiness record. Files not listed with an exact
 digest are not approved artifacts.
 

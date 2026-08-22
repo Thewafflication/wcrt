@@ -34,9 +34,10 @@ selected compiler does not provide them.
 
 Native ARM64 run `32020695485` proved that TinyCC 1442 complex multiplication
 called its packaged `__tcc_muldc3` with a different private register convention
-than the helper entry expects. WCRT now supplies a target-scoped bridge and
-scalar helpers in the static library and ARM64 DLL companion archive. This is
-not registered as a public-library deviation: the public C99 representation,
+than the helper entry expects. WCRT temporarily supplied a target-scoped bridge
+and scalar helpers. TinyCC now supplies matching caller and helper ABIs, so that
+adaptation and its ARM64 companion archive have been removed. This is not
+registered as a public-library deviation: the public C99 representation,
 function ABI, and results remain required. Corrected native ARM64 Debug
 execution passes in exact-revision run `32027269426`; tagged native ARM64
 Release smoke is separately an R1 Unknown until the release workflow runs.

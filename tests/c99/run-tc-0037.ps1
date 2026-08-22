@@ -50,8 +50,6 @@ if (-not $capability.Supported) {
     -PresenceSource 'tests/c99/presence/complex.c' `
     -BehaviorSource 'tests/c99/complex.c' -TinyCc $TinyCc `
     -RuntimeSource @('src/errno.c', 'src/fenv.c', 'src/math.c',
-        'src/complex.c', 'src/platform/windows/tinycc_complex_abi.c',
-        'src/platform/windows/tinycc_complex_abi.S',
-        'tests/c99/presence/complex.c') `
+        'src/complex.c', 'tests/c99/presence/complex.c') `
     -C89Regression @('tests/c89/run-tc-0007.ps1',
         'tests/c99/run-tc-0035.ps1') -CompileOnly:$CompileOnly

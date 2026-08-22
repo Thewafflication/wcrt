@@ -122,18 +122,9 @@ if ($complexSupported) {
     if ($LASTEXITCODE -ne 0) {
         throw 'Complex static-library consumer failed to link.'
     }
-    $complexDynamicInputs = @(
-        (Join-Path $buildDirectory 'wcrt.def')
-    )
-    if ($Architecture -eq 'arm64') {
-        # The DLL owns the C99 functions.  The archive contributes only the
-        # compiler-private TinyCC operator ABI bridge after imports resolve.
-        $complexDynamicInputs += Join-Path $buildDirectory `
-            'libwcrt-tinycc-complex-abi.a'
-    }
     & $TinyCc -std=c99 -DWCRT_DLL_CONSUMER=1 -Wall -Werror -I $include `
         $complexSource `
-        @complexDynamicInputs -o $complexDynamicExecutable
+        (Join-Path $buildDirectory 'wcrt.def') -o $complexDynamicExecutable
     if ($LASTEXITCODE -ne 0) {
         throw 'Complex DLL consumer failed to link.'
     }

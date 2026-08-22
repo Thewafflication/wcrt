@@ -33,11 +33,11 @@ ARM64 `jmp_buf` size is compile-time checked as 168 bytes.
 The retained TinyCC 1442 baseline required an ARM64 complex-helper register
 adapter. TinyCC 1444 corrected its private helper declarations to the standard
 Windows ARM64 function ABI: four binary64 components in `d0`--`d3` and the
-result address in `x0`. WCRT continues to ship the target-scoped helper symbols
-in `libwcrt.a` and `libwcrt-tinycc-complex-abi.a`, but their assembly entries
-now preserve the correct registers and tail-call the scaled scalar helpers.
-This compiler-private adaptation does not alter the public complex function
-ABI. TC-0037 and the static/DLL consumers are the required native gate.
+result address in `x0`. The selected TinyCC now supplies matching helper entries
+through its ordinary compiler-support library, so WCRT no longer carries an
+ARM64 assembly adapter or companion archive. This compiler-private behavior
+does not alter the public complex function ABI. TC-0037 and the static/DLL
+consumers are the required native gate.
 
 ## Candidate evidence boundary
 

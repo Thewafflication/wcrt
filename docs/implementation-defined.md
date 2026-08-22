@@ -63,8 +63,7 @@ not claim IEC 60559 Annex F conformance.
 - The retained TinyCC 1442 baseline emitted private complex multiplication and
   division helper calls through a compiler-defective integer-register ABI.
   TinyCC 1444 corrected those calls to the standard Windows ARM64 function ABI:
-  scalar components in `d0`--`d3` and the result pointer in `x0`. WCRT's
-  `tinycc_complex_abi.S` now preserves those registers and supplies only the
-  compiler-private helper symbol aliases; it does not alter the public complex
-  ABI. ARM64 DLL consumers link the packaged
-  `libwcrt-tinycc-complex-abi.a` companion in addition to `wcrt.def`.
+  scalar components in `d0`--`d3` and the result pointer in `x0`. The selected
+  TinyCC supplies matching private helper entries in its compiler-support
+  library. WCRT does not override those helpers or alter the public complex ABI;
+  ARM64 DLL consumers link `wcrt.def` without a WCRT-specific companion.

@@ -9,8 +9,6 @@ $complexSource = Get-Content -LiteralPath (Join-Path $repoRoot `
     'src\complex.c') -Raw
 $tgmathHeader = Get-Content -LiteralPath (Join-Path $repoRoot `
     'include\tgmath.h') -Raw
-$complexAbiAssembly = Get-Content -LiteralPath (Join-Path $repoRoot `
-    'src\platform\windows\tinycc_complex_abi.S') -Raw
 
 $complexNames = @(
     'cacos', 'casin', 'catan', 'ccos', 'csin', 'ctan',
@@ -76,27 +74,9 @@ if ($definedGenericNames -contains 'modf' -or
     throw 'modf and nan must not be generic macros.'
 }
 
-foreach ($bridge in @(
-    @('__tcc_muldc3', '__wcrt_tinycc_muldc3'),
-    @('__tcc_divdc3', '__wcrt_tinycc_divdc3'),
-    @('__tcc_mulxc3', '__tcc_muldc3'),
-    @('__tcc_divxc3', '__tcc_divdc3')
-)) {
-    $pattern = '(?ms)^' + [regex]::Escape($bridge[0]) + ':\s*' +
-        'b\s+' + [regex]::Escape($bridge[1]) + '\s*$'
-    if ($complexAbiAssembly -notmatch $pattern) {
-        throw "TinyCC ARM64 ABI bridge $($bridge[0]) does not preserve the current helper ABI."
-    }
-}
-if ($complexAbiAssembly -match '(?m)\bfmov\s+d[0-3],\s*x[0-3]\b' -or
-    $complexAbiAssembly -match '(?m)\bmov\s+x0,\s*x4\b') {
-    throw 'TinyCC ARM64 ABI bridge still remaps the obsolete 1442 helper ABI.'
-}
-
 [PSCustomObject]@{
     Status = 'Pass'
     ComplexBaseNames = $complexNames.Count
     ComplexFunctions = 3 * $complexNames.Count
     GenericNames = $definedGenericNames.Count
-    Arm64HelperBridges = 4
 }

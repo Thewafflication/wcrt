@@ -73,25 +73,22 @@ fallback.
 | `long long` | Supported | Required and enforced for REQ-0022 and REQ-0023 |
 | `restrict` | Supported | Required and enforced for REQ-0025 |
 | variadic macros | Supported | Available for later header design; no runtime claim |
-| complex arithmetic/types | Supported with controlled ARM64 adaptation | Required on x86, x64, and ARM64; the complex runtime and all 66 exports become mandatory. TinyCC's ARM64 emitted operator calls and packaged helper entries use different private register conventions, so WCRT supplies the pinned bridge described below. |
+| complex arithmetic/types | Supported | Required on x86, x64, and ARM64; the complex runtime and all 66 exports become mandatory. The selected TinyCC supplies matching private operator calls and helper entries through its compiler-support library. |
 | complex imaginary constants | Supported | Standard `fi`, `i`, and `Li` constants compile on all three targets |
 | type-generic macros | Supported extension | Expanded `_Generic` type and single-evaluation probes pass; WCRT explicitly dispatches mixed arguments to avoid TinyCC's Windows `float + long double` conversion defect |
 | `#pragma STDC FENV_ACCESS` | Compiler-blocked | TinyCC 1442 emits the retained `#pragma STDC ignored` diagnostic under `-Werror`; WCRT cannot claim pragma recognition |
 | `#pragma STDC FP_CONTRACT` | Compiler-blocked | TinyCC 1442 emits the retained `#pragma STDC ignored` diagnostic under `-Werror`; WCRT cannot claim pragma recognition |
 | `#pragma STDC CX_LIMITED_RANGE` | Compiler-blocked | TinyCC 1442 emits the retained `#pragma STDC ignored` diagnostic under `-Werror`; WCRT cannot claim pragma recognition |
 
-Complex arithmetic remains a compiler dependency, but the selected TinyCC
-1442 package passes the language gate. On ARM64 its call sites place the four
-binary64 components in `x0`--`x3` and the result address in `x4`, while its
-packaged `__tcc_muldc3`/`__tcc_divdc3` C entries expect `d0`--`d3` and `x0`.
-WCRT's private assembly boundary moves those values and delegates to scaled C
-helpers; Windows ARM64 `long double` aliases the same binary64 helpers. Static
-consumers receive the bridge in `libwcrt.a`; DLL consumers additionally link
-`libwcrt-tinycc-complex-abi.a`, while all public complex functions remain DLL
-imports. This is selected-toolchain adaptation, not a public WCRT ABI change.
-TC-0037/TC-0038 are ordinary required tests. ADR-0005 still defines the only
-allowed ExpectedFail fallback if a selected compiler regresses to one of the
-exact retained diagnostics; a different failure cannot use that disposition.
+Complex arithmetic remains a compiler dependency. The retained TinyCC 1442
+baseline had mismatched ARM64 caller and helper register conventions; later
+TinyCC revisions corrected the caller and supply matching helper entries in the
+ordinary compiler-support library. WCRT therefore carries no private assembly
+boundary or companion archive. Windows ARM64 `long double` remains binary64,
+and all public complex functions remain DLL imports. TC-0037/TC-0038 are
+ordinary required tests. ADR-0005 still defines the only allowed ExpectedFail
+fallback if a selected compiler regresses to one of the exact retained
+diagnostics; a different failure cannot use that disposition.
 
 ## Edition Selection
 
