@@ -23,7 +23,7 @@
 | REQ-0039 | [TC-0039](../../docs/tc-0039-numeric-text.tex) | `presence/stdlib.c`, `presence/stdlib-c89.c`, `numeric-text.c` | Hexadecimal floating text, classification, signed zero, rounding, range, and round trips |
 | REQ-0040 | [TC-0040](../../docs/tc-0040-existing-header-audit.tex) | `existing-headers.c`, `Verify-T6ExistingHeaders.ps1` | C99 changes to C89 header/runtime families, expression types, behavior, and isolation |
 | REQ-0041 | [TC-0041](../../docs/tc-0041-c99-conformance-profile.tex) | `Verify-C99ConformanceProfile.ps1` | Clause/header inventory, classifications, target states, and direct references |
-| REQ-0042 | [TC-0042](../../docs/tc-0042-c99-compatibility-validation.tex) | `compatibility-abi.c`, `Verify-C99HeaderMatrix.ps1` | Header self-containment/include order, C89 isolation, ABI, and target gate matrix |
+| REQ-0042 | [TC-0042](../../docs/tc-0042-c99-compatibility-validation.tex) | `compatibility-abi.c`, `Verify-C99HeaderMatrix.ps1`, `Verify-ReleaseWorkflowGate.ps1` | Header self-containment/include order, C89 isolation, ABI, and release-publication dependency matrix |
 
 The suite compiles against WCRT headers without host standard-library headers.
 Every row is controlled by `tools/run-extension-tests.ps1`; the runner rejects

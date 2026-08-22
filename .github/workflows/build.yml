@@ -125,29 +125,7 @@ jobs:
 
       - name: Install TinyCC WPM package
         shell: pwsh
-        run: |
-          $version = '0.9.28-rc.1442+2474e1c2'
-          $base = 'https://github.com/Thewafflication/tcc_package/releases/download/v0.9.28-rc.1442%2B2474e1c2'
-          $key = Join-Path $env:RUNNER_TEMP 'tcc-wpm-release.public'
-          Invoke-WebRequest -UseBasicParsing "$base/wpm-release.public" -OutFile $key
-          if ((Get-FileHash -LiteralPath $key -Algorithm SHA256).Hash -ne 'e141a5f383b8d2e7096080beb2920b37a007de727d1c8ff47a520453460f23a6') {
-            throw 'Pinned TinyCC release-key digest mismatch.'
-          }
-          wpm trust add $key
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          wpm repo add $base
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          wpm config set prerelease true --package tinycc
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          wpm update
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          wpm install tinycc --arch '${{ matrix.arch }}' --version $version
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          $tccHome = [Environment]::GetEnvironmentVariable('TCC_HOME', 'Machine')
-          $tcc = Join-Path $tccHome 'tcc.exe'
-          if (-not (Test-Path -LiteralPath $tcc)) { throw "TinyCC was not installed at $tcc." }
-          "TINYCC=$tcc" >> $env:GITHUB_ENV
-          $tccHome >> $env:GITHUB_PATH
+        run: ./tools/install-latest-tinycc-wpm-package.ps1 -Architecture '${{ matrix.arch }}'
 
       - name: Install cv2pdb WPM package
         shell: pwsh
@@ -183,8 +161,12 @@ jobs:
             Architecture = '${{ matrix.arch }}'
             RunnerImage = '${{ matrix.runner }}'
             WpmVersion = '1.0.16'
-            TinyCcVersion = '0.9.28-rc.1442+2474e1c2'
-            TinyCcSourceRevision = 'd5c02f0fcdfdf75265d38df6ff9db2f8067367ac'
+            TinyCcSelection = 'latest eligible WPM package at job execution'
+            TinyCcRepository = $env:TINYCC_WPM_REPOSITORY
+            TinyCcVersion = $env:TINYCC_PACKAGE_VERSION
+            TinyCcSourceRevision = $env:TINYCC_SOURCE_REVISION
+            TinyCcPackageSha256 = $env:TINYCC_PACKAGE_SHA256
+            TinyCcReleaseKeySha256 = $env:TINYCC_RELEASE_KEY_SHA256
             TinyCcSha256 = (Get-FileHash -LiteralPath $env:TINYCC -Algorithm SHA256).Hash
             Cv2pdbVersion = '0.54.0'
             Cv2pdbSourceRevision = '25cfecaad700550a49cd7ddbf7773254ea438d07'
@@ -574,6 +556,13 @@ jobs:
             output/test-results/${{ matrix.arch }}/diagnostics/
           if-no-files-found: error
 
+      - name: Attach dependency provenance to verified debug build
+        shell: pwsh
+        run: |
+          Copy-Item `
+            'output/test-results/${{ matrix.arch }}/dependency-provenance.json' `
+            'output/build/${{ matrix.arch }}/Debug/dependency-provenance.json'
+
       - name: Upload verified debug build for packaging
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
@@ -634,15 +623,27 @@ jobs:
       - name: Assemble architecture build directories
         shell: pwsh
         run: |
+          $tinyCcVersions = @()
           foreach ($architecture in @('x86', 'x64', 'arm64')) {
             $source = "downloaded-builds/wcrt-$architecture-debug-build"
             $destination = "output/build/$architecture/Debug"
             if (-not (Test-Path -LiteralPath "$source/wcrt.dll" -PathType Leaf)) {
               throw "Debug build for $architecture was not downloaded."
             }
+            $provenancePath = "$source/dependency-provenance.json"
+            if (-not (Test-Path -LiteralPath $provenancePath -PathType Leaf)) {
+              throw "TinyCC provenance for $architecture was not downloaded."
+            }
+            $provenance = Get-Content -LiteralPath $provenancePath -Raw | ConvertFrom-Json
+            $tinyCcVersions += $provenance.TinyCcVersion
             New-Item -ItemType Directory -Force $destination | Out-Null
             Copy-Item -Path "$source/*" -Destination $destination -Recurse
           }
+          $distinctVersions = @($tinyCcVersions | Sort-Object -Unique)
+          if ($distinctVersions.Count -ne 1) {
+            throw "Debug targets selected different latest TinyCC packages: $($distinctVersions -join ', ')."
+          }
+          "All Debug targets selected TinyCC $($distinctVersions[0])."
 
       - name: Install WPM
         shell: pwsh
@@ -680,7 +681,6 @@ jobs:
     name: ${{ matrix.arch }} release
     needs: build
     runs-on: ${{ matrix.runner }}
-    environment: release
     strategy:
       fail-fast: false
       matrix:
@@ -728,32 +728,44 @@ jobs:
 
       - name: Install TinyCC WPM package
         shell: pwsh
+        run: ./tools/install-latest-tinycc-wpm-package.ps1 -Architecture '${{ matrix.arch }}'
+
+      - name: Download Debug dependency baseline
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
+        with:
+          name: wcrt-${{ matrix.arch }}-debug-build
+          path: debug-baseline
+
+      - name: Verify TinyCC matches the tested Debug baseline
+        shell: pwsh
         run: |
-          $version = '0.9.28-rc.1442+2474e1c2'
-          $base = 'https://github.com/Thewafflication/tcc_package/releases/download/v0.9.28-rc.1442%2B2474e1c2'
-          $key = Join-Path $env:RUNNER_TEMP 'tcc-wpm-release.public'
-          Invoke-WebRequest -UseBasicParsing "$base/wpm-release.public" -OutFile $key
-          if ((Get-FileHash -LiteralPath $key -Algorithm SHA256).Hash -ne 'e141a5f383b8d2e7096080beb2920b37a007de727d1c8ff47a520453460f23a6') {
-            throw 'Pinned TinyCC release-key digest mismatch.'
+          $provenance = Get-Content -LiteralPath `
+            'debug-baseline/dependency-provenance.json' -Raw | ConvertFrom-Json
+          if ($provenance.TinyCcVersion -ne $env:TINYCC_PACKAGE_VERSION) {
+            throw "Latest TinyCC changed during the run: Debug used $($provenance.TinyCcVersion), Release selected $env:TINYCC_PACKAGE_VERSION. Rerun the workflow."
           }
-          wpm trust add $key
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          wpm repo add $base
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          wpm config set prerelease true --package tinycc
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          wpm update
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          wpm install tinycc --arch '${{ matrix.arch }}' --version $version
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          $tccHome = [Environment]::GetEnvironmentVariable('TCC_HOME', 'Machine')
-          $tcc = Join-Path $tccHome 'tcc.exe'
-          if (-not (Test-Path -LiteralPath $tcc)) { throw "TinyCC was not installed at $tcc." }
-          "TINYCC=$tcc" >> $env:GITHUB_ENV
 
       - name: Build release DLL and static library
         shell: pwsh
         run: ./tools/build-wcrt.ps1 -Architecture '${{ matrix.arch }}' -Configuration Release -TinyCc $env:TINYCC -Version '${{ github.ref_name }}'
+
+      - name: Record release dependency provenance
+        shell: pwsh
+        run: |
+          [PSCustomObject]@{
+            Architecture = '${{ matrix.arch }}'
+            RunnerImage = '${{ matrix.runner }}'
+            WpmVersion = '1.0.16'
+            TinyCcSelection = 'latest eligible WPM package at job execution'
+            TinyCcRepository = $env:TINYCC_WPM_REPOSITORY
+            TinyCcVersion = $env:TINYCC_PACKAGE_VERSION
+            TinyCcSourceRevision = $env:TINYCC_SOURCE_REVISION
+            TinyCcPackageSha256 = $env:TINYCC_PACKAGE_SHA256
+            TinyCcReleaseKeySha256 = $env:TINYCC_RELEASE_KEY_SHA256
+            TinyCcSha256 = (Get-FileHash -LiteralPath $env:TINYCC -Algorithm SHA256).Hash
+            WspRevision = (git -C wsp rev-parse HEAD)
+          } | ConvertTo-Json -Depth 3 |
+            Set-Content 'output/build/${{ matrix.arch }}/Release/dependency-provenance.json' -Encoding utf8NoBOM
 
       - name: Verify release Windows 2000 x86 imports
         if: matrix.arch == 'x86'
@@ -839,8 +851,6 @@ jobs:
     needs: release
     runs-on: windows-2025
     environment: release
-    env:
-      WPM_PRIVATE_KEY: ${{ secrets.WPM_RELEASE_PRIVATE_KEY }}
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -859,15 +869,27 @@ jobs:
       - name: Assemble architecture build directories
         shell: pwsh
         run: |
+          $tinyCcVersions = @()
           foreach ($architecture in @('x86', 'x64', 'arm64')) {
             $source = "downloaded-builds/wcrt-$architecture-release-build"
             $destination = "output/build/$architecture/Release"
             if (-not (Test-Path -LiteralPath "$source/wcrt.dll" -PathType Leaf)) {
               throw "Release build for $architecture was not downloaded."
             }
+            $provenancePath = "$source/dependency-provenance.json"
+            if (-not (Test-Path -LiteralPath $provenancePath -PathType Leaf)) {
+              throw "TinyCC provenance for $architecture was not downloaded."
+            }
+            $provenance = Get-Content -LiteralPath $provenancePath -Raw | ConvertFrom-Json
+            $tinyCcVersions += $provenance.TinyCcVersion
             New-Item -ItemType Directory -Force $destination | Out-Null
             Copy-Item -Path "$source/*" -Destination $destination -Recurse
           }
+          $distinctVersions = @($tinyCcVersions | Sort-Object -Unique)
+          if ($distinctVersions.Count -ne 1) {
+            throw "Release targets selected different TinyCC packages: $($distinctVersions -join ', ')."
+          }
+          "All Release targets selected TinyCC $($distinctVersions[0])."
 
       - name: Install WPM
         shell: pwsh
@@ -889,8 +911,10 @@ jobs:
           if ($reported -notmatch 'Version 1\.0\.16') { throw "Unexpected WPM version: $reported" }
           $wpmDirectory >> $env:GITHUB_PATH
 
-      - name: Build and verify signed WPM package
+      - name: Build and verify WPM-signed package
         shell: pwsh
+        env:
+          WPM_PRIVATE_KEY: ${{ secrets.WPM_RELEASE_PRIVATE_KEY }}
         run: |
           if ([string]::IsNullOrWhiteSpace($env:WPM_PRIVATE_KEY)) { throw 'The release environment must define WPM_RELEASE_PRIVATE_KEY.' }
           $keyPath = Join-Path $env:RUNNER_TEMP 'wcrt-release.private'
@@ -901,11 +925,44 @@ jobs:
             if ($package.Count -ne 1) { throw "Expected one package, found $($package.Count)." }
             wpm trust add release_keys/wpm-release.public
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-            wpm verify $package[0].FullName
-            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            $verifyOutput = @(wpm verify $package[0].FullName 2>&1)
+            $verifyExitCode = $LASTEXITCODE
+            $verifyOutput | Write-Output
+            New-Item -ItemType Directory -Force output/test-results/release | Out-Null
+            [PSCustomObject]@{
+              schemaVersion = 1
+              generatedAtUtc = [DateTime]::UtcNow.ToString('o')
+              package = $package[0].Name
+              packageSha256 = (Get-FileHash -LiteralPath $package[0].FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+              trustedPublicKeySha256 = (Get-FileHash -LiteralPath release_keys/wpm-release.public -Algorithm SHA256).Hash.ToLowerInvariant()
+              exitCode = $verifyExitCode
+              result = if ($verifyExitCode -eq 0) { 'Pass' } else { 'Fail' }
+              output = @($verifyOutput | ForEach-Object ToString)
+            } | ConvertTo-Json -Depth 5 |
+              Set-Content output/test-results/release/wpm-verification.json -Encoding utf8NoBOM
+            if ($verifyExitCode -ne 0) { exit $verifyExitCode }
           } finally {
             Remove-Item $keyPath -Force -ErrorAction SilentlyContinue
           }
+
+      - name: Verify packaged DLL identities
+        shell: pwsh
+        run: |
+          $package = @(Get-ChildItem output/packages/wcrt-any-*.zip -File)
+          if ($package.Count -ne 1) { throw "Expected one package, found $($package.Count)." }
+          ./tools/test-wpm-package-authenticode.ps1 `
+            -Package $package[0].FullName `
+            -SkipAuthenticode `
+            -SourceRevision '${{ github.sha }}' `
+            -OutputPath output/test-results/release/package-dll-identities.json
+
+      - name: Retain WPM package evidence
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: wcrt-wpm-package-evidence
+          path: output/test-results/release/*.json
+          if-no-files-found: warn
 
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:

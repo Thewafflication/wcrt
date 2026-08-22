@@ -11,20 +11,33 @@ PowerShell 7.6.3
 
 **Exact CI:** GitHub Actions run `32027269426`, conclusion `success`
 
+**Latest-dependency successor CI:** GitHub Actions run `32533622277` at
+`eb27920bf5ceaa28874a78e05a3efb39da6761fc`, conclusion `success`; exact
+machine-readable identities are in `latest-tinycc-provenance.json`
+
 **Decision:** Exact-revision native Debug conformance matrix Pass; T6
-completion and release readiness Reject because trust, independent review,
-installation, and native ARM64 Release evidence remain incomplete
+completion Reject because independent review is incomplete; R1 readiness
+Reject because WPM trust, installation, and the tagged optimized Release
+matrix remain incomplete
+
+**Scope reconciliation:** On 2026-08-21 the maintainer deferred Authenticode
+and Defender from WCRT 1.0.0. The observed `NotSigned` and scan rows below are
+retained historical candidate evidence and are not rewritten as Pass. WPM
+signing/verification remains an active release gate.
 
 ## Dependency Baseline
 
 The machine-readable dependency record is
-`docs/evidence/c99-t6/dependency-provenance.json`. The selected WSP gitlink is
-`2198ccab08f969a789448767fe7017b774369adc`; TinyCC is
+`docs/evidence/c99-t6/dependency-provenance.json`. This is retained historical
+T6 evidence, not a floating claim about the current repository index. The
+selected WSP gitlink is `2198ccab08f969a789448767fe7017b774369adc`; TinyCC is
 `0.9.28-rc.1442+2474e1c2` at source revision
 `d5c02f0fcdfdf75265d38df6ff9db2f8067367ac`; WPM is 1.0.16; and cv2pdb is
 0.54.0 at source revision `25cfecaad700550a49cd7ddbf7773254ea438d07`.
 The exact release archives, installed executables, release keys, action SHAs,
 runner images, jobs, and artifact identifiers are recorded there.
+Successor workflows intentionally resolve the latest eligible `tinycc` WPM
+package and retain the newly selected identity per target.
 
 Exact CI used runner 2.336.0 and provisioner 20260729.566. x86/x64 used
 `windows-2025-vs2026` image `20260810.198.2`; ARM64 used
@@ -48,8 +61,8 @@ Exact CI used runner 2.336.0 and provisioner 20260729.566. x86/x64 used
 | Debug static/DLL consumers | Pass | Pass | Pass | C89 and complex consumers execute natively; ARM64 DLL path proves public exports via `LoadLibraryA`/`GetProcAddress` and links only the private helper companion |
 | Debug console/GUI startup | Pass | Pass | Pass | TC-0017/TC-0018 execute natively; no host CRT import |
 | Release build | Pass | Pass | Pass compile/link | Local rebuild with executable hashes matching the exact CI dependency record |
-| Release static/DLL consumers | Pass native | Pass native | Pass compile/link; native Unknown | Local ARM64 execution is target-blocked and is not inferred from Debug or link evidence |
-| Release console/GUI startup | Pass native | Pass native | Compile/link Pass; native Unknown | Local ARM64 outputs are PE `0xAA64`; native Release execution is absent |
+| Release static/DLL consumers | Pass native | Pass native | Pass compile/link; native Unknown | Local readiness input only; tagged native Release evidence is required before publication and is not inferred from Debug or link evidence |
+| Release console/GUI startup | Pass native | Pass native | Compile/link Pass; native Unknown | Local readiness input only; ARM64 outputs are PE `0xAA64` and the tagged optimized Release matrix has not run |
 | Windows 2000 imports | Pass | N/A | N/A | x86 Release DLL `ddd4051a...`, machine `0x014C`, 27 allowlisted `kernel32.dll` imports, zero unexpected |
 | Automatic built-in failure diagnostics | Pass | Pass | Pass | TinyCC crash trace identifies functions on all targets |
 | Independent GDB backtrace | Pass | Pass | Unknown | GDB 17.1 Completed on x86/x64; ARM64 GDB 16.2 is `UnsupportedTarget`, not Pass |

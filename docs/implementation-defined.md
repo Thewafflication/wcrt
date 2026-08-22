@@ -60,9 +60,11 @@ not claim IEC 60559 Annex F conformance.
   parsing, evaluation methods, and the three `STDC` pragmas. Exact selected
   compiler results are recorded separately; an unavailable compiler behavior
   is not supplied by the runtime and is not a Pass.
-- The selected TinyCC 1442 ARM64 package emits private complex multiplication
-  and division helper calls with scalar bits in integer registers even though
-  its packaged C helper entries use floating registers. WCRT normalizes this
-  compiler-private boundary in `tinycc_complex_abi.S`; it does not alter the
-  public Windows ARM64 complex-function ABI. ARM64 DLL consumers link the
-  packaged `libwcrt-tinycc-complex-abi.a` companion in addition to `wcrt.def`.
+- The retained TinyCC 1442 baseline emitted private complex multiplication and
+  division helper calls through a compiler-defective integer-register ABI.
+  TinyCC 1444 corrected those calls to the standard Windows ARM64 function ABI:
+  scalar components in `d0`--`d3` and the result pointer in `x0`. WCRT's
+  `tinycc_complex_abi.S` now preserves those registers and supplies only the
+  compiler-private helper symbol aliases; it does not alter the public complex
+  ABI. ARM64 DLL consumers link the packaged
+  `libwcrt-tinycc-complex-abi.a` companion in addition to `wcrt.def`.

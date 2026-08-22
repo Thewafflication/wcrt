@@ -30,12 +30,13 @@ integer registers X19-X28, frame pointer X29, stack pointer, return address
 X30, and the low 64-bit halves D8-D15 of vector registers V8-V15. The public
 ARM64 `jmp_buf` size is compile-time checked as 168 bytes.
 
-TinyCC 1442's ARM64 complex-operator call sites and its packaged C helpers use
-different private register conventions. WCRT therefore ships a target-scoped
-bridge in `libwcrt.a` and as `libwcrt-tinycc-complex-abi.a` for DLL consumers.
-The bridge moves the four binary64 components from `x0`--`x3` to `d0`--`d3`,
-moves the result address from `x4` to `x0`, and delegates to scaled scalar
-helpers. This compiler adaptation does not alter the public complex function
+The retained TinyCC 1442 baseline required an ARM64 complex-helper register
+adapter. TinyCC 1444 corrected its private helper declarations to the standard
+Windows ARM64 function ABI: four binary64 components in `d0`--`d3` and the
+result address in `x0`. WCRT continues to ship the target-scoped helper symbols
+in `libwcrt.a` and `libwcrt-tinycc-complex-abi.a`, but their assembly entries
+now preserve the correct registers and tail-call the scaled scalar helpers.
+This compiler-private adaptation does not alter the public complex function
 ABI. TC-0037 and the static/DLL consumers are the required native gate.
 
 ## Candidate evidence boundary
@@ -44,6 +45,8 @@ The exact Debug candidate evidence covers the full C89/C99/compatibility
 aggregates, complex and floating ABI behavior, nonvolatile integer and floating
 register preservation around `setjmp` and `longjmp`, default signal
 termination, assertion diagnostics, static and DLL consumers, and both
-optional startup objects. Native ARM64 Release execution is still absent and
-remains Unknown; local compile/link does not replace it. Windows 2000 import
-enforcement applies only to x86.
+optional startup objects. Tagged native ARM64 Release execution is still absent
+and remains an R1 prepublication Unknown; local compile/link does not replace
+it. It is not a T6 conformance failure because the complete native Debug matrix
+passes, but publication still requires the optimized Release consumer/startup
+smoke job. Windows 2000 import enforcement applies only to x86.

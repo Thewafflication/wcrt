@@ -66,8 +66,8 @@ conformance claim.
       allowlist for Debug and tagged Release DLLs.
 - [x] Create conformance, implementation-defined behavior, and deviation
       documents; exact native Debug target cells now cite retained run
-      `32027269426`, while native ARM64 Release and release gates remain
-      explicitly Unknown/Fail where applicable.
+      `32027269426`, while the tagged optimized Release matrix and release
+      gates remain explicitly R1 Unknown/Fail where applicable.
 
 **Exit condition:** a trivial program can be compiled with TinyCC, linked with
 WCRT, started, tested, and terminated on the baseline x86 target.

@@ -18,7 +18,8 @@
   binary32, four-direction, and 260 reproducible exact-rational binary64
   vectors. Exact-revision native x86/x64/ARM64 Debug behavior passes in run
   `32027269426`. The deviation is removed from the implementation disposition;
-  native ARM64 Release remains a verification blocker rather than a deviation.
+  tagged native ARM64 Release remains an R1 prepublication gate rather than a
+  conformance deviation.
 
 ## Compiler-owned blocking items
 
@@ -37,8 +38,8 @@ than the helper entry expects. WCRT now supplies a target-scoped bridge and
 scalar helpers in the static library and ARM64 DLL companion archive. This is
 not registered as a public-library deviation: the public C99 representation,
 function ABI, and results remain required. Corrected native ARM64 Debug
-execution passes in exact-revision run `32027269426`; native ARM64 Release is
-separately Unknown.
+execution passes in exact-revision run `32027269426`; tagged native ARM64
+Release smoke is separately an R1 Unknown until the release workflow runs.
 
 ## Profiles not claimed
 

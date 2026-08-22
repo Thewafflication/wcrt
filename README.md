@@ -27,10 +27,13 @@ while source quality and the optional console and GUI startup paths are covered
 by TC-0016 through TC-0018.
 The implemented C99 allocations include REQ-0019, REQ-0021 through REQ-0033,
 and REQ-0035 through REQ-0042 as detailed by the
-[C99 to 1.0.0 work plan](docs/C99-1.0-WORK-PLAN.md). The supported TinyCC
-package selected for T6 is `0.9.28-rc.1442+2474e1c2` (source revision
-`d5c02f0fcdfdf75265d38df6ff9db2f8067367ac`). Exact-revision native Debug
-x86/x64/ARM64 suites pass in GitHub Actions run `32027269426`. Native ARM64
+[C99 to 1.0.0 work plan](docs/C99-1.0-WORK-PLAN.md). CI resolves the latest
+eligible `tinycc` package from the `tcc_package` WPM repository at workflow
+execution, records the exact selected version and hashes, and rejects a mixed
+compiler baseline across targets. The retained T6 closure baseline is
+`0.9.28-rc.1442+2474e1c2`; successor run `32533622277` passes the complete
+native Debug matrix and package assembly with latest-selected
+`0.9.28-rc.1444+9a4be30f`. Native ARM64
 Release execution, release trust, installation/rollback, and independent
 release review remain acceptance work.
 
@@ -105,8 +108,9 @@ usable with the supported TinyCC versions. Compiler limitations will be
 recorded separately from runtime limitations. ADR-0005 permits only the exact,
 source-specific `_Complex` type/parser and imaginary-literal diagnostics in its
 controlled matrix as non-fatal ExpectedFail results.
-The selected `0.9.28-rc.1442+2474e1c2` package passes those probes, so WCRT
-builds include the complex runtime and require its complete export inventory.
+The retained `0.9.28-rc.1442+2474e1c2` baseline passes those probes. Every
+newer package selected by WPM must pass the same probes and complete matrix, so
+WCRT builds include the complex runtime and require its complete export inventory.
 If a controlled diagnostic recurs, packages include `complex.h` and `tgmath.h`
 for implementation
 review but omit complex runtime symbols and disclose that state in
@@ -162,9 +166,11 @@ always run first. Each job publishes the debug DLL, PDB, and a TeX test-results
 table. After every Debug job passes, the workflow also publishes an unsigned
 `wcrt-debug-any-<version>.zip` WPM package containing all three targets. It
 installs separately beneath `%ProgramFiles%\WCRT\Debug` and sets
-`WCRT_DEBUG_HOME`. A `MAJOR.MINOR.PATCH` or `vMAJOR.MINOR.PATCH` tag additionally gates a
-Release build and combines all three architectures into one WPM development
-package whose base version is taken from the tag.
+`WCRT_DEBUG_HOME`. The candidate source may be committed before optimized
+Release evidence exists. A `MAJOR.MINOR.PATCH` or `vMAJOR.MINOR.PATCH` tag
+starts Release builds and native consumer/startup smoke tests on all three
+architectures, then combines them into one WPM development package whose base
+version is taken from the tag.
 As with the TinyCC package, WPM versions normalize a tag suffix, add a
 development commit distance when applicable, append the eight-character Git
 revision as build metadata, and add `.dirty` for modified working trees. An
@@ -184,10 +190,16 @@ and target files beneath `x86`, `x64`, and `arm64` architecture directories.
 The package also contains the C99 complex capability/profile records. A target
 whose compiler passes the probe contains the complex runtime; a controlled
 ExpectedFail target remains packageable with that runtime explicitly omitted.
-After all Debug architecture jobs pass, a semantic-version tag builds signed
-Release artifacts for x86, x64, and ARM64. The workflow publishes one
-`arch=any` WPM package containing every target, the public signing key, and the
-WPM repository `index.json` to the corresponding GitHub Release.
+After all Debug architecture jobs pass, a semantic-version tag builds Release
+artifacts for x86, x64, and ARM64. Package assembly consumes those exact
+artifacts, applies the separate WPM signature, requires `wpm verify` exit zero,
+and compares every packaged DLL with its Release input. Publication depends on
+the complete `build` -> `release` -> `package` chain. Only then can the workflow
+publish one WPM-signed `arch=any` package containing every target, the public
+WPM key, and repository `index.json` to the corresponding GitHub Release.
+Authenticode identity/timestamping and Defender scanning are explicitly
+deferred from 1.0.0, not represented as Pass. Remaining readiness blockers are
+tracked in the project release-readiness record.
 
 An ARM64 C99 consumer that links the DLL uses both the import definition and
 the compiler-private companion archive (in this order):
@@ -282,6 +294,10 @@ Release trust order, rollback, and support are defined in
 [`docs/release-process.md`](docs/release-process.md); the project threat and
 dependency model is in
 [`docs/security/design-for-security.md`](docs/security/design-for-security.md).
+The deferred Authenticode service, identity, verification, evidence, and
+certificate lifecycle design is retained in
+[`docs/windows-signing-plan.md`](docs/windows-signing-plan.md) for future
+reassessment; it is not a WCRT 1.0 gate.
 
 ## Contributing
 

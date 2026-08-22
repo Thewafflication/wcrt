@@ -2,15 +2,16 @@
 
 **Content type:** Project release-control baseline
 
-**Status:** Implemented candidate process; signing infrastructure and external
-approval pending
+**Status:** Implemented candidate and WPM-signing workflow; tagged evidence,
+deferred Authenticode/Defender work, and external approval pending
 
 ## Release Identity and Scope
 
 A WCRT release is identified by a semantic version, a full Git source
 revision, the pinned WSP gitlink, exact build dependencies, and the SHA-256 of
 every distributed artifact. A release-candidate version uses
-`1.0.0-rc.<number>`. Candidate preparation does not create a tag or external
+`1.0.0-rc.<number>`. Candidate preparation may commit the exact source revision
+before tagged Release evidence exists; it does not create a tag or external
 release.
 
 The 1.0.0 artifact set is one `wcrt-any-<package-version>.zip` WPM package
@@ -22,29 +23,41 @@ digest are not approved artifacts.
 
 ## Build and Trust Order
 
-1. Freeze a clean source revision and pinned dependency baseline.
-2. Build Debug verification outputs and Release x86/x64/ARM64 outputs.
-3. Run all controlled tests, consumers, startup, ABI, source-quality,
-   traceability, import, and evidence checks on the exact baseline.
-4. Finalize PE version resources and manifests.
-5. Authenticode-sign every distributed `wcrt.dll` with the approved publisher
-   identity and an RFC 3161 SHA-256 timestamp. Verify the signature and trust
-   chain independently.
-6. Record SHA-256 values, then scan those exact signed PE files with supported
-   Microsoft Defender security intelligence. Retain scan time, result, engine
-   version, intelligence version, and the matching digests.
-7. Assemble the WPM package without changing signed PEs. Sign the package with
-   the protected WPM release key and verify it using
+1. Freeze and commit a clean source revision. Let WPM resolve the latest
+   eligible TinyCC package at workflow execution, retain the exact resolved
+   version/source/hashes, and require one identity across every Debug and
+   Release target; rerun if the latest entry changes during the workflow.
+2. Build Debug verification outputs and run the complete controlled C89, C99,
+   compatibility, consumer, startup, ABI, source-quality, traceability, import,
+   package-assembly, and evidence matrix on x86, x64, and ARM64.
+3. Finalize PE version resources, manifests, documentation, and the proposed
+   release-readiness record at that committed candidate revision.
+4. After all other prepublication blockers are closed and separate tag/
+   publication authority is granted, push the semantic-version tag. The tag
+   starts optimized Release builds and native library-consumer/startup smoke
+   tests on x86, x64, and ARM64 and repeats the x86 legacy-import check. The
+   full behavior inventory is not duplicated because each Release job depends
+   on the successful exact-source Debug matrix.
+5. Assemble the WPM package without changing the verified Release artifacts.
+   Sign the package with the protected WPM release key and verify it using
    `release_keys/wpm-release.public`.
-8. Hash the final package and release documents, validate their identities,
+6. Compare every packaged DLL with its Release input, hash the final package
+   and release documents, validate their identities,
    and approve the exact set in the release-readiness record.
-9. Only after separate explicit authorization, create the tag, push, create the
-   release, and upload the approved bytes.
+7. Permit the downstream publication job to create the GitHub Release and
+   upload only after every Release architecture and WPM-package verification
+   succeeds and the exact set is approved.
 
-The repository workflow currently builds and WPM-signs tagged artifacts but
-does not provide an approved Authenticode identity/timestamp stage or retained
-Defender gate. Until those controls are implemented and exercised, the 1.0.0
-release decision is Reject. An unsigned local candidate is preparation
+The repository workflow orders `build` -> `release` -> `package` -> `publish`,
+so a failed or cancelled architecture or WPM package job prevents publication.
+Authenticode identity/timestamping and Defender scanning were explicitly
+deferred from WCRT 1.0.0 on 2026-08-21. ADR-0006 and
+`docs/windows-signing-plan.md` retain the dormant Azure design for future
+reassessment; they are not 1.0 gates and provide no signature evidence. The
+workflow is fail-closed for the remaining 1.0 controls, but it does not provide
+a post-artifact approval checkpoint. Until all active controls are exercised
+and approved in the release-readiness record, the 1.0.0 release decision is
+Reject and no tag may be pushed. An unsigned-DLL local candidate is preparation
 evidence only.
 
 ## Verification Commands
@@ -52,18 +65,21 @@ evidence only.
 The exact readiness record supplies resolved paths. Typical local checks are:
 
 ```powershell
-Get-AuthenticodeSignature <wcrt.dll>
 Get-FileHash -Algorithm SHA256 <artifact>
 wpm trust add release_keys/wpm-release.public
 wpm verify <package.zip>
-Get-MpComputerStatus
-Start-MpScan -ScanType CustomScan -ScanPath <exact-final-artifact>
+./tools/test-wpm-package-authenticode.ps1 -Package <package.zip> -SkipAuthenticode -BuildRoot <release-build-root>
 ```
 
-The last scan is a release Pass only for final signed bytes with retained
-Defender versions and a matching digest. `NotSigned`, unavailable Defender,
-or a scan of earlier bytes is Unknown or Fail as specified by the readiness
-record, never Pass.
+The package identity check proves only that WPM assembly retained the Release
+DLL bytes. It does not prove Authenticode trust or malware-scan status; both
+controls are Deferred for 1.0, never Pass.
+
+The distinct `WPM_RELEASE_PRIVATE_KEY` secret remains only for WPM package
+signing. The currently repository-scoped WPM secret must be migrated into the
+protected `release` environment before a tag. No Authenticode key or Azure
+identity is required for 1.0. See the deferred signing plan before any future
+reactivation.
 
 ## Installation and Rollback
 

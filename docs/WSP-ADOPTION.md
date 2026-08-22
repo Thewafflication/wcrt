@@ -173,23 +173,23 @@
 
 | WSP requirement | Disposition | Project artifact | Rationale or notes |
 | --- | --- | --- | --- |
-| `WSP-SIGN-0001` | Deferred | Future release signing plan | The complete signing plan is not yet documented. |
+| `WSP-SIGN-0001` | Deferred | `docs/windows-signing-plan.md`, ADR-0006 | Authenticode was explicitly deferred from WCRT 1.0.0 on 2026-08-21. The dormant plan identifies the future scope but requires reassessment before use. |
 | `WSP-SIGN-0002` | Applicable | `docs/security/design-for-security.md`, `docs/release-process.md` | Authenticode, WPM signatures, SHA-256 identities, Defender detections, and SmartScreen reputation are explicitly separated. |
-| `WSP-SIGN-0003` | Deferred | Future release signing plan | Authenticode identity controls require documentation. |
-| `WSP-SIGN-0004` | Deferred | Future release workflow | Release PE files are not yet Authenticode signed. |
-| `WSP-SIGN-0005` | Deferred | Future release workflow | RFC 3161 timestamping is not yet implemented. |
+| `WSP-SIGN-0003` | Deferred | ADR-0006; `docs/windows-signing-plan.md` | No Authenticode identity or credential is provisioned for 1.0. The historical protected-key/OIDC design is dormant. |
+| `WSP-SIGN-0004` | Deferred | Authenticode verification tools | The DLLs remain `NotSigned`; the 1.0 tag workflow does not request an Authenticode signature. |
+| `WSP-SIGN-0005` | Deferred | ADR-0006; `docs/windows-signing-plan.md` | RFC 3161 timestamping is deferred with Authenticode and is not a 1.0 Pass result. |
 | `WSP-SIGN-0006` | Not applicable | Current platform baseline | No legacy SHA-1 signing exception is selected. |
-| `WSP-SIGN-0007` | Deferred | Future release workflow | The complete signing and packaging order is not yet implemented. |
-| `WSP-SIGN-0008` | Deferred | Future release workflow | Authenticode verification is not yet a release gate. |
-| `WSP-SIGN-0009` | Deferred | Future release-trust record | Exact signed-artifact identity is not yet retained. |
+| `WSP-SIGN-0007` | Deferred | Deferred signing plan | Final PE signing and exact-signed-byte scanning are outside the 1.0 baseline; WPM packaging still compares the unchanged Release DLL bytes. |
+| `WSP-SIGN-0008` | Deferred | `tools/test-authenticode-signatures.ps1` | The retained verifier is dormant and supplies no 1.0 evidence. |
+| `WSP-SIGN-0009` | Deferred | Historical signing JSON design | No Authenticode evidence record is required for 1.0; future activation must define and retain exact values. |
 | `WSP-SIGN-0010` | Deferred | Future release workflow | Final artifacts are not yet scanned with retained Defender evidence. |
 | `WSP-SIGN-0011` | Deferred | Future release workflow | Defender detection handling is not yet a formal gate. |
 | `WSP-SIGN-0012` | Deferred | Future vulnerability-response policy | Windows trust reports are not yet formally classified. |
 | `WSP-SIGN-0013` | Deferred | Future vulnerability-response policy | False-positive investigation is not yet formalized. |
 | `WSP-SIGN-0014` | Deferred | Future vulnerability-response policy | Microsoft submissions are not yet formally tracked. |
 | `WSP-SIGN-0015` | Applicable | Project release and support practice | Protection evasion and broad exclusions are not accepted release responses. |
-| `WSP-SIGN-0016` | Deferred | Future release documentation | Publisher identity and verification guidance require completion. |
-| `WSP-SIGN-0017` | Deferred | Future release signing plan | Certificate lifecycle and compromise response require documentation. |
+| `WSP-SIGN-0016` | Deferred | `README.md`; `docs/windows-signing-plan.md` | Version-resource `CompanyName` remains project metadata, but no Authenticode publisher claim is made for 1.0. |
+| `WSP-SIGN-0017` | Deferred | `docs/windows-signing-plan.md`; ADR-0006 | The dormant Azure lifecycle design must be revalidated if Authenticode is reactivated. |
 | `WSP-SIGN-0018` | Deferred | Future release-trust record | Trust-evidence retention is not yet defined. |
 
 ### Common tools
@@ -252,3 +252,5 @@
 | 2026-07-29 | `0f66aa65fd820799468818ae57897f2940fb6037` | WSP baseline update | Add native standard-input testing guidance. Impact review found no requirement-disposition or logging-interface changes; existing WCRT logging integration remains compatible. |
 | 2026-08-03 | `2198ccab08f969a789448767fe7017b774369adc` | WSP baseline update and relocation | Add portable C logger fallbacks and tests, adopt intervening upstream guidance, and move the checkout from `tools/wsp/` to the project-root `wsp/` path. |
 | 2026-08-04 | `2198ccab08f969a789448767fe7017b774369adc` | C99-to-1.0.0 planning change | Select the personal-process profile and define the project process, measured C99 work plan, and 1.0.0 release boundary. |
+| 2026-08-20 | `2198ccab08f969a789448767fe7017b774369adc` | Authenticode release-control preparation | Adopt ADR-0006, the managed signing plan, OIDC workflow, fail-closed verification, package immutability, and certificate lifecycle controls; external provisioning/evidence and Defender remain incomplete. |
+| 2026-08-21 | `2198ccab08f969a789448767fe7017b774369adc` | WCRT 1.0 trust-scope change | Defer Authenticode and Defender from 1.0 without inferring Pass; retain WPM signing/verification and unchanged Release-DLL identity checks as active gates. |

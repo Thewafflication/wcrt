@@ -30,7 +30,7 @@ the unsigned release candidate or erase a compiler-blocked ExpectedFail.
 | F-002 | 7.1 | All 24 standard headers self-contained and repeatable | required | implemented | Pass | Pass | Pass | REQ-0042 | `include/` | TC-0042 | Mixed-order matrix is controlled by TC-0042. |
 | F-003 | 7.1 | Reserved identifiers and function macro suppression | required | implemented | Pass | Pass | Pass | REQ-0038; REQ-0040 | `include/`; `src/` | TC-0038; TC-0040 | Personal and independent source review required. |
 | F-004 | 7.2 | `<assert.h>` enabled and disabled assertions | required | implemented | Pass | Pass | Pass | REQ-0001; REQ-0040 | `include/assert.h`; `src/assert.c` | TC-0001; TC-0040 | C99 diagnostic includes enclosing function after T6 correction. |
-| F-005 | 7.3 | `<complex.h>` types, operators, `complex`, `_Complex_I`, and `I` | required | implemented | Pass | Pass | Pass | REQ-0037 | `include/complex.h`; `src/platform/windows/tinycc_complex_abi.c`; `src/platform/windows/tinycc_complex_abi.S` | TC-0037; TC-0042 | Depends on target `_Complex` and imaginary literals; the selected ARM64 TinyCC package requires the controlled private helper-ABI bridge. |
+| F-005 | 7.3 | `<complex.h>` types, operators, `complex`, `_Complex_I`, and `I` | required | implemented | Pass | Pass | Pass | REQ-0037 | `include/complex.h`; `src/platform/windows/tinycc_complex_abi.c`; `src/platform/windows/tinycc_complex_abi.S` | TC-0037; TC-0042 | Depends on target `_Complex` and imaginary literals; ARM64 uses controlled compiler-private helper aliases whose register contract is gated by TC-0037 and consumer tests. |
 | F-006 | 7.3 | Complex trigonometric and hyperbolic families | required | implemented | Pass | Pass | Pass | REQ-0037 | `src/complex.c` | TC-0037 | Ordinary, branch, and exceptional partitions. |
 | F-007 | 7.3 | Complex exponential, logarithm, power, and square root | required | implemented | Pass | Pass | Pass | REQ-0037 | `src/complex.c` | TC-0037 | Accuracy is implementation-defined. |
 | F-008 | 7.3 | Complex manipulation and component functions | required | implemented | Pass | Pass | Pass | REQ-0037 | `src/complex.c` | TC-0037 | Includes signed-zero projection behavior. |
@@ -105,12 +105,14 @@ the unsigned release candidate or erase a compiler-blocked ExpectedFail.
 ## Blocking summary
 
 - Exact-revision native x86/x64/ARM64 Debug behavior, ABI, consumers, and
-  startup results pass in run `32027269426`. Native ARM64 Release execution is
-  still Unknown and is not inferred from the Debug or local compile/link result.
+  startup results pass in run `32027269426`. The tagged optimized Release
+  matrix is still an R1 Unknown and is not inferred from the Debug or local
+  compile/link result.
 - F-010, F-017, and F-037 are compiler-blocked ExpectedFail results for the
   selected TinyCC package; they are not Pass.
 - F-055 is omitted recommended practice. The retained decimal counterexample
   prevents a universal correct-rounding claim.
-- Release readiness is Reject while independent review, native ARM64 Release,
-  signing/timestamp, final-byte Defender, WPM signature verification, and
-  installation/rollback gates are incomplete.
+- Release readiness is Reject while independent review, the tagged optimized
+  Release matrix, WPM signature verification, successor-candidate identities,
+  and installation/rollback gates are incomplete. Authenticode/timestamping
+  and Defender scanning are explicitly Deferred from 1.0, not Pass.
