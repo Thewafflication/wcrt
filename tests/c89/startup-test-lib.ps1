@@ -30,10 +30,40 @@ function Get-WcrtPeInformation {
     [PSCustomObject]@{
         Machine = [BitConverter]::ToUInt16($bytes, $peOffset + 4)
         EntryPoint = [BitConverter]::ToUInt32($bytes, $optional + 16)
+        OperatingSystemMajor = [BitConverter]::ToUInt16($bytes, $optional + 40)
+        OperatingSystemMinor = [BitConverter]::ToUInt16($bytes, $optional + 42)
+        SubsystemMajor = [BitConverter]::ToUInt16($bytes, $optional + 48)
+        SubsystemMinor = [BitConverter]::ToUInt16($bytes, $optional + 50)
         Subsystem = [BitConverter]::ToUInt16($bytes, $optional + 68)
         HostCrtImport = $text -match `
             '(?i)(msvcrt|ucrtbase|vcruntime[^.]*)\.dll'
     }
+}
+
+function Test-WcrtPeVersionAtLeast {
+    param(
+        [Parameter(Mandatory)][int]$Major,
+        [Parameter(Mandatory)][int]$Minor,
+        [Parameter(Mandatory)][int]$RequiredMajor,
+        [Parameter(Mandatory)][int]$RequiredMinor
+    )
+
+    $Major -gt $RequiredMajor -or
+        ($Major -eq $RequiredMajor -and $Minor -ge $RequiredMinor)
+}
+
+function Test-WcrtArm64PeVersions {
+    param(
+        [Parameter(Mandatory)]$Pe,
+        [Parameter(Mandatory)][string]$Architecture
+    )
+
+    $Architecture -ne 'arm64' -or
+        ((Test-WcrtPeVersionAtLeast -Major $Pe.OperatingSystemMajor `
+            -Minor $Pe.OperatingSystemMinor -RequiredMajor 6 `
+            -RequiredMinor 2) -and
+        (Test-WcrtPeVersionAtLeast -Major $Pe.SubsystemMajor `
+            -Minor $Pe.SubsystemMinor -RequiredMajor 6 -RequiredMinor 2))
 }
 
 function Invoke-WcrtStartupLink {

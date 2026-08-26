@@ -32,10 +32,16 @@ try {
     $pe = Get-WcrtPeInformation $executable
     if ($pe.Machine -ne $expectedMachine[$Architecture] -or
         $pe.Subsystem -ne 2 -or $pe.EntryPoint -eq 0 -or
-        $pe.HostCrtImport) {
+        $pe.HostCrtImport -or
+        -not (Test-WcrtArm64PeVersions -Pe $pe `
+            -Architecture $Architecture)) {
         throw "The GUI PE inspection failed: $($pe | Out-String)"
     }
     $output.Add("PE machine: 0x$('{0:X4}' -f $pe.Machine)")
+    $output.Add("PE OS version: " +
+        "$($pe.OperatingSystemMajor).$($pe.OperatingSystemMinor)")
+    $output.Add("PE subsystem version: " +
+        "$($pe.SubsystemMajor).$($pe.SubsystemMinor)")
     $output.Add("PE subsystem: $($pe.Subsystem)")
     $output.Add("PE entry RVA: 0x$('{0:X8}' -f $pe.EntryPoint)")
     $output.Add("Host CRT import: $($pe.HostCrtImport)")
