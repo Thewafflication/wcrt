@@ -90,6 +90,18 @@ that compatibility behavior cannot alter a standard function's contract.
 | [REQ-0048](req-0048-ms-utime.md) | [TC-0048](tc-0048-ms-utime.tex) | `<sys/utime.h>` | Microsoft CRT | `_utime32` and `_utime64` |
 | [REQ-0049](req-0049-ms-stat.md) | [TC-0049](tc-0049-ms-stat.tex) | `<sys/stat.h>` | Microsoft CRT | `_stat64` and x86 `_stat` ABI alias |
 
+## POSIX compatibility extensions
+
+These interfaces form a bounded Windows portability layer selected with
+`WCRT_POSIX`. WCRT does not define `_POSIX_VERSION` or claim that the platform
+conforms to POSIX.1-2017.
+
+| Requirement | Test case | Header | Source | Scope |
+| --- | --- | --- | --- | --- |
+| [REQ-0050](req-0050-posix-selection-errno.md) | [TC-0050](tc-0050-posix-selection-errno.tex) | `<errno.h>`, `<time.h>` | POSIX and Microsoft/TinyCC ABI | Explicit selection, error names, strict isolation, and time-type interoperation |
+| [REQ-0051](req-0051-posix-stat-utime.md) | [TC-0051](tc-0051-posix-stat-utime.tex) | `<sys/types.h>`, `<sys/stat.h>`, `<utime.h>` | POSIX.1-2017 | Typed `stat` and `utime` Windows adapters |
+| [REQ-0052](req-0052-posix-dirent.md) | [TC-0052](tc-0052-posix-dirent.tex) | `<dirent.h>` | POSIX.1-2017 | Directory enumeration and stream lifetime adapters |
+
 ## Shared acceptance gates
 
 Every requirement is complete only when its header and implementation files

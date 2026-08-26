@@ -14,6 +14,19 @@ typedef long clock_t;
 /** @brief Signed seconds since 1970-01-01 00:00:00 UTC. */
 typedef long long time_t;
 
+/** @brief Prevents Microsoft-compatible headers from redefining time_t. */
+#ifndef _TIME_T_DEFINED
+#define _TIME_T_DEFINED
+#endif
+
+#if defined(WCRT_POSIX)
+/** @brief POSIX seconds and nanoseconds timestamp. */
+struct timespec {
+    time_t tv_sec; /**< Whole seconds. */
+    long tv_nsec;  /**< Nanoseconds within the second. */
+};
+#endif
+
 #define CLOCKS_PER_SEC 1000L
 
 /** @brief Broken-down calendar time. */

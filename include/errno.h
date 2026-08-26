@@ -30,6 +30,29 @@
 /** @brief Process file-table capacity was exhausted. */
 #define EMFILE 24
 
+#if defined(WCRT_POSIX)
+/** @brief Operation was not permitted. */
+#define EPERM 1
+
+/** @brief An operation was interrupted. */
+#define EINTR 4
+
+/** @brief A low-level input/output error occurred. */
+#define EIO 5
+
+/** @brief The requested device or address was unavailable. */
+#define ENXIO 6
+
+/** @brief The operation should be attempted again. */
+#define EAGAIN 11
+
+/** @brief The file or requested file size was too large. */
+#define EFBIG 27
+
+/** @brief The requested operation is not implemented. */
+#define ENOSYS 40
+#endif
+
 /** @brief Microsoft secure-CRT error-code type. */
 typedef int errno_t;
 

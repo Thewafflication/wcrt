@@ -1,0 +1,28 @@
+% TC-0050 fragment; intended for the compatibility test report.
+\def\TCID{TC-0050}
+\def\TCTitle{POSIX compatibility selection and error names}
+\def\TCPurpose{Verify explicit selection, strict-profile isolation, time-type
+interoperation, and Windows-compatible error values.}
+\def\TCPriority{\TCPriorityCritical}
+\def\TCRequirementRef{REQ-0050}
+\def\TCDesignRef{ADR-0007 and POSIX.1-2017 \texttt{<errno.h>}.}
+\def\TCFeatureRef{\texttt{include/errno.h}; \texttt{include/time.h}; positive
+and negative fixtures; \texttt{tests/posix/run-tc-0050.ps1}.}
+\def\TCTestTechnique{Interface testing, equivalence partitioning, and negative
+compile-time feature-isolation testing.}
+\def\TCPreconditions{The selected TinyCC compiler and only the WCRT include
+root are supplied explicitly.}
+\def\TCEnvironment{TinyCC C89 and C99 compile-only execution on x86, x64, and
+ARM64 targets.}
+\def\TCAssumptions{POSIX assigns symbolic error names but the selected Windows
+compiler and CRT ABI supplies their numeric values.}
+\def\TCInputData{Selected and unselected repeated header inclusions in C89 and
+C99 modes.}
+\def\TCInitialState{No host standard-library include path is available to the
+fixtures.}
+\def\TCProcedure{Compile the selected fixture and verify each value and guard;
+compile the strict fixture and reject leaked POSIX names or conformance macros.}
+\def\TCExpectedResult{All selected values equal the controlled Windows ABI,
+the time guard is present, and no new POSIX name leaks into strict mode.}
+\def\TCPostConditions{Compile-only objects may be discarded.}
+\TCTemplate

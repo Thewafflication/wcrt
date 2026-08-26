@@ -93,7 +93,16 @@ $tests = @(
         'tests\mscompat\run-tc-0048.ps1'),
     @('TC-0049', 'REQ-0049', 'Microsoft compatibility',
         '64-bit file status and x86 alias',
-        'tests\mscompat\run-tc-0049.ps1')
+        'tests\mscompat\run-tc-0049.ps1'),
+    @('TC-0050', 'REQ-0050', 'POSIX compatibility',
+        'Compatibility selection and error names',
+        'tests\posix\run-tc-0050.ps1'),
+    @('TC-0051', 'REQ-0051', 'POSIX compatibility',
+        'File status and timestamp adapters',
+        'tests\posix\run-tc-0051.ps1'),
+    @('TC-0052', 'REQ-0052', 'POSIX compatibility',
+        'Directory stream adapters',
+        'tests\posix\run-tc-0052.ps1')
 )
 
 $manifest = Join-Path $repoRoot 'tests\c99\manifest.md'
@@ -113,6 +122,26 @@ if ($inventoryDifference.Count -ne 0) {
         "$($_.InputObject) $($_.SideIndicator)"
     }
     throw "Aggregate C99 inventory differs from the controlled manifest: " +
+        ($detail -join ', ')
+}
+$posixManifest = Join-Path $repoRoot 'tests\posix\manifest.md'
+$controlledPosix = @(
+    Select-String -LiteralPath $posixManifest -Pattern '\[TC-(\d{4})\]' `
+        -AllMatches |
+        ForEach-Object { $_.Matches } |
+        ForEach-Object { "TC-$($_.Groups[1].Value)" } |
+        Sort-Object -Unique
+)
+$aggregatePosix = @(
+    $tests | Where-Object { $_[2] -eq 'POSIX compatibility' } |
+        ForEach-Object { $_[0] } | Sort-Object -Unique
+)
+$posixDifference = @(Compare-Object $controlledPosix $aggregatePosix)
+if ($posixDifference.Count -ne 0) {
+    $detail = $posixDifference | ForEach-Object {
+        "$($_.InputObject) $($_.SideIndicator)"
+    }
+    throw "Aggregate POSIX inventory differs from the controlled manifest: " +
         ($detail -join ', ')
 }
 

@@ -22,6 +22,7 @@ WPM packages. Developer-only exploratory checks are not release evidence.
 | API presence | C89 compile-time verification without host-header fallback | `TC-0001`–`TC-0015`, `tests/c89/presence/` |
 | Component behavior | Dynamic functional and boundary testing | `tests/c89/*.c`, PowerShell runners |
 | C99 interface and isolation | Compile-time, behavioral, C89-isolation, numeric-boundary, and ABI testing | `TC-0019`, `TC-0021`–`TC-0033`, `TC-0035`–`TC-0042`, `tests/c99/` |
+| POSIX compatibility and isolation | Selected/strict compile-time and Windows behavioral testing | `TC-0050`–`TC-0052`, `tests/posix/` |
 | Compiler and data model | Targeted compile-only capability and width assertions | `tests/c99/capabilities/`, `docs/c99-platform-model.md` |
 | Library integration | DLL and static-library consumer builds and execution | `tools/test-built-libraries.ps1` |
 | Legacy import compatibility | Repository-owned PE import parsing and Windows 2000 x86 allowlist | `tools/test-windows-2000-imports.ps1` |
@@ -77,7 +78,8 @@ report.
 - Requirements use `REQ-NNNN` and reside in `docs/req-NNNN-*.md`.
 - Test cases use `TC-NNNN` and reside in `docs/tc-NNNN-*.tex`.
 - Automated implementations reside in `tests/c89/run-tc-NNNN.ps1`.
-- The controlled inventory is `tests/c89/manifest.md`.
+- Controlled inventories reside in the `tests/c89`, `tests/c99`,
+  `tests/mscompat`, and `tests/posix` manifests.
 - Machine-readable results reside below `output/test-results/`.
 - Generated reports reside below `output/pdf/`.
 

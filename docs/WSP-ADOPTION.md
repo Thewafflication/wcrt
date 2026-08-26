@@ -4,11 +4,13 @@
 
 **Project:** WCRT
 
-**WSP baseline:** Immutable commit `2198ccab08f969a789448767fe7017b774369adc`
+**WSP release:** 1.1.0
+
+**WSP baseline:** Immutable commit `8c2adb4afb9f95a5632ec783e37a79c29b1f90f5`
 
 **Submodule path:** `wsp/`
 
-**Pinned commit:** `2198ccab08f969a789448767fe7017b774369adc`
+**Pinned commit:** `8c2adb4afb9f95a5632ec783e37a79c29b1f90f5`
 
 **Status:** Adopted
 
@@ -30,7 +32,7 @@
 
 | Profile | Selected | Project scope or rationale |
 | --- | --- | --- |
-| Personal process | Yes | C99-to-1.0.0 and later requirement-sized maintainer work; records and data governance are defined in `docs/PROJECT-PROCESS.md`. |
+| Personal process | Yes | C99-to-1.0.0 and later requirement-sized maintainer work; the active 1.1.0 roadmap and record rules are defined in `docs/WCRT-1.1.0-ROADMAP.md` and `docs/PROJECT-PROCESS.md`. |
 | Security/DFS | Yes | Runtime behavior, build integrity, releases, and dependency trust |
 | C source style | Yes | Project-owned headers and C sources |
 | PowerShell style | Yes | Project-owned build, test, packaging, and reporting automation |
@@ -62,12 +64,12 @@
 | --- | --- | --- | --- |
 | `WSP-PROC-0001` | Applicable | `docs/PROJECT-PROCESS.md` | The lifecycle, records, tailoring, and improvement path are defined. |
 | `WSP-PROC-0002` | Applicable | `docs/PROJECT-PROCESS.md` | Maintainer, implementer, reviewer, verification, release, security, and improvement responsibilities are assigned. |
-| `WSP-PROC-0003` | Applicable | `ROADMAP.md`, `docs/C99-1.0-WORK-PLAN.md`, GitHub issues and milestones | Work is planned proportionally to project risk and scope. |
+| `WSP-PROC-0003` | Applicable | `ROADMAP.md`, `docs/WCRT-1.1.0-ROADMAP.md`, GitHub issues and milestones | Work is planned proportionally to project risk and scope. The WSP 1.1.0 milestone record pack is selected for the 1.1.0 tranches. |
 | `WSP-PROC-0004` | Applicable | Git history and pull-request review | Project changes are version controlled and reviewable. |
 | `WSP-PROC-0005` | Applicable | Pull-request review and required CI | Changes are reviewed before integration. |
 | `WSP-PROC-0006` | Applicable | GitHub issues and test failures | Issues and defects are tracked with their corrective changes. |
-| `WSP-PROC-0007` | Applicable | `docs/release/wcrt-1.0.0-rc.1-readiness.md` | The project-owned record evaluates every required gate and rejects the candidate where evidence is failed or Unknown. |
-| `WSP-PROC-0008` | Applicable | Git tags and GitHub releases | Approved releases establish immutable baselines. |
+| `WSP-PROC-0007` | Applicable | `docs/PROJECT-PROCESS.md`, project-owned release-readiness records | Every required gate must pass. Approved deferrals are recorded separately, excluded from completion claims, and closed, revised, or carried forward at each release decision. |
+| `WSP-PROC-0008` | Applicable | Git tags, GitHub releases, and release-readiness records | Approved releases establish immutable baselines and do not claim deferred objectives as verified. |
 | `WSP-PROC-0009` | Applicable | GitHub issues and releases | Public support and corrective releases use repository records. |
 | `WSP-PROC-0010` | Deferred | Future retrospective record | Periodic improvement review requires explicit evidence. |
 
@@ -76,11 +78,11 @@
 | WSP requirement | Disposition | Project artifact | Rationale or notes |
 | --- | --- | --- | --- |
 | `WSP-PSP-0001` | Applicable | `docs/PROJECT-PROCESS.md` | The selected personal lifecycle covers planning through postmortem. |
-| `WSP-PSP-0002` | Applicable | `docs/C99-1.0-WORK-PLAN.md`, `docs/work/` | Tranches require size, effort, forecast, assumptions, and uncertainty. |
+| `WSP-PSP-0002` | Applicable | Release roadmap and `docs/work/` | Tranches require size, effort, forecast, assumptions, and uncertainty. |
 | `WSP-PSP-0003` | Applicable | `docs/PROJECT-PROCESS.md`, `docs/work/` | Focused effort is recorded by phase and interruptions are excluded. |
-| `WSP-PSP-0004` | Applicable | `docs/C99-1.0-WORK-PLAN.md`, `docs/work/` | The work plan defines defect fields and classification. |
+| `WSP-PSP-0004` | Applicable | Release roadmap and `docs/work/` | The work plan defines defect fields and classification. |
 | `WSP-PSP-0005` | Applicable | `docs/PROJECT-PROCESS.md`, `docs/work/` | Each tranche uses a personal review checklist before verification. |
-| `WSP-PSP-0006` | Applicable | `docs/C99-1.0-WORK-PLAN.md` | Quality activities and early-removal checks are planned per tranche. |
+| `WSP-PSP-0006` | Applicable | Release roadmap and `docs/work/` | Quality activities and early-removal checks are planned per tranche. |
 | `WSP-PSP-0007` | Applicable | `docs/PROJECT-PROCESS.md`, `docs/work/` | Tranche and release postmortems compare estimates and actuals. |
 | `WSP-PSP-0008` | Applicable | `docs/PROJECT-PROCESS.md`, postmortems | Evidence-based checklist and process improvements use normal review. |
 | `WSP-PSP-0009` | Applicable | `docs/PROJECT-PROCESS.md` | Access, retention, aggregation, and prohibited comparative use are defined. |
@@ -122,6 +124,9 @@
 | `WSP-TEST-0013` | Applicable | `.github/workflows/build.yml` | Release jobs cover x86, x64, and ARM64 artifacts. |
 | `WSP-TEST-0014` | Deferred | Future evidence-retention policy | CI and release artifacts exist, but retention is not formally defined. |
 | `WSP-TEST-0015` | Applicable | `docs/tc-*.tex`, `docs/TEST-STRATEGY.md` | Every controlled test identifies its selected technique or explains non-applicability. |
+| `WSP-TEST-0016` | Applicable | `.github/workflows/build.yml`, architecture-specific Debug artifacts | CI retains test results, failure diagnostics, exact Debug binaries, symbols, headers, dependency identity, and package inputs even when a test step fails. |
+| `WSP-TEST-0017` | Applicable | `.github/workflows/build.yml`, test-result metadata | ARM64 Debug and Release tests execute on `windows-11-arm`; cross-build evidence is not reported as native execution. |
+| `WSP-TEST-0018` | Tailored | `tests/native-test-diagnostics.ps1`, `tests/verify-native-test-diagnostics.ps1`, `docs/TEST-STRATEGY.md` | TinyCC's native `-g -bt30` trace is the required cross-architecture failure diagnostic; GDB is attempted and classified when compatible, but is not the release gate. |
 
 ### Security and DFS
 
@@ -223,6 +228,25 @@
 - **Completion condition:** N/A
 - **Approval:** Review and merge of the `wsp_inclusion` branch
 
+### WSP-TEST-0018 — Debug failure backtraces
+
+- **Disposition:** Tailored
+- **Rationale:** A single provisioned GDB build does not reliably inspect the
+  TinyCC Windows PE/COFF targets across x86, x64, and ARM64. TinyCC's native
+  Debug backtrace is available on every supported target and reports the
+  original failing function and caller.
+- **Impact:** A compatible GDB all-thread backtrace may be unavailable. The
+  mandatory native trace is an in-process crash trace rather than a complete
+  postmortem debugger session.
+- **Compensating control:** Debug test executables use `-g -bt30`; CI runs a
+  controlled fault on each architecture, verifies the native frames, retains
+  the executable, hash, transcript, and diagnostic JSON, and attempts and
+  classifies GDB independently without hiding the original result.
+- **Owner:** WCRT maintainer
+- **Target release or completion condition:** N/A; approved target-specific
+  equivalent selected by this tailoring.
+- **Approval:** Review and merge of the WSP 1.1.0 baseline update
+
 ### Deferred requirements
 
 - **Disposition:** Deferred
@@ -230,7 +254,11 @@
 - **Impact:** The deferred controls cannot be treated as release evidence until completed.
 - **Compensating control:** Existing source control, CI, automated testing, GitHub release records, and WPM verification remain in force.
 - **Owner:** WCRT maintainer
-- **Completion condition:** Each deferred row must be implemented, evidenced, and changed to Applicable, or separately tailored with approval.
+- **Target release or completion condition:** Each deferred row must be
+  implemented, evidenced, and changed to Applicable, or separately tailored
+  with approval. Every intervening release-readiness review shall close,
+  revise, or explicitly carry the row forward without treating it as a
+  required gate or verified result.
 - **Approval:** Review and merge of the `wsp_inclusion` branch
 
 ### Non-applicable requirements
@@ -254,3 +282,4 @@
 | 2026-08-04 | `2198ccab08f969a789448767fe7017b774369adc` | C99-to-1.0.0 planning change | Select the personal-process profile and define the project process, measured C99 work plan, and 1.0.0 release boundary. |
 | 2026-08-20 | `2198ccab08f969a789448767fe7017b774369adc` | Authenticode release-control preparation | Adopt ADR-0006, the managed signing plan, OIDC workflow, fail-closed verification, package immutability, and certificate lifecycle controls; external provisioning/evidence and Defender remain incomplete. |
 | 2026-08-21 | `2198ccab08f969a789448767fe7017b774369adc` | WCRT 1.0 trust-scope change | Defer Authenticode and Defender from 1.0 without inferring Pass; retain WPM signing/verification and unchanged Release-DLL identity checks as active gates. |
+| 2026-08-22 | `8c2adb4afb9f95a5632ec783e37a79c29b1f90f5` | WSP 1.1.0 baseline update | Adopt the milestone plan, design, review, closeout, and work-log templates and the clarified deferral rules. Upstream adds no requirement identifiers; the impact audit adds missing dispositions for pre-existing WSP-TEST-0016--0018. WCRT applies the new records to 1.1.0 work, separates deferred objectives from required release gates, and retains historical release records against their original baselines. |

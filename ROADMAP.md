@@ -7,6 +7,13 @@ C99-to-1.0.0 estimates and quality plan are in
 the work is present, tested, documented, and passing the relevant release
 gates—not merely started.
 
+WCRT 1.1.0 is the first compatibility-focused minor release. Its selected
+VC6-era Microsoft C and bounded POSIX scope, tranche order, exclusions, risks,
+and acceptance criteria are defined in the
+[`WCRT 1.1.0 Compatibility Roadmap`](docs/WCRT-1.1.0-ROADMAP.md). That release
+selects a finite subset from the longer Microsoft track below; it does not
+require completion of MS0--MS6 or advance the ISO C11 milestone.
+
 ## Release gates for every milestone
 
 Each standards milestone must satisfy all of these gates:
@@ -175,6 +182,46 @@ Microsoft CRT compatibility backlog are post-1.0 work.
 
 **Exit condition:** supported C99 library facilities pass their conformance
 matrix, with unsupported optional facilities explicitly identified.
+
+## Release 1.1.0 — VC6-era Microsoft and POSIX compatibility
+
+Preserve the 1.0.0 C89/C99 baseline while adding two explicitly selected
+profiles: an x86 VC6 C consumer/ABI profile and a bounded POSIX.1-2017 source
+and behavioral profile. The work is ordered as contract and inventory; headers,
+ABI, and packaging; shared descriptor/path/error internals; Microsoft and POSIX
+families; then consumer and release closure.
+
+- [ ] Freeze the VC6 and POSIX profile matrices and compatibility-selection
+      ADR, including a migration decision for the existing x86 `_stat` alias.
+- [ ] Prove public-header, x86 ABI, decorated-symbol, and DLL import-library
+      compatibility with a retained genuine VC6 SP environment.
+- [ ] Complete the selected Microsoft descriptor, file, directory, path,
+      string, conversion, formatting, time, and metadata families.
+- [ ] Complete the selected POSIX descriptor, file, directory, path, string,
+      time, and process-identification families without leaking them into
+      strict ISO modes.
+- [ ] Add controlled VC6 and POSIX manifests, header/selector/ABI checks,
+      differential behavior tests, descriptor/path failure and concurrency
+      tests, and packaged-consumer tests on every applicable target.
+- [ ] Extend Debug artifact completeness, native ARM64 execution, and tailored
+      failure-backtrace verification to the new compatibility aggregates
+      (`WSP-TEST-0016` through `WSP-TEST-0018`).
+- [ ] Pass packaged VC6 and POSIX consumers, all 1.0 regression gates, the
+      x86 Windows 2000 import audit, and the x86/x64/ARM64 shared-feature
+      matrix.
+
+**Exit condition:** every selected row in both compatibility profiles has a
+requirement, passing evidence, and documented classification; packaged VC6 and
+POSIX consumers build and run; and every applicable 1.0 release gate remains
+green. See the detailed 1.1.0 roadmap for the authoritative release boundary.
+
+The initial AI-assisted rough-order estimate is 170–271 outcome-oriented
+prompts and 5.00M–8.35M gross model tokens, with a management reserve of 34–55
+prompts and 1.25M–2.10M tokens. The recommended execution method is a
+requirement-first, test-driven agent loop using differential VC6/POSIX oracles,
+GPT-5.6 Sol for ABI/design/review/release decisions, Terra for bounded
+implementation and tests, and Luna only for mechanically verifiable inventory
+work. Budget exhaustion requires replanning and never waives a release gate.
 
 ## Milestone 3 — C11
 
@@ -360,7 +407,8 @@ approved.
 - [ ] Verify that Microsoft aliases and secure functions never silently change
       the corresponding ISO function's contract.
 - [ ] Publish the supported Microsoft CRT profile and freeze its compatibility
-      and deprecation policy for the first stable WCRT release.
+      and deprecation policy for the first release that claims the complete
+      selected Microsoft profile.
 
 **Exit condition:** every interface in the selected Microsoft CRT profile has
 a requirement, verification evidence, compatibility classification, and

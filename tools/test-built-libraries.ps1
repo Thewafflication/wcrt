@@ -23,6 +23,7 @@ $buildDirectory = Join-Path $repoRoot "$BuildRoot/$Architecture/$Configuration"
 $smokeDirectory = Join-Path $buildDirectory 'link-smoke'
 $source = Join-Path $smokeDirectory 'consumer.c'
 $complexSource = Join-Path $smokeDirectory 'complex-consumer.c'
+$posixSource = Join-Path $smokeDirectory 'posix-consumer.c'
 Write-WspInfo (
     "Testing $Architecture $Configuration static and DLL consumers.")
 New-Item -ItemType Directory -Force -Path $smokeDirectory | Out-Null
@@ -30,10 +31,26 @@ Set-Content -LiteralPath $source -Encoding ascii -Value @(
     '#include <string.h>'
     'int main(void) { return strlen("wcrt") == 4 ? 0 : 1; }'
 )
+Set-Content -LiteralPath $posixSource -Encoding ascii -Value @(
+    '#define WCRT_POSIX 1'
+    '#include <dirent.h>'
+    '#include <sys/stat.h>'
+    '#include <utime.h>'
+    'static int (*status_fn)(const char *, struct stat *) = stat;'
+    'static int (*time_fn)(const char *, const struct utimbuf *) = utime;'
+    'static DIR *(*directory_fn)(const char *) = opendir;'
+    'int main(void) {'
+    '    return status_fn && time_fn && directory_fn ? 0 : 1;'
+    '}'
+)
 
 $include = Join-Path $buildDirectory 'include'
 $staticExecutable = Join-Path $smokeDirectory 'static-consumer.exe'
 $dynamicExecutable = Join-Path $smokeDirectory 'dll-consumer.exe'
+$posixStaticExecutable = Join-Path $smokeDirectory `
+    'posix-static-consumer.exe'
+$posixDynamicExecutable = Join-Path $smokeDirectory `
+    'posix-dll-consumer.exe'
 $complexStaticExecutable = Join-Path $smokeDirectory `
     'complex-static-consumer.exe'
 $complexDynamicExecutable = Join-Path $smokeDirectory `
@@ -44,6 +61,14 @@ if ($LASTEXITCODE -ne 0) { throw 'Static-library consumer failed to link.' }
 & $TinyCc -std=c89 -Wall -Werror -I $include $source `
     (Join-Path $buildDirectory 'wcrt.def') -o $dynamicExecutable
 if ($LASTEXITCODE -ne 0) { throw 'DLL consumer failed to link.' }
+& $TinyCc -std=c89 -Wall -Werror -I $include $posixSource `
+    (Join-Path $buildDirectory 'libwcrt.a') -o $posixStaticExecutable
+if ($LASTEXITCODE -ne 0) {
+    throw 'POSIX static-library consumer failed to link.'
+}
+& $TinyCc -std=c89 -Wall -Werror -I $include $posixSource `
+    (Join-Path $buildDirectory 'wcrt.def') -o $posixDynamicExecutable
+if ($LASTEXITCODE -ne 0) { throw 'POSIX DLL consumer failed to link.' }
 Copy-Item -LiteralPath (Join-Path $buildDirectory 'wcrt.dll') `
     -Destination $smokeDirectory -Force
 
@@ -135,6 +160,14 @@ if (-not $CompileOnly) {
     if ($LASTEXITCODE -ne 0) { throw 'Static-library consumer failed at runtime.' }
     & $dynamicExecutable
     if ($LASTEXITCODE -ne 0) { throw 'DLL consumer failed at runtime.' }
+    & $posixStaticExecutable
+    if ($LASTEXITCODE -ne 0) {
+        throw 'POSIX static-library consumer failed at runtime.'
+    }
+    & $posixDynamicExecutable
+    if ($LASTEXITCODE -ne 0) {
+        throw 'POSIX DLL consumer failed at runtime.'
+    }
     if ($complexSupported) {
         & $complexStaticExecutable
         if ($LASTEXITCODE -ne 0) {
@@ -154,6 +187,9 @@ Write-WspPass (
     StaticLink = 'Pass'
     DllLink = 'Pass'
     Runtime = if ($CompileOnly) { 'Deferred' } else { 'Pass' }
+    PosixStaticLink = 'Pass'
+    PosixDllLink = 'Pass'
+    PosixRuntime = if ($CompileOnly) { 'Deferred' } else { 'Pass' }
     ComplexStaticLink = if ($complexSupported) { 'Pass' } else { 'Omitted' }
     ComplexDllLink = if ($complexSupported) { 'Pass' } else { 'Omitted' }
     ComplexRuntime = if (-not $complexSupported) { 'Omitted' }

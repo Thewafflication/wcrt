@@ -43,6 +43,8 @@ the remaining C89 release gates and compatibility documentation must be closed
 before the project makes an unqualified C89 conformance claim.
 
 See [ROADMAP.md](ROADMAP.md) for planned work and milestone completion criteria.
+The selected scope for the next compatibility-focused release is in the
+[WCRT 1.1.0 compatibility roadmap](docs/WCRT-1.1.0-ROADMAP.md).
 
 ## Goals
 

@@ -116,7 +116,9 @@ $sources = @(
     'src/wchar_format.c', 'src/wchar_io.c', 'src/wchar_scan.c',
     'src/wchar_string.c', 'src/wchar_time.c', 'src/wctype.c',
     'src/platform/windows/clock.c',
+    'src/platform/windows/dirent.c',
     'src/platform/windows/file.c', 'src/platform/windows/heap.c',
+    'src/platform/windows/posix_files.c',
     'src/platform/windows/process.c', 'src/platform/windows/setjmp.S',
     'src/platform/windows/signal.c', 'src/platform/windows/stat.c',
     'src/platform/windows/utime.c'
@@ -180,6 +182,16 @@ if (-not (Test-Path -LiteralPath $definitionPath -PathType Leaf)) {
     throw "TinyCC did not produce the import definition $definitionPath."
 }
 $definitionText = Get-Content -LiteralPath $definitionPath -Raw
+$posixExportNames = @(
+    'closedir', 'opendir', 'readdir', 'rewinddir', 'stat', 'utime'
+)
+$missingPosixExports = @($posixExportNames | Where-Object {
+    $definitionText -notmatch ('(?m)^' + [regex]::Escape($_) + '\r?$')
+})
+if ($missingPosixExports.Count -ne 0) {
+    throw ('The DLL is missing required POSIX compatibility exports: ' +
+        ($missingPosixExports -join ', '))
+}
 $complexBaseNames = @(
     'cacos', 'casin', 'catan', 'ccos', 'csin', 'ctan',
     'cacosh', 'casinh', 'catanh', 'ccosh', 'csinh', 'ctanh',

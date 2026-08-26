@@ -1,0 +1,31 @@
+% TC-0052 fragment; intended for the compatibility test report.
+\def\TCID{TC-0052}
+\def\TCTitle{POSIX directory stream compatibility}
+\def\TCPurpose{Verify selected declarations, strict isolation, enumeration,
+rewind, entry mapping, end-of-stream behavior, and failures for
+\texttt{dirent.h}.}
+\def\TCPriority{\TCPriorityCritical}
+\def\TCRequirementRef{REQ-0052}
+\def\TCDesignRef{ADR-0007 and POSIX.1-2017 directory stream interfaces.}
+\def\TCFeatureRef{\texttt{include/dirent.h};
+\texttt{src/platform/windows/dirent.c}; selected, strict, and behavior
+fixtures; \texttt{run-tc-0052.ps1}.}
+\def\TCTestTechnique{Interface, filesystem-state, error-guessing, and negative
+compile-time isolation testing.}
+\def\TCPreconditions{The test build directory exists and contains its test
+executable.}
+\def\TCEnvironment{TinyCC C89/C99 compilation on supported targets and native
+Windows execution for behavioral verification.}
+\def\TCAssumptions{Windows find enumeration reports the test executable as a
+non-directory entry.}
+\def\TCInputData{An existing build directory, a missing directory, and
+strict/selected header fixtures.}
+\def\TCInitialState{No directory stream is open.}
+\def\TCProcedure{Compile selected and strict fixtures; enumerate the build
+directory; validate the test entry; rewind and repeat; read through end of
+stream; close the stream; exercise missing and invalid inputs.}
+\def\TCExpectedResult{The selected interface compiles, strict mode hides it,
+enumeration and rewind find the regular entry, end of stream preserves errno,
+and failures return the documented indicators.}
+\def\TCPostConditions{Every opened directory stream is closed.}
+\TCTemplate

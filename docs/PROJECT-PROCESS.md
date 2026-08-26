@@ -19,7 +19,10 @@ checklists.
 Work is divided into requirement-sized tranches. A tranche is complete only
 when its requirements, test specifications, implementation, review findings,
 traceability, and supported-target evidence are complete. A passing
-implementation without those records is not complete.
+implementation without those records is not complete. The completed
+C99-to-1.0.0 program is retained in `docs/C99-1.0-WORK-PLAN.md`; selected
+scope and ordering for the active compatibility program are in
+`docs/WCRT-1.1.0-ROADMAP.md`.
 
 ## Responsibilities
 
@@ -45,7 +48,15 @@ approved deferral, or accepted-risk record.
 
 Before implementation, each tranche shall identify scope, dependencies,
 completion criteria, risks, estimates, planned reviews, verification, and
-release effect. The active C99 plan is `docs/C99-1.0-WORK-PLAN.md`.
+release effect. The active release roadmap is
+`docs/WCRT-1.1.0-ROADMAP.md`.
+
+For 1.1.0 and later work, tranche records shall cover the WSP milestone-plan,
+design, review, and closeout templates. These may be separate documents or
+clearly identified sections of one project work record when consolidation does
+not lose required information. The selected personal-process work log remains
+the chronological source for estimates, effort, defects, review results, and
+postmortem measures.
 
 Changes to a baselined requirement, public interface, supported target,
 security control, test obligation, or release artifact require an impact note
@@ -103,6 +114,13 @@ release-readiness template. Version, source revision, artifacts, requirements,
 tests, open risks, dependency baseline, signing, malware scan, checksums,
 documentation, rollback, and support actions must be known. Failed or unknown
 required gates cannot be represented as verified.
+
+An approved deferred objective is outside the current release's completion and
+verification claims and shall not also be listed as a required gate. The
+release-readiness record shall give each deferral its impact, owner, target
+release or completion condition, compensating control, and approval. Each
+release decision shall close, revise, or explicitly carry forward every open
+deferral. A failed or unknown required gate still prevents release approval.
 
 GitHub issues are the public defect and vulnerability intake. The current
 major release and its documented compatibility commitments are supported until

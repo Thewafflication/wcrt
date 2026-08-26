@@ -194,6 +194,7 @@ function Invoke-WcrtTestRunnerWithDiagnostics {
 
     $category = if ($Suite -eq 'C89') { 'c89' } `
         elseif ($Suite -eq 'Microsoft compatibility') { 'mscompat' } `
+        elseif ($Suite -eq 'POSIX compatibility') { 'posix' } `
         else { 'c99' }
     $buildDirectory = Join-Path $RepositoryRoot (
         "build/tests/$category/" + $TestCase.ToLowerInvariant())

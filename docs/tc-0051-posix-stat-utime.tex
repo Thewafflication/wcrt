@@ -1,0 +1,31 @@
+% TC-0051 fragment; intended for the compatibility test report.
+\def\TCID{TC-0051}
+\def\TCTitle{POSIX file status and timestamp compatibility}
+\def\TCPurpose{Verify selected declarations, strict isolation, type widths,
+metadata mapping, timestamp updates, and failure behavior of \texttt{stat} and
+\texttt{utime}.}
+\def\TCPriority{\TCPriorityCritical}
+\def\TCRequirementRef{REQ-0051}
+\def\TCDesignRef{ADR-0007; POSIX.1-2017 \texttt{stat} and \texttt{utime};
+REQ-0048 and REQ-0049 shared Microsoft operations.}
+\def\TCFeatureRef{Selected headers; \texttt{src/platform/windows/posix\_files.c};
+presence, absence, and behavior fixtures; \texttt{run-tc-0051.ps1}.}
+\def\TCTestTechnique{Interface, boundary-value, filesystem-state,
+error-guessing, and negative compile-time isolation testing.}
+\def\TCPreconditions{The test owns a writable path and can execute the selected
+target natively for behavioral evidence.}
+\def\TCEnvironment{TinyCC C89/C99 compilation on supported targets and native
+Windows execution for behavioral verification.}
+\def\TCAssumptions{The filesystem preserves seconds and Windows creation time
+is the documented substitute for POSIX metadata-change time.}
+\def\TCInputData{A regular file, known timestamps, current-time selection,
+missing paths, null parameters, and strict/selected header fixtures.}
+\def\TCInitialState{The test path is absent and prior results are not reused.}
+\def\TCProcedure{Compile selected and strict fixtures; verify type widths and
+signatures; create and query a file; set explicit and current times; exercise
+error partitions; remove the test object.}
+\def\TCExpectedResult{The selected source surface compiles, strict mode hides
+it, metadata and times match the documented Windows mapping, failures return
+-1 with the required error, and no value is truncated.}
+\def\TCPostConditions{The test-created file is removed.}
+\TCTemplate
