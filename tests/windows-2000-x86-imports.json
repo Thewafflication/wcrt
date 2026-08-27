@@ -9,6 +9,9 @@
       "DeleteFileA",
       "ExitProcess",
       "FileTimeToLocalFileTime",
+      "FindClose",
+      "FindFirstFileA",
+      "FindNextFileA",
       "GetCurrentProcess",
       "GetEnvironmentVariableA",
       "GetExitCodeProcess",
@@ -33,4 +36,3 @@
     ]
   }
 }
-
