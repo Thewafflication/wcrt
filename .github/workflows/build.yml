@@ -21,7 +21,34 @@ jobs:
 
       - name: Install Doxygen
         shell: pwsh
-        run: choco install doxygen.install --no-progress -y
+        timeout-minutes: 10
+        run: |
+          $version = '1.18.0'
+          $expectedHash = 'e84f54cfd49ef06b0b16536056dbec0c496323de28abcce53a4269463de35eaf'
+          $archive = Join-Path $env:RUNNER_TEMP "doxygen-$version.zip"
+          $installRoot = Join-Path $env:RUNNER_TEMP "doxygen-$version"
+          $url = "https://github.com/doxygen/doxygen/releases/download/Release_1_18_0/doxygen-$version.windows.x64.bin.zip"
+
+          curl.exe --fail --location --retry 5 --retry-all-errors `
+            --connect-timeout 30 --max-time 300 --output $archive $url
+          if ($LASTEXITCODE -ne 0) {
+            throw "Failed to download Doxygen $version (curl exit code $LASTEXITCODE)."
+          }
+
+          $actualHash = (Get-FileHash $archive -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($actualHash -ne $expectedHash) {
+            throw "Doxygen archive hash mismatch: expected $expectedHash, got $actualHash."
+          }
+
+          Expand-Archive -LiteralPath $archive -DestinationPath $installRoot
+          $doxygen = Get-ChildItem $installRoot -Filter doxygen.exe -Recurse |
+            Select-Object -First 1
+          if (-not $doxygen) {
+            throw 'Doxygen executable was not found in the release archive.'
+          }
+
+          $doxygen.DirectoryName | Out-File $env:GITHUB_PATH -Encoding utf8 -Append
+          & $doxygen.FullName --version
 
       - name: Verify pinned WSP common tools
         shell: pwsh
