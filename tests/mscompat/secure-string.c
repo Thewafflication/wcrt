@@ -19,5 +19,22 @@ int main(void)
     buffer[0] = 'X';
     if (strcpy_s(buffer, sizeof(buffer), NULL) != EINVAL ||
         buffer[0] != 0) return 8;
+    if (strcpy_s(buffer, sizeof(buffer), "abc") != 0 ||
+        strcat_s(buffer, sizeof(buffer), "def") != 0 ||
+        strcmp(buffer, "abcdef") != 0) return 9;
+    if (strcat_s(buffer, sizeof(buffer), "g") != 0 ||
+        strcmp(buffer, "abcdefg") != 0) return 10;
+    if (strcat_s(buffer, sizeof(buffer), "") != 0 ||
+        strcmp(buffer, "abcdefg") != 0) return 11;
+    if (strcat_s(buffer, sizeof(buffer), "h") != ERANGE ||
+        buffer[0] != '\0') return 12;
+    if (strcpy_s(buffer, sizeof(buffer), "abc") != 0 ||
+        strcat_s(buffer, sizeof(buffer), NULL) != EINVAL ||
+        buffer[0] != '\0') return 13;
+    memset(buffer, 'X', sizeof(buffer));
+    if (strcat_s(buffer, sizeof(buffer), "a") != EINVAL ||
+        memcmp(buffer, "XXXXXXXX", sizeof(buffer)) != 0) return 14;
+    if (strcat_s(NULL, sizeof(buffer), "a") != EINVAL) return 15;
+    if (strcat_s(buffer, 0, "a") != ERANGE) return 16;
     return 0;
 }

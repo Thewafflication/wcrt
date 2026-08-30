@@ -86,7 +86,7 @@ $tests = @(
         'Secure narrow stdio',
         'tests\mscompat\run-tc-0046.ps1'),
     @('TC-0047', 'REQ-0047', 'Microsoft compatibility',
-        'Secure narrow string copy',
+        'Secure narrow string operations',
         'tests\mscompat\run-tc-0047.ps1'),
     @('TC-0048', 'REQ-0048', 'Microsoft compatibility',
         'Explicit-width file-time update',

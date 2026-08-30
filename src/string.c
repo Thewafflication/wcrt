@@ -345,3 +345,29 @@ errno_t strncpy_s(char *destination, rsize_t destination_size,
     destination[copy_length] = '\0';
     return truncate && copy_length < source_length ? STRUNCATE : 0;
 }
+
+errno_t strcat_s(char *destination, rsize_t destination_size,
+    const char *source)
+{
+    size_t destination_length = 0;
+    size_t source_size;
+
+    if (destination == NULL) return EINVAL;
+    if (destination_size == 0) return ERANGE;
+    while (destination_length < destination_size &&
+        destination[destination_length] != '\0') {
+        ++destination_length;
+    }
+    if (destination_length == destination_size) return EINVAL;
+    if (source == NULL) {
+        destination[0] = '\0';
+        return EINVAL;
+    }
+    source_size = strlen(source) + 1;
+    if (source_size > destination_size - destination_length) {
+        destination[0] = '\0';
+        return ERANGE;
+    }
+    memcpy(destination + destination_length, source, source_size);
+    return 0;
+}

@@ -233,7 +233,9 @@ system capabilities.
 - [ ] Implement aligned allocation and C11 allocation requirements.
 - [ ] Implement bounds-checking interfaces only under their optional Annex K
       contract; do not imply Annex K support merely by exposing similarly named
-      extensions.
+      extensions. The complete implementation is deferred to the post-roadmap
+      Annex K work package below so that it follows the currently planned C23
+      and Microsoft compatibility work.
 - [ ] Implement UTF-16/UTF-32 character conversion facilities.
 - [ ] Define atomic guarantees by architecture and TinyCC capability.
 - [ ] Implement C11 threads over Windows synchronization primitives with
@@ -439,3 +441,140 @@ After the C23 milestone, likely work includes performance tuning, fuzzing,
 hardening, additional architectures, improved diagnostics, packaging, and
 carefully namespaced extensions. None of these should weaken standards
 conformance or the documented legacy-Windows compatibility contract.
+
+## Post-roadmap work package — Complete Annex K
+
+After the currently planned standards and Microsoft compatibility work, add a
+complete, separately selected implementation of the optional bounds-checking
+interfaces. Use ISO/IEC 9899:2011 Annex K, as corrected through C17, as the
+initial frozen contract. Reconcile C23 changes before making a claim against
+the newer edition.
+
+This work package is not part of the WCRT 1.1.0 release floor. Existing
+Microsoft secure-CRT interfaces remain compatibility extensions and are not
+Annex K evidence until they pass the Annex K requirements and tests.
+
+### AK0 — Contract, selection, and ABI policy
+
+- [ ] Inventory all 68 Annex K functions and the associated types, macros,
+      feature-selection rules, runtime constraints, and defect resolutions.
+- [ ] Adopt an ADR for `__STDC_WANT_LIB_EXT1__`, `__STDC_LIB_EXT1__`, strict
+      ISO header isolation, `errno_t`, `rsize_t`, `RSIZE_MAX`,
+      `constraint_handler_t`, `L_tmpnam_s`, and `TMP_MAX_S`.
+- [ ] Resolve source and binary conflicts between Annex K and Microsoft
+      interfaces before assigning public symbols. At minimum, address the
+      incompatible `qsort_s`, `gmtime_s`, `localtime_s`, formatted-output,
+      callback, return-type, argument-order, and `_TRUNCATE` contracts.
+- [ ] Define whether Annex K and Microsoft compatibility can be selected
+      together. Reject ambiguous declarations or ABIs at compile time rather
+      than silently choosing one contract.
+- [ ] Allocate controlled requirements and test cases only after the contract
+      and compatibility migration policy are approved.
+
+**Exit condition:** every Annex K name has one selected contract, public-header
+rule, ABI owner, requirement destination, and test destination; no Microsoft
+compatibility claim is reused as Annex K evidence without verification.
+
+### AK1 — Runtime-constraint foundation
+
+- [ ] Implement `set_constraint_handler_s`, `abort_handler_s`, and
+      `ignore_handler_s`, including the implementation-defined default handler.
+- [ ] Specify handler replacement, reentrancy, recursion, concurrency,
+      diagnostics, and interaction with process termination and the Microsoft
+      invalid-parameter policy.
+- [ ] Centralize null, size, overlap, `RSIZE_MAX`, destination-clearing, and
+      handler-invocation checks so all Annex K families apply one policy.
+- [ ] Add direct and indirect tests for every runtime-constraint outcome,
+      including a returning handler and a terminating handler.
+
+**Exit condition:** the common constraint machinery is documented,
+thread-safe under the supported runtime model, and proven by tests that do not
+depend on any one string or I/O function.
+
+### AK2 — Memory and narrow strings
+
+- [ ] Implement `memcpy_s`, `memmove_s`, `strcpy_s`, `strncpy_s`, `strcat_s`,
+      `strncat_s`, `strtok_s`, `memset_s`, `strerror_s`, `strerrorlen_s`, and
+      `strnlen_s` under the Annex K contract.
+- [ ] Preserve `memset_s` stores against dead-store elimination and verify the
+      supported TinyCC optimization modes.
+- [ ] Test exact and insufficient capacities, zero and excessive sizes,
+      overlap, null pointers, truncation differences, destination clearing,
+      token state, and strict isolation from Microsoft `_TRUNCATE` behavior.
+
+**Exit condition:** all eleven `<string.h>` interfaces pass presence,
+behavioral, constraint-handler, optimization, and regression tests.
+
+### AK3 — General utilities and time
+
+- [ ] Implement `getenv_s`, `bsearch_s`, `qsort_s`, `wctomb_s`, `mbstowcs_s`,
+      `wcstombs_s`, `asctime_s`, `ctime_s`, `gmtime_s`, and `localtime_s`.
+- [ ] Verify Annex K comparator context placement and return behavior without
+      reusing the incompatible Microsoft `qsort_s` ABI.
+- [ ] Test locale and conversion state, invalid sequences, environment races,
+      time ranges, destination bounds, and the Annex K argument order and
+      return values for broken-down time conversion.
+
+**Exit condition:** the `<stdlib.h>` conversion/search/environment functions
+and all four `<time.h>` functions pass the selected locale, concurrency, and
+supported-target matrix.
+
+### AK4 — Narrow input/output
+
+- [ ] Implement `tmpfile_s`, `tmpnam_s`, `fopen_s`, `freopen_s`, `fprintf_s`,
+      `fscanf_s`, `printf_s`, `scanf_s`, `snprintf_s`, `sprintf_s`, `sscanf_s`,
+      `vfprintf_s`, `vfscanf_s`, `vprintf_s`, `vscanf_s`, `vsnprintf_s`,
+      `vsprintf_s`, `vsscanf_s`, and `gets_s`.
+- [ ] Refactor the existing formatter and scanner engines so ordinary ISO,
+      Microsoft secure-CRT, and Annex K entry points share parsing only where
+      their observable contracts agree.
+- [ ] Verify `%n` rejection, null format and `%s` arguments, secure scan buffer
+      sizes, encoding errors, partial I/O, destination clearing, temporary-file
+      uniqueness, exclusive file semantics, and every `va_list` wrapper.
+
+**Exit condition:** all nineteen `<stdio.h>` interfaces pass format-matrix,
+failure-injection, stream-state, file-lifetime, handler, and regression tests.
+
+### AK5 — Wide input/output, strings, and conversions
+
+- [ ] Implement `fwprintf_s`, `fwscanf_s`, `snwprintf_s`, `swprintf_s`,
+      `swscanf_s`, `vfwprintf_s`, `vfwscanf_s`, `vsnwprintf_s`, `vswprintf_s`,
+      `vswscanf_s`, `vwprintf_s`, `vwscanf_s`, `wprintf_s`, and `wscanf_s`.
+- [ ] Implement `wcscpy_s`, `wcsncpy_s`, `wmemcpy_s`, `wmemmove_s`,
+      `wcscat_s`, `wcsncat_s`, `wcstok_s`, and `wcsnlen_s`.
+- [ ] Implement `wcrtomb_s`, `mbsrtowcs_s`, and `wcsrtombs_s` against the
+      documented Windows UTF-16 ABI and WCRT conversion-state model.
+- [ ] Test element-versus-byte capacities, surrogate and invalid-sequence
+      behavior, orientation, locale, overlap, restartable conversion state,
+      secure scan sizes, and parity with the applicable narrow constraints.
+
+**Exit condition:** all twenty-five `<wchar.h>` interfaces pass the complete
+wide format, string, conversion, constraint, ABI, and target matrix.
+
+### AK6 — Conformance and release closure
+
+- [ ] Publish a clause-level Annex K matrix covering all 68 functions and all
+      required types, macros, handlers, selection rules, and documented
+      implementation-defined behavior.
+- [ ] Run strict-ISO absence, Annex K presence, Microsoft compatibility,
+      incompatible-profile, static/DLL export, x86 ABI, x64, ARM64, Windows
+      2000 import, optimization, concurrency, fuzz, and failure-injection
+      suites.
+- [ ] Build representative Annex K consumers and verify that Microsoft secure
+      consumers retain their documented profile without an ABI collision.
+- [ ] Complete independent review, security review, release-readiness, and WSP
+      closeout records before defining `__STDC_LIB_EXT1__` in a release.
+
+**Exit condition:** every Annex K matrix row is Pass or explicitly outside the
+claimed edition, all earlier ISO and compatibility suites remain green, and
+the release exposes `__STDC_LIB_EXT1__` only when the complete selected claim
+is supported by retained evidence.
+
+### Rough-order effort
+
+For one experienced maintainer, estimate 12--20 engineer-weeks: 1--2 weeks
+for AK0--AK1, 1--2 for AK2, 2--3 for AK3, 2--4 for AK4, 3--5 for AK5, and
+3--5 for cross-family conformance, documentation, review, and target closure.
+This is a planning estimate, not a delivery commitment. Any decision to
+support simultaneous Microsoft and Annex K profiles, or any required
+formatter, scanner, locale, or thread-state redesign, requires replanning.

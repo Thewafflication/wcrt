@@ -86,7 +86,7 @@ that compatibility behavior cannot alter a standard function's contract.
 | [REQ-0044](req-0044-ms-fileno.md) | [TC-0044](tc-0044-ms-fileno.tex) | `<stdio.h>` | Microsoft CRT | Stream-to-file-descriptor mapping |
 | [REQ-0045](req-0045-ms-case-insensitive-string.md) | [TC-0045](tc-0045-ms-case-insensitive-string.tex) | `<string.h>` | Microsoft CRT | `_stricmp` and `_strnicmp` |
 | [REQ-0046](req-0046-ms-secure-stdio.md) | [TC-0046](tc-0046-ms-secure-stdio.tex) | `<stdio.h>` | Microsoft secure CRT | `fopen_s` and `sscanf_s` |
-| [REQ-0047](req-0047-ms-secure-string-copy.md) | [TC-0047](tc-0047-ms-secure-string-copy.tex) | `<string.h>` | Microsoft secure CRT | `strcpy_s` and `strncpy_s` |
+| [REQ-0047](req-0047-ms-secure-string-copy.md) | [TC-0047](tc-0047-ms-secure-string-copy.tex) | `<string.h>` | Microsoft secure CRT | `strcpy_s`, `strncpy_s`, and `strcat_s` |
 | [REQ-0048](req-0048-ms-utime.md) | [TC-0048](tc-0048-ms-utime.tex) | `<sys/utime.h>` | Microsoft CRT | `_utime32` and `_utime64` |
 | [REQ-0049](req-0049-ms-stat.md) | [TC-0049](tc-0049-ms-stat.tex) | `<sys/stat.h>` | Microsoft CRT | `_stat64` and x86 `_stat` ABI alias |
 

@@ -4,9 +4,13 @@
 typedef errno_t (*copy_fn)(char *, rsize_t, const char *);
 /** @brief Type of strncpy_s. */
 typedef errno_t (*ncopy_fn)(char *, rsize_t, const char *, rsize_t);
+/** @brief Type of strcat_s. */
+typedef errno_t (*concatenate_fn)(char *, rsize_t, const char *);
 /** @brief Forces type checking of strcpy_s. */
 static copy_fn copy_address = strcpy_s;
 /** @brief Forces type checking of strncpy_s. */
 static ncopy_fn ncopy_address = strncpy_s;
+/** @brief Forces type checking of strcat_s. */
+static concatenate_fn concatenate_address = strcat_s;
 /** @brief Forces type checking of _TRUNCATE. */
 static rsize_t truncate_value = _TRUNCATE;

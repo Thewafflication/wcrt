@@ -22,7 +22,7 @@ API, compiler support, and application-local helpers.
 | `snprintf` | ISO C99, 7.19.6.5 | Implemented as the complete ISO function; WPM's limited formatter is not copied | REQ-0019, REQ-0029; TC-0019, TC-0029 |
 | `_stricmp`, `_strnicmp` | Microsoft CRT | Implemented | REQ-0045; TC-0045 |
 | `fopen_s`, `sscanf_s` | Microsoft secure CRT | Implemented | REQ-0046; TC-0046 |
-| `strcpy_s`, `strncpy_s` | Microsoft secure CRT | Implemented | REQ-0047; TC-0047 |
+| `strcpy_s`, `strncpy_s`, `strcat_s` | Microsoft secure CRT | Implemented | REQ-0047; TC-0047 |
 | `_utime32`, `_utime64` | Microsoft CRT | Implemented | REQ-0048; TC-0048 |
 | `_stat64`, x86 `_stat` | Microsoft CRT plus a verified TinyCC x86 linker condition | Implemented | REQ-0049; TC-0049 |
 | console `_start` | Windows PE process startup using `GetCommandLineA` and `ExitProcess` | Replaced by WCRT's separately linked startup object | REQ-0017; TC-0017 |

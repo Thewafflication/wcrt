@@ -69,6 +69,9 @@ errno_t strcpy_s(char *destination, rsize_t destination_size,
 /** @brief Copies a bounded string under the secure-CRT contract. */
 errno_t strncpy_s(char *destination, rsize_t destination_size,
     const char *source, rsize_t count);
+/** @brief Appends a string under the Microsoft secure-CRT contract. */
+errno_t strcat_s(char *destination, rsize_t destination_size,
+    const char *source);
 
 #ifdef __cplusplus
 }
