@@ -27,6 +27,9 @@
 /** @brief File or path component was not found. */
 #define ENOENT 2
 
+/** @brief A filesystem object already exists. */
+#define EEXIST 17
+
 /** @brief Process file-table capacity was exhausted. */
 #define EMFILE 24
 

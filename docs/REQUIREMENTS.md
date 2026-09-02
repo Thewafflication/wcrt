@@ -96,6 +96,7 @@ that compatibility behavior cannot alter a standard function's contract.
 | [REQ-0057](req-0057-ms-memory-case.md) | [TC-0057](tc-0057-ms-memory-case.tex) | `<string.h>` | Microsoft CRT | Case-insensitive memory comparison |
 | [REQ-0062](req-0062-ms-unlink.md) | [TC-0062](tc-0062-ms-unlink.tex) | `<io.h>` | Microsoft CRT | Filesystem-name removal |
 | [REQ-0063](req-0063-ms-access.md) | [TC-0063](tc-0063-ms-access.tex) | `<io.h>` | Microsoft CRT | Path accessibility checks |
+| [REQ-0064](req-0064-ms-mkdir.md) | [TC-0064](tc-0064-ms-mkdir.tex) | `<direct.h>` | Microsoft CRT | Directory creation |
 
 ## POSIX compatibility extensions
 

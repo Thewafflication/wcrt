@@ -1,0 +1,23 @@
+% TC-0064 fragment; intended for the compatibility test report.
+\def\TCID{TC-0064}
+\def\TCTitle{Microsoft directory creation}
+\def\TCPurpose{Verify declaration, creation, existing-target, missing-parent,
+null-argument, and legacy-compatible import behavior of \texttt{\_mkdir}.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0064}
+\def\TCDesignRef{Microsoft CRT directory and Windows error contracts.}
+\def\TCFeatureRef{\texttt{include/direct.h}; Windows directory adapter;
+presence and behavior fixtures; \texttt{tests/mscompat/run-tc-0064.ps1};
+x86 import audit.}
+\def\TCTestTechnique{Interface, state-transition, error, and import testing.}
+\def\TCPreconditions{A writable controlled build directory exists.}
+\def\TCEnvironment{TinyCC compilation and native Windows execution.}
+\def\TCAssumptions{The controlled target and missing parent do not exist.}
+\def\TCInputData{New, existing, missing-parent, and null paths.}
+\def\TCInitialState{The target directory does not exist.}
+\def\TCProcedure{Compile the exact type; create the target; repeat creation;
+try a missing parent and null path; audit imports; remove the target.}
+\def\TCExpectedResult{Creation succeeds once and all rejected inputs report
+their controlled errno results without new legacy imports.}
+\def\TCPostConditions{The target directory does not exist.}
+\TCTemplate
