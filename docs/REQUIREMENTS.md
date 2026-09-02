@@ -90,6 +90,7 @@ that compatibility behavior cannot alter a standard function's contract.
 | [REQ-0048](req-0048-ms-utime.md) | [TC-0048](tc-0048-ms-utime.tex) | `<sys/utime.h>` | Microsoft CRT | `_utime32` and `_utime64` |
 | [REQ-0049](req-0049-ms-stat.md) | [TC-0049](tc-0049-ms-stat.tex) | `<sys/stat.h>` | Microsoft CRT | `_stat64` and x86 `_stat` ABI alias |
 | [REQ-0053](req-0053-ms-string-transform.md) | [TC-0053](tc-0053-ms-string-transform.tex) | `<string.h>` | Microsoft CRT | In-place case conversion and reversal |
+| [REQ-0054](req-0054-ms-strdup.md) | [TC-0054](tc-0054-ms-strdup.tex) | `<string.h>` | Microsoft CRT | Allocating narrow-string duplication |
 
 ## POSIX compatibility extensions
 

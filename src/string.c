@@ -5,6 +5,7 @@
 
 #include <errno.h>
 #include <ctype.h>
+#include <stdlib.h>
 #include <string.h>
 
 /** @brief Saved continuation used by the non-reentrant strtok function. */
@@ -344,6 +345,24 @@ char *_strrev(char *string)
         string[right] = temporary;
     }
     return string;
+}
+
+char *_strdup(const char *string)
+{
+    size_t size;
+    char *duplicate;
+    if (string == NULL) {
+        errno = EINVAL;
+        return NULL;
+    }
+    size = strlen(string) + 1;
+    duplicate = (char *)malloc(size);
+    if (duplicate == NULL) {
+        errno = ENOMEM;
+        return NULL;
+    }
+    memcpy(duplicate, string, size);
+    return duplicate;
 }
 
 errno_t strcpy_s(char *destination, rsize_t destination_size,

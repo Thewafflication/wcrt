@@ -1,0 +1,22 @@
+% TC-0054 fragment; intended for the compatibility test report.
+\def\TCID{TC-0054}
+\def\TCTitle{Microsoft allocated narrow-string duplication}
+\def\TCPurpose{Verify declaration, allocation, content, independence,
+ownership, and null-error behavior of \texttt{\_strdup}.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0054}
+\def\TCDesignRef{Microsoft CRT \texttt{\_strdup} contract.}
+\def\TCFeatureRef{\texttt{include/string.h}; presence and behavior fixtures;
+\texttt{tests/mscompat/run-tc-0054.ps1}.}
+\def\TCTestTechnique{Interface, ownership, equivalence-partition, and error testing.}
+\def\TCPreconditions{REQ-0003, REQ-0013, and REQ-0014 are implemented.}
+\def\TCEnvironment{TinyCC compilation and native execution on supported Windows architectures.}
+\def\TCAssumptions{Small controlled allocations succeed.}
+\def\TCInputData{Nonempty, empty, mutable-source, and null inputs.}
+\def\TCInitialState{No duplicate allocation is outstanding.}
+\def\TCProcedure{Compile the exact function type; duplicate controlled inputs;
+compare addresses and bytes; mutate the source; release results; test null.}
+\def\TCExpectedResult{Each valid input yields independent WCRT-owned storage
+with identical initial content; null yields EINVAL.}
+\def\TCPostConditions{All successful allocations are released.}
+\TCTemplate

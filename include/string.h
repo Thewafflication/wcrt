@@ -69,6 +69,8 @@ char *_strlwr(char *string);
 char *_strupr(char *string);
 /** @brief Reverses a string in place. */
 char *_strrev(char *string);
+/** @brief Allocates a duplicate of a string. */
+char *_strdup(const char *string);
 /** @brief Copies a string under the Microsoft secure-CRT contract. */
 errno_t strcpy_s(char *destination, rsize_t destination_size,
     const char *source);
