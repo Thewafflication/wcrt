@@ -1,3 +1,8 @@
+/**
+ * @file string-transform.c
+ * @brief Verifies Microsoft string transformation declarations.
+ */
+
 #include <string.h>
 
 typedef char *(*transform_fn)(char *);

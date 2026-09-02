@@ -1,3 +1,8 @@
+/**
+ * @file string-set.c
+ * @brief Verifies Microsoft string-set declarations.
+ */
+
 #include <stddef.h>
 #include <string.h>
 

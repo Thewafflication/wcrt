@@ -1,3 +1,8 @@
+/**
+ * @file strdup.c
+ * @brief Verifies Microsoft allocated string duplication behavior.
+ */
+
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>

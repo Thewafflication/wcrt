@@ -1,3 +1,8 @@
+/**
+ * @file string-transform.c
+ * @brief Verifies Microsoft in-place string transformation behavior.
+ */
+
 #include <errno.h>
 #include <string.h>
 
