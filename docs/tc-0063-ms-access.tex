@@ -1,0 +1,22 @@
+% TC-0063 fragment; intended for the compatibility test report.
+\def\TCID{TC-0063}
+\def\TCTitle{Microsoft path accessibility}
+\def\TCPurpose{Verify declaration, valid modes, missing permissions and paths,
+invalid arguments, and legacy-compatible imports of \texttt{\_access}.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0063}
+\def\TCDesignRef{Microsoft CRT access and WCRT stat contracts.}
+\def\TCFeatureRef{\texttt{include/io.h}; Windows stat adapter; presence and
+behavior fixtures; \texttt{tests/mscompat/run-tc-0063.ps1}; x86 import audit.}
+\def\TCTestTechnique{Interface, equivalence-partition, boundary, error, and import testing.}
+\def\TCPreconditions{REQ-0043, REQ-0049, and REQ-0062 are implemented.}
+\def\TCEnvironment{TinyCC compilation and native Windows execution.}
+\def\TCAssumptions{A newly created file is readable and writable.}
+\def\TCInputData{Modes 0, 2, 4, 6, and 1; existing, missing, and null paths.}
+\def\TCInitialState{The target path does not exist.}
+\def\TCProcedure{Compile the exact type; create a file; check valid modes;
+check invalid mode; remove it; check missing and null paths; audit imports.}
+\def\TCExpectedResult{Valid checks succeed and invalid, missing, and null
+inputs report their controlled errno results without new legacy imports.}
+\def\TCPostConditions{The target path does not exist.}
+\TCTemplate

@@ -16,6 +16,7 @@
 | REQ-0056 | [TC-0056](../../docs/tc-0056-ms-integer-string.tex) | `presence/integer-string.c`, `integer-string.c` | Radices, signs, integer boundaries, return identity, and invalid parameters |
 | REQ-0057 | [TC-0057](../../docs/tc-0057-ms-memory-case.tex) | `presence/memory-case.c`, `memory-case.c` | Case folding, ordering, embedded nulls, bounds, and invalid parameters |
 | REQ-0062 | [TC-0062](../../docs/tc-0062-ms-unlink.tex) | `presence/unlink.c`, `unlink.c` | Declaration, removal, missing and null paths, and imports |
+| REQ-0063 | [TC-0063](../../docs/tc-0063-ms-access.tex) | `presence/access.c`, `access.c` | Declaration, access modes, invalid mode, missing and null paths, and imports |
 
 This non-ISO suite compiles against WCRT headers without host
 standard-library headers. A runner failure is expected while its proposed

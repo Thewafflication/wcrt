@@ -12,6 +12,8 @@ extern "C" {
 
 /** @brief Removes one filesystem name. */
 int _unlink(const char *path);
+/** @brief Tests Microsoft path accessibility. */
+int _access(const char *path, int mode);
 
 #ifdef __cplusplus
 }

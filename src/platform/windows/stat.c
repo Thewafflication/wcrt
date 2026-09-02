@@ -47,6 +47,25 @@ int __cdecl _stat64(const char *path, struct _stat64 *result)
     return 0;
 }
 
+int _access(const char *path, int mode)
+{
+    struct _stat64 status;
+    unsigned short required = 0;
+
+    if (path == NULL || (mode & ~6) != 0) {
+        errno = EINVAL;
+        return -1;
+    }
+    if (_stat64(path, &status) != 0) return -1;
+    if ((mode & 4) != 0) required |= _S_IREAD;
+    if ((mode & 2) != 0) required |= _S_IWRITE;
+    if ((status.st_mode & required) != required) {
+        errno = EACCES;
+        return -1;
+    }
+    return 0;
+}
+
 #if defined(__i386__) || defined(_M_IX86)
 int __cdecl _stat(const char *path, struct _stat64 *result)
 {
