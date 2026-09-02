@@ -301,6 +301,51 @@ int _stricmp(const char *left, const char *right)
     return _strnicmp(left, right, (size_t)-1);
 }
 
+char *_strlwr(char *string)
+{
+    char *cursor;
+    if (string == NULL) {
+        errno = EINVAL;
+        return NULL;
+    }
+    for (cursor = string; *cursor != '\0'; ++cursor) {
+        *cursor = (char)tolower((unsigned char)*cursor);
+    }
+    return string;
+}
+
+char *_strupr(char *string)
+{
+    char *cursor;
+    if (string == NULL) {
+        errno = EINVAL;
+        return NULL;
+    }
+    for (cursor = string; *cursor != '\0'; ++cursor) {
+        *cursor = (char)toupper((unsigned char)*cursor);
+    }
+    return string;
+}
+
+char *_strrev(char *string)
+{
+    size_t left;
+    size_t right;
+    if (string == NULL) {
+        errno = EINVAL;
+        return NULL;
+    }
+    right = strlen(string);
+    if (right == 0) return string;
+    --right;
+    for (left = 0; left < right; ++left, --right) {
+        char temporary = string[left];
+        string[left] = string[right];
+        string[right] = temporary;
+    }
+    return string;
+}
+
 errno_t strcpy_s(char *destination, rsize_t destination_size,
     const char *source)
 {

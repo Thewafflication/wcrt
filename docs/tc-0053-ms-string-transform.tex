@@ -1,0 +1,26 @@
+% TC-0053 fragment; intended for the compatibility test report.
+\def\TCID{TC-0053}
+\def\TCTitle{Microsoft in-place narrow-string transformations}
+\def\TCPurpose{Verify declarations, return identity, transformations, and
+null-error behavior of \texttt{\_strlwr}, \texttt{\_strupr}, and
+\texttt{\_strrev}.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0053}
+\def\TCDesignRef{Microsoft CRT narrow-string transformation contracts.}
+\def\TCFeatureRef{\texttt{include/string.h}; presence and behavior fixtures;
+\texttt{tests/mscompat/run-tc-0053.ps1}.}
+\def\TCTestTechnique{Interface, equivalence-partition, boundary-value, and
+error-continuation testing.}
+\def\TCPreconditions{REQ-0003, REQ-0006, and REQ-0014 are implemented.}
+\def\TCEnvironment{TinyCC compilation and native execution on supported
+Windows architectures.}
+\def\TCAssumptions{The C locale is available.}
+\def\TCInputData{Mixed case, digits, punctuation, empty, one-character,
+even-length, odd-length, and null inputs.}
+\def\TCInitialState{Writable buffers contain controlled terminated strings.}
+\def\TCProcedure{Compile exact function-pointer assignments; transform each
+input in place; compare content and returned address; exercise null inputs.}
+\def\TCExpectedResult{Case conversion and reversal match the selected contract,
+storage identity is preserved, and null inputs return null with EINVAL.}
+\def\TCPostConditions{No allocation or external state remains.}
+\TCTemplate

@@ -63,6 +63,12 @@ size_t strlen(const char *string);
 int _stricmp(const char *left, const char *right);
 /** @brief Compares bounded strings without regard to case. */
 int _strnicmp(const char *left, const char *right, size_t count);
+/** @brief Converts a string to lowercase in place. */
+char *_strlwr(char *string);
+/** @brief Converts a string to uppercase in place. */
+char *_strupr(char *string);
+/** @brief Reverses a string in place. */
+char *_strrev(char *string);
 /** @brief Copies a string under the Microsoft secure-CRT contract. */
 errno_t strcpy_s(char *destination, rsize_t destination_size,
     const char *source);
