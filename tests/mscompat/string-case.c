@@ -12,6 +12,8 @@ int main(void)
     if (_strnicmp("a", "B", 0) != 0) return 5;
     if (_strnicmp("abc", "ABd", 3) >= 0) return 6;
     errno = 0;
-    if (_stricmp(NULL, "x") != _NLSCMPERROR || errno != EINVAL) return 7;
+    if (_strnicmp(NULL, NULL, 0) != 0 || errno != 0) return 7;
+    errno = 0;
+    if (_stricmp(NULL, "x") != _NLSCMPERROR || errno != EINVAL) return 8;
     return 0;
 }

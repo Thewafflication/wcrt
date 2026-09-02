@@ -282,6 +282,7 @@ size_t strlen(const char *string)
 
 int _strnicmp(const char *left, const char *right, size_t count)
 {
+    if (count == 0) return 0;
     if (left == NULL || right == NULL) {
         errno = EINVAL;
         return _NLSCMPERROR;
