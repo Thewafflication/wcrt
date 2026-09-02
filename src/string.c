@@ -303,6 +303,26 @@ int _stricmp(const char *left, const char *right)
     return _strnicmp(left, right, (size_t)-1);
 }
 
+int _memicmp(const void *left, const void *right, size_t count)
+{
+    const unsigned char *first = (const unsigned char *)left;
+    const unsigned char *second = (const unsigned char *)right;
+
+    if (count == 0) return 0;
+    if (left == NULL || right == NULL) {
+        errno = EINVAL;
+        return _NLSCMPERROR;
+    }
+    while (count-- != 0) {
+        int left_value = tolower(*first++);
+        int right_value = tolower(*second++);
+        if (left_value != right_value) {
+            return left_value < right_value ? -1 : 1;
+        }
+    }
+    return 0;
+}
+
 char *_strlwr(char *string)
 {
     char *cursor;

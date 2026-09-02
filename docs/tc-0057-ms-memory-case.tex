@@ -1,0 +1,23 @@
+% TC-0057 fragment; intended for the compatibility test report.
+\def\TCID{TC-0057}
+\def\TCTitle{Microsoft case-insensitive memory comparison}
+\def\TCPurpose{Verify declaration, byte-range behavior, embedded nulls,
+ordering, bounds, and invalid parameters of \texttt{\_memicmp}.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0057}
+\def\TCDesignRef{Microsoft CRT case-insensitive memory contract.}
+\def\TCFeatureRef{\texttt{include/string.h}; \texttt{src/string.c}; presence
+and behavior fixtures; \texttt{tests/mscompat/run-tc-0057.ps1}.}
+\def\TCTestTechnique{Interface, equivalence-partition, boundary-value, and error testing.}
+\def\TCPreconditions{REQ-0003, REQ-0006, and REQ-0014 are implemented.}
+\def\TCEnvironment{TinyCC compilation and native execution on supported Windows architectures.}
+\def\TCAssumptions{Non-null inputs identify at least count readable bytes.}
+\def\TCInputData{Mixed-case memory, embedded null and high bytes, bounded
+prefixes, zero count, and null pointers.}
+\def\TCInitialState{Controlled byte arrays are available.}
+\def\TCProcedure{Compile the exact type; compare equal, ordered, and bounded
+arrays; exercise zero-length and invalid-pointer cases.}
+\def\TCExpectedResult{All selected bytes are compared case-insensitively,
+zero length ignores pointers, and invalid pointers report EINVAL.}
+\def\TCPostConditions{No external state remains.}
+\TCTemplate

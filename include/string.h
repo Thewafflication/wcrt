@@ -63,6 +63,8 @@ size_t strlen(const char *string);
 int _stricmp(const char *left, const char *right);
 /** @brief Compares bounded strings without regard to case. */
 int _strnicmp(const char *left, const char *right, size_t count);
+/** @brief Compares memory without regard to byte case. */
+int _memicmp(const void *left, const void *right, size_t count);
 /** @brief Converts a string to lowercase in place. */
 char *_strlwr(char *string);
 /** @brief Converts a string to uppercase in place. */
