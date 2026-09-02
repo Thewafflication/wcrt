@@ -3,6 +3,7 @@
  * @brief Implements WCRT streams with Windows 2000 file APIs.
  */
 
+#include <errno.h>
 #include <string.h>
 
 #include "../../internal/file.h"
@@ -23,6 +24,10 @@
 #define WCRT_NORMAL_ATTRIBUTE 0x80UL
 #define WCRT_INVALID_HANDLE ((void *)(long long)-1)
 #define WCRT_INVALID_POSITION 0xffffffffUL
+#define WCRT_ERROR_FILE_NOT_FOUND 2UL
+#define WCRT_ERROR_PATH_NOT_FOUND 3UL
+#define WCRT_ERROR_ACCESS_DENIED 5UL
+#define WCRT_ERROR_SHARING_VIOLATION 32UL
 
 __declspec(dllimport) void *WCRT_WINAPI CreateFileA(const char *path,
     unsigned long access, unsigned long sharing, void *security,
@@ -43,6 +48,7 @@ __declspec(dllimport) unsigned long WCRT_WINAPI GetTempPathA(
 __declspec(dllimport) unsigned int WCRT_WINAPI GetTempFileNameA(
     const char *path, const char *prefix, unsigned int unique, char *name);
 __declspec(dllimport) void *WCRT_WINAPI GetStdHandle(unsigned long selector);
+__declspec(dllimport) unsigned long WCRT_WINAPI GetLastError(void);
 
 int __wcrt_file_open(FILE *stream, const char *path, const char *mode)
 {
@@ -161,7 +167,23 @@ int __wcrt_file_seek(FILE *stream, long long offset, int origin,
 
 int __wcrt_file_remove(const char *path)
 {
-    return DeleteFileA(path) ? 0 : -1;
+    unsigned long error;
+    if (path == NULL) {
+        errno = EINVAL;
+        return -1;
+    }
+    if (DeleteFileA(path)) return 0;
+    error = GetLastError();
+    if (error == WCRT_ERROR_FILE_NOT_FOUND ||
+        error == WCRT_ERROR_PATH_NOT_FOUND) {
+        errno = ENOENT;
+    } else if (error == WCRT_ERROR_ACCESS_DENIED ||
+        error == WCRT_ERROR_SHARING_VIOLATION) {
+        errno = EACCES;
+    } else {
+        errno = EACCES;
+    }
+    return -1;
 }
 
 int __wcrt_file_rename(const char *old_path, const char *new_path)

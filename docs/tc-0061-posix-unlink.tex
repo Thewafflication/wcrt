@@ -1,0 +1,24 @@
+% TC-0061 fragment; intended for the compatibility test report.
+\def\TCID{TC-0061}
+\def\TCTitle{POSIX filesystem-name removal}
+\def\TCPurpose{Verify selector-gated \texttt{unlink}, strict isolation,
+successful removal, deterministic errors, and legacy-compatible imports.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0061}
+\def\TCDesignRef{ADR-0007, POSIX.1-2017 unlink, and Windows DeleteFileA.}
+\def\TCFeatureRef{\texttt{include/unistd.h}; shared Windows file removal;
+POSIX adapter; selected, strict, and behavior fixtures;
+\texttt{tests/posix/run-tc-0061.ps1}; x86 import audit.}
+\def\TCTestTechnique{Interface, isolation, state-transition, error, and import testing.}
+\def\TCPreconditions{REQ-0012, REQ-0050, and REQ-0060 are implemented.}
+\def\TCEnvironment{TinyCC C89/C99 compilation and native Windows execution.}
+\def\TCAssumptions{The test directory permits file creation and deletion.}
+\def\TCInputData{A created regular file, its missing successor path, a null
+path, and repeated selected and strict header inclusion.}
+\def\TCInitialState{The target path does not exist.}
+\def\TCProcedure{Compile selected and strict fixtures; create and close a file;
+unlink it; repeat the call; pass null; apply the x86 import audit in CI.}
+\def\TCExpectedResult{The file is removed, missing and null paths report the
+specified errno values, names remain isolated, and imports pass.}
+\def\TCPostConditions{The target path does not exist.}
+\TCTemplate

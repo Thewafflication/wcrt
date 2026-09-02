@@ -6,6 +6,7 @@
 #define WCRT_POSIX 1
 
 #include <errno.h>
+#include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/utime.h>
@@ -59,4 +60,9 @@ int utime(const char *path, const struct utimbuf *times)
     source.actime = (long long)times->actime;
     source.modtime = (long long)times->modtime;
     return _utime64(path, &source);
+}
+
+int unlink(const char *path)
+{
+    return remove(path);
 }

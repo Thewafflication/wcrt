@@ -109,6 +109,7 @@ conforms to POSIX.1-2017.
 | [REQ-0058](req-0058-posix-strings.md) | [TC-0058](tc-0058-posix-strings.tex) | `<strings.h>` | POSIX.1-2017 | Selected case-insensitive string comparison |
 | [REQ-0059](req-0059-posix-strdup.md) | [TC-0059](tc-0059-posix-strdup.tex) | `<string.h>` | POSIX.1-2017 | Selected allocated string duplication |
 | [REQ-0060](req-0060-posix-getpid.md) | [TC-0060](tc-0060-posix-getpid.tex) | `<sys/types.h>`, `<unistd.h>` | POSIX.1-2017 | Selected process identification |
+| [REQ-0061](req-0061-posix-unlink.md) | [TC-0061](tc-0061-posix-unlink.tex) | `<unistd.h>` | POSIX.1-2017 with Windows mapping | Selected filesystem-name removal |
 
 ## Shared acceptance gates
 

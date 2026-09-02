@@ -13,6 +13,8 @@ extern "C" {
 
 /** @brief Returns the calling process identifier. */
 pid_t getpid(void);
+/** @brief Removes one filesystem name. */
+int unlink(const char *path);
 
 #ifdef __cplusplus
 }
