@@ -365,6 +365,25 @@ char *_strdup(const char *string)
     return duplicate;
 }
 
+char *_strnset(char *string, int character, size_t count)
+{
+    char *cursor;
+    if (string == NULL) {
+        errno = EINVAL;
+        return NULL;
+    }
+    cursor = string;
+    while (count-- != 0 && *cursor != '\0') {
+        *cursor++ = (char)character;
+    }
+    return string;
+}
+
+char *_strset(char *string, int character)
+{
+    return _strnset(string, character, (size_t)-1);
+}
+
 errno_t strcpy_s(char *destination, rsize_t destination_size,
     const char *source)
 {

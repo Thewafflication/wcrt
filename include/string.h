@@ -71,6 +71,10 @@ char *_strupr(char *string);
 char *_strrev(char *string);
 /** @brief Allocates a duplicate of a string. */
 char *_strdup(const char *string);
+/** @brief Sets every character in a string. */
+char *_strset(char *string, int character);
+/** @brief Sets a bounded number of characters in a string. */
+char *_strnset(char *string, int character, size_t count);
 /** @brief Copies a string under the Microsoft secure-CRT contract. */
 errno_t strcpy_s(char *destination, rsize_t destination_size,
     const char *source);

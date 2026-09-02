@@ -12,6 +12,7 @@
 | REQ-0049 | [TC-0049](../../docs/tc-0049-ms-stat.tex) | `presence/stat.c`, `stat.c` | Layout, metadata, x86 alias, errors, symbols, and imports |
 | REQ-0053 | [TC-0053](../../docs/tc-0053-ms-string-transform.tex) | `presence/string-transform.c`, `string-transform.c` | In-place case conversion, reversal, return identity, and null errors |
 | REQ-0054 | [TC-0054](../../docs/tc-0054-ms-strdup.tex) | `presence/strdup.c`, `strdup.c` | Allocation, content, independence, empty strings, ownership, and null errors |
+| REQ-0055 | [TC-0055](../../docs/tc-0055-ms-string-set.tex) | `presence/string-set.c`, `string-set.c` | Full and bounded replacement, count boundaries, termination, return identity, and null errors |
 
 This non-ISO suite compiles against WCRT headers without host
 standard-library headers. A runner failure is expected while its proposed

@@ -1,0 +1,22 @@
+% TC-0055 fragment; intended for the compatibility test report.
+\def\TCID{TC-0055}
+\def\TCTitle{Microsoft in-place narrow-string character replacement}
+\def\TCPurpose{Verify declarations, bounds, termination, return identity, and
+null-error behavior of \texttt{\_strset} and \texttt{\_strnset}.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0055}
+\def\TCDesignRef{Microsoft CRT string-set contracts.}
+\def\TCFeatureRef{\texttt{include/string.h}; presence and behavior fixtures;
+\texttt{tests/mscompat/run-tc-0055.ps1}.}
+\def\TCTestTechnique{Interface, equivalence-partition, boundary-value, sentinel, and error testing.}
+\def\TCPreconditions{REQ-0003 and REQ-0014 are implemented.}
+\def\TCEnvironment{TinyCC compilation and native execution on supported Windows architectures.}
+\def\TCAssumptions{Inputs are writable terminated byte strings.}
+\def\TCInputData{Empty and nonempty strings; zero, partial, exact, and excessive counts.}
+\def\TCInitialState{Buffers contain controlled strings with trailing sentinels.}
+\def\TCProcedure{Compile exact types; apply full and bounded replacement;
+inspect content, termination, sentinel, and returned address; test null.}
+\def\TCExpectedResult{Only selected characters change, termination and tails
+remain intact, and null inputs return null with EINVAL.}
+\def\TCPostConditions{No external state remains.}
+\TCTemplate
