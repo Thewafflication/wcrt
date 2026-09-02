@@ -1,0 +1,23 @@
+% TC-0059 fragment; intended for the compatibility test report.
+\def\TCID{TC-0059}
+\def\TCTitle{POSIX string duplication}
+\def\TCPurpose{Verify selector-gated declaration, strict isolation, content,
+independence, empty-string behavior, and WCRT ownership of \texttt{strdup}.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0059}
+\def\TCDesignRef{ADR-0007 and the POSIX.1-2017 strdup contract.}
+\def\TCFeatureRef{\texttt{include/string.h}; \texttt{src/string.c}; selected,
+strict, and behavior fixtures; \texttt{tests/posix/run-tc-0059.ps1}.}
+\def\TCTestTechnique{Interface, isolation, equivalence-partition, and ownership testing.}
+\def\TCPreconditions{REQ-0013, REQ-0014, REQ-0050, and REQ-0054 are implemented.}
+\def\TCEnvironment{TinyCC C89/C99 compilation and native Windows execution.}
+\def\TCAssumptions{The input is a terminated string.}
+\def\TCInputData{A writable nonempty source, an empty source, and repeated
+selected and strict header inclusion.}
+\def\TCInitialState{WCRT allocation is available.}
+\def\TCProcedure{Compile selected and strict fixtures in C89 and C99 modes;
+duplicate controlled strings, mutate the source, and free returned objects.}
+\def\TCExpectedResult{The name appears only in the selected profile and each
+result is an independent WCRT-owned complete copy.}
+\def\TCPostConditions{All returned storage is freed.}
+\TCTemplate

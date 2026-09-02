@@ -107,6 +107,7 @@ conforms to POSIX.1-2017.
 | [REQ-0051](req-0051-posix-stat-utime.md) | [TC-0051](tc-0051-posix-stat-utime.tex) | `<sys/types.h>`, `<sys/stat.h>`, `<utime.h>` | POSIX.1-2017 | Typed `stat` and `utime` Windows adapters |
 | [REQ-0052](req-0052-posix-dirent.md) | [TC-0052](tc-0052-posix-dirent.tex) | `<dirent.h>` | POSIX.1-2017 | Directory enumeration and stream lifetime adapters |
 | [REQ-0058](req-0058-posix-strings.md) | [TC-0058](tc-0058-posix-strings.tex) | `<strings.h>` | POSIX.1-2017 | Selected case-insensitive string comparison |
+| [REQ-0059](req-0059-posix-strdup.md) | [TC-0059](tc-0059-posix-strdup.tex) | `<string.h>` | POSIX.1-2017 | Selected allocated string duplication |
 
 ## Shared acceptance gates
 

@@ -6,6 +6,7 @@
 | REQ-0051 | [TC-0051](../../docs/tc-0051-posix-stat-utime.tex) | `presence/files.c`, `absence/files.c`, `files.c` | Types, declarations, strict isolation, metadata, time updates, limits, and errors |
 | REQ-0052 | [TC-0052](../../docs/tc-0052-posix-dirent.tex) | `presence/dirent.c`, `absence/dirent.c`, `dirent.c` | Declarations, strict isolation, enumeration, rewind, entry types, end of stream, and errors |
 | REQ-0058 | [TC-0058](../../docs/tc-0058-posix-strings.tex) | `presence/strings.c`, `absence/strings.c`, `strings.c` | Declarations, strict isolation, C89/C99, ordering, bounds, and zero count |
+| REQ-0059 | [TC-0059](../../docs/tc-0059-posix-strdup.tex) | `presence/strdup.c`, `absence/strdup.c`, `strdup.c` | Declaration, strict isolation, C89/C99, content, independence, empty strings, and ownership |
 
 The selected profile is a bounded Windows portability layer. It does not
 define `_POSIX_VERSION`, and the manifest does not imply complete POSIX

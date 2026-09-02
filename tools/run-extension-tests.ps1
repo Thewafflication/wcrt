@@ -120,7 +120,10 @@ $tests = @(
         'tests\mscompat\run-tc-0057.ps1'),
     @('TC-0058', 'REQ-0058', 'POSIX compatibility',
         'Case-insensitive string comparison',
-        'tests\posix\run-tc-0058.ps1')
+        'tests\posix\run-tc-0058.ps1'),
+    @('TC-0059', 'REQ-0059', 'POSIX compatibility',
+        'Allocated string duplication',
+        'tests\posix\run-tc-0059.ps1')
 )
 
 $manifest = Join-Path $repoRoot 'tests\c99\manifest.md'

@@ -396,6 +396,11 @@ char *_strdup(const char *string)
     return duplicate;
 }
 
+char *strdup(const char *string)
+{
+    return _strdup(string);
+}
+
 char *_strnset(char *string, int character, size_t count)
 {
     char *cursor;
