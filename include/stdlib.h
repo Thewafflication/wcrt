@@ -38,6 +38,12 @@ long strtol(const char *WCRT_RESTRICT string,
     char **WCRT_RESTRICT end_pointer, int base);
 unsigned long strtoul(const char *WCRT_RESTRICT string,
     char **WCRT_RESTRICT end_pointer, int base);
+/** @brief Converts an int to a Microsoft radix string. */
+char *_itoa(int value, char *buffer, int radix);
+/** @brief Converts a long to a Microsoft radix string. */
+char *_ltoa(long value, char *buffer, int radix);
+/** @brief Converts an unsigned long to a Microsoft radix string. */
+char *_ultoa(unsigned long value, char *buffer, int radix);
 int rand(void);
 void srand(unsigned int seed);
 void *calloc(size_t count, size_t size);

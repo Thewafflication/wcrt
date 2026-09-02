@@ -92,6 +92,7 @@ that compatibility behavior cannot alter a standard function's contract.
 | [REQ-0053](req-0053-ms-string-transform.md) | [TC-0053](tc-0053-ms-string-transform.tex) | `<string.h>` | Microsoft CRT | In-place case conversion and reversal |
 | [REQ-0054](req-0054-ms-strdup.md) | [TC-0054](tc-0054-ms-strdup.tex) | `<string.h>` | Microsoft CRT | Allocating narrow-string duplication |
 | [REQ-0055](req-0055-ms-string-set.md) | [TC-0055](tc-0055-ms-string-set.tex) | `<string.h>` | Microsoft CRT | In-place bounded character replacement |
+| [REQ-0056](req-0056-ms-integer-string.md) | [TC-0056](tc-0056-ms-integer-string.tex) | `<stdlib.h>` | Microsoft CRT | Integer-to-string radix conversions |
 
 ## POSIX compatibility extensions
 

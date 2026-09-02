@@ -1,0 +1,24 @@
+% TC-0056 fragment; intended for the compatibility test report.
+\def\TCID{TC-0056}
+\def\TCTitle{Microsoft integer-to-string conversions}
+\def\TCPurpose{Verify declarations, radix behavior, signed boundaries, return
+identity, and invalid-parameter behavior of \texttt{\_itoa},
+\texttt{\_ltoa}, and \texttt{\_ultoa}.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0056}
+\def\TCDesignRef{Microsoft CRT integer-to-string contracts.}
+\def\TCFeatureRef{\texttt{include/stdlib.h}; \texttt{src/stdlib.c}; presence
+and behavior fixtures; \texttt{tests/mscompat/run-tc-0056.ps1}.}
+\def\TCTestTechnique{Interface, boundary-value, equivalence-partition, and error testing.}
+\def\TCPreconditions{REQ-0003 and REQ-0013 are implemented.}
+\def\TCEnvironment{TinyCC compilation and native execution on supported Windows architectures.}
+\def\TCAssumptions{The caller supplies enough writable buffer storage.}
+\def\TCInputData{Zero; signed and unsigned extrema; bases 2, 10, 16, and 36;
+invalid bases and a null buffer.}
+\def\TCInitialState{A writable 40-byte output buffer is available.}
+\def\TCProcedure{Compile exact types; convert controlled values; inspect the
+returned address and output; exercise invalid parameters.}
+\def\TCExpectedResult{Conversions produce terminated lowercase radix strings,
+decimal negatives carry a sign, and invalid parameters return null with EINVAL.}
+\def\TCPostConditions{No external state remains.}
+\TCTemplate

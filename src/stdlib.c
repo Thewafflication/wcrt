@@ -196,6 +196,63 @@ long strtol(const char *string, char **end_pointer, int base)
     return (long)magnitude;
 }
 
+/** @brief Writes an unsigned magnitude with an optional minus sign. */
+static char *wcrt_ultoa_core(unsigned long value, char *buffer, int radix,
+    int negative)
+{
+    static const char digits[] = "0123456789abcdefghijklmnopqrstuvwxyz";
+    size_t length = 0;
+    size_t left;
+
+    if (buffer == NULL || radix < 2 || radix > 36) {
+        errno = EINVAL;
+        return NULL;
+    }
+    do {
+        buffer[length++] = digits[value % (unsigned long)radix];
+        value /= (unsigned long)radix;
+    } while (value != 0);
+    if (negative) {
+        buffer[length++] = '-';
+    }
+    buffer[length] = '\0';
+    for (left = 0; left < length / 2; ++left) {
+        char saved = buffer[left];
+        buffer[left] = buffer[length - left - 1];
+        buffer[length - left - 1] = saved;
+    }
+    return buffer;
+}
+
+char *_itoa(int value, char *buffer, int radix)
+{
+    unsigned long magnitude = (unsigned long)(unsigned int)value;
+    int negative = 0;
+
+    if (radix == 10 && value < 0) {
+        magnitude = 0UL - (unsigned long)value;
+        negative = 1;
+    }
+    return wcrt_ultoa_core(magnitude, buffer, radix, negative);
+}
+
+char *_ltoa(long value, char *buffer, int radix)
+{
+    unsigned long magnitude = (unsigned long)value;
+    int negative = 0;
+
+    if (radix == 10 && value < 0) {
+        magnitude = 0UL - magnitude;
+        negative = 1;
+    }
+    return wcrt_ultoa_core(magnitude, buffer, radix, negative);
+}
+
+char *_ultoa(unsigned long value, char *buffer, int radix)
+{
+    return wcrt_ultoa_core(value, buffer, radix, 0);
+}
+
 /** @brief Scales a decimal significand while limiting intermediate rounding. */
 static double wcrt_scale_decimal(double value, int scale, int *did_overflow)
 {
