@@ -6,10 +6,15 @@
 #ifndef WCRT_IO_H
 #define WCRT_IO_H
 
-/*
- * Interfaces are added here only with their controlled Microsoft
- * compatibility requirements. _fileno is declared by <stdio.h>, matching
- * the Microsoft CRT header assignment.
- */
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/** @brief Removes one filesystem name. */
+int _unlink(const char *path);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

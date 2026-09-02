@@ -1,0 +1,23 @@
+% TC-0062 fragment; intended for the compatibility test report.
+\def\TCID{TC-0062}
+\def\TCTitle{Microsoft filesystem-name removal}
+\def\TCPurpose{Verify declaration, successful removal, deterministic errors,
+and legacy-compatible imports of \texttt{\_unlink}.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0062}
+\def\TCDesignRef{Microsoft CRT unlink and the shared Windows removal contract.}
+\def\TCFeatureRef{\texttt{include/io.h}; shared Windows file removal;
+presence and behavior fixtures; \texttt{tests/mscompat/run-tc-0062.ps1};
+x86 import audit.}
+\def\TCTestTechnique{Interface, state-transition, error, and import testing.}
+\def\TCPreconditions{REQ-0012, REQ-0043, and REQ-0061 are implemented.}
+\def\TCEnvironment{TinyCC compilation and native Windows execution.}
+\def\TCAssumptions{The test directory permits file creation and deletion.}
+\def\TCInputData{A created regular file, its missing successor, and null.}
+\def\TCInitialState{The target path does not exist.}
+\def\TCProcedure{Compile the exact type; create and close a file; remove it;
+repeat the call; pass null; apply the x86 import audit in CI.}
+\def\TCExpectedResult{Removal succeeds once, missing and null paths report the
+specified errors, and the import policy passes.}
+\def\TCPostConditions{The target path does not exist.}
+\TCTemplate

@@ -186,6 +186,11 @@ int __wcrt_file_remove(const char *path)
     return -1;
 }
 
+int _unlink(const char *path)
+{
+    return __wcrt_file_remove(path);
+}
+
 int __wcrt_file_rename(const char *old_path, const char *new_path)
 {
     return MoveFileA(old_path, new_path) ? 0 : -1;

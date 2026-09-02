@@ -129,7 +129,10 @@ $tests = @(
         'tests\posix\run-tc-0060.ps1'),
     @('TC-0061', 'REQ-0061', 'POSIX compatibility',
         'Filesystem-name removal',
-        'tests\posix\run-tc-0061.ps1')
+        'tests\posix\run-tc-0061.ps1'),
+    @('TC-0062', 'REQ-0062', 'Microsoft compatibility',
+        'Filesystem-name removal',
+        'tests\mscompat\run-tc-0062.ps1')
 )
 
 $manifest = Join-Path $repoRoot 'tests\c99\manifest.md'

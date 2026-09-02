@@ -6,6 +6,7 @@
 #define WCRT_POSIX 1
 
 #include <errno.h>
+#include <io.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -64,5 +65,5 @@ int utime(const char *path, const struct utimbuf *times)
 
 int unlink(const char *path)
 {
-    return remove(path);
+    return _unlink(path);
 }
