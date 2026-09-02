@@ -106,6 +106,7 @@ conforms to POSIX.1-2017.
 | [REQ-0050](req-0050-posix-selection-errno.md) | [TC-0050](tc-0050-posix-selection-errno.tex) | `<errno.h>`, `<time.h>` | POSIX and Microsoft/TinyCC ABI | Explicit selection, error names, strict isolation, and time-type interoperation |
 | [REQ-0051](req-0051-posix-stat-utime.md) | [TC-0051](tc-0051-posix-stat-utime.tex) | `<sys/types.h>`, `<sys/stat.h>`, `<utime.h>` | POSIX.1-2017 | Typed `stat` and `utime` Windows adapters |
 | [REQ-0052](req-0052-posix-dirent.md) | [TC-0052](tc-0052-posix-dirent.tex) | `<dirent.h>` | POSIX.1-2017 | Directory enumeration and stream lifetime adapters |
+| [REQ-0058](req-0058-posix-strings.md) | [TC-0058](tc-0058-posix-strings.tex) | `<strings.h>` | POSIX.1-2017 | Selected case-insensitive string comparison |
 
 ## Shared acceptance gates
 

@@ -323,6 +323,16 @@ int _memicmp(const void *left, const void *right, size_t count)
     return 0;
 }
 
+int strcasecmp(const char *left, const char *right)
+{
+    return _stricmp(left, right);
+}
+
+int strncasecmp(const char *left, const char *right, size_t count)
+{
+    return _strnicmp(left, right, count);
+}
+
 char *_strlwr(char *string)
 {
     char *cursor;

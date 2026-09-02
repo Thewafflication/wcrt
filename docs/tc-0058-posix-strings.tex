@@ -1,0 +1,24 @@
+% TC-0058 fragment; intended for the compatibility test report.
+\def\TCID{TC-0058}
+\def\TCTitle{POSIX case-insensitive string comparison}
+\def\TCPurpose{Verify selector-gated declarations, strict isolation,
+case-insensitive ordering, bounds, and zero-count behavior of
+\texttt{strcasecmp} and \texttt{strncasecmp}.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0058}
+\def\TCDesignRef{ADR-0007 and POSIX.1-2017 string comparison contracts.}
+\def\TCFeatureRef{\texttt{include/strings.h}; \texttt{src/string.c}; selected,
+strict, and behavior fixtures; \texttt{tests/posix/run-tc-0058.ps1}.}
+\def\TCTestTechnique{Interface, isolation, equivalence-partition, and boundary testing.}
+\def\TCPreconditions{REQ-0006, REQ-0014, REQ-0045, and REQ-0050 are implemented.}
+\def\TCEnvironment{TinyCC C89/C99 compilation and native Windows execution.}
+\def\TCAssumptions{Nonzero comparisons receive terminated strings.}
+\def\TCInputData{Mixed-case strings, ordered differences, bounded prefixes,
+zero count, and repeated selected and strict header inclusion.}
+\def\TCInitialState{The active locale uses WCRT's controlled case mapping.}
+\def\TCProcedure{Compile selected and strict fixtures in C89 and C99 modes;
+run equality, ordering, bounded, and zero-count comparisons.}
+\def\TCExpectedResult{Names appear only in the selected profile and comparisons
+produce the specified case-insensitive ordering without over-reading.}
+\def\TCPostConditions{No external state remains.}
+\TCTemplate
