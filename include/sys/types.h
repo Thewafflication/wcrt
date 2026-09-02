@@ -21,6 +21,8 @@ typedef unsigned int uid_t;
 typedef unsigned int gid_t;
 /** @brief Signed 64-bit file offset and size. */
 typedef long long off_t;
+/** @brief Signed process identifier covering every Windows process ID. */
+typedef long long pid_t;
 #endif
 
 #endif

@@ -50,6 +50,7 @@ __declspec(dllimport) void WCRT_WINAPI ExitProcess(unsigned int status);
 __declspec(dllimport) unsigned long WCRT_WINAPI GetEnvironmentVariableA(
     const char *name, char *value, unsigned long size);
 __declspec(dllimport) unsigned long WCRT_WINAPI GetLastError(void);
+__declspec(dllimport) unsigned long WCRT_WINAPI GetCurrentProcessId(void);
 __declspec(dllimport) int WCRT_WINAPI CreateProcessA(const char *application,
     char *command_line, void *process_attributes, void *thread_attributes,
     int inherit_handles, unsigned long flags, void *environment,
@@ -64,6 +65,11 @@ __declspec(dllimport) int WCRT_WINAPI CloseHandle(void *handle);
 void __wcrt_process_exit(unsigned int status)
 {
     ExitProcess(status);
+}
+
+long long getpid(void)
+{
+    return (long long)GetCurrentProcessId();
 }
 
 char *__wcrt_process_getenv(const char *name)

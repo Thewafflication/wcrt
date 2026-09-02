@@ -1,0 +1,24 @@
+% TC-0060 fragment; intended for the compatibility test report.
+\def\TCID{TC-0060}
+\def\TCTitle{POSIX process identification}
+\def\TCPurpose{Verify selector-gated \texttt{pid\_t} and \texttt{getpid},
+strict isolation, type width, stable positive results, and legacy imports.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0060}
+\def\TCDesignRef{ADR-0007 and the POSIX.1-2017 process-ID contract.}
+\def\TCFeatureRef{\texttt{include/sys/types.h}; \texttt{include/unistd.h};
+\texttt{src/platform/windows/process.c}; selected, strict, and behavior
+fixtures; \texttt{tests/posix/run-tc-0060.ps1}; x86 import audit.}
+\def\TCTestTechnique{Interface, isolation, boundary, behavioral, and import testing.}
+\def\TCPreconditions{REQ-0050 and the Windows process backend are implemented.}
+\def\TCEnvironment{TinyCC C89/C99 compilation and native Windows execution.}
+\def\TCAssumptions{Windows assigns a positive process identifier.}
+\def\TCInputData{Repeated selected and strict header inclusion and two calls
+from one process.}
+\def\TCInitialState{The controlled test process is running.}
+\def\TCProcedure{Compile selected and strict fixtures in C89 and C99 modes;
+check pid_t width; call getpid twice; apply the x86 import audit in CI.}
+\def\TCExpectedResult{Names appear only in the selected profile, the signed
+type covers DWORD, calls return the same positive value, and imports pass.}
+\def\TCPostConditions{The test process exits normally.}
+\TCTemplate
