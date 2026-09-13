@@ -24,6 +24,8 @@ ssize_t write(int descriptor, const void *buffer, size_t count);
 off_t lseek(int descriptor, off_t offset, int origin);
 int isatty(int descriptor);
 int fsync(int descriptor);
+int dup(int descriptor);
+int dup2(int descriptor, int target);
 
 #ifdef __cplusplus
 }

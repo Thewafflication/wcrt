@@ -48,6 +48,7 @@ int __wcrt_file_seek(FILE *stream, long long offset, int origin,
     long long *position);
 int __wcrt_file_flush(FILE *stream);
 int __wcrt_file_is_terminal(FILE *stream);
+int __wcrt_file_duplicate(FILE *source, FILE *target);
 int __wcrt_file_remove(const char *path);
 int __wcrt_file_rename(const char *old_path, const char *new_path);
 int __wcrt_file_temporary(char *path);

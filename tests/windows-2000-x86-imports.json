@@ -8,6 +8,7 @@
       "CreateFileA",
       "CreateProcessA",
       "DeleteFileA",
+      "DuplicateHandle",
       "ExitProcess",
       "FileTimeToLocalFileTime",
       "FindClose",

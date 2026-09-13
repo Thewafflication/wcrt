@@ -12,6 +12,7 @@ static int test_microsoft(const char *path)
     char buffer[8] = {0};
     int descriptor = _open(path, _O_CREAT | _O_EXCL | _O_RDWR | _O_BINARY,
         0600);
+    int duplicate;
     FILE *stream;
     if (descriptor < 3) return 1;
     if (_get_osfhandle(descriptor) == (__wcrt_intptr_t)-1) return 2;
@@ -20,6 +21,12 @@ static int test_microsoft(const char *path)
     if (_lseek(descriptor, 0, SEEK_SET) != 0) return 4;
     if (_read(descriptor, buffer, 6) != 6 || strcmp(buffer, "shared") != 0)
         return 5;
+    duplicate = _dup(descriptor);
+    if (duplicate < 3 || duplicate == descriptor) return 13;
+    if (_lseek(duplicate, 0, SEEK_SET) != 0 ||
+        _read(descriptor, buffer, 6) != 6) return 14;
+    if (_dup2(duplicate, descriptor) != 0 || _close(duplicate) != 0 ||
+        _lseek(descriptor, 0, SEEK_SET) != 0) return 15;
     if (_commit(descriptor) != 0 || _isatty(descriptor) != 0) return 6;
     stream = _fdopen(descriptor, "r+b");
     if (stream == NULL || _fileno(stream) != descriptor) return 7;
@@ -39,18 +46,28 @@ static int test_posix(const char *path)
 {
     char buffer[8] = {0};
     int descriptor = open(path, O_CREAT | O_TRUNC | O_RDWR | O_BINARY, 0600);
+    int duplicate;
     FILE *stream;
     if (descriptor < 3) return 20;
     if (write(descriptor, "portable", 8) != 8) return 21;
     if (lseek(descriptor, 0, SEEK_SET) != 0) return 22;
     if (read(descriptor, buffer, 8) != 8 ||
         memcmp(buffer, "portable", 8) != 0) return 23;
+    duplicate = dup(descriptor);
+    if (duplicate < 3 || duplicate == descriptor) return 28;
+    if (lseek(duplicate, 0, SEEK_SET) != 0 ||
+        read(descriptor, buffer, 8) != 8) return 29;
+    if (dup2(duplicate, descriptor) != descriptor ||
+        close(duplicate) != 0 || lseek(descriptor, 0, SEEK_SET) != 0)
+        return 31;
     if (fsync(descriptor) != 0 || isatty(descriptor) != 0) return 24;
     stream = fdopen(descriptor, "r+b");
     if (stream == NULL || fileno(stream) != descriptor) return 25;
     if (fclose(stream) != 0) return 26;
     errno = 0;
     if (close(descriptor) != -1 || errno != EBADF) return 27;
+    errno = 0;
+    if (dup(descriptor) != -1 || errno != EBADF) return 32;
     return 0;
 }
 

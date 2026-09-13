@@ -39,6 +39,7 @@
 #define WCRT_ERROR_BROKEN_PIPE 109UL
 #define WCRT_ERROR_DISK_FULL 112UL
 #define WCRT_ERROR_ALREADY_EXISTS 183UL
+#define WCRT_DUPLICATE_SAME_ACCESS 2UL
 
 __declspec(dllimport) void *WCRT_WINAPI CreateFileA(const char *path,
     unsigned long access, unsigned long sharing, void *security,
@@ -63,6 +64,10 @@ __declspec(dllimport) unsigned long WCRT_WINAPI GetLastError(void);
 __declspec(dllimport) int WCRT_WINAPI FlushFileBuffers(void *handle);
 __declspec(dllimport) int WCRT_WINAPI GetConsoleMode(void *handle,
     unsigned long *mode);
+__declspec(dllimport) void *WCRT_WINAPI GetCurrentProcess(void);
+__declspec(dllimport) int WCRT_WINAPI DuplicateHandle(void *source_process,
+    void *source, void *target_process, void **target,
+    unsigned long access, int inherit, unsigned long options);
 
 /** @brief Maps file-operation failures to the WCRT error vocabulary. */
 static void wcrt_file_error(unsigned long error)
@@ -268,6 +273,29 @@ int __wcrt_file_is_terminal(FILE *stream)
 {
     unsigned long mode;
     return GetConsoleMode(stream->handle, &mode) ? 1 : 0;
+}
+
+int __wcrt_file_duplicate(FILE *source, FILE *target)
+{
+    void *process = GetCurrentProcess();
+    void *handle;
+    unsigned int flags;
+    if (!DuplicateHandle(process, source->handle, process, &handle, 0, 0,
+        WCRT_DUPLICATE_SAME_ACCESS)) {
+        wcrt_file_error(GetLastError());
+        return -1;
+    }
+    flags = (source->flags & (WCRT_FILE_READ | WCRT_FILE_WRITE |
+        WCRT_FILE_APPEND | WCRT_FILE_BINARY)) | WCRT_FILE_OWNED;
+    __wcrt_file_close(target);
+    memset(target, 0, sizeof(*target));
+    target->handle = handle;
+    target->flags = flags;
+    target->pushback = EOF;
+    target->orientation = WCRT_ORIENTATION_NONE;
+    target->wide_pushback = WEOF;
+    target->buffering = _IOFBF;
+    return 0;
 }
 
 int __wcrt_file_remove(const char *path)

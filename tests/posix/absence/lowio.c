@@ -11,8 +11,11 @@ static int lseek;
 static int isatty;
 static int fsync;
 static int fdopen;
+static int dup;
+static int dup2;
 
 int main(void)
 {
-    return open + close + read + write + lseek + isatty + fsync + fdopen;
+    return open + close + read + write + lseek + isatty + fsync + fdopen +
+        dup + dup2;
 }

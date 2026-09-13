@@ -33,6 +33,8 @@ long _tell(int descriptor);
 int _commit(int descriptor);
 int _isatty(int descriptor);
 FILE *_fdopen(int descriptor, const char *mode);
+int _dup(int descriptor);
+int _dup2(int descriptor, int target);
 
 #ifdef __cplusplus
 }

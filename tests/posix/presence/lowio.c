@@ -20,11 +20,15 @@ static posix_lseek_fn posix_lseek_address = lseek;
 static posix_descriptor_fn posix_isatty_address = isatty;
 static posix_descriptor_fn posix_fsync_address = fsync;
 static posix_fdopen_fn posix_fdopen_address = fdopen;
+static posix_descriptor_fn posix_dup_address = dup;
+typedef int (*posix_dup2_fn)(int, int);
+static posix_dup2_fn posix_dup2_address = dup2;
 
 int main(void)
 {
     return posix_open_address == 0 || posix_close_address == 0 ||
         posix_read_address == 0 || posix_write_address == 0 ||
         posix_lseek_address == 0 || posix_isatty_address == 0 ||
-        posix_fsync_address == 0 || posix_fdopen_address == 0;
+        posix_fsync_address == 0 || posix_fdopen_address == 0 ||
+        posix_dup_address == 0 || posix_dup2_address == 0;
 }

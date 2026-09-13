@@ -18,7 +18,7 @@
 | REQ-0062 | [TC-0062](../../docs/tc-0062-ms-unlink.tex) | `presence/unlink.c`, `unlink.c` | Declaration, removal, missing and null paths, and imports |
 | REQ-0063 | [TC-0063](../../docs/tc-0063-ms-access.tex) | `presence/access.c`, `access.c` | Declaration, access modes, invalid mode, missing and null paths, and imports |
 | REQ-0064 | [TC-0064](../../docs/tc-0064-ms-mkdir.tex) | `presence/mkdir.c`, `mkdir.c` | Declaration, creation, existing target, missing parent, null path, and imports |
-| REQ-0067 | [TC-0067](../../docs/tc-0067-descriptor-io.tex) | `presence/lowio.c`, POSIX `lowio.c` fixtures | Microsoft and POSIX descriptor declarations, shared I/O state, errors, and isolation |
+| REQ-0067 | [TC-0067](../../docs/tc-0067-descriptor-io.tex) | `presence/lowio.c`, POSIX `lowio.c` fixtures | Microsoft and POSIX descriptor declarations, shared I/O and duplicate state, errors, and isolation |
 
 This non-ISO suite compiles against WCRT headers without host
 standard-library headers. A runner failure is expected while its proposed

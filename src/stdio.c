@@ -92,6 +92,17 @@ static FILE *wcrt_descriptor_stream(int descriptor)
         stream : NULL;
 }
 
+/** @brief Resolves any representable descriptor to its stream slot. */
+static FILE *wcrt_descriptor_slot(int descriptor)
+{
+    if (descriptor == 0) return stdin;
+    if (descriptor == 1) return stdout;
+    if (descriptor == 2) return stderr;
+    if (descriptor >= 3 && descriptor < FOPEN_MAX + 3)
+        return &wcrt_streams[descriptor - 3];
+    return NULL;
+}
+
 int remove(const char *path)
 {
     return __wcrt_file_remove(path);
@@ -370,6 +381,44 @@ FILE *_fdopen(int descriptor, const char *mode)
 FILE *fdopen(int descriptor, const char *mode)
 {
     return _fdopen(descriptor, mode);
+}
+
+int _dup2(int descriptor, int target)
+{
+    FILE *source = wcrt_descriptor_stream(descriptor);
+    FILE *destination = wcrt_descriptor_slot(target);
+    if (source == NULL || destination == NULL) {
+        errno = EBADF;
+        return -1;
+    }
+    if (descriptor == target) return 0;
+    if (__wcrt_file_duplicate(source, destination) != 0) return -1;
+    destination->descriptor = target;
+    return 0;
+}
+
+int _dup(int descriptor)
+{
+    FILE *destination;
+    int target;
+    if (wcrt_descriptor_stream(descriptor) == NULL) {
+        errno = EBADF;
+        return -1;
+    }
+    destination = wcrt_allocate_stream();
+    if (destination == NULL) {
+        errno = EMFILE;
+        return -1;
+    }
+    target = (int)(destination - wcrt_streams) + 3;
+    return _dup2(descriptor, target) == 0 ? target : -1;
+}
+
+int dup(int descriptor) { return _dup(descriptor); }
+
+int dup2(int descriptor, int target)
+{
+    return _dup2(descriptor, target) == 0 ? target : -1;
 }
 
 int fflush(FILE *stream)
