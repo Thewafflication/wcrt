@@ -150,7 +150,10 @@ $tests = @(
         'tests\posix\run-tc-0067.ps1'),
     @('TC-0068', 'REQ-0068', 'POSIX compatibility',
         'Filename pattern matching',
-        'tests\posix\run-tc-0068.ps1')
+        'tests\posix\run-tc-0068.ps1'),
+    @('TC-0069', 'REQ-0069', 'POSIX compatibility',
+        'Command-line option parsing',
+        'tests\posix\run-tc-0069.ps1')
 )
 
 $manifest = Join-Path $repoRoot 'tests\c99\manifest.md'

@@ -1,0 +1,18 @@
+% TC-0069 fragment; intended for the compatibility test report.
+\def\TCID{TC-0069}
+\def\TCTitle{Selected POSIX option parsing}
+\def\TCPurpose{Verify short and long option parsing and selector isolation.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0069}
+\def\TCDesignRef{POSIX getopt, GNU getopt long options, and ADR-0007.}
+\def\TCFeatureRef{\texttt{getopt.h}; parser; selected and strict fixtures.}
+\def\TCTestTechnique{Interface, state-transition, and partition testing.}
+\def\TCPreconditions{TinyCC and the WCRT source tree are available.}
+\def\TCEnvironment{TinyCC C89/C99 compilation and Windows execution.}
+\def\TCAssumptions{Options precede operands in the selected ordered profile.}
+\def\TCInputData{Clusters, arguments, operands, long names, and ambiguity.}
+\def\TCInitialState{\texttt{optind} is reset before each parser scenario.}
+\def\TCProcedure{Compile both profiles and execute parser state scenarios.}
+\def\TCExpectedResult{Results, arguments, indexes, and flags match contracts.}
+\def\TCPostConditions{Only ignored test outputs remain.}
+\TCTemplate
