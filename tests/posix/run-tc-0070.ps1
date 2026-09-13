@@ -7,7 +7,9 @@ $TinyCc = Resolve-WcrtTinyCc $TinyCc $root
 $build = Join-Path $root 'build\tests\posix\tc-0070'
 New-Item -ItemType Directory -Force -Path $build | Out-Null
 $include = Join-Path $root 'include'
-$tinyCcInclude = Join-Path (Split-Path -Parent $TinyCc) 'include'
+$tinyCcInstallation = if ($TinyCc -like '*tcc-diagnostic-wrapper.cmd' -and
+    $env:WCRT_TEST_TINYCC) { $env:WCRT_TEST_TINYCC } else { $TinyCc }
+$tinyCcInclude = Join-Path (Split-Path -Parent $tinyCcInstallation) 'include'
 foreach ($fixture in 'tests\mscompat\presence\popen.c',
     'tests\posix\presence\popen.c', 'tests\posix\absence\popen.c') {
     $object = Join-Path $build (($fixture -replace '\\', '-') + '.o')

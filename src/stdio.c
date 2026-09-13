@@ -13,7 +13,6 @@
 #include <unistd.h>
 
 #include "internal/file.h"
-#include "internal/stdlib.h"
 
 FILE __wcrt_stdin;
 FILE __wcrt_stdout;
@@ -261,20 +260,6 @@ FILE *__wcrt_adopt_file_handle(void *handle, unsigned int flags)
     stream->buffering = _IOFBF;
     return stream;
 }
-
-FILE *_popen(const char *command, const char *mode)
-{
-    return __wcrt_process_popen(command, mode);
-}
-
-int _pclose(FILE *stream) { return __wcrt_process_pclose(stream); }
-
-FILE *popen(const char *command, const char *mode)
-{
-    return _popen(command, mode);
-}
-
-int pclose(FILE *stream) { return _pclose(stream); }
 
 int _close(int descriptor)
 {

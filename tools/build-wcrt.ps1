@@ -110,7 +110,7 @@ $complexCapability | ConvertTo-Json -Depth 4 |
 
 $sources = @(
     'src/assert.c', 'src/ctype.c', 'src/errno.c', 'src/fenv.c', 'src/locale.c',
-    'src/math.c', 'src/setjmp.c', 'src/signal.c', 'src/stdio.c',
+    'src/math.c', 'src/popen.c', 'src/setjmp.c', 'src/signal.c', 'src/stdio.c',
     'src/stdio_format.c', 'src/stdio_scan.c', 'src/stdlib.c',
     'src/string.c', 'src/time.c', 'src/wchar_convert.c',
     'src/wchar_format.c', 'src/wchar_io.c', 'src/wchar_scan.c',
@@ -120,7 +120,7 @@ $sources = @(
     'src/platform/windows/dirent.c',
     'src/platform/windows/file.c', 'src/platform/windows/heap.c',
     'src/platform/windows/mman.c',
-    'src/platform/windows/posix_files.c',
+    'src/platform/windows/popen.c', 'src/platform/windows/posix_files.c',
     'src/platform/windows/process.c', 'src/platform/windows/pthread.c',
     'src/platform/windows/setjmp.S',
     'src/platform/windows/signal.c', 'src/platform/windows/stat.c',

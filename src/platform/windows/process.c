@@ -81,6 +81,7 @@ __declspec(dllimport) int WCRT_WINAPI CreatePipe(void **reader, void **writer,
 __declspec(dllimport) int WCRT_WINAPI SetHandleInformation(void *handle,
     unsigned long mask, unsigned long flags);
 
+#if 0
 /** @brief Active process associated with one popen stream. */
 struct wcrt_popen_entry {
     FILE *stream;
@@ -88,6 +89,7 @@ struct wcrt_popen_entry {
 };
 
 static struct wcrt_popen_entry wcrt_popen_entries[FOPEN_MAX];
+#endif
 
 void __wcrt_process_exit(unsigned int status)
 {
@@ -149,6 +151,7 @@ int __wcrt_process_system(const char *command)
     return (int)exit_code;
 }
 
+#if 0
 FILE *__wcrt_process_popen(const char *command, const char *mode)
 {
     char command_line[32768];
@@ -261,3 +264,4 @@ int __wcrt_process_pclose(FILE *stream)
     }
     return (int)exit_code;
 }
+#endif
