@@ -2,7 +2,7 @@
 \def\TCID{TC-0052}
 \def\TCTitle{POSIX directory stream compatibility}
 \def\TCPurpose{Verify selected declarations, strict isolation, enumeration,
-rewind, entry mapping, end-of-stream behavior, and failures for
+rewind, entry mapping, scanning, alphabetic ordering, ownership, and failures for
 \texttt{dirent.h}.}
 \def\TCPriority{\TCPriorityCritical}
 \def\TCRequirementRef{REQ-0052}
@@ -23,9 +23,11 @@ strict/selected header fixtures.}
 \def\TCInitialState{No directory stream is open.}
 \def\TCProcedure{Compile selected and strict fixtures; enumerate the build
 directory; validate the test entry; rewind and repeat; read through end of
-stream; close the stream; exercise missing and invalid inputs.}
+stream; close the stream; scan and sort independent entry copies; release
+them; exercise missing and invalid inputs.}
 \def\TCExpectedResult{The selected interface compiles, strict mode hides it,
-enumeration and rewind find the regular entry, end of stream preserves errno,
-and failures return the documented indicators.}
+enumeration, rewind, and scanning find the regular entry, sorted results are
+caller-owned, end of stream preserves errno, and failures return the
+documented indicators.}
 \def\TCPostConditions{Every opened directory stream is closed.}
 \TCTemplate

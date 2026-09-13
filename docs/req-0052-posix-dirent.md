@@ -4,7 +4,7 @@
 
 **Status:** Implemented
 
-**Source:** POSIX.1-2017 `opendir`, `readdir`, `rewinddir`, and `closedir`
+**Source:** POSIX.1-2017 directory stream and scanning interfaces
 
 **Compatibility annotation:** Selected POSIX source and behavioral
 compatibility with documented Windows directory-entry deviations
@@ -12,7 +12,7 @@ compatibility with documented Windows directory-entry deviations
 ## Scope
 
 This requirement provides the `WCRT_POSIX`-selected `<dirent.h>` directory
-stream family. Directory mutation, descriptor-backed streams, seeking by
+stream and scanning family. Directory mutation, descriptor-backed streams, seeking by
 location, and thread-safe entry retrieval are excluded.
 
 ## Requirement
@@ -28,6 +28,10 @@ location, and thread-safe entry retrieval are excluded.
   of stream it shall return null without changing `errno`.
 - `rewinddir` shall reposition a valid stream to its first entry, and
   `closedir` shall release both the Windows search handle and WCRT storage.
+- `scandir` shall collect independent fixed-size entry copies, apply an
+  optional filter and comparator, and return caller-owned storage. `alphasort`
+  shall compare entry names with bytewise `strcmp` ordering. Partial allocation
+  or enumeration failures shall release all internal results.
 - Windows directory and non-directory entries shall map to `DT_DIR` and
   `DT_REG`. Reparse points carrying the Windows symbolic-link tag shall map to
   `DT_LNK`; other reparse-point kinds retain their ordinary directory or file
@@ -38,7 +42,7 @@ location, and thread-safe entry retrieval are excluded.
 ## Verification
 
 **Method:** Automated header isolation, interface, filesystem, restart,
-end-of-stream, and error testing
+end-of-stream, collection, ordering, ownership, and error testing
 
 **References:** `TC-0052`
 

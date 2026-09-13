@@ -43,6 +43,12 @@ struct dirent *readdir(DIR *directory);
 void rewinddir(DIR *directory);
 /** @brief Closes a directory stream. */
 int closedir(DIR *directory);
+/** @brief Collects and optionally sorts entries from a directory. */
+int scandir(const char *path, struct dirent ***entries,
+    int (*filter)(const struct dirent *),
+    int (*compare)(const struct dirent **, const struct dirent **));
+/** @brief Compares directory entries by bytewise name order. */
+int alphasort(const struct dirent **left, const struct dirent **right);
 
 #ifdef __cplusplus
 }

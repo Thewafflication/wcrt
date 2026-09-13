@@ -32,6 +32,13 @@ typedef struct dirent *(*posix_readdir_fn)(DIR *);
 typedef void (*posix_rewinddir_fn)(DIR *);
 /** @brief Selected directory-close signature. */
 typedef int (*posix_closedir_fn)(DIR *);
+/** @brief Selected directory-scan signature. */
+typedef int (*posix_scandir_fn)(const char *, struct dirent *** entries,
+    int (*)(const struct dirent *),
+    int (*)(const struct dirent **, const struct dirent **));
+/** @brief Selected directory-entry comparison signature. */
+typedef int (*posix_alphasort_fn)(const struct dirent **,
+    const struct dirent **);
 /** @brief Forces type checking of opendir. */
 static posix_opendir_fn posix_opendir_address = opendir;
 /** @brief Forces type checking of readdir. */
@@ -40,3 +47,5 @@ static posix_readdir_fn posix_readdir_address = readdir;
 static posix_rewinddir_fn posix_rewinddir_address = rewinddir;
 /** @brief Forces type checking of closedir. */
 static posix_closedir_fn posix_closedir_address = closedir;
+static posix_scandir_fn posix_scandir_address = scandir;
+static posix_alphasort_fn posix_alphasort_address = alphasort;

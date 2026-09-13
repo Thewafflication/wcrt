@@ -189,3 +189,88 @@ int closedir(DIR *directory)
     free(directory);
     return result ? 0 : -1;
 }
+
+int alphasort(const struct dirent **left, const struct dirent **right)
+{
+    return strcmp((*left)->d_name, (*right)->d_name);
+}
+
+/** @brief Releases a partially collected scan result. */
+static void wcrt_scandir_free(struct dirent **entries, size_t count)
+{
+    while (count != 0) free(entries[--count]);
+    free(entries);
+}
+
+int scandir(const char *path, struct dirent ***result,
+    int (*filter)(const struct dirent *),
+    int (*compare)(const struct dirent **, const struct dirent **))
+{
+    DIR *directory;
+    struct dirent **entries = NULL;
+    struct dirent *entry;
+    size_t count = 0;
+    size_t capacity = 0;
+    size_t index;
+    if (result == NULL) {
+        errno = EINVAL;
+        return -1;
+    }
+    *result = NULL;
+    directory = opendir(path);
+    if (directory == NULL) return -1;
+    for (;;) {
+        struct dirent **grown;
+        struct dirent *copy;
+        errno = 0;
+        entry = readdir(directory);
+        if (entry == NULL) break;
+        if (filter != NULL && !filter(entry)) continue;
+        if (count == capacity) {
+            size_t next = capacity == 0 ? 16 : capacity * 2;
+            grown = (struct dirent **)realloc(entries,
+                next * sizeof(*entries));
+            if (grown == NULL) {
+                errno = ENOMEM;
+                closedir(directory);
+                wcrt_scandir_free(entries, count);
+                return -1;
+            }
+            entries = grown;
+            capacity = next;
+        }
+        copy = (struct dirent *)malloc(sizeof(*copy));
+        if (copy == NULL) {
+            errno = ENOMEM;
+            closedir(directory);
+            wcrt_scandir_free(entries, count);
+            return -1;
+        }
+        memcpy(copy, entry, sizeof(*copy));
+        entries[count++] = copy;
+    }
+    if (errno != 0) {
+        closedir(directory);
+        wcrt_scandir_free(entries, count);
+        return -1;
+    }
+    if (closedir(directory) != 0) {
+        wcrt_scandir_free(entries, count);
+        return -1;
+    }
+    if (compare != NULL) {
+        for (index = 1; index < count; ++index) {
+            struct dirent *value = entries[index];
+            size_t position = index;
+            while (position != 0 &&
+                compare((const struct dirent **)&value,
+                (const struct dirent **)&entries[position - 1]) < 0) {
+                entries[position] = entries[position - 1];
+                --position;
+            }
+            entries[position] = value;
+        }
+    }
+    *result = entries;
+    return (int)count;
+}
