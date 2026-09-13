@@ -29,6 +29,12 @@ int main(int argc, char **argv)
     if (status.st_dev != descriptor_status.st_dev ||
         status.st_ino != descriptor_status.st_ino) return 13;
     if (fclose(stream) != 0) return 14;
+    if (_chmod(argv[1], _S_IREAD) != 0 ||
+        _stat64(argv[1], &status) != 0 ||
+        (status.st_mode & _S_IWRITE) != 0) return 15;
+    if (_chmod(argv[1], _S_IREAD | _S_IWRITE) != 0 ||
+        _stat64(argv[1], &status) != 0 ||
+        (status.st_mode & _S_IWRITE) == 0) return 16;
 #if defined(__i386__) || defined(_M_IX86)
     memset(&status, 0, sizeof(status));
     if (_stat(argv[1], &status) != 0 || status.st_size != 4) return 8;

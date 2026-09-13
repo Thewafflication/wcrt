@@ -77,6 +77,16 @@ int fstat(int descriptor, struct stat *result)
     return 0;
 }
 
+int lstat(const char *path, struct stat *result)
+{
+    return stat(path, result);
+}
+
+int chmod(const char *path, mode_t mode)
+{
+    return _chmod(path, (int)mode);
+}
+
 int utime(const char *path, const struct utimbuf *times)
 {
     struct __utimbuf64 source;

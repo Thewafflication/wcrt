@@ -40,6 +40,8 @@ int main(int argument_count, char **arguments)
     }
     if (status.st_nlink < 1 ||
         status.st_nlink != descriptor_status.st_nlink) return 8;
+    if (lstat(arguments[1], &descriptor_status) != 0 ||
+        descriptor_status.st_ino != status.st_ino) return 26;
     if (status.st_atim.tv_nsec != 0 || status.st_mtim.tv_nsec != 0 ||
         status.st_ctim.tv_nsec != 0) return 9;
     if (status.st_atim.tv_sec != status.st_atime ||
@@ -47,6 +49,12 @@ int main(int argument_count, char **arguments)
         status.st_ctim.tv_sec != status.st_ctime) return 10;
 
     if (fclose(stream) != 0) return 25;
+    if (chmod(arguments[1], S_IRUSR) != 0 ||
+        stat(arguments[1], &status) != 0 ||
+        (status.st_mode & S_IWUSR) != 0) return 27;
+    if (chmod(arguments[1], S_IRUSR | S_IWUSR) != 0 ||
+        stat(arguments[1], &status) != 0 ||
+        (status.st_mode & S_IWUSR) == 0) return 28;
     requested.actime = 946684800LL;
     requested.modtime = 946684900LL;
     if (utime(arguments[1], &requested) != 0) return 11;

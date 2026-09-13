@@ -108,6 +108,25 @@ static void wcrt_status_microsoft(const struct wcrt_file_status *source,
     result->st_ctime = source->creation_time;
 }
 
+int __cdecl _chmod(const char *path, int mode)
+{
+    unsigned long attributes;
+    if (path == NULL) {
+        errno = EINVAL;
+        return -1;
+    }
+    attributes = GetFileAttributesA(path);
+    if (attributes == INVALID_FILE_ATTRIBUTES) {
+        wcrt_status_error(GetLastError());
+        return -1;
+    }
+    if (mode & _S_IWRITE) attributes &= ~FILE_ATTRIBUTE_READONLY;
+    else attributes |= FILE_ATTRIBUTE_READONLY;
+    if (SetFileAttributesA(path, attributes)) return 0;
+    wcrt_status_error(GetLastError());
+    return -1;
+}
+
 int __cdecl _stat64(const char *path, struct _stat64 *result)
 {
     struct wcrt_file_status status;

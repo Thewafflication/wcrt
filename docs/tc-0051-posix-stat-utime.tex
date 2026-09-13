@@ -2,7 +2,8 @@
 \def\TCID{TC-0051}
 \def\TCTitle{POSIX file status and timestamp compatibility}
 \def\TCPurpose{Verify selected declarations, strict isolation, type widths,
-metadata mapping, timestamp updates, and failure behavior of \texttt{stat} and
+metadata mapping, permission and timestamp updates, and failure behavior of
+\texttt{stat}, \texttt{lstat}, \texttt{fstat}, \texttt{chmod}, and
 \texttt{utime}.}
 \def\TCPriority{\TCPriorityCritical}
 \def\TCRequirementRef{REQ-0051}
@@ -22,7 +23,8 @@ is the documented substitute for POSIX metadata-change time.}
 missing paths, null parameters, and strict/selected header fixtures.}
 \def\TCInitialState{The test path is absent and prior results are not reused.}
 \def\TCProcedure{Compile selected and strict fixtures; verify type widths and
-signatures; create and query a file; set explicit and current times; exercise
+signatures; create and query a file through path, link, and descriptor views;
+toggle write permission; set explicit and current times; exercise
 error partitions; remove the test object.}
 \def\TCExpectedResult{The selected source surface compiles, strict mode hides
 it, metadata and times match the documented Windows mapping, failures return

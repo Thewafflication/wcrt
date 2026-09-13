@@ -73,11 +73,17 @@ typedef char posix_additional_type_tests[
 typedef int (*posix_stat_fn)(const char *, struct stat *);
 /** @brief Selected descriptor-status function signature. */
 typedef int (*posix_fstat_fn)(int, struct stat *);
+/** @brief Selected path-status function signature. */
+typedef int (*posix_lstat_fn)(const char *, struct stat *);
+/** @brief Selected permission-change function signature. */
+typedef int (*posix_chmod_fn)(const char *, mode_t);
 /** @brief Selected utime function signature. */
 typedef int (*posix_utime_fn)(const char *, const struct utimbuf *);
 /** @brief Forces type checking of stat. */
 static posix_stat_fn posix_stat_address = stat;
 /** @brief Forces type checking of fstat. */
 static posix_fstat_fn posix_fstat_address = fstat;
+static posix_lstat_fn posix_lstat_address = lstat;
+static posix_chmod_fn posix_chmod_address = chmod;
 /** @brief Forces type checking of utime. */
 static posix_utime_fn posix_utime_address = utime;

@@ -2,7 +2,7 @@
 \def\TCID{TC-0049}
 \def\TCTitle{Microsoft 64-bit file status and x86 alias}
 \def\TCPurpose{Verify the layout, status data, errors, symbols, and imports of
-\texttt{\_stat64} and the x86 \texttt{\_stat} alias.}
+\texttt{\_stat64}, \texttt{\_fstat64}, \texttt{\_chmod}, and the x86 aliases.}
 \def\TCPriority{\TCPriorityCritical}
 \def\TCRequirementRef{REQ-0049}
 \def\TCDesignRef{Microsoft CRT documentation for the \texttt{\_stat} family
@@ -21,7 +21,8 @@ directories; known timestamps; missing paths; and null arguments.}
 \def\TCInitialState{Objects have recorded attributes, sizes, and times.}
 \def\TCProcedure{Compile declarations and constants; verify member layout;
 inspect symbols by architecture; query filesystem partitions; independently
-compare fields; test failures; inspect imports and x86 alias resolution.}
+compare fields; toggle the read-only attribute; test failures; inspect imports
+and x86 alias resolution.}
 \def\TCExpectedResult{\texttt{\_stat64} returns the required layout and data,
 failures set the documented error, x86 resolves \texttt{\_stat}, and no
 unintended alias or newer import appears elsewhere.}

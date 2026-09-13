@@ -15,7 +15,8 @@ compatibility with documented Windows metadata deviations
 
 ## Scope
 
-This requirement provides the `WCRT_POSIX`-selected `stat` and `utime`
+This requirement provides the `WCRT_POSIX`-selected `stat`, `lstat`, `fstat`,
+`chmod`, and `utime`
 interfaces, their required public structures, the status types needed by this
 family, descriptor-based `fstat`, and portable file-type constants and tests.
 Nanosecond setters and native Unix ownership are excluded.
@@ -34,12 +35,16 @@ Nanosecond setters and native Unix ownership are excluded.
   `S_IFLNK`, and `S_IFSOCK` type values and their corresponding `S_IS*`
   predicates. A defined type does not imply that path-based `stat` can produce
   that type on Windows.
-- `stat` and `fstat` shall return zero and fully initialize `struct stat` for a
+- `stat`, `lstat`, and `fstat` shall return zero and fully initialize `struct stat` for a
   representable regular file or directory. It shall report 64-bit size,
   second-resolution times, supported file type and owner-permission bits,
   Windows volume/file identity, the native link count, and zero for unavailable
   ownership identities. Path and descriptor queries of one object shall report
   identical device and inode values.
+- `lstat` follows the same target as `stat` on the Windows 2000 narrow-path
+  backend; symbolic-link metadata is not promised. `chmod` maps `S_IWUSR` to
+  the inverse Windows read-only attribute and ignores unrepresentable Unix
+  permission distinctions.
 - On Windows, `st_ctim` and `st_ctime` shall contain creation time rather than
   native POSIX metadata-change time; nanoseconds shall be zero.
 - `utime` shall set last-access and last-modification seconds from `struct
@@ -67,7 +72,8 @@ and error test
 **References:** `TC-0051`
 
 Tests compile positive and negative header fixtures, check type widths and
-function signatures, query regular-file metadata, set explicit/current times,
+function signatures, compare path/link/descriptor metadata, change the
+read-only state, set explicit/current times,
 exercise missing and invalid arguments, and verify the documented Windows
 metadata mapping.
 

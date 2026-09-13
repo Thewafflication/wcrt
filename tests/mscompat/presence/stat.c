@@ -20,6 +20,10 @@ static stat64_fn stat64_address = _stat64;
 typedef int (__cdecl *fstat64_fn)(int, struct _stat64 *);
 /** @brief Forces type checking of _fstat64. */
 static fstat64_fn fstat64_address = _fstat64;
+/** @brief Type of Microsoft permission changes. */
+typedef int (__cdecl *chmod_fn)(const char *, int);
+/** @brief Forces type checking of _chmod. */
+static chmod_fn chmod_address = _chmod;
 #if defined(__i386__) || defined(_M_IX86)
 /** @brief Forces type checking of the x86 _stat alias. */
 static stat64_fn stat_address = _stat;

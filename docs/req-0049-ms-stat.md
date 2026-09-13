@@ -12,9 +12,9 @@ WPM TinyCC compatibility inventory
 
 ## Scope
 
-This requirement provides `struct _stat64`, path and descriptor status, and
-the linker-required x86 aliases used by WPM's TinyCC build. Other structure
-width variants and wide-path variants are excluded.
+This requirement provides `struct _stat64`, path and descriptor status,
+`_chmod`, and the linker-required x86 aliases used by WPM's TinyCC build.
+Other structure width variants and wide-path variants are excluded.
 
 ## Requirement
 
@@ -29,6 +29,8 @@ width variants and wide-path variants are excluded.
 - File type and permission bits shall describe regular files and directories
   consistently with Microsoft `_S_IF*` and `_S_I*` constants.
 - File size and all three timestamps shall use the `_stat64` 64-bit forms.
+- `_chmod` shall map `_S_IWRITE` to the inverse Windows read-only attribute;
+  other Unix permission semantics are not claimed.
 - On failure, `_stat64` shall return `-1` and set `errno` to the documented
   error category without exposing partially initialized data as valid.
 - On x86, WCRT shall export a linker-compatible `_stat` symbol that accepts
@@ -51,7 +53,7 @@ TinyCC's 32-bit PE linker canonicalizes the `_stat64` reference used by WPM to
 **References:** Planned `TC-0049`
 
 Tests shall cover structure offsets and size per architecture, regular files,
-directories, empty and large files, read-only state, timestamp conversion,
+directories, empty and large files, read-only transitions, timestamp conversion,
 missing and invalid paths, x86 symbol resolution, absence of unintended aliases
 on other architectures, and imports.
 

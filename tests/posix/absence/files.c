@@ -44,5 +44,7 @@ struct utimbuf {
 
 /** @brief Strict-profile object proving the stat function is absent. */
 static int stat;
+static int lstat;
+static int chmod;
 /** @brief Strict-profile object proving the utime function is absent. */
 static int utime;

@@ -87,6 +87,8 @@ extern "C" {
 int __cdecl _stat64(const char *path, struct _stat64 *result);
 /** @brief Obtains 64-bit status for an open descriptor. */
 int __cdecl _fstat64(int descriptor, struct _stat64 *result);
+/** @brief Maps write permission to the Windows read-only attribute. */
+int __cdecl _chmod(const char *path, int mode);
 #if defined(__i386__) || defined(_M_IX86)
 /** @brief Provides TinyCC's linker-compatible x86 status alias. */
 int __cdecl _stat(const char *path, struct _stat64 *result);
@@ -103,6 +105,10 @@ int __cdecl _fstat(int descriptor, struct _stat64 *result);
 int stat(const char *path, struct stat *result);
 /** @brief Obtains file metadata for an open descriptor. */
 int fstat(int descriptor, struct stat *result);
+/** @brief Obtains metadata using the selected Windows link behavior. */
+int lstat(const char *path, struct stat *result);
+/** @brief Changes the selected Windows-mapped permission bits. */
+int chmod(const char *path, mode_t mode);
 /** @brief Creates one directory; Windows ignores permission mode bits. */
 int mkdir(const char *path, mode_t mode);
 #endif
