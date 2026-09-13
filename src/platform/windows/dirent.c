@@ -55,6 +55,7 @@ struct wcrt_find_data {
 struct __wcrt_DIR {
     void *handle;
     int pending;
+    long position;
     struct wcrt_find_data data;
     struct dirent entry;
     char pattern[1];
@@ -96,6 +97,7 @@ static int wcrt_dirent_begin(DIR *directory)
         return -1;
     }
     directory->pending = 1;
+    directory->position = 0;
     return 0;
 }
 
@@ -161,6 +163,7 @@ struct dirent *readdir(DIR *directory)
     directory->entry.d_name[index] = '\0';
     directory->entry.d_namlen = (unsigned short)index;
     directory->entry.d_reclen = (unsigned short)sizeof(directory->entry);
+    ++directory->position;
     return &directory->entry;
 }
 
@@ -174,6 +177,32 @@ void rewinddir(DIR *directory)
     directory->handle = NULL;
     directory->pending = 0;
     wcrt_dirent_begin(directory);
+}
+
+long telldir(DIR *directory)
+{
+    if (directory == NULL || directory->handle == NULL) {
+        errno = EINVAL;
+        return -1;
+    }
+    return directory->position;
+}
+
+void seekdir(DIR *directory, long position)
+{
+    if (directory == NULL || position < 0) {
+        errno = EINVAL;
+        return;
+    }
+    rewinddir(directory);
+    if (directory->handle == NULL) return;
+    while (directory->position < position) {
+        errno = 0;
+        if (readdir(directory) == NULL) {
+            if (errno == 0) errno = EINVAL;
+            return;
+        }
+    }
 }
 
 int closedir(DIR *directory)

@@ -12,8 +12,8 @@ compatibility with documented Windows directory-entry deviations
 ## Scope
 
 This requirement provides the `WCRT_POSIX`-selected `<dirent.h>` directory
-stream and scanning family. Directory mutation, descriptor-backed streams, seeking by
-location, and thread-safe entry retrieval are excluded.
+stream, positioning, and scanning family. Directory mutation,
+descriptor-backed streams, and thread-safe entry retrieval are excluded.
 
 ## Requirement
 
@@ -28,6 +28,9 @@ location, and thread-safe entry retrieval are excluded.
   of stream it shall return null without changing `errno`.
 - `rewinddir` shall reposition a valid stream to its first entry, and
   `closedir` shall release both the Windows search handle and WCRT storage.
+- `telldir` shall return a logical entry position, and `seekdir` shall restore
+  positions from the same stream by restarting and advancing its Windows
+  enumeration. Negative positions shall report `EINVAL`.
 - `scandir` shall collect independent fixed-size entry copies, apply an
   optional filter and comparator, and return caller-owned storage. `alphasort`
   shall compare entry names with bytewise `strcmp` ordering. Partial allocation

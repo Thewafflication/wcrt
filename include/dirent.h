@@ -41,6 +41,10 @@ DIR *opendir(const char *path);
 struct dirent *readdir(DIR *directory);
 /** @brief Repositions a directory stream to its first entry. */
 void rewinddir(DIR *directory);
+/** @brief Returns the current logical directory-stream position. */
+long telldir(DIR *directory);
+/** @brief Restores a position previously reported by telldir. */
+void seekdir(DIR *directory, long position);
 /** @brief Closes a directory stream. */
 int closedir(DIR *directory);
 /** @brief Collects and optionally sorts entries from a directory. */

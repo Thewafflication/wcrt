@@ -19,6 +19,10 @@ static int opendir;
 static int readdir;
 /** @brief Strict-profile object proving rewinddir is absent. */
 static int rewinddir;
+/** @brief Strict-profile object proving telldir is absent. */
+static int telldir;
+/** @brief Strict-profile object proving seekdir is absent. */
+static int seekdir;
 /** @brief Strict-profile object proving closedir is absent. */
 static int closedir;
 /** @brief Strict-profile object proving scandir is absent. */

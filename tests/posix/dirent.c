@@ -26,6 +26,9 @@ int main(int count, char **arguments)
 {
     DIR *directory;
     struct dirent **entries;
+    struct dirent *entry;
+    char second_name[WCRT_DIRENT_NAME_MAX + 1];
+    long position;
     int entry_count;
     int index;
     int found;
@@ -39,6 +42,18 @@ int main(int count, char **arguments)
     rewinddir(directory);
     found = find_test_file(directory);
     if (found != 1) return 5;
+    rewinddir(directory);
+    if (readdir(directory) == NULL) return 14;
+    position = telldir(directory);
+    entry = readdir(directory);
+    if (position < 1 || entry == NULL) return 15;
+    strcpy(second_name, entry->d_name);
+    seekdir(directory, position);
+    entry = readdir(directory);
+    if (entry == NULL || strcmp(entry->d_name, second_name) != 0) return 16;
+    errno = 0;
+    seekdir(directory, -1);
+    if (errno != EINVAL) return 17;
     errno = EDOM;
     while (readdir(directory) != NULL) { }
     if (errno != EDOM) return 6;
