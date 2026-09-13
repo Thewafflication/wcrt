@@ -26,8 +26,12 @@ supported Windows architectures. It does not assert POSIX conformance or add
   consumer defines `WCRT_POSIX` before including the affected header.
 - `<errno.h>` shall expose `EAGAIN`, `EFBIG`, `EINTR`, `EIO`, `ENOSYS`,
   `ENXIO`, and `EPERM` when `WCRT_POSIX` is selected.
+- `<errno.h>` shall expose the Microsoft-compatible filesystem and descriptor
+  names `EBADF`, `EBUSY`, `EEXIST`, `ENOTDIR`, `EISDIR`, `ENOSPC`, `ESPIPE`,
+  `EPIPE`, and `ENOTEMPTY` to every compatibility profile.
 - The constants shall have the selected Microsoft/TinyCC Windows numeric
-  values 11, 27, 4, 5, 40, 6, and 1, respectively.
+  values 9, 16, 17, 20, 21, 28, 29, 32, and 41, respectively, in addition to
+  the selected POSIX values 11, 27, 4, 5, 40, 6, and 1.
 - Strict ISO and Microsoft-only inclusion shall not expose those newly added
   names.
 - WCRT shall not define `_POSIX_VERSION` for this bounded compatibility
@@ -51,7 +55,7 @@ shims while preserving strict ISO isolation and Windows numeric compatibility.
 
 The test compiles repeated-inclusion fixtures with and without `WCRT_POSIX`,
 checks every numeric value and the time-type guard, and proves that the strict
-profile contains neither the new error names nor `_POSIX_VERSION`.
+profile contains neither the POSIX-selected error names nor `_POSIX_VERSION`.
 
 ## Relationships
 
@@ -66,5 +70,6 @@ the selected Microsoft/TinyCC numeric ABI where POSIX specifies no number.
 
 ## Implementation Record
 
-`include/errno.h` gates the selected error names with `WCRT_POSIX`, and
+`include/errno.h` gates the POSIX-only names with `WCRT_POSIX`, exposes the
+shared Microsoft-compatible filesystem and descriptor names, and
 `include/time.h` publishes the interoperation guard after `time_t`.

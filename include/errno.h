@@ -30,8 +30,32 @@
 /** @brief A filesystem object already exists. */
 #define EEXIST 17
 
+/** @brief A file descriptor is invalid or not open. */
+#define EBADF 9
+
+/** @brief A resource is busy. */
+#define EBUSY 16
+
+/** @brief A path component is not a directory. */
+#define ENOTDIR 20
+
+/** @brief An operation requiring a non-directory received a directory. */
+#define EISDIR 21
+
 /** @brief Process file-table capacity was exhausted. */
 #define EMFILE 24
+
+/** @brief A device has no space available. */
+#define ENOSPC 28
+
+/** @brief A seek was requested on a pipe. */
+#define ESPIPE 29
+
+/** @brief A write was requested on a pipe without a reader. */
+#define EPIPE 32
+
+/** @brief A directory cannot be removed because it is not empty. */
+#define ENOTEMPTY 41
 
 #if defined(WCRT_POSIX)
 /** @brief Operation was not permitted. */
