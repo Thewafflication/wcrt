@@ -20,6 +20,8 @@
       "GetEnvironmentVariableA",
       "GetExitCodeProcess",
       "GetFileAttributesExA",
+      "GetFileInformationByHandle",
+      "GetFileType",
       "GetLastError",
       "GetProcessHeap",
       "GetProcessTimes",

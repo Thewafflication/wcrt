@@ -12,9 +12,9 @@ WPM TinyCC compatibility inventory
 
 ## Scope
 
-This requirement provides `struct _stat64`, `_stat64`, and the linker-required
-x86 `_stat` alias used by WPM's TinyCC build. Other `_stat*`, `_fstat*`, and
-wide-path variants are excluded.
+This requirement provides `struct _stat64`, path and descriptor status, and
+the linker-required x86 aliases used by WPM's TinyCC build. Other structure
+width variants and wide-path variants are excluded.
 
 ## Requirement
 
@@ -24,6 +24,8 @@ wide-path variants are excluded.
 - `_stat64` shall populate the documented device, inode, mode, link, user,
   group, size, access-time, modification-time, and creation-time fields for a
   representable path and return zero.
+- `_fstat64` shall populate the same structure from an open WCRT descriptor and
+  report the same file identity as `_stat64` for the same object.
 - File type and permission bits shall describe regular files and directories
   consistently with Microsoft `_S_IF*` and `_S_I*` constants.
 - File size and all three timestamps shall use the `_stat64` 64-bit forms.
@@ -33,6 +35,7 @@ wide-path variants are excluded.
   the layout selected by the TinyCC public header and produces `_stat64`
   behavior. Other architectures shall not acquire this alias unless their ABI
   requires it and a separate compatibility decision records that requirement.
+- On x86, WCRT shall likewise export the compatible `_fstat` alias.
 - The implementation shall pass layout, symbol-table, and Windows 2000 import
   inspection.
 
@@ -65,5 +68,5 @@ The `_stat` alias is required only for the verified x86 TinyCC ABI condition.
 ## Implementation Record
 
 `include/sys/stat.h` defines the 8-byte-packed layout and
-`src/platform/windows/stat.c` translates Windows attributes and exports the
-x86 alias. TC-0049 passes on x86 and x64 TinyCC.
+`src/platform/windows/stat.c` translates handle metadata and exports the x86
+aliases. TC-0049 passes on x86 and x64 TinyCC.

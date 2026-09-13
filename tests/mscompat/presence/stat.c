@@ -16,7 +16,13 @@ typedef char stat64_time_offset_check[
 typedef int (__cdecl *stat64_fn)(const char *, struct _stat64 *);
 /** @brief Forces type checking of _stat64. */
 static stat64_fn stat64_address = _stat64;
+/** @brief Type of descriptor-based _fstat64. */
+typedef int (__cdecl *fstat64_fn)(int, struct _stat64 *);
+/** @brief Forces type checking of _fstat64. */
+static fstat64_fn fstat64_address = _fstat64;
 #if defined(__i386__) || defined(_M_IX86)
 /** @brief Forces type checking of the x86 _stat alias. */
 static stat64_fn stat_address = _stat;
+/** @brief Forces type checking of the x86 _fstat alias. */
+static fstat64_fn fstat_address = _fstat;
 #endif

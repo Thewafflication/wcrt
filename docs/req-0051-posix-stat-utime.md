@@ -17,8 +17,8 @@ compatibility with documented Windows metadata deviations
 
 This requirement provides the `WCRT_POSIX`-selected `stat` and `utime`
 interfaces, their required public structures, the status types needed by this
-family, and portable file-type constants and tests. Descriptor-based functions,
-nanosecond setters, links, and native Unix ownership are excluded.
+family, descriptor-based `fstat`, and portable file-type constants and tests.
+Nanosecond setters and native Unix ownership are excluded.
 
 ## Requirement
 
@@ -34,10 +34,12 @@ nanosecond setters, links, and native Unix ownership are excluded.
   `S_IFLNK`, and `S_IFSOCK` type values and their corresponding `S_IS*`
   predicates. A defined type does not imply that path-based `stat` can produce
   that type on Windows.
-- `stat` shall return zero and fully initialize `struct stat` for a
+- `stat` and `fstat` shall return zero and fully initialize `struct stat` for a
   representable regular file or directory. It shall report 64-bit size,
-  second-resolution times, supported file type and owner-permission bits, one
-  link, and zero for unavailable inode and ownership identities.
+  second-resolution times, supported file type and owner-permission bits,
+  Windows volume/file identity, the native link count, and zero for unavailable
+  ownership identities. Path and descriptor queries of one object shall report
+  identical device and inode values.
 - On Windows, `st_ctim` and `st_ctime` shall contain creation time rather than
   native POSIX metadata-change time; nanoseconds shall be zero.
 - `utime` shall set last-access and last-modification seconds from `struct
@@ -85,5 +87,5 @@ required target gate before the release-level profile can be reported complete.
 
 `include/sys/types.h`, `include/sys/stat.h`, `include/time.h`, and
 `include/utime.h` define the selected source surface.
-`src/platform/windows/posix_files.c` adapts it to the controlled Microsoft
-filesystem operations without adding Windows imports.
+`src/platform/windows/posix_files.c` adapts shared path and handle metadata to
+the POSIX structure without narrowing its 64-bit inode identity.

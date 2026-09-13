@@ -85,9 +85,13 @@ extern "C" {
 
 /** @brief Obtains 64-bit status for a path. */
 int __cdecl _stat64(const char *path, struct _stat64 *result);
+/** @brief Obtains 64-bit status for an open descriptor. */
+int __cdecl _fstat64(int descriptor, struct _stat64 *result);
 #if defined(__i386__) || defined(_M_IX86)
 /** @brief Provides TinyCC's linker-compatible x86 status alias. */
 int __cdecl _stat(const char *path, struct _stat64 *result);
+/** @brief Provides TinyCC's linker-compatible x86 descriptor-status alias. */
+int __cdecl _fstat(int descriptor, struct _stat64 *result);
 #endif
 #if defined(WCRT_POSIX)
 /**
@@ -97,6 +101,8 @@ int __cdecl _stat(const char *path, struct _stat64 *result);
  * @return Zero on success, or -1 with errno set on failure.
  */
 int stat(const char *path, struct stat *result);
+/** @brief Obtains file metadata for an open descriptor. */
+int fstat(int descriptor, struct stat *result);
 /** @brief Creates one directory; Windows ignores permission mode bits. */
 int mkdir(const char *path, mode_t mode);
 #endif

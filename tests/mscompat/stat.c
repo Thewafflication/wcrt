@@ -13,16 +13,22 @@
 int main(int argc, char **argv)
 {
     struct _stat64 status;
+    struct _stat64 descriptor_status;
     FILE *stream;
     if (argc != 2) return 1;
     stream = fopen(argv[1], "wb");
     if (stream == NULL) return 2;
-    if (fwrite("stat", 1, 4, stream) != 4 || fclose(stream) != 0) return 3;
+    if (fwrite("stat", 1, 4, stream) != 4) return 3;
+    if (_fstat64(_fileno(stream), &descriptor_status) != 0 ||
+        descriptor_status.st_size != 4) return 12;
     memset(&status, 0xA5, sizeof(status));
     if (_stat64(argv[1], &status) != 0) return 4;
     if (status.st_size != 4) return 5;
     if ((status.st_mode & _S_IFREG) == 0) return 6;
     if ((status.st_mode & _S_IREAD) == 0) return 7;
+    if (status.st_dev != descriptor_status.st_dev ||
+        status.st_ino != descriptor_status.st_ino) return 13;
+    if (fclose(stream) != 0) return 14;
 #if defined(__i386__) || defined(_M_IX86)
     memset(&status, 0, sizeof(status));
     if (_stat(argv[1], &status) != 0 || status.st_size != 4) return 8;
