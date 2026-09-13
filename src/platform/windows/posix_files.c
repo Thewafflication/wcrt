@@ -6,6 +6,7 @@
 #define WCRT_POSIX 1
 
 #include <errno.h>
+#include <direct.h>
 #include <io.h>
 #include <stdio.h>
 #include <string.h>
@@ -66,4 +67,15 @@ int utime(const char *path, const struct utimbuf *times)
 int unlink(const char *path)
 {
     return _unlink(path);
+}
+
+int access(const char *path, int mode)
+{
+    return _access(path, mode);
+}
+
+int mkdir(const char *path, mode_t mode)
+{
+    (void)mode;
+    return _mkdir(path);
 }

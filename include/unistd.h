@@ -15,6 +15,8 @@ extern "C" {
 pid_t getpid(void);
 /** @brief Removes one filesystem name. */
 int unlink(const char *path);
+/** @brief Tests path accessibility. */
+int access(const char *path, int mode);
 
 #ifdef __cplusplus
 }

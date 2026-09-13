@@ -113,6 +113,7 @@ conforms to POSIX.1-2017.
 | [REQ-0059](req-0059-posix-strdup.md) | [TC-0059](tc-0059-posix-strdup.tex) | `<string.h>` | POSIX.1-2017 | Selected allocated string duplication |
 | [REQ-0060](req-0060-posix-getpid.md) | [TC-0060](tc-0060-posix-getpid.tex) | `<sys/types.h>`, `<unistd.h>` | POSIX.1-2017 | Selected process identification |
 | [REQ-0061](req-0061-posix-unlink.md) | [TC-0061](tc-0061-posix-unlink.tex) | `<unistd.h>` | POSIX.1-2017 with Windows mapping | Selected filesystem-name removal |
+| [REQ-0065](req-0065-posix-access-mkdir.md) | [TC-0065](tc-0065-posix-access-mkdir.tex) | `<unistd.h>`, `<sys/stat.h>` | POSIX.1-2017 with Windows mapping | Selected path access and directory creation |
 
 ## Shared acceptance gates
 

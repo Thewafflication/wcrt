@@ -97,6 +97,8 @@ int __cdecl _stat(const char *path, struct _stat64 *result);
  * @return Zero on success, or -1 with errno set on failure.
  */
 int stat(const char *path, struct stat *result);
+/** @brief Creates one directory; Windows ignores permission mode bits. */
+int mkdir(const char *path, mode_t mode);
 #endif
 
 #ifdef __cplusplus

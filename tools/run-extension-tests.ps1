@@ -138,7 +138,10 @@ $tests = @(
         'tests\mscompat\run-tc-0063.ps1'),
     @('TC-0064', 'REQ-0064', 'Microsoft compatibility',
         'Directory creation',
-        'tests\mscompat\run-tc-0064.ps1')
+        'tests\mscompat\run-tc-0064.ps1'),
+    @('TC-0065', 'REQ-0065', 'POSIX compatibility',
+        'Path access and directory creation',
+        'tests\posix\run-tc-0065.ps1')
 )
 
 $manifest = Join-Path $repoRoot 'tests\c99\manifest.md'
