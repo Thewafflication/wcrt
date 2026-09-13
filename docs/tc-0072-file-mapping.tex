@@ -1,0 +1,9 @@
+\def\TCID{TC-0072}
+\def\TCRequirement{REQ-0072}
+\def\TCTitle{Read-only file mapping}
+\def\TCObjective{Verify selected POSIX file mapping over WCRT descriptors.}
+\def\TCPreconditions{A supported TinyCC Windows compiler is available.}
+\def\TCMethod{Map a written file privately, compare its bytes, unmap it, and exercise invalid length handling.}
+\def\TCPassCriteria{The view matches the file and all operations report the specified results.}
+\def\TCPostConditions{The view and descriptor are closed.}
+\input{test-case-template.tex}

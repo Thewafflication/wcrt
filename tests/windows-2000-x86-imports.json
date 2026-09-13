@@ -8,6 +8,7 @@
       "CreateMutexA",
       "CreateDirectoryA",
       "CreateFileA",
+      "CreateFileMappingA",
       "CreatePipe",
       "CreateProcessA",
       "CreateSemaphoreA",
@@ -48,6 +49,7 @@
       "InitializeCriticalSection",
       "LeaveCriticalSection",
       "LocalFileTimeToFileTime",
+      "MapViewOfFile",
       "MoveFileA",
       "ReadFile",
       "ReleaseSemaphore",
@@ -59,6 +61,7 @@
       "SetEvent",
       "Sleep",
       "TryEnterCriticalSection",
+      "UnmapViewOfFile",
       "WaitForSingleObject",
       "WriteFile"
     ]

@@ -16,6 +16,7 @@
 | REQ-0069 | [TC-0069](../../docs/tc-0069-posix-getopt.tex) | `presence/getopt.c`, `absence/getopt.c`, `getopt.c` | Clusters, arguments, operands, long names, ambiguity, reset, flags, and isolation |
 | REQ-0070 | [TC-0070](../../docs/tc-0070-command-streams.tex) | Microsoft/selected/strict `popen.c` fixtures | Command output/input, status, ownership, isolation, and errors |
 | REQ-0071 | [TC-0071](../../docs/tc-0071-posix-threads.tex) | Selected/strict `pthread.c` fixtures | Static initialization, signaling, broadcast, lifecycle, isolation, and errors |
+| REQ-0072 | [TC-0072](../../docs/tc-0072-file-mapping.tex) | Selected/strict `mman.c` fixtures | Read-only mapping, unmapping, isolation, and errors |
 
 The selected profile is a bounded Windows portability layer. It does not
 define `_POSIX_VERSION`, and the manifest does not imply complete POSIX

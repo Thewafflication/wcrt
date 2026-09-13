@@ -119,6 +119,7 @@ $sources = @(
     'src/platform/windows/directory.c',
     'src/platform/windows/dirent.c',
     'src/platform/windows/file.c', 'src/platform/windows/heap.c',
+    'src/platform/windows/mman.c',
     'src/platform/windows/posix_files.c',
     'src/platform/windows/process.c', 'src/platform/windows/pthread.c',
     'src/platform/windows/setjmp.S',
