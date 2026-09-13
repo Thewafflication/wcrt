@@ -4,21 +4,23 @@
 
 **Status:** Implemented
 
-**Source:** POSIX.1-2017 `strdup` contract
+**Source:** POSIX.1-2017 `strdup` and `strndup` contracts
 
 **Compatibility annotation:** Selected POSIX interface; not ISO C
 
 ## Scope
 
-This requirement provides `strdup` in `<string.h>` only when `WCRT_POSIX` is
-selected. `strndup` and wide or multibyte variants are excluded.
+This requirement provides `strdup` and `strndup` in `<string.h>` only when
+`WCRT_POSIX` is selected. Wide and multibyte variants are excluded.
 
 ## Requirement
 
-- WCRT shall declare `strdup(const char *)` in `<string.h>` only when
-  `WCRT_POSIX` is defined.
+- WCRT shall declare `strdup(const char *)` and `strndup(const char *, size_t)`
+  in `<string.h>` only when `WCRT_POSIX` is defined.
 - The function shall allocate enough WCRT-managed storage for the source and
   its terminating null, copy the complete string, and return the new pointer.
+- `strndup` shall copy at most the requested number of source bytes, stop at an
+  earlier null, and always append a terminating null to successful output.
 - The returned object shall be independent of the source and releasable with
   WCRT `free`.
 - An allocation failure shall return null and set `errno` to `ENOMEM`.
@@ -38,8 +40,8 @@ contract while keeping portable source spelling selector-gated.
 **References:** TC-0059
 
 Tests cover repeatable header inclusion, exact declaration, C89/C99 selected
-and strict profiles, content, allocation independence, empty strings, and
-WCRT `free` ownership.
+and strict profiles, complete and bounded content, allocation independence,
+zero limits, empty strings, and WCRT `free` ownership.
 
 ## Relationships
 
@@ -48,10 +50,10 @@ WCRT `free` ownership.
 
 ## Tailoring
 
-Only POSIX `strdup` is included.
+Only the narrow POSIX duplication functions are included.
 
 ## Implementation Record
 
-`include/string.h` provides the selector-gated declaration and `src/string.c`
-adapts the controlled Microsoft duplication core. TC-0059 passes on x64
-TinyCC; x86 and ARM64 are allocated to CI.
+`include/string.h` provides the selector-gated declarations and `src/string.c`
+implements them with WCRT allocation. TC-0059 passes on x64 TinyCC; x86 and
+ARM64 are allocated to CI.

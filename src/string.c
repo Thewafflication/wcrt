@@ -401,6 +401,25 @@ char *strdup(const char *string)
     return _strdup(string);
 }
 
+char *strndup(const char *string, size_t count)
+{
+    size_t length = 0;
+    char *duplicate;
+    if (string == NULL) {
+        errno = EINVAL;
+        return NULL;
+    }
+    while (length < count && string[length] != '\0') ++length;
+    duplicate = (char *)malloc(length + 1);
+    if (duplicate == NULL) {
+        errno = ENOMEM;
+        return NULL;
+    }
+    memcpy(duplicate, string, length);
+    duplicate[length] = '\0';
+    return duplicate;
+}
+
 char *_strnset(char *string, int character, size_t count)
 {
     char *cursor;

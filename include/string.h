@@ -76,6 +76,8 @@ char *_strdup(const char *string);
 #if defined(WCRT_POSIX)
 /** @brief Allocates a POSIX duplicate of a string. */
 char *strdup(const char *string);
+/** @brief Allocates a bounded POSIX duplicate of a string. */
+char *strndup(const char *string, size_t count);
 #endif
 /** @brief Sets every character in a string. */
 char *_strset(char *string, int character);

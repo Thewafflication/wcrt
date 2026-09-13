@@ -9,10 +9,14 @@
 
 /** @brief Selected string-duplication signature. */
 typedef char *(*posix_strdup_fn)(const char *);
+/** @brief Selected bounded string-duplication signature. */
+typedef char *(*posix_strndup_fn)(const char *, size_t);
 /** @brief Forces type checking of strdup. */
 static posix_strdup_fn posix_strdup_address = strdup;
+/** @brief Forces type checking of strndup. */
+static posix_strndup_fn posix_strndup_address = strndup;
 
 int main(void)
 {
-    return posix_strdup_address == 0;
+    return posix_strdup_address == 0 || posix_strndup_address == 0;
 }
