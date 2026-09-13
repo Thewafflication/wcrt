@@ -1,0 +1,18 @@
+% TC-0068 fragment; intended for the compatibility test report.
+\def\TCID{TC-0068}
+\def\TCTitle{Selected POSIX filename matching}
+\def\TCPurpose{Verify selector isolation and filename-pattern behavior.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0068}
+\def\TCDesignRef{POSIX.1-2017 fnmatch and ADR-0007.}
+\def\TCFeatureRef{\texttt{fnmatch.h}; matcher; selected and strict fixtures.}
+\def\TCTestTechnique{Interface, equivalence-partition, and boundary testing.}
+\def\TCPreconditions{TinyCC and the WCRT source tree are available.}
+\def\TCEnvironment{TinyCC C89/C99 compilation and Windows execution.}
+\def\TCAssumptions{Case folding uses the selected ASCII mapping.}
+\def\TCInputData{Literal, wildcard, bracket, escaped, path, and hidden names.}
+\def\TCInitialState{No external state is required.}
+\def\TCProcedure{Compile selected and strict headers; execute match cases.}
+\def\TCExpectedResult{Matches and mismatches follow the selected flags.}
+\def\TCPostConditions{Only ignored test outputs remain.}
+\TCTemplate

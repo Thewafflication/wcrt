@@ -12,6 +12,7 @@
 | REQ-0065 | [TC-0065](../../docs/tc-0065-posix-access-mkdir.tex) | `presence/paths.c`, `absence/paths.c`, `paths.c` | Path limits, access, creation, current and absolute paths, strict isolation, allocation, and errors |
 | REQ-0066 | [TC-0066](../../docs/tc-0066-posix-gettimeofday.tex) | `presence/timeval.c`, `absence/timeval.c`, `timeval.c` | Wall-clock seconds and microseconds, strict isolation, C89/C99, and errors |
 | REQ-0067 | [TC-0067](../../docs/tc-0067-descriptor-io.tex) | Microsoft and POSIX `lowio.c` fixtures | Open flags, shared stream/descriptor data and duplicate offsets, independent closure, isolation, and errors |
+| REQ-0068 | [TC-0068](../../docs/tc-0068-posix-fnmatch.tex) | `presence/fnmatch.c`, `absence/fnmatch.c`, `fnmatch.c` | Pattern forms, flags, case folding, path boundaries, periods, and isolation |
 
 The selected profile is a bounded Windows portability layer. It does not
 define `_POSIX_VERSION`, and the manifest does not imply complete POSIX
