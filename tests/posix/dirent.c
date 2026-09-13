@@ -12,6 +12,8 @@ static int find_test_file(DIR *directory)
     while ((entry = readdir(directory)) != NULL) {
         if (strcmp(entry->d_name, "test.exe") == 0) {
             if (entry->d_ino != 0 || entry->d_type != DT_REG) return -1;
+            if (entry->d_namlen != strlen(entry->d_name) ||
+                entry->d_reclen != sizeof(*entry)) return -1;
             return 1;
         }
     }

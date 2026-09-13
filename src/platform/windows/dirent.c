@@ -18,6 +18,8 @@
 #endif
 
 #define WCRT_FILE_ATTRIBUTE_DIRECTORY 0x10UL
+#define WCRT_FILE_ATTRIBUTE_REPARSE_POINT 0x400UL
+#define WCRT_IO_REPARSE_TAG_SYMLINK 0xA000000CUL
 #define WCRT_ERROR_FILE_NOT_FOUND 2UL
 #define WCRT_ERROR_PATH_NOT_FOUND 3UL
 #define WCRT_ERROR_ACCESS_DENIED 5UL
@@ -144,14 +146,21 @@ struct dirent *readdir(DIR *directory)
         return NULL;
     }
     directory->entry.d_ino = 0;
-    directory->entry.d_type =
-        (directory->data.attributes & WCRT_FILE_ATTRIBUTE_DIRECTORY) ?
-        DT_DIR : DT_REG;
+    if ((directory->data.attributes & WCRT_FILE_ATTRIBUTE_REPARSE_POINT) &&
+        directory->data.reserved0 == WCRT_IO_REPARSE_TAG_SYMLINK) {
+        directory->entry.d_type = DT_LNK;
+    } else if (directory->data.attributes & WCRT_FILE_ATTRIBUTE_DIRECTORY) {
+        directory->entry.d_type = DT_DIR;
+    } else {
+        directory->entry.d_type = DT_REG;
+    }
     for (index = 0; index < WCRT_DIRENT_NAME_MAX &&
         directory->data.name[index] != '\0'; ++index) {
         directory->entry.d_name[index] = directory->data.name[index];
     }
     directory->entry.d_name[index] = '\0';
+    directory->entry.d_namlen = (unsigned short)index;
+    directory->entry.d_reclen = (unsigned short)sizeof(directory->entry);
     return &directory->entry;
 }
 

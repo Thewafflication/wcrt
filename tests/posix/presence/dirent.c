@@ -10,7 +10,7 @@
 #ifdef _POSIX_VERSION
 #error A bounded WCRT profile must not advertise _POSIX_VERSION
 #endif
-#if DT_UNKNOWN != 0 || DT_DIR != 4 || DT_REG != 8
+#if DT_UNKNOWN != 0 || DT_DIR != 4 || DT_REG != 8 || DT_LNK != 10
 #error Selected directory entry types have unexpected values
 #endif
 
@@ -20,6 +20,9 @@ typedef char posix_dirent_name_size[
 /** @brief Verifies the inode field precedes the entry name. */
 typedef char posix_dirent_member_order[
     offsetof(struct dirent, d_name) > offsetof(struct dirent, d_ino) ? 1 : -1];
+/** @brief Verifies that fixed records fit their public length field. */
+typedef char posix_dirent_record_size[
+    sizeof(struct dirent) <= 65535 ? 1 : -1];
 
 /** @brief Selected directory-open signature. */
 typedef DIR *(*posix_opendir_fn)(const char *);

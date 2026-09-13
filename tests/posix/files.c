@@ -27,6 +27,8 @@ int main(int argument_count, char **arguments)
 
     if (stat(arguments[1], &status) != 0) return 4;
     if (status.st_size != 5 || !S_ISREG(status.st_mode)) return 5;
+    if (!S_ISFIFO(S_IFIFO) || !S_ISCHR(S_IFCHR) || !S_ISBLK(S_IFBLK) ||
+        !S_ISLNK(S_IFLNK) || !S_ISSOCK(S_IFSOCK)) return 24;
     if ((status.st_mode & S_IRUSR) == 0) return 6;
     if (status.st_dev != 0 || status.st_ino != 0 || status.st_uid != 0 ||
         status.st_gid != 0 || status.st_rdev != 0) {

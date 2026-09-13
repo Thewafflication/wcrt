@@ -22,7 +22,9 @@
 #ifdef _POSIX_VERSION
 #error A bounded WCRT profile must not advertise _POSIX_VERSION
 #endif
-#if S_IFMT != 0xF000U || S_IFDIR != 0x4000U || S_IFREG != 0x8000U
+#if S_IFMT != 0xF000U || S_IFIFO != 0x1000U || S_IFCHR != 0x2000U || \
+    S_IFDIR != 0x4000U || S_IFBLK != 0x6000U || S_IFREG != 0x8000U || \
+    S_IFLNK != 0xA000U || S_IFSOCK != 0xC000U
 #error POSIX file type constants do not match the selected Windows mapping
 #endif
 #if S_IRUSR != 0x0100U || S_IWUSR != 0x0080U || S_IXUSR != 0x0040U
@@ -62,6 +64,10 @@ typedef char posix_directory_test[
 /** @brief Verifies the selected regular-file mode test. */
 typedef char posix_regular_test[
     S_ISREG(S_IFREG) && !S_ISREG(S_IFDIR) ? 1 : -1];
+/** @brief Verifies the additional selected file-type predicates. */
+typedef char posix_additional_type_tests[
+    S_ISFIFO(S_IFIFO) && S_ISCHR(S_IFCHR) && S_ISBLK(S_IFBLK) &&
+    S_ISLNK(S_IFLNK) && S_ISSOCK(S_IFSOCK) ? 1 : -1];
 
 /** @brief Selected stat function signature. */
 typedef int (*posix_stat_fn)(const char *, struct stat *);

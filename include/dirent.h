@@ -16,10 +16,14 @@
 #define DT_DIR 4
 /** @brief Entry names a regular file. */
 #define DT_REG 8
+/** @brief Entry names a symbolic link. */
+#define DT_LNK 10
 
 /** @brief One entry returned by readdir. */
 struct dirent {
     ino_t d_ino; /**< File serial number, or zero when unavailable. */
+    unsigned short d_reclen; /**< Size of this fixed directory record. */
+    unsigned short d_namlen; /**< Byte length of d_name excluding null. */
     unsigned char d_type; /**< Selected DT_* entry type. */
     char d_name[WCRT_DIRENT_NAME_MAX + 1]; /**< Null-terminated name. */
 };

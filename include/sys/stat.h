@@ -33,8 +33,13 @@ struct _stat64 {
 
 #if defined(WCRT_POSIX)
 #define S_IFMT 0xF000U /**< File type mask. */
+#define S_IFIFO 0x1000U /**< Named or anonymous pipe file type. */
+#define S_IFCHR 0x2000U /**< Character-device file type. */
 #define S_IFDIR 0x4000U /**< Directory file type. */
+#define S_IFBLK 0x6000U /**< Block-device file type. */
 #define S_IFREG 0x8000U /**< Regular file type. */
+#define S_IFLNK 0xA000U /**< Symbolic-link file type. */
+#define S_IFSOCK 0xC000U /**< Socket file type. */
 #define S_IRUSR 0x0100U /**< Owner read permission. */
 #define S_IWUSR 0x0080U /**< Owner write permission. */
 #define S_IXUSR 0x0040U /**< Owner execute or search permission. */
@@ -44,6 +49,16 @@ struct _stat64 {
 #define S_ISDIR(mode) (((mode) & S_IFMT) == S_IFDIR)
 /** @brief Determines whether a mode describes a regular file. */
 #define S_ISREG(mode) (((mode) & S_IFMT) == S_IFREG)
+/** @brief Determines whether a mode describes a pipe. */
+#define S_ISFIFO(mode) (((mode) & S_IFMT) == S_IFIFO)
+/** @brief Determines whether a mode describes a character device. */
+#define S_ISCHR(mode) (((mode) & S_IFMT) == S_IFCHR)
+/** @brief Determines whether a mode describes a block device. */
+#define S_ISBLK(mode) (((mode) & S_IFMT) == S_IFBLK)
+/** @brief Determines whether a mode describes a symbolic link. */
+#define S_ISLNK(mode) (((mode) & S_IFMT) == S_IFLNK)
+/** @brief Determines whether a mode describes a socket. */
+#define S_ISSOCK(mode) (((mode) & S_IFMT) == S_IFSOCK)
 
 /** @brief POSIX-facing file metadata with documented Windows mappings. */
 struct stat {

@@ -19,15 +19,19 @@ location, and thread-safe entry retrieval are excluded.
 
 - `<dirent.h>` shall expose its types, constants, and functions only when
   `WCRT_POSIX` is defined and shall not advertise `_POSIX_VERSION`.
-- `DIR` shall be opaque. `struct dirent` shall provide `d_ino`, `d_type`, and
-  a null-terminated `d_name` capable of holding a 255-byte Windows component.
+- `DIR` shall be opaque. `struct dirent` shall provide `d_ino`, `d_reclen`,
+  `d_namlen`, `d_type`, and a null-terminated `d_name` capable of holding a
+  255-byte Windows component. `d_reclen` shall describe the fixed public record
+  and `d_namlen` shall exclude the terminating null.
 - `opendir` shall open an existing directory or return null with `errno` set.
 - `readdir` shall return successive entries using stream-owned storage. At end
   of stream it shall return null without changing `errno`.
 - `rewinddir` shall reposition a valid stream to its first entry, and
   `closedir` shall release both the Windows search handle and WCRT storage.
 - Windows directory and non-directory entries shall map to `DT_DIR` and
-  `DT_REG`; unavailable inode values shall be zero.
+  `DT_REG`. Reparse points carrying the Windows symbolic-link tag shall map to
+  `DT_LNK`; other reparse-point kinds retain their ordinary directory or file
+  classification. Unavailable inode values shall be zero.
 - The implementation shall use Windows 2000-compatible find APIs and preserve
   the existing ISO and Microsoft ABI surfaces.
 

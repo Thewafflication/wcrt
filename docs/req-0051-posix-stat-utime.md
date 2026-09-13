@@ -17,9 +17,8 @@ compatibility with documented Windows metadata deviations
 
 This requirement provides the `WCRT_POSIX`-selected `stat` and `utime`
 interfaces, their required public structures, the status types needed by this
-family, and regular-file/directory mode tests. Descriptor-based functions,
-nanosecond setters, links, native Unix ownership, and other file types are
-excluded.
+family, and portable file-type constants and tests. Descriptor-based functions,
+nanosecond setters, links, and native Unix ownership are excluded.
 
 ## Requirement
 
@@ -31,6 +30,10 @@ excluded.
 - `struct stat` shall expose device, inode, mode, link, owner, group, special
   device, size, and `st_atim`/`st_mtim`/`st_ctim` timestamp members. It shall
   also expose coherent direct seconds fields for WPM migration.
+- `<sys/stat.h>` shall define the customary `S_IFIFO`, `S_IFCHR`, `S_IFBLK`,
+  `S_IFLNK`, and `S_IFSOCK` type values and their corresponding `S_IS*`
+  predicates. A defined type does not imply that path-based `stat` can produce
+  that type on Windows.
 - `stat` shall return zero and fully initialize `struct stat` for a
   representable regular file or directory. It shall report 64-bit size,
   second-resolution times, supported file type and owner-permission bits, one
