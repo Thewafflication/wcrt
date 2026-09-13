@@ -6,6 +6,7 @@
       "CloseHandle",
       "CreateDirectoryA",
       "CreateFileA",
+      "CreatePipe",
       "CreateProcessA",
       "DeleteFileA",
       "DuplicateHandle",

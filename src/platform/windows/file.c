@@ -40,6 +40,7 @@
 #define WCRT_ERROR_BROKEN_PIPE 109UL
 #define WCRT_ERROR_DISK_FULL 112UL
 #define WCRT_ERROR_ALREADY_EXISTS 183UL
+#define WCRT_ERROR_NO_DATA 232UL
 #define WCRT_DUPLICATE_SAME_ACCESS 2UL
 
 __declspec(dllimport) void *WCRT_WINAPI CreateFileA(const char *path,
@@ -65,6 +66,8 @@ __declspec(dllimport) unsigned long WCRT_WINAPI GetLastError(void);
 __declspec(dllimport) int WCRT_WINAPI FlushFileBuffers(void *handle);
 __declspec(dllimport) int WCRT_WINAPI GetConsoleMode(void *handle,
     unsigned long *mode);
+__declspec(dllimport) int WCRT_WINAPI CreatePipe(void **reader, void **writer,
+    void *security, unsigned long size);
 __declspec(dllimport) void *WCRT_WINAPI GetCurrentProcess(void);
 __declspec(dllimport) int WCRT_WINAPI DuplicateHandle(void *source_process,
     void *source, void *target_process, void **target,
@@ -81,7 +84,8 @@ static void wcrt_file_error(unsigned long error)
         error == WCRT_ERROR_ALREADY_EXISTS) errno = EEXIST;
     else if (error == WCRT_ERROR_INVALID_HANDLE) errno = EBADF;
     else if (error == WCRT_ERROR_NOT_ENOUGH_MEMORY) errno = ENOMEM;
-    else if (error == WCRT_ERROR_BROKEN_PIPE) errno = EPIPE;
+    else if (error == WCRT_ERROR_BROKEN_PIPE ||
+        error == WCRT_ERROR_NO_DATA) errno = EPIPE;
     else if (error == WCRT_ERROR_DISK_FULL) errno = ENOSPC;
     else errno = EIO;
 }
@@ -221,6 +225,31 @@ int __wcrt_file_open_directory(FILE *stream, const char *path)
     stream->pushback = EOF;
     stream->wide_pushback = WEOF;
     stream->buffering = _IOFBF;
+    return 0;
+}
+
+int __wcrt_file_create_pipe(FILE *reader, FILE *writer,
+    unsigned int size, int binary)
+{
+    void *read_handle;
+    void *write_handle;
+    unsigned int binary_flag = binary ? WCRT_FILE_BINARY : 0;
+    if (!CreatePipe(&read_handle, &write_handle, NULL, size)) {
+        wcrt_file_error(GetLastError());
+        return -1;
+    }
+    memset(reader, 0, sizeof(*reader));
+    memset(writer, 0, sizeof(*writer));
+    reader->handle = read_handle;
+    reader->flags = WCRT_FILE_OWNED | WCRT_FILE_READ | binary_flag;
+    reader->pushback = EOF;
+    reader->wide_pushback = WEOF;
+    reader->buffering = _IOFBF;
+    writer->handle = write_handle;
+    writer->flags = WCRT_FILE_OWNED | WCRT_FILE_WRITE | binary_flag;
+    writer->pushback = EOF;
+    writer->wide_pushback = WEOF;
+    writer->buffering = _IOFBF;
     return 0;
 }
 

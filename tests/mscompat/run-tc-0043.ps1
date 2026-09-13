@@ -29,7 +29,7 @@ $presence = & $TinyCc @common -c `
 if ($LASTEXITCODE -ne 0) {
     throw "TC-0043 presence build failed:`n$($presence | Out-String)"
 }
-$unimplemented = @('_pipe', '_setmode')
+$unimplemented = @('_setmode')
 $headerText = Get-Content -LiteralPath $header -Raw
 foreach ($name in $unimplemented) {
     if ($headerText -match "(?<![A-Za-z0-9_])$name(?![A-Za-z0-9_])") {

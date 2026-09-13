@@ -13,9 +13,10 @@ static int fsync;
 static int fdopen;
 static int dup;
 static int dup2;
+static int pipe;
 
 int main(void)
 {
     return open + close + read + write + lseek + isatty + fsync + fdopen +
-        dup + dup2;
+        dup + dup2 + pipe;
 }

@@ -12,8 +12,8 @@ Microsoft and selected POSIX spellings
 ## Scope
 
 This requirement provides file-backed descriptor creation, closure, byte I/O,
-positioning, flushing, terminal detection, stream association, and descriptor
-duplication. Pipes, mode changes, and inheritance controls are excluded;
+positioning, flushing, terminal detection, stream association, descriptor
+duplication, and anonymous pipes. Mode changes and inheritance controls are excluded;
 descriptor status is specified by REQ-0049 and REQ-0051.
 
 ## Requirement
@@ -23,6 +23,9 @@ descriptor status is specified by REQ-0049 and REQ-0051.
 - `<io.h>` shall declare `_close`, `_read`, `_write`, `_lseek`, `_tell`,
   `_commit`, `_isatty`, `_fdopen`, `_dup`, and `_dup2` with
   Microsoft-compatible signatures.
+- `<io.h>` shall declare `_pipe`; `<unistd.h>` shall declare selected `pipe`.
+  Each shall return independently closeable read and write descriptors backed
+  by one Windows anonymous pipe. POSIX endpoints shall be binary.
 - Selected `<unistd.h>` and `<stdio.h>` shall declare `close`, `read`, `write`,
   `lseek`, `fsync`, `isatty`, `fdopen`, `dup`, and `dup2` with POSIX-facing
   types.
@@ -42,6 +45,9 @@ descriptor status is specified by REQ-0049 and REQ-0051.
   shall return zero while POSIX `dup2` shall return its target descriptor.
   Duplicating onto an occupied target shall replace it only after native
   duplication succeeds.
+- Empty pipe reads after writer closure shall report end of file. Writes after
+  reader closure shall fail with `EPIPE`; invalid output arrays or text-mode
+  combinations shall fail with `EINVAL`.
 - The implementation shall add only Windows 2000-compatible imports.
 
 ## Verification
@@ -52,8 +58,8 @@ descriptor status is specified by REQ-0049 and REQ-0051.
 
 Tests compile Microsoft, selected POSIX, and strict fixtures in C89 and C99;
 exercise exclusive creation, read/write, shared seeks, flushing, handle lookup,
-terminal detection, `fdopen`, shared duplicate offsets, independent close
-lifetimes, replacement, and errors; and retain the
+terminal detection, `fdopen`, shared duplicate offsets, pipe transfer and
+lifetime, independent close lifetimes, replacement, and errors; and retain the
 multi-architecture import and consumer gates.
 
 ## Relationships
@@ -63,8 +69,8 @@ multi-architecture import and consumer gates.
 
 ## Tailoring
 
-The current descriptor capacity remains `FOPEN_MAX`. Concurrency and pipe
-lifetime require a later shared-state extension.
+The current descriptor capacity remains `FOPEN_MAX`. Concurrency and
+inheritable pipe controls require a later shared-state extension.
 
 ## Implementation Record
 

@@ -23,6 +23,8 @@ static posix_fdopen_fn posix_fdopen_address = fdopen;
 static posix_descriptor_fn posix_dup_address = dup;
 typedef int (*posix_dup2_fn)(int, int);
 static posix_dup2_fn posix_dup2_address = dup2;
+typedef int (*posix_pipe_fn)(int [2]);
+static posix_pipe_fn posix_pipe_address = pipe;
 
 int main(void)
 {
@@ -30,5 +32,6 @@ int main(void)
         posix_read_address == 0 || posix_write_address == 0 ||
         posix_lseek_address == 0 || posix_isatty_address == 0 ||
         posix_fsync_address == 0 || posix_fdopen_address == 0 ||
-        posix_dup_address == 0 || posix_dup2_address == 0;
+        posix_dup_address == 0 || posix_dup2_address == 0 ||
+        posix_pipe_address == 0;
 }

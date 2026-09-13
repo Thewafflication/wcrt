@@ -433,6 +433,43 @@ int dup2(int descriptor, int target)
     return _dup2(descriptor, target) == 0 ? target : -1;
 }
 
+int _pipe(int descriptors[2], unsigned int size, int text_mode)
+{
+    FILE *reader = NULL;
+    FILE *writer = NULL;
+    int index;
+    if (descriptors == NULL ||
+        (text_mode & ~(_O_TEXT | _O_BINARY)) != 0 ||
+        ((text_mode & _O_TEXT) && (text_mode & _O_BINARY))) {
+        errno = EINVAL;
+        return -1;
+    }
+    for (index = 0; index < FOPEN_MAX; ++index) {
+        if (wcrt_streams[index].handle != NULL) continue;
+        if (reader == NULL) reader = &wcrt_streams[index];
+        else {
+            writer = &wcrt_streams[index];
+            break;
+        }
+    }
+    if (writer == NULL) {
+        errno = EMFILE;
+        return -1;
+    }
+    if (__wcrt_file_create_pipe(reader, writer, size,
+        (text_mode & _O_BINARY) != 0) != 0) return -1;
+    reader->descriptor = (int)(reader - wcrt_streams) + 3;
+    writer->descriptor = (int)(writer - wcrt_streams) + 3;
+    descriptors[0] = reader->descriptor;
+    descriptors[1] = writer->descriptor;
+    return 0;
+}
+
+int pipe(int descriptors[2])
+{
+    return _pipe(descriptors, 0, _O_BINARY);
+}
+
 int fflush(FILE *stream)
 {
     (void)stream;

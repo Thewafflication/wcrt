@@ -40,6 +40,8 @@ struct wcrt_file {
 int __wcrt_file_open(FILE *stream, const char *path, const char *mode);
 int __wcrt_file_open_flags(FILE *stream, const char *path, int flags);
 int __wcrt_file_open_directory(FILE *stream, const char *path);
+int __wcrt_file_create_pipe(FILE *reader, FILE *writer,
+    unsigned int size, int binary);
 int __wcrt_file_close(FILE *stream);
 int __wcrt_file_read(FILE *stream, void *buffer, size_t count,
     size_t *transferred);

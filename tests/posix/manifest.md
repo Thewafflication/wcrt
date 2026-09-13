@@ -11,7 +11,7 @@
 | REQ-0061 | [TC-0061](../../docs/tc-0061-posix-unlink.tex) | `presence/unlink.c`, `absence/unlink.c`, `unlink.c` | Declaration, strict isolation, C89/C99, removal, missing and null paths, and imports |
 | REQ-0065 | [TC-0065](../../docs/tc-0065-posix-access-mkdir.tex) | `presence/paths.c`, `absence/paths.c`, `paths.c` | Path limits, access, creation, current and absolute paths, strict isolation, allocation, and errors |
 | REQ-0066 | [TC-0066](../../docs/tc-0066-posix-gettimeofday.tex) | `presence/timeval.c`, `absence/timeval.c`, `timeval.c` | Wall-clock seconds and microseconds, strict isolation, C89/C99, and errors |
-| REQ-0067 | [TC-0067](../../docs/tc-0067-descriptor-io.tex) | Microsoft and POSIX `lowio.c` fixtures | Open flags, shared stream/descriptor data and duplicate offsets, independent closure, isolation, and errors |
+| REQ-0067 | [TC-0067](../../docs/tc-0067-descriptor-io.tex) | Microsoft and POSIX `lowio.c` fixtures | Open flags, shared data and offsets, duplication, pipe endpoints, closure, isolation, and errors |
 | REQ-0068 | [TC-0068](../../docs/tc-0068-posix-fnmatch.tex) | `presence/fnmatch.c`, `absence/fnmatch.c`, `fnmatch.c` | Pattern forms, flags, case folding, path boundaries, periods, and isolation |
 | REQ-0069 | [TC-0069](../../docs/tc-0069-posix-getopt.tex) | `presence/getopt.c`, `absence/getopt.c`, `getopt.c` | Clusters, arguments, operands, long names, ambiguity, reset, flags, and isolation |
 

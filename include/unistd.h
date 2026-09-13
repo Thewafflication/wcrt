@@ -28,6 +28,7 @@ int isatty(int descriptor);
 int fsync(int descriptor);
 int dup(int descriptor);
 int dup2(int descriptor, int target);
+int pipe(int descriptors[2]);
 
 #ifdef __cplusplus
 }

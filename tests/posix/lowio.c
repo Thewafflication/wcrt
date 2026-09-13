@@ -71,6 +71,26 @@ static int test_posix(const char *path)
     return 0;
 }
 
+static int test_pipes(void)
+{
+    int descriptors[2];
+    char buffer[5] = {0};
+    if (_pipe(descriptors, 128, _O_BINARY) != 0) return 40;
+    if (_write(descriptors[1], "pipe", 4) != 4 ||
+        _read(descriptors[0], buffer, 4) != 4 ||
+        memcmp(buffer, "pipe", 4) != 0) return 41;
+    if (_close(descriptors[0]) != 0) return 42;
+    errno = 0;
+    if (_write(descriptors[1], "x", 1) != -1 || errno != EPIPE) return 43;
+    if (_close(descriptors[1]) != 0) return 44;
+    if (pipe(descriptors) != 0 || write(descriptors[1], "ok", 2) != 2 ||
+        read(descriptors[0], buffer, 2) != 2) return 45;
+    if (close(descriptors[0]) != 0 || close(descriptors[1]) != 0) return 46;
+    errno = 0;
+    if (_pipe(NULL, 0, _O_BINARY) != -1 || errno != EINVAL) return 47;
+    return 0;
+}
+
 int main(int argument_count, char **arguments)
 {
     int result;
@@ -78,6 +98,7 @@ int main(int argument_count, char **arguments)
     result = test_microsoft(arguments[1]);
     if (result != 0) return result;
     result = test_posix(arguments[2]);
+    if (result == 0) result = test_pipes();
     remove(arguments[1]);
     remove(arguments[2]);
     return result;

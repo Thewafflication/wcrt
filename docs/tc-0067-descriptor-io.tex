@@ -2,7 +2,7 @@
 \def\TCID{TC-0067}
 \def\TCTitle{Shared descriptor input and output}
 \def\TCPurpose{Verify Microsoft and selected POSIX descriptor declarations,
-shared stream state, data transfer, positioning, duplication, closure, and
+shared stream state, data transfer, positioning, duplication, pipes, closure, and
 errors.}
 \def\TCPriority{\TCPriorityCritical}
 \def\TCRequirementRef{REQ-0067}
@@ -19,10 +19,11 @@ and closed descriptors, and selected and strict headers.}
 \def\TCInitialState{Neither target path exists.}
 \def\TCProcedure{Compile all header profiles; open exclusively; write, seek,
 read, flush, and resolve handles; associate streams; duplicate onto free and
-occupied descriptor slots; close either duplicate; exercise the POSIX
+occupied descriptor slots; close either duplicate; transfer through Microsoft
+and POSIX pipes and close each endpoint; exercise the POSIX
 spellings; remove targets.}
 \def\TCExpectedResult{Both profiles share data and offsets, strict names remain
-absent, duplicates share offsets but have independent close lifetimes, and
+absent, duplicates share offsets, pipes preserve endpoint lifetimes, and
 invalid or closed descriptors report \texttt{EBADF}.}
 \def\TCPostConditions{Both test files are removed and descriptors are closed.}
 \TCTemplate
