@@ -12,7 +12,8 @@
 \def\TCPreconditions{TinyCC is available in \texttt{PATH}; WCRT public headers exist under \texttt{include}.}
 \def\TCEnvironment{C89 presence compilation plus behavioral execution against WCRT with TinyCC and against Microsoft UCRT with MSVC.}
 \def\TCAssumptions{WCRT currently supports only the required \texttt{C} locale; function forms guarantee single evaluation.}
-\def\TCInputData{Typed references to all 13 functions, \texttt{EOF}, and every integer from 0 through 255.}
+\def\TCInputData{Typed references to all 13 C89 functions and
+\texttt{\_isascii}, \texttt{EOF}, and every integer from 0 through 255.}
 \def\TCInitialState{No locale or runtime state is required.}
 \def\TCProcedure{\par\begin{enumerate}
 \item Compile \texttt{tests/c89/presence/ctype.c} as C89 without linking.
@@ -20,6 +21,8 @@
 \item Execute classification and case-mapping checks for \texttt{EOF} and every value from 0 through 255.
 \item Verify required class relationships and unchanged unmapped values.
 \end{enumerate}}
-\def\TCExpectedResult{Both targets expose all 13 addressable functions and produce the required \texttt{C}-locale result for every tested input.}
+\def\TCExpectedResult{Both targets expose the required addressable functions
+and produce the required \texttt{C}-locale and ASCII-range result for every
+tested input.}
 \def\TCPostConditions{Generated executables and objects remain under ignored build and evidence directories.}
 \TCTemplate

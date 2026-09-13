@@ -2,6 +2,7 @@
 #define WCRT_POSIX 1
 #include <errno.h>
 #include <time.h>
+#include <ctype.h>
 #include <errno.h>
 #include <time.h>
 
@@ -17,6 +18,12 @@
 #ifdef _POSIX_VERSION
 #error A bounded WCRT profile must not advertise _POSIX_VERSION
 #endif
+typedef int (*posix_isascii_fn)(int);
+static posix_isascii_fn posix_isascii_address = isascii;
+int wcrt_posix_profile_probe(void)
+{
+    return posix_isascii_address == 0;
+}
 #if EPERM != 1
 #error EPERM does not match the selected Windows ABI
 #endif

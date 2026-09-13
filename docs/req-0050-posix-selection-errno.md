@@ -36,6 +36,9 @@ supported Windows architectures. It does not assert POSIX conformance or add
   names.
 - WCRT shall not define `_POSIX_VERSION` for this bounded compatibility
   profile.
+- `<ctype.h>` shall expose `isascii` only under `WCRT_POSIX`, backed by the
+  Microsoft-compatible `_isascii` spelling, and classify exactly 0 through
+  127 as ASCII.
 - `<time.h>` shall define `_TIME_T_DEFINED` after declaring WCRT's `time_t` so
   subsequent Microsoft/TinyCC headers do not redeclare the type.
 - All affected headers shall remain self-contained, repeatable, and valid in
@@ -54,8 +57,9 @@ shims while preserving strict ISO isolation and Windows numeric compatibility.
 **References:** `TC-0050`
 
 The test compiles repeated-inclusion fixtures with and without `WCRT_POSIX`,
-checks every numeric value and the time-type guard, and proves that the strict
-profile contains neither the POSIX-selected error names nor `_POSIX_VERSION`.
+checks every numeric value, the time-type guard, and the selected `isascii`
+declaration, and proves that the strict profile contains neither the
+POSIX-selected names nor `_POSIX_VERSION`.
 
 ## Relationships
 
@@ -73,3 +77,5 @@ the selected Microsoft/TinyCC numeric ABI where POSIX specifies no number.
 `include/errno.h` gates the POSIX-only names with `WCRT_POSIX`, exposes the
 shared Microsoft-compatible filesystem and descriptor names, and
 `include/time.h` publishes the interoperation guard after `time_t`.
+`include/ctype.h` gates `isascii` while retaining `_isascii` for Microsoft
+compatibility.

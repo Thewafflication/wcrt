@@ -20,6 +20,7 @@
 | --- | --- |
 | §4.3.1 Character testing | `isalnum`, `isalpha`, `iscntrl`, `isdigit`, `isgraph`, `islower`, `isprint`, `ispunct`, `isspace`, `isupper`, `isxdigit` |
 | §4.3.2 Case mapping | `tolower`, `toupper` |
+| Microsoft compatibility | `_isascii` |
 
 ## Requirement
 
@@ -34,6 +35,8 @@
 - Results shall follow the active `LC_CTYPE` locale.
 - Macro forms may evaluate their arguments only once and addressable function
   forms shall be supplied where §4.1.6 requires them.
+- `_isascii` shall be addressable and return nonzero exactly for values from
+  zero through 127. The selected `isascii` spelling is governed by REQ-0050.
 
 ## Rationale
 
@@ -63,12 +66,13 @@ this record and is verified collectively by `TC-0002`.
 
 ## Implementation Record
 
-- `include/ctype.h` declares all 13 addressable C89 functions. Function forms
-  avoid macro multiple-evaluation hazards.
+- `include/ctype.h` declares all 13 addressable C89 functions plus the
+  Microsoft-compatible `_isascii`. Function forms avoid macro
+  multiple-evaluation hazards.
 - `src/ctype.c` implements the complete required execution-character-set
   classification and mapping for the `C` locale.
 - WCRT currently supports only the `C` locale, so it is the complete active
   `LC_CTYPE` domain until REQ-0006 adds further locales.
 - `tests/c89/ctype.c` checks `EOF`, every value from 0 through 255, all class
-  relationships, and both case mappings.
+  relationships, both case mappings, and the complete `_isascii` range.
 - `tests/c89/run-tc-0002.ps1` builds and executes TC-0002 with TinyCC.

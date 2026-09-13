@@ -67,6 +67,7 @@ static int check_value(int value)
     if (!same_truth(isspace(value), space)) return 9;
     if (!same_truth(isupper(value), upper)) return 10;
     if (!same_truth(isxdigit(value), xdigit)) return 11;
+    if (!same_truth(_isascii(value), value >= 0 && value <= 0x7f)) return 14;
     if (tolower(value) != mapped_lower) return 12;
     if (toupper(value) != mapped_upper) return 13;
     return 0;

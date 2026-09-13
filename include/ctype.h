@@ -43,6 +43,13 @@ int isupper(int character);
 /** @brief Tests whether a character is a hexadecimal digit. */
 int isxdigit(int character);
 
+/** @brief Tests whether a value belongs to the seven-bit ASCII range. */
+int _isascii(int character);
+#if defined(WCRT_POSIX)
+/** @brief Selected POSIX spelling of the ASCII-range test. */
+int isascii(int character);
+#endif
+
 #if !defined(WCRT_C89) && defined(__STDC_VERSION__) && \
     __STDC_VERSION__ >= 199901L
 /** @brief Tests whether a character is a space or horizontal tab. */

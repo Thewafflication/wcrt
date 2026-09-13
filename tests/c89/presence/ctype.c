@@ -10,7 +10,7 @@ typedef int (*wcrt_ctype_fn)(int);
 static wcrt_ctype_fn wcrt_ctype_functions[] = {
     (isalnum), (isalpha), (iscntrl), (isdigit), (isgraph), (islower),
     (isprint), (ispunct), (isspace), (isupper), (isxdigit),
-    (tolower), (toupper)
+    (_isascii), (tolower), (toupper)
 };
 
 static int wcrt_ctype_function_count =

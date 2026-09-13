@@ -1,6 +1,7 @@
 /** @file profile.c @brief Checks strict isolation of POSIX error names. */
 #include <errno.h>
 #include <time.h>
+#include <ctype.h>
 #include <errno.h>
 #include <time.h>
 
@@ -28,3 +29,8 @@
 #ifdef _POSIX_VERSION
 #error The strict WCRT profile advertised _POSIX_VERSION
 #endif
+static int isascii;
+int wcrt_strict_profile_probe(void)
+{
+    return isascii;
+}

@@ -3,6 +3,8 @@
  * @brief Implements C89 character handling for the C locale.
  */
 
+#define WCRT_POSIX 1
+
 #include <ctype.h>
 
 /** @brief Implements the public islower contract. */
@@ -78,6 +80,16 @@ int isxdigit(int character)
     return isdigit(character) ||
         (character >= 'a' && character <= 'f') ||
         (character >= 'A' && character <= 'F');
+}
+
+int _isascii(int character)
+{
+    return character >= 0 && character <= 0x7f;
+}
+
+int isascii(int character)
+{
+    return _isascii(character);
 }
 
 /** @brief Implements the public tolower contract. */
