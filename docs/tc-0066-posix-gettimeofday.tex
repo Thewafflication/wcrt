@@ -1,0 +1,22 @@
+% TC-0066 fragment; intended for the compatibility test report.
+\def\TCID{TC-0066}
+\def\TCTitle{POSIX wall-clock time}
+\def\TCPurpose{Verify selected wall-clock declarations, isolation, precision,
+range, and invalid arguments.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0066}
+\def\TCDesignRef{POSIX.1-2017 gettimeofday and the Windows FILETIME epoch.}
+\def\TCFeatureRef{\texttt{include/sys/time.h}; Windows clock backend; selected,
+strict, and behavior fixtures; \texttt{tests/posix/run-tc-0066.ps1}.}
+\def\TCTestTechnique{Interface, range, temporal-boundary, and error testing.}
+\def\TCPreconditions{WCRT wall-clock support is implemented.}
+\def\TCEnvironment{TinyCC C89/C99 compilation and native Windows execution.}
+\def\TCAssumptions{The wall clock does not move outside the test tolerance.}
+\def\TCInputData{Current time, an ignored timezone pointer, and null output.}
+\def\TCInitialState{No time state is retained.}
+\def\TCProcedure{Compile selected and strict fixtures; sample wall time; compare
+seconds with \texttt{time}; check microseconds; pass null.}
+\def\TCExpectedResult{The selected time is current and normalized; null fails
+with \texttt{EINVAL}; strict headers expose no interface.}
+\def\TCPostConditions{No persistent state changes.}
+\TCTemplate

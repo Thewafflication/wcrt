@@ -3,6 +3,11 @@
  * @brief Implements wall and process clocks with Windows FILETIME APIs.
  */
 
+#define WCRT_POSIX 1
+
+#include <errno.h>
+#include <sys/time.h>
+
 #include "../../internal/time.h"
 
 #if defined(__TINYC__) || defined(__GNUC__)
@@ -50,6 +55,24 @@ time_t __wcrt_wall_time(void)
     GetSystemTimeAsFileTime(&value);
     return (time_t)((wcrt_file_ticks(&value) - WCRT_EPOCH_TICKS) /
         10000000ULL);
+}
+
+int gettimeofday(struct timeval *time_value, void *timezone)
+{
+    struct wcrt_file_time value;
+    unsigned long long ticks;
+    (void)timezone;
+    if (time_value == NULL) {
+        errno = EINVAL;
+        return -1;
+    }
+    GetSystemTimeAsFileTime(&value);
+    ticks = wcrt_file_ticks(&value);
+    if (ticks < WCRT_EPOCH_TICKS) ticks = WCRT_EPOCH_TICKS;
+    ticks -= WCRT_EPOCH_TICKS;
+    time_value->tv_sec = (time_t)(ticks / 10000000ULL);
+    time_value->tv_usec = (suseconds_t)((ticks % 10000000ULL) / 10ULL);
+    return 0;
 }
 
 clock_t __wcrt_processor_clock(void)
