@@ -12,6 +12,8 @@ extern "C" {
 
 /** @brief Creates one directory. */
 int _mkdir(const char *path);
+/** @brief Returns the current narrow working directory. */
+char *_getcwd(char *buffer, int size);
 
 #ifdef __cplusplus
 }

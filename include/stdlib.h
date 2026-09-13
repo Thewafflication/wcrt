@@ -54,6 +54,12 @@ void abort(void);
 int atexit(void (*function)(void));
 void exit(int status);
 char *getenv(const char *name);
+/** @brief Resolves a narrow path to an absolute Windows path. */
+char *_fullpath(char *absolute, const char *relative, size_t size);
+#if defined(WCRT_POSIX)
+/** @brief Resolves an existing path to a selected absolute representation. */
+char *realpath(const char *path, char *resolved);
+#endif
 int system(const char *command);
 void *bsearch(const void *key, const void *base, size_t count, size_t size,
     int (*compare)(const void *, const void *));

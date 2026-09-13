@@ -1,11 +1,12 @@
 % TC-0065 fragment; intended for the compatibility test report.
 \def\TCID{TC-0065}
-\def\TCTitle{POSIX path access and directory creation}
-\def\TCPurpose{Verify selector-gated \texttt{access} and \texttt{mkdir},
-strict isolation, shared Windows behavior, and deterministic errors.}
+\def\TCTitle{Selected POSIX path and directory adapters}
+\def\TCPurpose{Verify selector-gated \texttt{access}, \texttt{mkdir},
+\texttt{getcwd}, and \texttt{realpath}, strict isolation, allocation, shared
+Windows behavior, and deterministic errors.}
 \def\TCPriority{\TCPriorityHigh}
 \def\TCRequirementRef{REQ-0065}
-\def\TCDesignRef{ADR-0007 and POSIX.1-2017 access and mkdir.}
+\def\TCDesignRef{ADR-0007 and POSIX.1-2017 path and directory interfaces.}
 \def\TCFeatureRef{Selected headers; POSIX file adapter; selected, strict, and
 behavior fixtures; \texttt{tests/posix/run-tc-0065.ps1}.}
 \def\TCTestTechnique{Interface, isolation, state-transition, and error testing.}
@@ -13,10 +14,12 @@ behavior fixtures; \texttt{tests/posix/run-tc-0065.ps1}.}
 \def\TCEnvironment{TinyCC C89/C99 compilation and native Windows execution.}
 \def\TCAssumptions{The test build directory permits file and directory creation.}
 \def\TCInputData{A regular file, new directory, missing parent, invalid access
-mode, null path, and repeated selected and strict header inclusion.}
+mode, null path, caller and allocated path buffers, and repeated selected and
+strict header inclusion.}
 \def\TCInitialState{The target file and directory do not exist.}
 \def\TCProcedure{Compile selected and strict fixtures; test access modes; remove
-the file; create the directory; retry it; test missing and invalid inputs.}
+the file; resolve current and absolute paths; exercise allocated results;
+create the directory; retry it; test missing and invalid inputs.}
 \def\TCExpectedResult{Adapters remain selected, valid operations succeed, and
 failures report the shared deterministic errors.}
 \def\TCPostConditions{The runner removes the created directory.}

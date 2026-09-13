@@ -1,8 +1,8 @@
 % TC-0064 fragment; intended for the compatibility test report.
 \def\TCID{TC-0064}
-\def\TCTitle{Microsoft directory creation}
-\def\TCPurpose{Verify declaration, creation, existing-target, missing-parent,
-null-argument, and legacy-compatible import behavior of \texttt{\_mkdir}.}
+\def\TCTitle{Microsoft directory and absolute-path adapters}
+\def\TCPurpose{Verify directory creation, current-directory and absolute-path
+queries, allocation, range errors, and legacy-compatible imports.}
 \def\TCPriority{\TCPriorityHigh}
 \def\TCRequirementRef{REQ-0064}
 \def\TCDesignRef{Microsoft CRT directory and Windows error contracts.}
@@ -13,11 +13,13 @@ x86 import audit.}
 \def\TCPreconditions{A writable controlled build directory exists.}
 \def\TCEnvironment{TinyCC compilation and native Windows execution.}
 \def\TCAssumptions{The controlled target and missing parent do not exist.}
-\def\TCInputData{New, existing, missing-parent, and null paths.}
+\def\TCInputData{New, existing, missing-parent, relative, and null paths;
+caller, undersized, and allocated output buffers.}
 \def\TCInitialState{The target directory does not exist.}
 \def\TCProcedure{Compile the exact type; create the target; repeat creation;
-try a missing parent and null path; audit imports; remove the target.}
-\def\TCExpectedResult{Creation succeeds once and all rejected inputs report
-their controlled errno results without new legacy imports.}
+try a missing parent and null path; query and allocate current and absolute
+paths; test small buffers; audit imports; remove the target.}
+\def\TCExpectedResult{Creation succeeds once, path results are absolute and
+owned as documented, and rejected inputs report controlled errors.}
 \def\TCPostConditions{The target directory does not exist.}
 \TCTemplate

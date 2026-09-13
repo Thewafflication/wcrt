@@ -3,6 +3,7 @@
 #include <limits.h>
 #include <sys/param.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 #ifndef MAX_PATH
 #error The Microsoft path limit is missing
@@ -18,8 +19,10 @@
 
 static int access;
 static int mkdir;
+static int getcwd;
+static int realpath;
 
 int main(void)
 {
-    return access + mkdir;
+    return access + mkdir + getcwd + realpath;
 }

@@ -96,7 +96,7 @@ that compatibility behavior cannot alter a standard function's contract.
 | [REQ-0057](req-0057-ms-memory-case.md) | [TC-0057](tc-0057-ms-memory-case.tex) | `<string.h>` | Microsoft CRT | Case-insensitive memory comparison |
 | [REQ-0062](req-0062-ms-unlink.md) | [TC-0062](tc-0062-ms-unlink.tex) | `<io.h>` | Microsoft CRT | Filesystem-name removal |
 | [REQ-0063](req-0063-ms-access.md) | [TC-0063](tc-0063-ms-access.tex) | `<io.h>` | Microsoft CRT | Path accessibility checks |
-| [REQ-0064](req-0064-ms-mkdir.md) | [TC-0064](tc-0064-ms-mkdir.tex) | `<direct.h>` | Microsoft CRT | Directory creation |
+| [REQ-0064](req-0064-ms-mkdir.md) | [TC-0064](tc-0064-ms-mkdir.tex) | `<direct.h>`, `<stdlib.h>` | Microsoft CRT | Directory creation, current directory, and absolute paths |
 
 ## POSIX compatibility extensions
 
@@ -113,7 +113,7 @@ conforms to POSIX.1-2017.
 | [REQ-0059](req-0059-posix-strdup.md) | [TC-0059](tc-0059-posix-strdup.tex) | `<string.h>` | POSIX.1-2017 | Selected allocated string duplication |
 | [REQ-0060](req-0060-posix-getpid.md) | [TC-0060](tc-0060-posix-getpid.tex) | `<sys/types.h>`, `<unistd.h>` | POSIX.1-2017 | Selected process identification |
 | [REQ-0061](req-0061-posix-unlink.md) | [TC-0061](tc-0061-posix-unlink.tex) | `<unistd.h>` | POSIX.1-2017 with Windows mapping | Selected filesystem-name removal |
-| [REQ-0065](req-0065-posix-access-mkdir.md) | [TC-0065](tc-0065-posix-access-mkdir.tex) | `<unistd.h>`, `<sys/stat.h>` | POSIX.1-2017 with Windows mapping | Selected path access and directory creation |
+| [REQ-0065](req-0065-posix-access-mkdir.md) | [TC-0065](tc-0065-posix-access-mkdir.tex) | `<unistd.h>`, `<stdlib.h>`, `<sys/stat.h>` | POSIX.1-2017 with Windows mapping | Selected access, creation, current directory, and absolute paths |
 | [REQ-0066](req-0066-posix-gettimeofday.md) | [TC-0066](tc-0066-posix-gettimeofday.tex) | `<sys/time.h>` | POSIX.1-2017 with Windows mapping | Selected microsecond wall-clock time |
 | [REQ-0067](req-0067-descriptor-io.md) | [TC-0067](tc-0067-descriptor-io.tex) | `<fcntl.h>`, `<io.h>`, `<unistd.h>`, `<stdio.h>` | Microsoft CRT and POSIX.1-2017 | Shared descriptor input and output |
 

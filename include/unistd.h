@@ -14,6 +14,8 @@ extern "C" {
 
 /** @brief Returns the calling process identifier. */
 pid_t getpid(void);
+/** @brief Returns the current working directory. */
+char *getcwd(char *buffer, size_t size);
 /** @brief Removes one filesystem name. */
 int unlink(const char *path);
 /** @brief Tests path accessibility. */
