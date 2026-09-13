@@ -38,6 +38,7 @@ struct wcrt_file {
 };
 
 int __wcrt_file_open(FILE *stream, const char *path, const char *mode);
+int __wcrt_file_open_flags(FILE *stream, const char *path, int flags);
 int __wcrt_file_close(FILE *stream);
 int __wcrt_file_read(FILE *stream, void *buffer, size_t count,
     size_t *transferred);
@@ -45,6 +46,8 @@ int __wcrt_file_write(FILE *stream, const void *buffer, size_t count,
     size_t *transferred);
 int __wcrt_file_seek(FILE *stream, long long offset, int origin,
     long long *position);
+int __wcrt_file_flush(FILE *stream);
+int __wcrt_file_is_terminal(FILE *stream);
 int __wcrt_file_remove(const char *path);
 int __wcrt_file_rename(const char *old_path, const char *new_path);
 int __wcrt_file_temporary(char *path);

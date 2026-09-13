@@ -6,6 +6,8 @@
 #ifndef WCRT_IO_H
 #define WCRT_IO_H
 
+#include <stdio.h>
+
 #if defined(__x86_64__) || defined(_M_X64) || defined(__aarch64__) || \
     defined(_M_ARM64)
 typedef long long __wcrt_intptr_t;
@@ -23,6 +25,14 @@ int _unlink(const char *path);
 int _access(const char *path, int mode);
 /** @brief Returns the native Windows handle behind a WCRT descriptor. */
 __wcrt_intptr_t _get_osfhandle(int descriptor);
+int _close(int descriptor);
+int _read(int descriptor, void *buffer, unsigned int count);
+int _write(int descriptor, const void *buffer, unsigned int count);
+long _lseek(int descriptor, long offset, int origin);
+long _tell(int descriptor);
+int _commit(int descriptor);
+int _isatty(int descriptor);
+FILE *_fdopen(int descriptor, const char *mode);
 
 #ifdef __cplusplus
 }

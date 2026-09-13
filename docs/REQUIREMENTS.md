@@ -115,6 +115,7 @@ conforms to POSIX.1-2017.
 | [REQ-0061](req-0061-posix-unlink.md) | [TC-0061](tc-0061-posix-unlink.tex) | `<unistd.h>` | POSIX.1-2017 with Windows mapping | Selected filesystem-name removal |
 | [REQ-0065](req-0065-posix-access-mkdir.md) | [TC-0065](tc-0065-posix-access-mkdir.tex) | `<unistd.h>`, `<sys/stat.h>` | POSIX.1-2017 with Windows mapping | Selected path access and directory creation |
 | [REQ-0066](req-0066-posix-gettimeofday.md) | [TC-0066](tc-0066-posix-gettimeofday.tex) | `<sys/time.h>` | POSIX.1-2017 with Windows mapping | Selected microsecond wall-clock time |
+| [REQ-0067](req-0067-descriptor-io.md) | [TC-0067](tc-0067-descriptor-io.tex) | `<fcntl.h>`, `<io.h>`, `<unistd.h>`, `<stdio.h>` | Microsoft CRT and POSIX.1-2017 | Shared descriptor input and output |
 
 ## Shared acceptance gates
 

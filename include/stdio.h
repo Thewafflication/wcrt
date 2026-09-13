@@ -90,6 +90,8 @@ int _fileno(FILE *stream);
 #if defined(WCRT_POSIX)
 /** @brief Returns the descriptor associated with an open stream. */
 int fileno(FILE *stream);
+/** @brief Associates a stream interface with an open descriptor. */
+FILE *fdopen(int descriptor, const char *mode);
 #endif
 int fgetc(FILE *stream);
 char *fgets(char *WCRT_RESTRICT destination, int count,

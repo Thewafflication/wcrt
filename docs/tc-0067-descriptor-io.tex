@@ -1,0 +1,25 @@
+% TC-0067 fragment; intended for the compatibility test report.
+\def\TCID{TC-0067}
+\def\TCTitle{Shared descriptor input and output}
+\def\TCPurpose{Verify Microsoft and selected POSIX descriptor declarations,
+shared stream state, data transfer, positioning, closure, and errors.}
+\def\TCPriority{\TCPriorityCritical}
+\def\TCRequirementRef{REQ-0067}
+\def\TCDesignRef{WCRT 1.1.0 R2; Microsoft low-level I/O; POSIX.1-2017.}
+\def\TCFeatureRef{\texttt{fcntl.h}; \texttt{io.h}; \texttt{unistd.h};
+\texttt{stdio.h}; stream core; Windows file backend; descriptor fixtures.}
+\def\TCTestTechnique{Interface, isolation, state-transition, boundary, and
+error testing.}
+\def\TCPreconditions{The test build directory permits file creation.}
+\def\TCEnvironment{TinyCC C89/C99 compilation and native Windows execution.}
+\def\TCAssumptions{Test files are ordinary disk files and not terminals.}
+\def\TCInputData{Two new paths, binary payloads, open flags, offsets, invalid
+and closed descriptors, and selected and strict headers.}
+\def\TCInitialState{Neither target path exists.}
+\def\TCProcedure{Compile all header profiles; open exclusively; write, seek,
+read, flush, and resolve handles; associate streams; close and retry; exercise
+the POSIX spellings; remove targets.}
+\def\TCExpectedResult{Both profiles share data and offsets, strict names remain
+absent, and invalid or closed descriptors report \texttt{EBADF}.}
+\def\TCPostConditions{Both test files are removed and descriptors are closed.}
+\TCTemplate

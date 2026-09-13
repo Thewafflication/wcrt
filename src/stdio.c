@@ -3,10 +3,14 @@
  * @brief Implements C89 streams, files, and unformatted input and output.
  */
 
+#define WCRT_POSIX 1
+
 #include <errno.h>
+#include <fcntl.h>
 #include <io.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "internal/file.h"
 
@@ -71,6 +75,21 @@ static FILE *wcrt_allocate_stream(void)
         }
     }
     return NULL;
+}
+
+/** @brief Resolves an open WCRT descriptor to its shared stream slot. */
+static FILE *wcrt_descriptor_stream(int descriptor)
+{
+    FILE *stream;
+    if (descriptor == 0) stream = stdin;
+    else if (descriptor == 1) stream = stdout;
+    else if (descriptor == 2) stream = stderr;
+    else if (descriptor >= 3 && descriptor < FOPEN_MAX + 3)
+        stream = &wcrt_streams[descriptor - 3];
+    else return NULL;
+    __wcrt_prepare_stream(stream);
+    return stream->handle != NULL && stream->descriptor == descriptor ?
+        stream : NULL;
 }
 
 int remove(const char *path)
@@ -177,25 +196,180 @@ int fileno(FILE *stream)
 
 __wcrt_intptr_t _get_osfhandle(int descriptor)
 {
-    FILE *stream;
-    if (descriptor == 0) {
-        stream = stdin;
-    } else if (descriptor == 1) {
-        stream = stdout;
-    } else if (descriptor == 2) {
-        stream = stderr;
-    } else if (descriptor >= 3 && descriptor < FOPEN_MAX + 3) {
-        stream = &wcrt_streams[descriptor - 3];
-    } else {
-        errno = EBADF;
-        return (__wcrt_intptr_t)-1;
-    }
-    __wcrt_prepare_stream(stream);
-    if (stream->handle == NULL || stream->descriptor != descriptor) {
+    FILE *stream = wcrt_descriptor_stream(descriptor);
+    if (stream == NULL) {
         errno = EBADF;
         return (__wcrt_intptr_t)-1;
     }
     return (__wcrt_intptr_t)stream->handle;
+}
+
+int _open(const char *path, int flags, ...)
+{
+    FILE *stream = wcrt_allocate_stream();
+    if (stream == NULL) {
+        errno = EMFILE;
+        return -1;
+    }
+    if (__wcrt_file_open_flags(stream, path, flags) != 0) return -1;
+    stream->descriptor = (int)(stream - wcrt_streams) + 3;
+    return stream->descriptor;
+}
+
+int open(const char *path, int flags, ...)
+{
+    return _open(path, (flags & ~_O_TEXT) | _O_BINARY);
+}
+
+int _close(int descriptor)
+{
+    FILE *stream = wcrt_descriptor_stream(descriptor);
+    if (stream == NULL) {
+        errno = EBADF;
+        return -1;
+    }
+    return fclose(stream);
+}
+
+int close(int descriptor) { return _close(descriptor); }
+
+int _read(int descriptor, void *buffer, unsigned int count)
+{
+    FILE *stream = wcrt_descriptor_stream(descriptor);
+    size_t transferred;
+    if (stream == NULL) {
+        errno = EBADF;
+        return -1;
+    }
+    if (buffer == NULL && count != 0) {
+        errno = EINVAL;
+        return -1;
+    }
+    if ((stream->flags & WCRT_FILE_READ) == 0) {
+        errno = EBADF;
+        return -1;
+    }
+    transferred = fread(buffer, 1, count > 0x7fffffffU ?
+        0x7fffffffU : count, stream);
+    return transferred == 0 && ferror(stream) ? -1 : (int)transferred;
+}
+
+int _write(int descriptor, const void *buffer, unsigned int count)
+{
+    FILE *stream = wcrt_descriptor_stream(descriptor);
+    size_t transferred;
+    if (stream == NULL) {
+        errno = EBADF;
+        return -1;
+    }
+    if (buffer == NULL && count != 0) {
+        errno = EINVAL;
+        return -1;
+    }
+    if ((stream->flags & WCRT_FILE_WRITE) == 0) {
+        errno = EBADF;
+        return -1;
+    }
+    transferred = fwrite(buffer, 1, count > 0x7fffffffU ?
+        0x7fffffffU : count, stream);
+    return transferred == 0 && ferror(stream) ? -1 : (int)transferred;
+}
+
+ssize_t read(int descriptor, void *buffer, size_t count)
+{
+    return (ssize_t)_read(descriptor, buffer,
+        count > 0x7fffffffU ? 0x7fffffffU : (unsigned int)count);
+}
+
+ssize_t write(int descriptor, const void *buffer, size_t count)
+{
+    return (ssize_t)_write(descriptor, buffer,
+        count > 0x7fffffffU ? 0x7fffffffU : (unsigned int)count);
+}
+
+static long long wcrt_descriptor_seek(int descriptor, long long offset,
+    int origin)
+{
+    FILE *stream = wcrt_descriptor_stream(descriptor);
+    long long position;
+    if (stream == NULL) {
+        errno = EBADF;
+        return -1;
+    }
+    if (__wcrt_file_seek(stream, offset, origin, &position) != 0) return -1;
+    stream->end_of_file = 0;
+    stream->pushback = EOF;
+    __wcrt_reset_stream_conversion(stream);
+    return position;
+}
+
+long _lseek(int descriptor, long offset, int origin)
+{
+    long long result = wcrt_descriptor_seek(descriptor, offset, origin);
+    if (result > 2147483647LL || result < -2147483647LL - 1LL) {
+        errno = EFBIG;
+        return -1;
+    }
+    return (long)result;
+}
+
+long _tell(int descriptor) { return _lseek(descriptor, 0, SEEK_CUR); }
+
+off_t lseek(int descriptor, off_t offset, int origin)
+{
+    return (off_t)wcrt_descriptor_seek(descriptor, offset, origin);
+}
+
+int _commit(int descriptor)
+{
+    FILE *stream = wcrt_descriptor_stream(descriptor);
+    if (stream == NULL) {
+        errno = EBADF;
+        return -1;
+    }
+    return __wcrt_file_flush(stream);
+}
+
+int fsync(int descriptor) { return _commit(descriptor); }
+
+int _isatty(int descriptor)
+{
+    FILE *stream = wcrt_descriptor_stream(descriptor);
+    if (stream == NULL) {
+        errno = EBADF;
+        return 0;
+    }
+    return __wcrt_file_is_terminal(stream);
+}
+
+int isatty(int descriptor) { return _isatty(descriptor); }
+
+FILE *_fdopen(int descriptor, const char *mode)
+{
+    FILE *stream = wcrt_descriptor_stream(descriptor);
+    if (stream == NULL) errno = EBADF;
+    else if (mode == NULL || *mode == '\0' ||
+        ((*mode == 'r') && (stream->flags & WCRT_FILE_READ) == 0) ||
+        ((*mode == 'w' || *mode == 'a') &&
+        (stream->flags & WCRT_FILE_WRITE) == 0) ||
+        (strchr(mode, '+') != NULL &&
+        (stream->flags & (WCRT_FILE_READ | WCRT_FILE_WRITE)) !=
+        (WCRT_FILE_READ | WCRT_FILE_WRITE))) {
+        errno = EINVAL;
+        return NULL;
+    }
+    if (*mode != 'r' && *mode != 'w' && *mode != 'a') {
+        errno = EINVAL;
+        return NULL;
+    }
+    if (*mode == 'a') stream->flags |= WCRT_FILE_APPEND;
+    if (strchr(mode, 'b') != NULL) stream->flags |= WCRT_FILE_BINARY;
+    return stream;
+}
+
+FILE *fdopen(int descriptor, const char *mode)
+{
+    return _fdopen(descriptor, mode);
 }
 
 int fflush(FILE *stream)

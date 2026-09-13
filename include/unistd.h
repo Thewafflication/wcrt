@@ -5,6 +5,7 @@
 
 #if defined(WCRT_POSIX)
 
+#include <stddef.h>
 #include <sys/types.h>
 
 #ifdef __cplusplus
@@ -17,6 +18,12 @@ pid_t getpid(void);
 int unlink(const char *path);
 /** @brief Tests path accessibility. */
 int access(const char *path, int mode);
+int close(int descriptor);
+ssize_t read(int descriptor, void *buffer, size_t count);
+ssize_t write(int descriptor, const void *buffer, size_t count);
+off_t lseek(int descriptor, off_t offset, int origin);
+int isatty(int descriptor);
+int fsync(int descriptor);
 
 #ifdef __cplusplus
 }

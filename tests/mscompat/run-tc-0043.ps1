@@ -29,8 +29,7 @@ $presence = & $TinyCc @common -c `
 if ($LASTEXITCODE -ne 0) {
     throw "TC-0043 presence build failed:`n$($presence | Out-String)"
 }
-$unimplemented = @('_open', '_close', '_read', '_write', '_lseek',
-    '_tell', '_commit', '_dup', '_dup2', '_pipe', '_isatty', '_setmode')
+$unimplemented = @('_dup', '_dup2', '_pipe', '_setmode')
 $headerText = Get-Content -LiteralPath $header -Raw
 foreach ($name in $unimplemented) {
     if ($headerText -match "(?<![A-Za-z0-9_])$name(?![A-Za-z0-9_])") {
@@ -44,4 +43,3 @@ foreach ($name in $unimplemented) {
     ControlledSurface = 'Pass'
     ExitCode = 0
 }
-

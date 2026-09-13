@@ -67,6 +67,7 @@ Individual low-level I/O routines require separate behavioral requirements.
 
 ## Implementation Record
 
-`include/io.h` provides the guarded, self-contained compatibility header
-without advertising the deferred MS2 descriptor family. TC-0043 verifies
-repeatable inclusion, isolation, and the controlled initial surface.
+`include/io.h` provides the guarded, self-contained compatibility header and
+grows only with controlled descriptor requirements. TC-0043 verifies
+repeatable inclusion, isolation, and rejection of interfaces that remain
+deferred after REQ-0067.

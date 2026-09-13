@@ -13,6 +13,8 @@
       "FindClose",
       "FindFirstFileA",
       "FindNextFileA",
+      "FlushFileBuffers",
+      "GetConsoleMode",
       "GetCurrentProcess",
       "GetCurrentProcessId",
       "GetEnvironmentVariableA",

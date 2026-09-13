@@ -144,7 +144,10 @@ $tests = @(
         'tests\posix\run-tc-0065.ps1'),
     @('TC-0066', 'REQ-0066', 'POSIX compatibility',
         'Microsecond wall-clock time',
-        'tests\posix\run-tc-0066.ps1')
+        'tests\posix\run-tc-0066.ps1'),
+    @('TC-0067', 'REQ-0067', 'POSIX compatibility',
+        'Shared descriptor input and output',
+        'tests\posix\run-tc-0067.ps1')
 )
 
 $manifest = Join-Path $repoRoot 'tests\c99\manifest.md'
