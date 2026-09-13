@@ -50,6 +50,12 @@ FILE *fopen(const char *WCRT_RESTRICT path,
 errno_t fopen_s(FILE **stream, const char *path, const char *mode);
 FILE *freopen(const char *WCRT_RESTRICT path,
     const char *WCRT_RESTRICT mode, FILE *WCRT_RESTRICT stream);
+FILE *_popen(const char *command, const char *mode);
+int _pclose(FILE *stream);
+#if defined(WCRT_POSIX)
+FILE *popen(const char *command, const char *mode);
+int pclose(FILE *stream);
+#endif
 void setbuf(FILE *WCRT_RESTRICT stream, char *WCRT_RESTRICT buffer);
 int setvbuf(FILE *WCRT_RESTRICT stream, char *WCRT_RESTRICT buffer,
     int mode, size_t size);

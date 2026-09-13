@@ -43,6 +43,7 @@
       "SetFileAttributesA",
       "SetFilePointer",
       "SetFileTime",
+      "SetHandleInformation",
       "WaitForSingleObject",
       "WriteFile"
     ]

@@ -14,6 +14,7 @@
 | REQ-0067 | [TC-0067](../../docs/tc-0067-descriptor-io.tex) | Microsoft and POSIX `lowio.c` fixtures | Open flags, shared data and offsets, duplication, pipe endpoints, closure, isolation, and errors |
 | REQ-0068 | [TC-0068](../../docs/tc-0068-posix-fnmatch.tex) | `presence/fnmatch.c`, `absence/fnmatch.c`, `fnmatch.c` | Pattern forms, flags, case folding, path boundaries, periods, and isolation |
 | REQ-0069 | [TC-0069](../../docs/tc-0069-posix-getopt.tex) | `presence/getopt.c`, `absence/getopt.c`, `getopt.c` | Clusters, arguments, operands, long names, ambiguity, reset, flags, and isolation |
+| REQ-0070 | [TC-0070](../../docs/tc-0070-command-streams.tex) | Microsoft/selected/strict `popen.c` fixtures | Command output/input, status, ownership, isolation, and errors |
 
 The selected profile is a bounded Windows portability layer. It does not
 define `_POSIX_VERSION`, and the manifest does not imply complete POSIX

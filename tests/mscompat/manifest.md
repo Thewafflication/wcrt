@@ -19,6 +19,7 @@
 | REQ-0063 | [TC-0063](../../docs/tc-0063-ms-access.tex) | `presence/access.c`, `access.c` | Declaration, access modes, invalid mode, missing and null paths, and imports |
 | REQ-0064 | [TC-0064](../../docs/tc-0064-ms-mkdir.tex) | `presence/mkdir.c`, `mkdir.c` | Directory creation, current directory, absolute paths, allocation, errors, and imports |
 | REQ-0067 | [TC-0067](../../docs/tc-0067-descriptor-io.tex) | `presence/lowio.c`, POSIX `lowio.c` fixtures | Descriptor declarations, shared I/O, duplication, pipes, errors, and isolation |
+| REQ-0070 | [TC-0070](../../docs/tc-0070-command-streams.tex) | `presence/popen.c`, POSIX fixtures | Microsoft declarations, command output/input, process status, errors, and imports |
 
 This non-ISO suite compiles against WCRT headers without host
 standard-library headers. A runner failure is expected while its proposed

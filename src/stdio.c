@@ -13,6 +13,7 @@
 #include <unistd.h>
 
 #include "internal/file.h"
+#include "internal/stdlib.h"
 
 FILE __wcrt_stdin;
 FILE __wcrt_stdout;
@@ -243,6 +244,37 @@ int __wcrt_open_directory_descriptor(const char *path)
     stream->descriptor = (int)(stream - wcrt_streams) + 3;
     return stream->descriptor;
 }
+
+FILE *__wcrt_adopt_file_handle(void *handle, unsigned int flags)
+{
+    FILE *stream = wcrt_allocate_stream();
+    if (stream == NULL) {
+        errno = EMFILE;
+        return NULL;
+    }
+    memset(stream, 0, sizeof(*stream));
+    stream->handle = handle;
+    stream->flags = flags | WCRT_FILE_OWNED | WCRT_FILE_BINARY;
+    stream->descriptor = (int)(stream - wcrt_streams) + 3;
+    stream->pushback = EOF;
+    stream->wide_pushback = WEOF;
+    stream->buffering = _IOFBF;
+    return stream;
+}
+
+FILE *_popen(const char *command, const char *mode)
+{
+    return __wcrt_process_popen(command, mode);
+}
+
+int _pclose(FILE *stream) { return __wcrt_process_pclose(stream); }
+
+FILE *popen(const char *command, const char *mode)
+{
+    return _popen(command, mode);
+}
+
+int pclose(FILE *stream) { return _pclose(stream); }
 
 int _close(int descriptor)
 {

@@ -62,6 +62,7 @@ int __wcrt_orient_stream(FILE *stream, int mode);
 int __wcrt_require_orientation(FILE *stream, int orientation);
 void __wcrt_reset_stream_conversion(FILE *stream);
 int __wcrt_open_directory_descriptor(const char *path);
+FILE *__wcrt_adopt_file_handle(void *handle, unsigned int flags);
 int __wcrt_vfwscanf_c_locale(FILE *stream, const char *format,
     va_list arguments);
 

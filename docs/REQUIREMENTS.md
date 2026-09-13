@@ -118,6 +118,7 @@ conforms to POSIX.1-2017.
 | [REQ-0067](req-0067-descriptor-io.md) | [TC-0067](tc-0067-descriptor-io.tex) | `<fcntl.h>`, `<io.h>`, `<unistd.h>`, `<stdio.h>` | Microsoft CRT and POSIX.1-2017 | Shared descriptor input and output |
 | [REQ-0068](req-0068-posix-fnmatch.md) | [TC-0068](tc-0068-posix-fnmatch.tex) | `<fnmatch.h>` | POSIX.1-2017 | Selected filename-pattern matching |
 | [REQ-0069](req-0069-posix-getopt.md) | [TC-0069](tc-0069-posix-getopt.tex) | `<getopt.h>` | POSIX and GNU compatibility | Selected ordered option parsing |
+| [REQ-0070](req-0070-command-streams.md) | [TC-0070](tc-0070-command-streams.tex) | `<stdio.h>` | Microsoft CRT and POSIX.1-2017 | Shell command streams |
 
 ## Shared acceptance gates
 

@@ -1,0 +1,18 @@
+% TC-0070 fragment; intended for the compatibility test report.
+\def\TCID{TC-0070}
+\def\TCTitle{Microsoft and selected POSIX command streams}
+\def\TCPurpose{Verify declarations, pipe direction, data, and process status.}
+\def\TCPriority{\TCPriorityCritical}
+\def\TCRequirementRef{REQ-0070}
+\def\TCDesignRef{Microsoft and POSIX command-stream contracts.}
+\def\TCFeatureRef{\texttt{stdio.h}; stream core; Windows process backend.}
+\def\TCTestTechnique{Interface, state-transition, data-flow, and error tests.}
+\def\TCPreconditions{The Windows command processor and findstr are available.}
+\def\TCEnvironment{TinyCC C89 compilation and native Windows execution.}
+\def\TCAssumptions{Command exit codes fit an int.}
+\def\TCInputData{Echo output, findstr input, exit status, and invalid stream.}
+\def\TCInitialState{No command stream or child process is active.}
+\def\TCProcedure{Compile profiles; read and write streams; close and wait.}
+\def\TCExpectedResult{Data arrives, status propagates, and handles are closed.}
+\def\TCPostConditions{All streams, children, and temporary files are gone.}
+\TCTemplate
