@@ -4,6 +4,7 @@
  */
 
 #include <errno.h>
+#include <io.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -167,6 +168,34 @@ int _fileno(FILE *stream)
         return -2;
     }
     return stream->descriptor;
+}
+
+int fileno(FILE *stream)
+{
+    return _fileno(stream);
+}
+
+__wcrt_intptr_t _get_osfhandle(int descriptor)
+{
+    FILE *stream;
+    if (descriptor == 0) {
+        stream = stdin;
+    } else if (descriptor == 1) {
+        stream = stdout;
+    } else if (descriptor == 2) {
+        stream = stderr;
+    } else if (descriptor >= 3 && descriptor < FOPEN_MAX + 3) {
+        stream = &wcrt_streams[descriptor - 3];
+    } else {
+        errno = EBADF;
+        return (__wcrt_intptr_t)-1;
+    }
+    __wcrt_prepare_stream(stream);
+    if (stream->handle == NULL || stream->descriptor != descriptor) {
+        errno = EBADF;
+        return (__wcrt_intptr_t)-1;
+    }
+    return (__wcrt_intptr_t)stream->handle;
 }
 
 int fflush(FILE *stream)

@@ -1,12 +1,14 @@
 % TC-0044 fragment; intended for the compatibility test report.
 \def\TCID{TC-0044}
-\def\TCTitle{Microsoft stream file descriptor}
-\def\TCPurpose{Verify the declaration and Microsoft-compatible behavior of
-\texttt{\_fileno}.}
+\def\TCTitle{Stream descriptor and native handle bridges}
+\def\TCPurpose{Verify declarations, selection, and behavior of
+\texttt{\_fileno}, \texttt{fileno}, and \texttt{\_get\_osfhandle}.}
 \def\TCPriority{\TCPriorityCritical}
 \def\TCRequirementRef{REQ-0044}
-\def\TCDesignRef{Microsoft CRT documentation for \texttt{\_fileno}.}
-\def\TCFeatureRef{\texttt{include/stdio.h}; \texttt{src/stdio.c};
+\def\TCDesignRef{Microsoft CRT documentation for \texttt{\_fileno} and
+\texttt{\_get\_osfhandle}; POSIX.1-2017 \texttt{fileno}.}
+\def\TCFeatureRef{\texttt{include/stdio.h}; \texttt{include/io.h};
+\texttt{src/stdio.c};
 \texttt{tests/mscompat/fileno.c};
 \texttt{tests/mscompat/run-tc-0044.ps1}.}
 \def\TCTestTechnique{Interface, equivalence-partition, error, state-preservation,
@@ -17,17 +19,18 @@ compatibility surface is selected.}
 targets, including a WSP logger compile check.}
 \def\TCAssumptions{The test harness can observe attached and, where supported,
 unattached standard streams.}
-\def\TCInputData{The three standard streams, an \texttt{fopen} stream,
-\texttt{NULL}, and an unattached output-stream fixture.}
+\def\TCInputData{The three standard streams, an \texttt{fopen} stream, its
+native handle, closed and invalid descriptors, \texttt{NULL}, and an unattached
+output-stream fixture.}
 \def\TCInitialState{Streams are open with recorded position, mode, buffering,
 and error state.}
 \def\TCProcedure{Compile the documented declaration; query each valid stream;
-compare standard descriptors; verify state preservation and sentinels; test
-null continuation behavior; reject the POSIX alias; compile the WSP C logger.}
-\def\TCExpectedResult{\texttt{\_fileno} returns the associated descriptor,
-returns the documented sentinel values, preserves stream state, and supports
-the logger integration.}
+compare standard descriptors; resolve and invalidate a native handle; verify
+state preservation and sentinels; test null continuation behavior; verify
+POSIX alias selection; compile the WSP C logger.}
+\def\TCExpectedResult{The functions return the associated descriptor or handle,
+return documented errors and sentinels, preserve stream state, remain isolated,
+and support the logger integration.}
 \def\TCPostConditions{All test-owned streams are closed and standard streams
 retain their initial state.}
 \TCTemplate
-

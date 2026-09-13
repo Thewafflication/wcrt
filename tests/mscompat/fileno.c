@@ -4,6 +4,7 @@
  */
 
 #include <errno.h>
+#include <io.h>
 #include <stdio.h>
 
 /** @brief Runs Microsoft _fileno compatibility checks. */
@@ -22,6 +23,7 @@ int main(int argument_count, char **arguments)
     if (stream == NULL) return 5;
     descriptor = _fileno(stream);
     if (descriptor < 3 || _fileno(stream) != descriptor) return 6;
+    if (_get_osfhandle(descriptor) == (__wcrt_intptr_t)-1) return 18;
     if (fputs("descriptor", stream) == EOF) return 7;
     position = ftell(stream);
     if (position < 0 || _fileno(stream) != descriptor) return 8;
@@ -33,6 +35,12 @@ int main(int argument_count, char **arguments)
     if (stream == NULL || _fileno(stream) != descriptor) return 13;
     if (feof(stream) || ftell(stream) != 0) return 14;
     if (fclose(stream) != 0) return 15;
+
+    errno = 0;
+    if (_get_osfhandle(descriptor) != (__wcrt_intptr_t)-1 ||
+        errno != EBADF) return 19;
+    errno = 0;
+    if (_get_osfhandle(-1) != (__wcrt_intptr_t)-1 || errno != EBADF) return 20;
 
     errno = 0;
     if (_fileno(NULL) != -1 || errno != EINVAL) return 16;

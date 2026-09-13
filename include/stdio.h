@@ -87,6 +87,10 @@ int _vsnprintf(char *destination, size_t size, const char *format,
     va_list arguments);
 /** @brief Returns the descriptor associated with an open stream. */
 int _fileno(FILE *stream);
+#if defined(WCRT_POSIX)
+/** @brief Returns the descriptor associated with an open stream. */
+int fileno(FILE *stream);
+#endif
 int fgetc(FILE *stream);
 char *fgets(char *WCRT_RESTRICT destination, int count,
     FILE *WCRT_RESTRICT stream);

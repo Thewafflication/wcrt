@@ -5,6 +5,8 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 $buildDirectory = Join-Path $repoRoot 'build\tests\mscompat\tc-0044'
 $presenceObject = Join-Path $buildDirectory 'ms-fileno-presence.o'
+$posixObject = Join-Path $buildDirectory 'posix-fileno-presence.o'
+$strictObject = Join-Path $buildDirectory 'posix-fileno-strict.o'
 $loggerObject = Join-Path $buildDirectory 'wsp-log-no-tty.o'
 $executable = Join-Path $buildDirectory 'ms-fileno-test.exe'
 $testFile = Join-Path $buildDirectory 'fileno-test.tmp'
@@ -27,6 +29,18 @@ $presence = & $TinyCc @common -c `
     -o $presenceObject 2>&1
 if ($LASTEXITCODE -ne 0) {
     throw "TC-0044 presence build failed:`n$($presence | Out-String)"
+}
+$posix = & $TinyCc @common -DWCRT_POSIX -c `
+    (Join-Path $repoRoot 'tests\posix\presence\fileno.c') `
+    -o $posixObject 2>&1
+if ($LASTEXITCODE -ne 0) {
+    throw "TC-0044 POSIX presence build failed:`n$($posix | Out-String)"
+}
+$strict = & $TinyCc @common -c `
+    (Join-Path $repoRoot 'tests\posix\absence\fileno.c') `
+    -o $strictObject 2>&1
+if ($LASTEXITCODE -ne 0) {
+    throw "TC-0044 POSIX isolation build failed:`n$($strict | Out-String)"
 }
 $sources = @(
     'src\ctype.c', 'src\errno.c', 'src\string.c', 'src\stdlib.c',
@@ -54,7 +68,7 @@ if ($LASTEXITCODE -ne 0) {
 [PSCustomObject]@{
     TestCase = 'TC-0044'
     Requirement = 'REQ-0044'
-    FunctionsCovered = 1
+    FunctionsCovered = 3
     LoggerCompatibility = 'Pass'
     ExitCode = 0
 }

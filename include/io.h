@@ -6,6 +6,13 @@
 #ifndef WCRT_IO_H
 #define WCRT_IO_H
 
+#if defined(__x86_64__) || defined(_M_X64) || defined(__aarch64__) || \
+    defined(_M_ARM64)
+typedef long long __wcrt_intptr_t;
+#else
+typedef long __wcrt_intptr_t;
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -14,6 +21,8 @@ extern "C" {
 int _unlink(const char *path);
 /** @brief Tests Microsoft path accessibility. */
 int _access(const char *path, int mode);
+/** @brief Returns the native Windows handle behind a WCRT descriptor. */
+__wcrt_intptr_t _get_osfhandle(int descriptor);
 
 #ifdef __cplusplus
 }
