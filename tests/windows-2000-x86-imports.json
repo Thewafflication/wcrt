@@ -4,6 +4,7 @@
   "modules": {
     "kernel32.dll": [
       "CloseHandle",
+      "CreateDirectoryA",
       "CreateFileA",
       "CreateProcessA",
       "DeleteFileA",
