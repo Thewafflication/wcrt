@@ -119,6 +119,7 @@ conforms to POSIX.1-2017.
 | [REQ-0068](req-0068-posix-fnmatch.md) | [TC-0068](tc-0068-posix-fnmatch.tex) | `<fnmatch.h>` | POSIX.1-2017 | Selected filename-pattern matching |
 | [REQ-0069](req-0069-posix-getopt.md) | [TC-0069](tc-0069-posix-getopt.tex) | `<getopt.h>` | POSIX and GNU compatibility | Selected ordered option parsing |
 | [REQ-0070](req-0070-command-streams.md) | [TC-0070](tc-0070-command-streams.tex) | `<stdio.h>` | Microsoft CRT and POSIX.1-2017 | Shell command streams |
+| [REQ-0071](req-0071-posix-threads.md) | [TC-0071](tc-0071-posix-threads.tex) | `<pthread.h>` | Selected POSIX.1-2017 | Mutexes, condition variables, and thread lifecycle |
 
 ## Shared acceptance gates
 

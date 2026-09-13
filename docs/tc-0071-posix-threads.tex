@@ -1,0 +1,9 @@
+\def\TCID{TC-0071}
+\def\TCRequirement{REQ-0071}
+\def\TCTitle{Selected POSIX threads}
+\def\TCObjective{Verify the opt-in mutex, condition-variable, and thread lifecycle surface.}
+\def\TCPreconditions{A supported TinyCC Windows compiler and Windows host are available.}
+\def\TCMethod{Compile visibility fixtures, then synchronize two workers through a statically initialized mutex and condition variable, broadcast, and join.}
+\def\TCPassCriteria{Both workers complete, join and cleanup succeed, and invalid creation returns EINVAL.}
+\def\TCPostConditions{Every joinable worker is joined and synchronization objects are destroyed.}
+\input{test-case-template.tex}

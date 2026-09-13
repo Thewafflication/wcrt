@@ -156,7 +156,10 @@ $tests = @(
         'tests\posix\run-tc-0069.ps1'),
     @('TC-0070', 'REQ-0070', 'POSIX compatibility',
         'Shell command streams',
-        'tests\posix\run-tc-0070.ps1')
+        'tests\posix\run-tc-0070.ps1'),
+    @('TC-0071', 'REQ-0071', 'POSIX compatibility',
+        'Selected POSIX threads',
+        'tests\posix\run-tc-0071.ps1')
 )
 
 $manifest = Join-Path $repoRoot 'tests\c99\manifest.md'
