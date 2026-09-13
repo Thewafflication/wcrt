@@ -36,6 +36,8 @@ typedef long (*posix_telldir_fn)(DIR *);
 typedef void (*posix_seekdir_fn)(DIR *, long);
 /** @brief Selected directory-close signature. */
 typedef int (*posix_closedir_fn)(DIR *);
+/** @brief Selected directory-descriptor signature. */
+typedef int (*posix_dirfd_fn)(DIR *);
 /** @brief Selected directory-scan signature. */
 typedef int (*posix_scandir_fn)(const char *, struct dirent *** entries,
     int (*)(const struct dirent *),
@@ -53,5 +55,6 @@ static posix_telldir_fn posix_telldir_address = telldir;
 static posix_seekdir_fn posix_seekdir_address = seekdir;
 /** @brief Forces type checking of closedir. */
 static posix_closedir_fn posix_closedir_address = closedir;
+static posix_dirfd_fn posix_dirfd_address = dirfd;
 static posix_scandir_fn posix_scandir_address = scandir;
 static posix_alphasort_fn posix_alphasort_address = alphasort;

@@ -5,6 +5,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 
 /** @brief Finds a named regular entry and validates its Windows mapping. */
 static int find_test_file(DIR *directory)
@@ -29,6 +30,7 @@ int main(int count, char **arguments)
     struct dirent *entry;
     char second_name[WCRT_DIRENT_NAME_MAX + 1];
     long position;
+    struct stat directory_status;
     int entry_count;
     int index;
     int found;
@@ -37,6 +39,9 @@ int main(int count, char **arguments)
     if (opendir("missing-directory") != NULL || errno != ENOENT) return 2;
     directory = opendir(arguments[1]);
     if (directory == NULL) return 3;
+    if (dirfd(directory) < 3 ||
+        fstat(dirfd(directory), &directory_status) != 0 ||
+        !S_ISDIR(directory_status.st_mode)) return 18;
     found = find_test_file(directory);
     if (found != 1) return 4;
     rewinddir(directory);

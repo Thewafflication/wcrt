@@ -27,6 +27,7 @@
 #define WCRT_OPEN_ALWAYS 4UL
 #define WCRT_TRUNCATE_EXISTING 5UL
 #define WCRT_NORMAL_ATTRIBUTE 0x80UL
+#define WCRT_BACKUP_SEMANTICS 0x02000000UL
 #define WCRT_INVALID_HANDLE ((void *)(long long)-1)
 #define WCRT_INVALID_POSITION 0xffffffffUL
 #define WCRT_ERROR_FILE_NOT_FOUND 2UL
@@ -197,6 +198,29 @@ int __wcrt_file_open_flags(FILE *stream, const char *path, int open_flags)
     stream->buffer_size = 0;
     stream->delete_path[0] = '\0';
     if (flags & WCRT_FILE_APPEND) __wcrt_file_seek(stream, 0, SEEK_END, NULL);
+    return 0;
+}
+
+int __wcrt_file_open_directory(FILE *stream, const char *path)
+{
+    void *handle;
+    if (stream == NULL || path == NULL) {
+        errno = EINVAL;
+        return -1;
+    }
+    handle = CreateFileA(path, 0, WCRT_SHARE_READ | WCRT_SHARE_WRITE,
+        NULL, WCRT_OPEN_EXISTING, WCRT_BACKUP_SEMANTICS, NULL);
+    if (handle == WCRT_INVALID_HANDLE) {
+        unsigned long error = GetLastError();
+        wcrt_file_error(error);
+        return -1;
+    }
+    memset(stream, 0, sizeof(*stream));
+    stream->handle = handle;
+    stream->flags = WCRT_FILE_OWNED;
+    stream->pushback = EOF;
+    stream->wide_pushback = WEOF;
+    stream->buffering = _IOFBF;
     return 0;
 }
 

@@ -25,6 +25,8 @@ static int telldir;
 static int seekdir;
 /** @brief Strict-profile object proving closedir is absent. */
 static int closedir;
+/** @brief Strict-profile object proving dirfd is absent. */
+static int dirfd;
 /** @brief Strict-profile object proving scandir is absent. */
 static int scandir;
 /** @brief Strict-profile object proving alphasort is absent. */

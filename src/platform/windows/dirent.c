@@ -10,6 +10,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include <io.h>
+
+#include "../../internal/file.h"
 
 #if defined(__TINYC__) || defined(__GNUC__)
 #define WCRT_WINAPI __attribute__((stdcall))
@@ -54,6 +57,7 @@ struct wcrt_find_data {
 /** @brief Private state associated with a selected directory stream. */
 struct __wcrt_DIR {
     void *handle;
+    int descriptor;
     int pending;
     long position;
     struct wcrt_find_data data;
@@ -125,7 +129,13 @@ DIR *opendir(const char *path)
     directory->pattern[length] = '\0';
     directory->handle = NULL;
     directory->pending = 0;
+    directory->descriptor = __wcrt_open_directory_descriptor(path);
+    if (directory->descriptor < 0) {
+        free(directory);
+        return NULL;
+    }
     if (wcrt_dirent_begin(directory) != 0) {
+        _close(directory->descriptor);
         free(directory);
         return NULL;
     }
@@ -208,15 +218,26 @@ void seekdir(DIR *directory, long position)
 int closedir(DIR *directory)
 {
     int result;
+    int descriptor_result;
     if (directory == NULL || directory->handle == NULL) {
         errno = EINVAL;
         return -1;
     }
     result = FindClose(directory->handle);
+    descriptor_result = _close(directory->descriptor);
     if (!result) wcrt_dirent_error(GetLastError());
     directory->handle = NULL;
     free(directory);
-    return result ? 0 : -1;
+    return result && descriptor_result == 0 ? 0 : -1;
+}
+
+int dirfd(DIR *directory)
+{
+    if (directory == NULL || directory->handle == NULL) {
+        errno = EINVAL;
+        return -1;
+    }
+    return directory->descriptor;
 }
 
 int alphasort(const struct dirent **left, const struct dirent **right)

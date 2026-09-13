@@ -232,6 +232,18 @@ int open(const char *path, int flags, ...)
     return _open(path, (flags & ~_O_TEXT) | _O_BINARY);
 }
 
+int __wcrt_open_directory_descriptor(const char *path)
+{
+    FILE *stream = wcrt_allocate_stream();
+    if (stream == NULL) {
+        errno = EMFILE;
+        return -1;
+    }
+    if (__wcrt_file_open_directory(stream, path) != 0) return -1;
+    stream->descriptor = (int)(stream - wcrt_streams) + 3;
+    return stream->descriptor;
+}
+
 int _close(int descriptor)
 {
     FILE *stream = wcrt_descriptor_stream(descriptor);

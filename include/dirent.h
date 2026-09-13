@@ -47,6 +47,8 @@ long telldir(DIR *directory);
 void seekdir(DIR *directory, long position);
 /** @brief Closes a directory stream. */
 int closedir(DIR *directory);
+/** @brief Returns the WCRT descriptor for the opened directory. */
+int dirfd(DIR *directory);
 /** @brief Collects and optionally sorts entries from a directory. */
 int scandir(const char *path, struct dirent ***entries,
     int (*filter)(const struct dirent *),

@@ -39,6 +39,7 @@ struct wcrt_file {
 
 int __wcrt_file_open(FILE *stream, const char *path, const char *mode);
 int __wcrt_file_open_flags(FILE *stream, const char *path, int flags);
+int __wcrt_file_open_directory(FILE *stream, const char *path);
 int __wcrt_file_close(FILE *stream);
 int __wcrt_file_read(FILE *stream, void *buffer, size_t count,
     size_t *transferred);
@@ -58,6 +59,7 @@ void __wcrt_prepare_stream(FILE *stream);
 int __wcrt_orient_stream(FILE *stream, int mode);
 int __wcrt_require_orientation(FILE *stream, int orientation);
 void __wcrt_reset_stream_conversion(FILE *stream);
+int __wcrt_open_directory_descriptor(const char *path);
 int __wcrt_vfwscanf_c_locale(FILE *stream, const char *format,
     va_list arguments);
 
