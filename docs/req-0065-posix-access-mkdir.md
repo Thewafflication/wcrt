@@ -11,9 +11,9 @@ permission semantics
 
 ## Scope
 
-This requirement provides narrow `access` and `mkdir` when `WCRT_POSIX` is
-selected. Recursive creation, access-control-list emulation, and wide paths are
-excluded.
+This requirement provides narrow `access` and `mkdir` plus bounded narrow-path
+constants when `WCRT_POSIX` is selected. Recursive creation,
+access-control-list emulation, and wide paths are excluded.
 
 ## Requirement
 
@@ -21,6 +21,10 @@ excluded.
   `WCRT_POSIX`.
 - `<sys/stat.h>` shall declare `mkdir(const char *, mode_t)` only under
   `WCRT_POSIX`.
+- `<limits.h>` shall always expose the Microsoft-compatible `MAX_PATH` value
+  260 and expose `PATH_MAX` with that value only under `WCRT_POSIX`.
+- Selected `<sys/param.h>` shall define `MAXPATHLEN` consistently with
+  `PATH_MAX`; strict inclusion shall not expose either POSIX spelling.
 - `access` shall provide the existence, read, write, and combined tests already
   defined by the shared Microsoft `_access` operation.
 - `mkdir` shall create one directory through `_mkdir`. Windows shall ignore the
@@ -36,9 +40,9 @@ excluded.
 
 **References:** TC-0065
 
-Tests compile repeated selected and strict inclusions in C89 and C99, exercise
-all supported access modes, create a directory, and check invalid, missing, and
-existing targets.
+Tests compile repeated selected and strict inclusions in C89 and C99, verify
+the path-limit spellings, exercise all supported access modes, create a
+directory, and check invalid, missing, and existing targets.
 
 ## Relationships
 

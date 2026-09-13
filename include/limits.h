@@ -17,6 +17,13 @@
 #define MB_LEN_MAX 1
 /** @} */
 
+/** @brief Traditional Windows maximum path length including drive syntax. */
+#define MAX_PATH 260
+#if defined(WCRT_POSIX)
+/** @brief Selected POSIX path buffer limit on the Windows narrow-path ABI. */
+#define PATH_MAX MAX_PATH
+#endif
+
 /** @name Short-integer limits */
 /** @{ */
 #define SHRT_MIN (-32767 - 1)

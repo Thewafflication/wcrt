@@ -9,7 +9,7 @@
 | REQ-0059 | [TC-0059](../../docs/tc-0059-posix-strdup.tex) | `presence/strdup.c`, `absence/strdup.c`, `strdup.c` | `strdup` and `strndup` declarations, strict isolation, C89/C99, bounded content, independence, empty strings, and ownership |
 | REQ-0060 | [TC-0060](../../docs/tc-0060-posix-getpid.tex) | `presence/unistd.c`, `absence/unistd.c`, `unistd.c` | Type width, declaration, strict isolation, C89/C99, stable positive identity, and imports |
 | REQ-0061 | [TC-0061](../../docs/tc-0061-posix-unlink.tex) | `presence/unlink.c`, `absence/unlink.c`, `unlink.c` | Declaration, strict isolation, C89/C99, removal, missing and null paths, and imports |
-| REQ-0065 | [TC-0065](../../docs/tc-0065-posix-access-mkdir.tex) | `presence/paths.c`, `absence/paths.c`, `paths.c` | Selected access modes, directory creation, strict isolation, C89/C99, and errors |
+| REQ-0065 | [TC-0065](../../docs/tc-0065-posix-access-mkdir.tex) | `presence/paths.c`, `absence/paths.c`, `paths.c` | Path limits, selected access modes, directory creation, strict isolation, C89/C99, and errors |
 | REQ-0066 | [TC-0066](../../docs/tc-0066-posix-gettimeofday.tex) | `presence/timeval.c`, `absence/timeval.c`, `timeval.c` | Wall-clock seconds and microseconds, strict isolation, C89/C99, and errors |
 
 The selected profile is a bounded Windows portability layer. It does not
