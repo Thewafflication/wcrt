@@ -21,6 +21,6 @@
 | REQ-0067 | [TC-0067](../../docs/tc-0067-descriptor-io.tex) | `presence/lowio.c`, POSIX `lowio.c` fixtures | Descriptor declarations, shared I/O, duplication, pipes, errors, and isolation |
 | REQ-0070 | [TC-0070](../../docs/tc-0070-command-streams.tex) | `presence/popen.c`, POSIX fixtures | Microsoft declarations, command output/input, process status, errors, and imports |
 
-This non-ISO suite compiles against WCRT headers without host
-standard-library headers. A runner failure is expected while its proposed
-compatibility requirement remains unimplemented.
+This non-ISO suite compiles against WCRT headers without host standard-library
+headers. Every listed requirement has an implemented runner and remains part
+of the aggregate regression suite.

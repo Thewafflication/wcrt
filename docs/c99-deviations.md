@@ -8,18 +8,16 @@
 
 - **Requirement:** REQ-0035, C99 7.12.13.1
 - **Affected implementation:** `fma`, `fmaf`, and `fmal` in `src/math.c`
-- **State:** Corrected in T6; exact-revision native Debug target verification
-  passes; independent review pending
+- **State:** Corrected in T6 and retained by the current regression matrix
 - **Correction:** Fixed-size integer magnitudes now accumulate the complete
   exact product and addend across the supported exponent range before one
   active-direction rounding. Binary32 is rounded directly and Windows
   `long double` follows binary64.
 - **Evidence:** TC-0035 includes cancellation, overflow-avoidance, subnormal,
   binary32, four-direction, and 260 reproducible exact-rational binary64
-  vectors. Exact-revision native x86/x64/ARM64 Debug behavior passes in run
-  `32027269426`. The deviation is removed from the implementation disposition;
-  tagged native ARM64 Release remains an R1 prepublication gate rather than a
-  conformance deviation.
+  vectors. Exact-revision native x86/x64/ARM64 Debug behavior passed in run
+  `32027269426`; subsequent tagged release matrices retain the same tests. The
+  deviation is removed from the implementation disposition.
 
 ## Compiler-owned blocking items
 
@@ -39,11 +37,11 @@ and scalar helpers. TinyCC now supplies matching caller and helper ABIs, so that
 adaptation and its ARM64 companion archive have been removed. This is not
 registered as a public-library deviation: the public C99 representation,
 function ABI, and results remain required. Corrected native ARM64 Debug
-execution passes in exact-revision run `32027269426`; tagged native ARM64
-Release smoke is separately an R1 Unknown until the release workflow runs.
+execution passed in exact-revision run `32027269426`; later tagged release
+workflows also pass native ARM64 smoke.
 
 ## Profiles not claimed
 
-WCRT 1.0.0 does not claim IEC 60559 Annex F binding, Annex G imaginary-type
-support, correctly rounded transcendental functions, locales other than C, or
-a `long double` format wider than Windows binary64.
+The WCRT C99 profile does not claim IEC 60559 Annex F binding, Annex G
+imaginary-type support, correctly rounded transcendental functions, locales
+other than C, or a `long double` format wider than Windows binary64.

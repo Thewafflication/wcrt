@@ -7,10 +7,11 @@ tier; it is not part of the Windows 2000 legacy tier.
 ## Current verification
 
 The workflow assigns the ARM64 build job to the native `windows-11-arm`
-runner. It runs the same C89 and C99 aggregates, capability probes, Debug
-consumers, startup objects, and package inputs used for x86/x64. Exact source
-`aea690d2caf108054d1644eefb176efde779f524` passes 15/15 C89, 30/30 combined
-C99/compatibility, consumers, and startup in run `32027269426`.
+runner. It runs the same C89 and extension aggregates, capability probes,
+Debug consumers, startup objects, and package inputs used for x86/x64. The
+originating C99 evidence passed in run `32027269426`; tagged release 1.2.2
+later passed the native ARM64 Debug and optimized Release jobs in run
+`34790586352`.
 
 On an x64 development host, `tools/run-c89-arm64-cross.ps1` and the focused
 C99 runners use the AArch64 Windows TinyCC toolchain. Each generated binary is
@@ -39,14 +40,12 @@ ARM64 assembly adapter or companion archive. This compiler-private behavior
 does not alter the public complex function ABI. TC-0037 and the static/DLL
 consumers are the required native gate.
 
-## Candidate evidence boundary
+## Evidence boundary
 
-The exact Debug candidate evidence covers the full C89/C99/compatibility
-aggregates, complex and floating ABI behavior, nonvolatile integer and floating
-register preservation around `setjmp` and `longjmp`, default signal
-termination, assertion diagnostics, static and DLL consumers, and both
-optional startup objects. Tagged native ARM64 Release execution is still absent
-and remains an R1 prepublication Unknown; local compile/link does not replace
-it. It is not a T6 conformance failure because the complete native Debug matrix
-passes, but publication still requires the optimized Release consumer/startup
-smoke job. Windows 2000 import enforcement applies only to x86.
+ARM64 evidence covers the full C89 and extension aggregates, complex and
+floating ABI behavior, nonvolatile register preservation around `setjmp` and
+`longjmp`, default signal termination, assertion diagnostics, static and DLL
+consumers, and both optional startup objects. Cross-compilation remains useful
+development evidence, but every release tag must pass the native optimized
+Release consumer and startup jobs before publication. Windows 2000 import
+enforcement applies only to x86.

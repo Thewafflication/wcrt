@@ -1,6 +1,13 @@
 # WCRT 1.1.0 Compatibility Roadmap
 
-**Status:** Proposed release scope
+**Status:** Historical release-planning baseline
+
+> WCRT 1.1.0 and later releases have been published. This record is retained
+> to explain the original compatibility scope and decisions; its checkboxes are
+> not the current implementation inventory. See the
+> [requirements index](REQUIREMENTS.md), the
+> [POSIX test manifest](../tests/posix/manifest.md), and the
+> [Microsoft test manifest](../tests/mscompat/manifest.md) for current coverage.
 
 **Theme:** VC6-era Microsoft C compatibility and a practical POSIX source
 compatibility profile for Windows

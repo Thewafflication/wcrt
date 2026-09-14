@@ -2,12 +2,12 @@
 
 **Content type:** Conformance evidence index
 
-**Status:** T6 technical verification baseline; release decision blocked
+**Status:** Implemented facility matrix; originating T6 evidence retained
 
 **Standard baseline:** ISO/IEC 9899:1999 as corrected through TC3 (WG14
 N1256)
 
-**Source baseline:** `aea690d2caf108054d1644eefb176efde779f524`
+**Originating evidence source:** `aea690d2caf108054d1644eefb176efde779f524`
 
 ## Reading the profile
 
@@ -17,10 +17,11 @@ means the selected hosted C99 library profile requires the facility;
 documented. `compiler-blocked` identifies a compiler-owned facility that WCRT
 cannot implement in headers or runtime code. A target state is Pass only when
 the cited evidence was produced from the exact profile baseline.
-Exact-revision native x86/x64/ARM64 Debug results and the separately bounded
-local Release results are summarized in
-`docs/evidence/c99-t6/local-verification.md`. A facility Pass does not approve
-the unsigned release candidate or erase a compiler-blocked ExpectedFail.
+The originating exact-revision evidence is summarized in
+`docs/evidence/c99-t6/local-verification.md`. Current CI repeats the controlled
+tests on x86, x64, and ARM64; tagged builds additionally verify optimized
+Release consumers and package assembly. A facility Pass does not erase a
+compiler-blocked ExpectedFail or imply a deferred trust control.
 
 ## Facility matrix
 
@@ -102,17 +103,15 @@ the unsigned release candidate or erase a compiler-blocked ExpectedFail.
 | F-074 | 7.25 | `<wctype.h>` wide classification functions | required | implemented | Pass | Pass | Pass | REQ-0032 | `include/wctype.h`; `src/wctype.c` | TC-0032 | Exhaustive C-locale classification. |
 | F-075 | 7.25 | Wide descriptors and mappings | required | implemented | Pass | Pass | Pass | REQ-0032 | `src/wctype.c` | TC-0032 | Invalid descriptors return documented neutral results. |
 
-## Blocking summary
+## Qualification notes
 
-- Exact-revision native x86/x64/ARM64 Debug behavior, ABI, consumers, and
-  startup results pass in run `32027269426`. The tagged optimized Release
-  matrix is still an R1 Unknown and is not inferred from the Debug or local
-  compile/link result.
+- The originating native x86/x64/ARM64 Debug matrix passed in run
+  `32027269426`. Tagged release 1.2.2 subsequently passed the optimized Release
+  and WPM package workflow in run `34790586352`.
 - F-010, F-017, and F-037 are compiler-blocked ExpectedFail results for the
   selected TinyCC package; they are not Pass.
 - F-055 is omitted recommended practice. The retained decimal counterexample
   prevents a universal correct-rounding claim.
-- Release readiness is Reject while independent review, the tagged optimized
-  Release matrix, WPM signature verification, successor-candidate identities,
-  and installation/rollback gates are incomplete. Authenticode/timestamping
-  and Defender scanning are explicitly Deferred from 1.0, not Pass.
+- Authenticode/timestamping and Defender scanning remain explicitly deferred,
+  not Pass. Published packages use the separately verified WPM signature and
+  checksum controls described by the release process.

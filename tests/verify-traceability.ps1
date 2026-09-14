@@ -12,7 +12,8 @@ $tool = Join-Path $RepositoryRoot 'wsp/tools/Test-Traceability.ps1'
     -TestSpecificationsPath 'docs' `
     -TestImplementationsPath 'tests' `
     -TraceabilityPath 'tests/c89/manifest.md', 'tests/c99/manifest.md', `
-        'tests/mscompat/manifest.md', 'tests/posix/manifest.md'
+        'tests/mscompat/manifest.md', 'tests/posix/manifest.md', `
+        'tests/wcrt/manifest.md'
 
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE

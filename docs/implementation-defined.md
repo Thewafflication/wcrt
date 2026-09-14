@@ -2,7 +2,7 @@
 
 **Content type:** Product conformance record
 
-**Status:** T6 working baseline
+**Status:** Current C99 product record
 
 This record documents choices for the hosted WCRT C99 library profile. It does
 not claim IEC 60559 Annex F conformance.

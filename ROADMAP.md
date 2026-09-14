@@ -1,5 +1,11 @@
 # WCRT Roadmap
 
+> **Status note (September 2026):** WCRT releases through 1.2.2 have been
+> published. This document preserves the long-range standards and compatibility
+> plan; its unchecked items are not a current release inventory. Use the
+> [requirements index](docs/REQUIREMENTS.md) and executable test manifests for
+> implemented status.
+
 This roadmap is ordered by dependency and conformance level. Dates are omitted
 until measured tranche history establishes reliable forecasts. The controlled
 C99-to-1.0.0 estimates and quality plan are in
@@ -7,11 +13,11 @@ C99-to-1.0.0 estimates and quality plan are in
 the work is present, tested, documented, and passing the relevant release
 gates—not merely started.
 
-WCRT 1.1.0 is the first compatibility-focused minor release. Its selected
+WCRT 1.1.0 was the first compatibility-focused minor release. Its selected
 VC6-era Microsoft C and bounded POSIX scope, tranche order, exclusions, risks,
 and acceptance criteria are defined in the
 [`WCRT 1.1.0 Compatibility Roadmap`](docs/WCRT-1.1.0-ROADMAP.md). That release
-selects a finite subset from the longer Microsoft track below; it does not
+selected a finite subset from the longer Microsoft track below; it did not
 require completion of MS0--MS6 or advance the ISO C11 milestone.
 
 ## Release gates for every milestone
