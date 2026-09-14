@@ -31,7 +31,11 @@ a release tag, require the successful Debug dependency, build optimized
 artifacts, execute native library-consumer and startup smoke tests, repeat the
 x86 legacy-import check, WPM-sign and verify the package with exit zero,
 compare each packaged DLL with its Release input, and permit publication only
-after all those jobs succeed. Authenticode signing and timestamping are
+after all those jobs succeed. In parallel, consume each architecture's retained
+Debug JSON evidence; install MiKTeX; generate three native test-execution PDFs,
+one Doxygen API-reference PDF, an offline HTML/LaTeX/PDF documentation ZIP, and
+deploy the HTML output to GitHub Pages. Require this documentation path before
+release publication. Authenticode signing and timestamping are
 explicitly deferred from 1.0.0 and are not represented as Pass.}
 \def\TCExpectedResult{Every required Debug target gate passes at one committed
 source and run-resolved latest dependency baseline. A candidate may be committed while tagged Release evidence is

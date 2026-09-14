@@ -1,0 +1,81 @@
+\documentclass[10pt,letterpaper]{article}
+\usepackage[margin=0.7in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage[table]{xcolor}
+\usepackage{longtable}
+\usepackage{fancyhdr}
+\usepackage[hidelinks]{hyperref}
+\definecolor{wcrtblue}{HTML}{1F4E79}
+\definecolor{wcrtlight}{HTML}{EAF2F8}
+\definecolor{passgreen}{HTML}{247A3D}
+\definecolor{failred}{HTML}{B42318}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{WCRT test execution report}
+\rhead{@@ARCHITECTURE@@}
+\cfoot{\thepage}
+\setlength{\parindent}{0pt}
+\setlength{\LTpre}{4pt}
+\setlength{\LTpost}{4pt}
+\begin{document}
+\begin{center}
+{\Huge\bfseries\color{wcrtblue} WCRT Test Execution Report}\par
+\vspace{6pt}
+{\Large @@ARCHITECTURE@@ --- release @@VERSION@@}\par
+\vspace{10pt}
+\begin{tabular}{rl}
+Source revision: & \texttt{@@SOURCE_REVISION@@}\\
+Generated (UTC): & @@GENERATED_AT@@\\
+Evidence profile: & native Debug release baseline\\
+\end{tabular}
+\end{center}
+
+\section*{Execution summary}
+\rowcolors{2}{wcrtlight}{white}
+\begin{tabular}{>{\bfseries}p{0.37\linewidth}rrr}
+\toprule
+Suite & Total & Passed & Other\\
+\midrule
+@@SUMMARY_ROWS@@
+\bottomrule
+\end{tabular}
+
+\vspace{8pt}
+\textbf{Overall result:} \textcolor{@@OVERALL_COLOR@@}{\textbf{@@OVERALL_STATUS@@}}.@@QUALIFICATION@@
+
+\section*{Environment and retained gates}
+\begin{tabular}{>{\bfseries}p{0.28\linewidth}p{0.65\linewidth}}
+Architecture & @@ARCHITECTURE@@\\
+Compiler & @@COMPILER@@\\
+Data model & @@DATA_MODEL@@\\
+Dependency evidence & @@DEPENDENCY_STATUS@@\\
+Native diagnostics & @@DIAGNOSTICS_STATUS@@\\
+Startup objects & @@STARTUP_STATUS@@\\
+Windows 2000 imports & @@IMPORT_STATUS@@\\
+\end{tabular}
+
+\section*{Detailed results}
+\rowcolors{2}{wcrtlight}{white}
+\begin{longtable}{p{0.11\linewidth}p{0.11\linewidth}p{0.12\linewidth}p{0.41\linewidth}p{0.10\linewidth}}
+\toprule
+Test & Requirement & Suite & Description & Result\\
+\midrule
+\endfirsthead
+\toprule
+Test & Requirement & Suite & Description & Result\\
+\midrule
+\endhead
+@@DETAIL_ROWS@@
+\bottomrule
+\end{longtable}
+
+\section*{Interpretation}
+This report is generated from the immutable JSON evidence retained by the
+tagged workflow. A Pass indicates that the named native test completed
+successfully on the stated architecture. Expected failures document known
+compiler capability boundaries and do not convert a failed required gate into
+a Pass. The release workflow fails closed when required evidence is absent.
+\end{document}

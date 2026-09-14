@@ -39,6 +39,10 @@ It is not a POSIX conformance claim and does not define `_POSIX_VERSION`.
   process.
 - [Release process](release-process.md) defines build, signing, publication,
   support, and rollback controls.
+- Tagged builds use `tools/Build-ReleaseDocumentation.ps1` to generate three
+  architecture-specific test-execution PDFs, a Doxygen API-reference PDF, and
+  an offline HTML/LaTeX/PDF documentation bundle. The HTML reference is also
+  published to GitHub Pages.
 - [Security design](security/design-for-security.md) records the threat and
   dependency model.
 - [Windows signing plan](windows-signing-plan.md) retains the deferred

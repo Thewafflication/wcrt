@@ -46,7 +46,13 @@ x86, x64, and ARM64.
   need not be duplicated in Release because the tagged Release jobs depend on
   the successful exact-source Debug matrix.
 - The publication job shall depend on every tagged Release architecture and
-  WPM-signed-package verification succeeding. A committed source revision, tag,
+  WPM-signed-package verification succeeding. In parallel with the optimized
+  Release builds, a separate documentation workflow shall consume the retained
+  native Debug evidence, generate architecture-specific x86, x64, and ARM64
+  test-execution PDFs, generate Doxygen HTML, LaTeX, and an API-reference PDF,
+  package the complete offline documentation, and deploy the HTML reference to
+  GitHub Pages. Publication shall wait for both the package and documentation
+  paths. A committed source revision, tag,
   cross-build, PE inspection, missing artifact, or unavailable check is not a
   publication Pass. Native Debug execution and the selected native Release
   smoke tests are required on every supported architecture; absent evidence

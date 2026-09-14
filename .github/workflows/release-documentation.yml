@@ -1,0 +1,108 @@
+name: Build and publish release documentation
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: Semantic version from the release tag
+        required: true
+        type: string
+
+jobs:
+  build-documentation:
+    name: Build four PDFs and offline documentation
+    runs-on: windows-2025
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+          submodules: true
+
+      - name: Download x86 test evidence
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
+        with:
+          name: wcrt-x86-test-evidence
+          path: output/test-results/x86
+
+      - name: Download x64 test evidence
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
+        with:
+          name: wcrt-x64-test-evidence
+          path: output/test-results/x64
+
+      - name: Download ARM64 test evidence
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
+        with:
+          name: wcrt-arm64-test-evidence
+          path: output/test-results/arm64
+
+      - name: Install pinned Doxygen
+        shell: pwsh
+        timeout-minutes: 10
+        run: |
+          $version = '1.18.0'
+          $expectedHash = 'e84f54cfd49ef06b0b16536056dbec0c496323de28abcce53a4269463de35eaf'
+          $archive = Join-Path $env:RUNNER_TEMP "doxygen-$version.zip"
+          $installRoot = Join-Path $env:RUNNER_TEMP "doxygen-$version"
+          $url = "https://github.com/doxygen/doxygen/releases/download/Release_1_18_0/doxygen-$version.windows.x64.bin.zip"
+          curl.exe --fail --location --retry 5 --retry-all-errors --connect-timeout 30 --max-time 300 --output $archive $url
+          if ($LASTEXITCODE -ne 0) { throw "Doxygen download failed with exit code $LASTEXITCODE." }
+          $actualHash = (Get-FileHash $archive -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($actualHash -ne $expectedHash) { throw "Doxygen archive hash mismatch: $actualHash" }
+          Expand-Archive -LiteralPath $archive -DestinationPath $installRoot
+          $doxygen = Get-ChildItem $installRoot -Filter doxygen.exe -Recurse | Select-Object -First 1
+          if (-not $doxygen) { throw 'Doxygen executable was not found.' }
+          $doxygen.DirectoryName >> $env:GITHUB_PATH
+
+      - name: Install MiKTeX
+        shell: pwsh
+        timeout-minutes: 20
+        run: |
+          choco install miktex --yes --no-progress
+          if ($LASTEXITCODE -notin @(0, 3010)) { exit $LASTEXITCODE }
+          $pdflatex = Get-ChildItem @($env:ProgramFiles, ${env:ProgramFiles(x86)}) -Filter pdflatex.exe -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $pdflatex) { throw 'MiKTeX pdflatex.exe was not found.' }
+          $pdflatex.DirectoryName >> $env:GITHUB_PATH
+          & (Join-Path $pdflatex.DirectoryName 'initexmf.exe') --set-config-value=[MPM]AutoInstall=1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Generate release documentation
+        shell: pwsh
+        timeout-minutes: 25
+        run: |
+          ./tools/Build-ReleaseDocumentation.ps1 `
+            -Version '${{ inputs.version }}' `
+            -SourceRevision '${{ github.sha }}'
+
+      - name: Retain release documentation assets
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: wcrt-release-documentation
+          path: |
+            output/release-documentation/wcrt-api-reference-*.pdf
+            output/release-documentation/wcrt-test-execution-*.pdf
+            output/release-documentation/wcrt-documentation-*.zip
+          if-no-files-found: error
+          compression-level: 0
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
+        with:
+          enablement: true
+
+      - name: Upload GitHub Pages site
+        uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
+        with:
+          path: output/release-documentation/work/doxygen/html
+
+  deploy-pages:
+    name: Publish Doxygen HTML to GitHub Pages
+    needs: build-documentation
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4

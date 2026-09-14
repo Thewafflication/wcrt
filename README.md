@@ -45,6 +45,8 @@ Notable limits:
 
 See the [documentation guide](docs/README.md) for the conformance profile,
 platform model, requirements, tests, and release policy.
+Tagged releases publish the generated API reference to
+[GitHub Pages](https://thewafflication.github.io/wcrt/).
 
 ## Install with WPM
 
@@ -216,6 +218,10 @@ Every push produces verified Debug artifacts. A semantic-version tag also
 builds optimized Release artifacts, assembles and verifies the signed WPM
 package, and publishes the corresponding GitHub Release only after the full
 dependency chain succeeds. See the [release process](docs/release-process.md).
+In parallel with the Release builds, a reusable documentation workflow creates
+x86, x64, and ARM64 test-execution PDFs, a Doxygen API-reference PDF, and one
+offline HTML/LaTeX/PDF documentation ZIP. Release publication also waits for
+the GitHub Pages deployment.
 
 ## Project principles
 

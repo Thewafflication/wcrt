@@ -46,6 +46,7 @@ function Assert-JobContains {
 $build = Get-WorkflowJobBlock -Name 'build'
 $debugPackage = Get-WorkflowJobBlock -Name 'debug-package'
 $release = Get-WorkflowJobBlock -Name 'release'
+$documentation = Get-WorkflowJobBlock -Name 'documentation'
 $package = Get-WorkflowJobBlock -Name 'package'
 $publish = Get-WorkflowJobBlock -Name 'publish'
 $tagCondition = "if: startsWith(github.ref, 'refs/tags/')"
@@ -76,6 +77,28 @@ Assert-JobContains release $release 'Record release dependency provenance'
 Assert-JobContains release $release 'Verify TinyCC matches the tested Debug baseline'
 if ($release.Contains('environment: release')) {
     throw "Workflow job 'release' must run before the protected package-signing environment gate."
+}
+
+Assert-JobContains documentation $documentation $tagCondition
+Assert-JobContains documentation $documentation 'needs: build'
+Assert-JobContains documentation $documentation `
+    'uses: ./.github/workflows/release-documentation.yml'
+$documentationWorkflowPath = Join-Path $repositoryRoot `
+    '.github/workflows/release-documentation.yml'
+if (-not (Test-Path -LiteralPath $documentationWorkflowPath -PathType Leaf)) {
+    throw "Release documentation workflow not found: $documentationWorkflowPath"
+}
+$documentationWorkflow = Get-Content -LiteralPath $documentationWorkflowPath -Raw
+foreach ($requiredText in @(
+    'choco install miktex',
+    'Build-ReleaseDocumentation.ps1',
+    'wcrt-release-documentation',
+    'actions/upload-pages-artifact@',
+    'actions/deploy-pages@'
+)) {
+    if (-not $documentationWorkflow.Contains($requiredText)) {
+        throw "Release documentation workflow does not contain required text: $requiredText"
+    }
 }
 
 if ([regex]::IsMatch($workflow, '(?m)^  sign:$')) {
@@ -121,7 +144,8 @@ Assert-JobContains package $package `
     'Release targets selected different TinyCC packages'
 
 Assert-JobContains publish $publish $tagCondition
-Assert-JobContains publish $publish 'needs: package'
+Assert-JobContains publish $publish 'needs: [package, documentation]'
+Assert-JobContains publish $publish 'wcrt-release-documentation'
 Assert-JobContains publish $publish 'gh release create'
 Assert-JobContains publish $publish 'gh release upload'
 
@@ -134,4 +158,6 @@ Assert-JobContains publish $publish 'gh release upload'
     AuthenticodeDisposition = 'Deferred from 1.0.0'
     PackageDependency = 'release'
     PublishDependency = 'package'
+    DocumentationDependency = 'build'
+    DocumentationAssets = 'four PDFs and one offline ZIP; HTML deployed to Pages'
 }

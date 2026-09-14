@@ -582,6 +582,21 @@ jobs:
             output/test-results/${{ matrix.arch }}/diagnostics/
           if-no-files-found: error
 
+      - name: Retain release-report evidence
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: wcrt-${{ matrix.arch }}-test-evidence
+          path: |
+            output/test-results/${{ matrix.arch }}/c89-test-results.json
+            output/test-results/${{ matrix.arch }}/extension-test-results.json
+            output/test-results/${{ matrix.arch }}/tinycc-c99-capabilities.json
+            output/test-results/${{ matrix.arch }}/startup-test-results.json
+            output/test-results/${{ matrix.arch }}/native-test-diagnostics.json
+            output/test-results/${{ matrix.arch }}/dependency-provenance.json
+            output/test-results/${{ matrix.arch }}/windows-2000-imports.json
+          if-no-files-found: error
+
       - name: Attach dependency provenance to verified debug build
         shell: pwsh
         run: |
@@ -871,6 +886,19 @@ jobs:
           path: output/test-results/x86/windows-2000-imports.json
           if-no-files-found: error
 
+  documentation:
+    if: startsWith(github.ref, 'refs/tags/')
+    name: Build release documentation and deploy Pages
+    needs: build
+    permissions:
+      actions: read
+      contents: read
+      pages: write
+      id-token: write
+    uses: ./.github/workflows/release-documentation.yml
+    with:
+      version: ${{ github.ref_name }}
+
   package:
     if: startsWith(github.ref, 'refs/tags/')
     name: Build multi-architecture WPM package
@@ -1000,7 +1028,7 @@ jobs:
   publish:
     if: startsWith(github.ref, 'refs/tags/')
     name: Publish GitHub release
-    needs: package
+    needs: [package, documentation]
     runs-on: windows-2025
     permissions:
       contents: write
@@ -1015,6 +1043,12 @@ jobs:
           path: release-assets
           merge-multiple: true
 
+      - name: Download release documentation
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
+        with:
+          name: wcrt-release-documentation
+          path: release-assets
+
       - name: Create WPM repository index
         shell: pwsh
         run: |
@@ -1022,7 +1056,7 @@ jobs:
           if ($tag -notmatch '^v?[0-9]+\.[0-9]+\.[0-9]+(?:[-+][0-9A-Za-z.-]+)?$') { throw "Invalid semantic-version release tag: $tag" }
           $assets = (Resolve-Path release-assets).Path
           Copy-Item release_keys/wpm-release.public (Join-Path $assets 'wpm-release.public')
-          $packages = foreach ($file in Get-ChildItem $assets -Filter 'wcrt-*.zip' -File) {
+          $packages = foreach ($file in Get-ChildItem $assets -Filter 'wcrt-any-*.zip' -File) {
             if ($file.Name -notmatch '^wcrt-any-(.+)\.zip$') { throw "Unexpected package filename: $($file.Name)" }
             [ordered]@{
               name = 'wcrt'

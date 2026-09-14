@@ -16,9 +16,11 @@ Release evidence exists; it does not create a tag or external release.
 The release artifact set is one `wcrt-any-<package-version>.zip` WPM package
 containing x86, x64, and ARM64 headers, DLLs, static libraries, import
 definitions, optional console/GUI startup objects, license, README, and C99
-capability records. The published set also contains `SHA256SUMS`, `index.json`,
-and the public WPM key. Files not listed with an exact digest are not approved
-artifacts.
+capability records. It also includes x86, x64, and ARM64 test-execution PDFs,
+one Doxygen API-reference PDF, and one offline documentation ZIP containing
+the PDFs, HTML, and generated LaTeX sources. The Doxygen HTML is deployed to
+GitHub Pages. The published set also contains `SHA256SUMS`, `index.json`, and
+the public WPM key. Files not listed with an exact digest are not approved.
 
 ## Build and Trust Order
 
@@ -47,8 +49,11 @@ artifacts.
    upload only after every Release architecture and WPM-package verification
    succeeds.
 
-The repository workflow orders `build` -> `release` -> `package` -> `publish`,
-so a failed or cancelled architecture or WPM package job prevents publication.
+After `build`, the repository workflow runs `release` and the reusable
+`documentation`/Pages workflow in parallel. `package` follows `release`, and
+`publish` waits for both `package` and `documentation`, so a failed or
+cancelled architecture, documentation, Pages, or WPM package job prevents
+publication.
 Authenticode identity/timestamping and Defender scanning were explicitly
 deferred from WCRT 1.0.0 on 2026-08-21. ADR-0006 and
 `docs/windows-signing-plan.md` retain the dormant Azure design for future

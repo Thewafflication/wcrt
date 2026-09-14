@@ -37,4 +37,6 @@ $releaseGate = & (Join-Path $PSScriptRoot `
     AuthenticodeDisposition = $releaseGate.AuthenticodeDisposition
     PackageDependency = $releaseGate.PackageDependency
     PublishDependency = $releaseGate.PublishDependency
+    DocumentationDependency = $releaseGate.DocumentationDependency
+    DocumentationAssets = $releaseGate.DocumentationAssets
 }
