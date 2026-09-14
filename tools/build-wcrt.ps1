@@ -112,6 +112,7 @@ $sources = @(
     'src/assert.c', 'src/ctype.c', 'src/errno.c', 'src/fenv.c', 'src/locale.c',
     'src/math.c', 'src/popen.c', 'src/setjmp.c', 'src/signal.c', 'src/stdio.c',
     'src/stdio_format.c', 'src/stdio_scan.c', 'src/stdlib.c',
+    'src/thread_pool.c',
     'src/string.c', 'src/time.c', 'src/wchar_convert.c',
     'src/wchar_format.c', 'src/wchar_io.c', 'src/wchar_scan.c',
     'src/wchar_string.c', 'src/wchar_time.c', 'src/wctype.c',

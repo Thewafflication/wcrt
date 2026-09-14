@@ -42,11 +42,34 @@ __declspec(dllimport) void *WCRT_WINAPI CreateThread(void *attributes,
 __declspec(dllimport) void WCRT_WINAPI ExitThread(unsigned long status);
 __declspec(dllimport) void *WCRT_WINAPI GetCurrentThread(void);
 __declspec(dllimport) unsigned long WCRT_WINAPI GetCurrentProcessId(void);
+__declspec(dllimport) unsigned long WCRT_WINAPI TlsAlloc(void);
+__declspec(dllimport) void *WCRT_WINAPI TlsGetValue(unsigned long index);
+__declspec(dllimport) int WCRT_WINAPI TlsSetValue(unsigned long index,
+    void *value);
+__declspec(dllimport) int WCRT_WINAPI TlsFree(unsigned long index);
 
-struct wcrt_thread_start {
+/** @brief Joinable state shared by a creator and its worker. */
+struct wcrt_thread_control {
+    void *handle;
+    void *guard;
     void *(*routine)(void *);
     void *argument;
+    void *result;
+    int references;
+    int claimed;
 };
+
+static unsigned long wcrt_thread_self_key = 0xffffffffUL;
+
+/** @brief Destructor registered for one caller-visible TLS key. */
+struct wcrt_thread_key_entry {
+    int used;
+    pthread_key_t key;
+    void (*destructor)(void *);
+};
+
+#define WCRT_THREAD_KEY_COUNT 64
+static struct wcrt_thread_key_entry wcrt_thread_keys[WCRT_THREAD_KEY_COUNT];
 
 static void *wcrt_section(void *storage) { return storage; }
 
@@ -68,6 +91,69 @@ static void wcrt_release_initialization_lock(void *lock)
 {
     ReleaseMutex(lock);
     CloseHandle(lock);
+}
+
+static unsigned long wcrt_get_thread_self_key(void)
+{
+    void *lock;
+    unsigned long key;
+    if (wcrt_thread_self_key != 0xffffffffUL)
+        return wcrt_thread_self_key;
+    lock = wcrt_acquire_initialization_lock();
+    if (lock == NULL) return 0xffffffffUL;
+    if (wcrt_thread_self_key == 0xffffffffUL) {
+        key = TlsAlloc();
+        if (key != 0xffffffffUL) wcrt_thread_self_key = key;
+    }
+    key = wcrt_thread_self_key;
+    wcrt_release_initialization_lock(lock);
+    return key;
+}
+
+static void wcrt_release_thread(struct wcrt_thread_control *control)
+{
+    int release;
+    WaitForSingleObject(control->guard, WCRT_INFINITE);
+    release = --control->references == 0;
+    ReleaseMutex(control->guard);
+    if (release) {
+        CloseHandle(control->handle);
+        CloseHandle(control->guard);
+        free(control);
+    }
+}
+
+static void wcrt_finish_thread(struct wcrt_thread_control *control,
+    void *result)
+{
+    int iteration;
+    int index;
+    for (iteration = 0; iteration < PTHREAD_DESTRUCTOR_ITERATIONS;
+        ++iteration) {
+        int called = 0;
+        for (index = 0; index < WCRT_THREAD_KEY_COUNT; ++index) {
+            pthread_key_t key;
+            void (*destructor)(void *);
+            void *lock = wcrt_acquire_initialization_lock();
+            void *value;
+            if (lock == NULL) continue;
+            key = wcrt_thread_keys[index].key;
+            destructor = wcrt_thread_keys[index].used ?
+                wcrt_thread_keys[index].destructor : NULL;
+            wcrt_release_initialization_lock(lock);
+            if (destructor == NULL) continue;
+            value = TlsGetValue(key);
+            if (value == NULL) continue;
+            TlsSetValue(key, NULL);
+            destructor(value);
+            called = 1;
+        }
+        if (!called) break;
+    }
+    WaitForSingleObject(control->guard, WCRT_INFINITE);
+    control->result = result;
+    ReleaseMutex(control->guard);
+    wcrt_release_thread(control);
 }
 
 static int wcrt_ensure_mutex(pthread_mutex_t *mutex)
@@ -250,49 +336,183 @@ int pthread_cond_broadcast(pthread_cond_t *condition)
 
 static unsigned long WCRT_WINAPI wcrt_thread_entry(void *parameter)
 {
-    struct wcrt_thread_start start = *(struct wcrt_thread_start *)parameter;
-    free(parameter);
-    start.routine(start.argument);
+    struct wcrt_thread_control *control =
+        (struct wcrt_thread_control *)parameter;
+    unsigned long key = wcrt_get_thread_self_key();
+    void *result;
+    if (key != 0xffffffffUL) TlsSetValue(key, control);
+    result = control->routine(control->argument);
+    wcrt_finish_thread(control, result);
     return 0;
 }
 
 int pthread_create(pthread_t *thread, const pthread_attr_t *attributes,
     void *(*start_routine)(void *), void *argument)
 {
-    struct wcrt_thread_start *start;
+    struct wcrt_thread_control *control;
+    unsigned long key;
     (void)attributes;
     if (thread == NULL || start_routine == NULL) return EINVAL;
-    start = (struct wcrt_thread_start *)malloc(sizeof(*start));
-    if (start == NULL) return ENOMEM;
-    start->routine = start_routine;
-    start->argument = argument;
-    *thread = CreateThread(NULL, 0, wcrt_thread_entry, start, 0, NULL);
-    if (*thread == NULL) {
-        free(start);
+    key = wcrt_get_thread_self_key();
+    if (key == 0xffffffffUL) return EAGAIN;
+    control = (struct wcrt_thread_control *)calloc(1, sizeof(*control));
+    if (control == NULL) return ENOMEM;
+    control->guard = CreateMutexA(NULL, 0, NULL);
+    if (control->guard == NULL) {
+        free(control);
         return EAGAIN;
     }
+    control->routine = start_routine;
+    control->argument = argument;
+    control->references = 2;
+    control->handle = CreateThread(NULL, 0, wcrt_thread_entry, control,
+        0, NULL);
+    if (control->handle == NULL) {
+        CloseHandle(control->guard);
+        free(control);
+        return EAGAIN;
+    }
+    *thread = (pthread_t)control;
     return 0;
 }
 
 int pthread_join(pthread_t thread, void **result)
 {
-    if (thread == NULL) return EINVAL;
-    if (WaitForSingleObject(thread, WCRT_INFINITE) != WCRT_WAIT_OBJECT_0)
+    struct wcrt_thread_control *control =
+        (struct wcrt_thread_control *)thread;
+    if (control == NULL) return EINVAL;
+    WaitForSingleObject(control->guard, WCRT_INFINITE);
+    if (control->claimed) {
+        ReleaseMutex(control->guard);
         return EINVAL;
-    if (result != NULL) *result = NULL;
-    return CloseHandle(thread) ? 0 : EINVAL;
+    }
+    control->claimed = 1;
+    ReleaseMutex(control->guard);
+    if (WaitForSingleObject(control->handle, WCRT_INFINITE) !=
+        WCRT_WAIT_OBJECT_0) {
+        WaitForSingleObject(control->guard, WCRT_INFINITE);
+        control->claimed = 0;
+        ReleaseMutex(control->guard);
+        return EINVAL;
+    }
+    WaitForSingleObject(control->guard, WCRT_INFINITE);
+    if (result != NULL) *result = control->result;
+    ReleaseMutex(control->guard);
+    wcrt_release_thread(control);
+    return 0;
 }
 
 int pthread_detach(pthread_t thread)
 {
-    if (thread == NULL) return EINVAL;
-    return CloseHandle(thread) ? 0 : EINVAL;
+    struct wcrt_thread_control *control =
+        (struct wcrt_thread_control *)thread;
+    if (control == NULL) return EINVAL;
+    WaitForSingleObject(control->guard, WCRT_INFINITE);
+    if (control->claimed) {
+        ReleaseMutex(control->guard);
+        return EINVAL;
+    }
+    control->claimed = 1;
+    ReleaseMutex(control->guard);
+    wcrt_release_thread(control);
+    return 0;
 }
 
 void pthread_exit(void *result)
 {
-    (void)result;
+    unsigned long key = wcrt_get_thread_self_key();
+    struct wcrt_thread_control *control = key == 0xffffffffUL ? NULL :
+        (struct wcrt_thread_control *)TlsGetValue(key);
+    if (control != NULL) wcrt_finish_thread(control, result);
     ExitThread(0);
 }
 
-pthread_t pthread_self(void) { return GetCurrentThread(); }
+pthread_t pthread_self(void)
+{
+    unsigned long key = wcrt_get_thread_self_key();
+    void *self = key == 0xffffffffUL ? NULL : TlsGetValue(key);
+    return self == NULL ? GetCurrentThread() : self;
+}
+
+int pthread_equal(pthread_t left, pthread_t right) { return left == right; }
+
+int pthread_once(pthread_once_t *once_control,
+    void (*initialization_routine)(void))
+{
+    void *lock;
+    if (once_control == NULL || initialization_routine == NULL)
+        return EINVAL;
+    for (;;) {
+        lock = wcrt_acquire_initialization_lock();
+        if (lock == NULL) return EAGAIN;
+        if (once_control->state == 2) {
+            wcrt_release_initialization_lock(lock);
+            return 0;
+        }
+        if (once_control->state == 0) {
+            once_control->state = 1;
+            wcrt_release_initialization_lock(lock);
+            initialization_routine();
+            lock = wcrt_acquire_initialization_lock();
+            if (lock == NULL) return EAGAIN;
+            once_control->state = 2;
+            wcrt_release_initialization_lock(lock);
+            return 0;
+        }
+        wcrt_release_initialization_lock(lock);
+        Sleep(0);
+    }
+}
+
+int pthread_key_create(pthread_key_t *key, void (*destructor)(void *))
+{
+    unsigned long allocated;
+    void *lock;
+    int index;
+    if (key == NULL) return EINVAL;
+    allocated = TlsAlloc();
+    if (allocated == 0xffffffffUL) return EAGAIN;
+    lock = wcrt_acquire_initialization_lock();
+    if (lock == NULL) {
+        TlsFree(allocated);
+        return EAGAIN;
+    }
+    for (index = 0; index < WCRT_THREAD_KEY_COUNT; ++index)
+        if (!wcrt_thread_keys[index].used) break;
+    if (index == WCRT_THREAD_KEY_COUNT) {
+        wcrt_release_initialization_lock(lock);
+        TlsFree(allocated);
+        return EAGAIN;
+    }
+    wcrt_thread_keys[index].used = 1;
+    wcrt_thread_keys[index].key = allocated;
+    wcrt_thread_keys[index].destructor = destructor;
+    *key = allocated;
+    wcrt_release_initialization_lock(lock);
+    return 0;
+}
+
+int pthread_key_delete(pthread_key_t key)
+{
+    void *lock = wcrt_acquire_initialization_lock();
+    int index;
+    if (lock == NULL) return EAGAIN;
+    for (index = 0; index < WCRT_THREAD_KEY_COUNT; ++index)
+        if (wcrt_thread_keys[index].used &&
+            wcrt_thread_keys[index].key == key) break;
+    if (index == WCRT_THREAD_KEY_COUNT) {
+        wcrt_release_initialization_lock(lock);
+        return EINVAL;
+    }
+    wcrt_thread_keys[index].used = 0;
+    wcrt_thread_keys[index].destructor = NULL;
+    wcrt_release_initialization_lock(lock);
+    return TlsFree(key) ? 0 : EINVAL;
+}
+
+int pthread_setspecific(pthread_key_t key, const void *value)
+{
+    return TlsSetValue(key, (void *)value) ? 0 : EINVAL;
+}
+
+void *pthread_getspecific(pthread_key_t key) { return TlsGetValue(key); }

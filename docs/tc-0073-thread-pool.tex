@@ -1,0 +1,9 @@
+\def\TCID{TC-0073}
+\def\TCRequirement{REQ-0073}
+\def\TCTitle{Worker thread pool}
+\def\TCObjective{Verify concurrent workers, queued work, drain, and shutdown.}
+\def\TCPreconditions{A supported TinyCC Windows compiler is available.}
+\def\TCMethod{Block four workers at a gate, release them, execute 512 synchronized counting tasks, wait, and shut down twice.}
+\def\TCPassCriteria{All four workers run concurrently, every task completes exactly once, and post-shutdown submission is rejected.}
+\def\TCPostConditions{Every worker is joined and every pool allocation is released.}
+\input{test-case-template.tex}

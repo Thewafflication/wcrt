@@ -61,6 +61,10 @@
       "SetEvent",
       "Sleep",
       "TryEnterCriticalSection",
+      "TlsAlloc",
+      "TlsFree",
+      "TlsGetValue",
+      "TlsSetValue",
       "UnmapViewOfFile",
       "WaitForSingleObject",
       "WriteFile"

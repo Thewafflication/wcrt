@@ -162,7 +162,10 @@ $tests = @(
         'tests\posix\run-tc-0071.ps1'),
     @('TC-0072', 'REQ-0072', 'POSIX compatibility',
         'Read-only file mapping',
-        'tests\posix\run-tc-0072.ps1')
+        'tests\posix\run-tc-0072.ps1'),
+    @('TC-0073', 'REQ-0073', 'WCRT extensions',
+        'Worker thread pool',
+        'tests\posix\run-tc-0073.ps1')
 )
 
 $manifest = Join-Path $repoRoot 'tests\c99\manifest.md'
@@ -202,6 +205,26 @@ if ($posixDifference.Count -ne 0) {
         "$($_.InputObject) $($_.SideIndicator)"
     }
     throw "Aggregate POSIX inventory differs from the controlled manifest: " +
+        ($detail -join ', ')
+}
+$wcrtManifest = Join-Path $repoRoot 'tests\wcrt\manifest.md'
+$controlledWcrt = @(
+    Select-String -LiteralPath $wcrtManifest -Pattern '\[TC-(\d{4})\]' `
+        -AllMatches |
+        ForEach-Object { $_.Matches } |
+        ForEach-Object { "TC-$($_.Groups[1].Value)" } |
+        Sort-Object -Unique
+)
+$aggregateWcrt = @(
+    $tests | Where-Object { $_[2] -eq 'WCRT extensions' } |
+        ForEach-Object { $_[0] } | Sort-Object -Unique
+)
+$wcrtDifference = @(Compare-Object $controlledWcrt $aggregateWcrt)
+if ($wcrtDifference.Count -ne 0) {
+    $detail = $wcrtDifference | ForEach-Object {
+        "$($_.InputObject) $($_.SideIndicator)"
+    }
+    throw "Aggregate WCRT inventory differs from the controlled manifest: " +
         ($detail -join ', ')
 }
 

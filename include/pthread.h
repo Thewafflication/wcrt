@@ -28,9 +28,13 @@ typedef struct {
 typedef struct { int unused; } pthread_mutexattr_t;
 typedef struct { int unused; } pthread_condattr_t;
 typedef struct { int unused; } pthread_attr_t;
+typedef struct { volatile long state; } pthread_once_t;
+typedef unsigned long pthread_key_t;
 
 #define PTHREAD_MUTEX_INITIALIZER { 0, { 0 } }
 #define PTHREAD_COND_INITIALIZER { 0, { 0 }, 0, 0, 0, NULL, NULL, 0 }
+#define PTHREAD_ONCE_INIT { 0 }
+#define PTHREAD_DESTRUCTOR_ITERATIONS 4
 
 #ifdef __cplusplus
 extern "C" {
@@ -54,6 +58,13 @@ int pthread_join(pthread_t thread, void **result);
 int pthread_detach(pthread_t thread);
 void pthread_exit(void *result);
 pthread_t pthread_self(void);
+int pthread_equal(pthread_t left, pthread_t right);
+int pthread_once(pthread_once_t *once_control,
+    void (*initialization_routine)(void));
+int pthread_key_create(pthread_key_t *key, void (*destructor)(void *));
+int pthread_key_delete(pthread_key_t key);
+int pthread_setspecific(pthread_key_t key, const void *value);
+void *pthread_getspecific(pthread_key_t key);
 
 #ifdef __cplusplus
 }
