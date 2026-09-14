@@ -1,0 +1,8 @@
+\def\TCID{TC-0074}
+\def\TCRequirement{REQ-0074}
+\def\TCTitle{Thread-safe stream allocation}
+\def\TCObjective{Verify that concurrent callers receive distinct streams and that closed entries are reused.}
+\def\TCPreconditions{A supported TinyCC Windows compiler and Windows host are available.}
+\def\TCMethod{Run four workers through 64 rounds, each opening its own stream, holding every stream open at a rendezvous while distinctness is checked, writing and reading back a per-worker pattern, and closing.}
+\def\TCPassCriteria{No two concurrently held streams share a pointer or descriptor, every descriptor is a dynamic descriptor, every read matches the writer's pattern, and no round exhausts the table.}\def\TCPostConditions{Every stream is closed, every temporary file is removed, and every worker is joined.}
+\input{test-case-template.tex}

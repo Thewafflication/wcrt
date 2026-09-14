@@ -122,6 +122,7 @@ conforms to POSIX.1-2017.
 | [REQ-0071](req-0071-posix-threads.md) | [TC-0071](tc-0071-posix-threads.tex) | `<pthread.h>` | Selected POSIX.1-2017 | Mutexes, condition variables, and thread lifecycle |
 | [REQ-0072](req-0072-file-mapping.md) | [TC-0072](tc-0072-file-mapping.tex) | `<sys/mman.h>` | Selected POSIX.1-2017 | Read-only file mapping |
 | [REQ-0073](req-0073-thread-pool.md) | [TC-0073](tc-0073-thread-pool.tex) | `<wcrt/thread_pool.h>` | WCRT extension | Fixed worker pool, drain, and shutdown |
+| [REQ-0074](req-0074-thread-safe-streams.md) | [TC-0074](tc-0074-thread-safe-streams.tex) | `<stdio.h>`, `<io.h>`, `<unistd.h>` | WCRT extension | Thread-safe stream allocation and release |
 
 ## Shared acceptance gates
 

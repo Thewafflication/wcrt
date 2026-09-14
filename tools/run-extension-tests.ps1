@@ -165,7 +165,10 @@ $tests = @(
         'tests\posix\run-tc-0072.ps1'),
     @('TC-0073', 'REQ-0073', 'WCRT extensions',
         'Worker thread pool',
-        'tests\posix\run-tc-0073.ps1')
+        'tests\posix\run-tc-0073.ps1'),
+    @('TC-0074', 'REQ-0074', 'WCRT extensions',
+        'Thread-safe stream allocation',
+        'tests\posix\run-tc-0074.ps1')
 )
 
 $manifest = Join-Path $repoRoot 'tests\c99\manifest.md'

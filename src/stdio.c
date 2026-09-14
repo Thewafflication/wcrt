@@ -13,6 +13,7 @@
 #include <unistd.h>
 
 #include "internal/file.h"
+#include "internal/lock.h"
 
 FILE __wcrt_stdin;
 FILE __wcrt_stdout;
@@ -20,6 +21,17 @@ FILE __wcrt_stderr;
 
 /** @brief Storage for dynamically opened streams. */
 static FILE wcrt_streams[FOPEN_MAX];
+/**
+ * @brief Records which dynamic stream slots are claimed.
+ *
+ * Occupancy is tracked separately from the stream contents so that a slot is
+ * claimed before it is opened and released only after it is closed. A
+ * concurrent caller therefore never receives a slot that another thread is
+ * still preparing or tearing down. The layout of FILE is unaffected.
+ */
+static unsigned char wcrt_stream_used[FOPEN_MAX];
+/** @brief Serializes claims and releases of the dynamic stream table. */
+static struct wcrt_lock wcrt_stream_lock;
 /** @brief Storage returned when tmpnam receives a null pointer. */
 static char wcrt_temporary_name[L_tmpnam];
 
@@ -65,16 +77,86 @@ int __wcrt_require_orientation(FILE *stream, int orientation)
     return -1;
 }
 
-/** @brief Finds an unused dynamic stream slot. */
+/**
+ * @brief Returns the table index of @p stream, or -1 when it is not dynamic.
+ *
+ * The standard streams live outside the dynamic table and are never claimed
+ * or released.
+ */
+static int wcrt_stream_index(FILE *stream)
+{
+    if (stream < &wcrt_streams[0] || stream > &wcrt_streams[FOPEN_MAX - 1]) {
+        return -1;
+    }
+    return (int)(stream - wcrt_streams);
+}
+
+/**
+ * @brief Claims an unused dynamic stream slot for the calling thread.
+ *
+ * The slot is marked in use before the stream is opened, so it cannot be
+ * handed to another thread while this caller prepares it. Every successful
+ * claim shall be matched by wcrt_release_stream once the stream is closed or
+ * its preparation has failed.
+ *
+ * @return The claimed stream, or a null pointer when the table is full or the
+ *     table lock is unavailable.
+ */
 static FILE *wcrt_allocate_stream(void)
 {
     int index;
+    FILE *stream = NULL;
+
+    if (__wcrt_lock_acquire(&wcrt_stream_lock) != 0) {
+        return NULL;
+    }
     for (index = 0; index < FOPEN_MAX; ++index) {
-        if (wcrt_streams[index].handle == NULL) {
-            return &wcrt_streams[index];
+        if (!wcrt_stream_used[index]) {
+            wcrt_stream_used[index] = 1;
+            stream = &wcrt_streams[index];
+            break;
         }
     }
-    return NULL;
+    __wcrt_lock_release(&wcrt_stream_lock);
+    return stream;
+}
+
+/**
+ * @brief Claims the slot holding @p stream when it is not already claimed.
+ *
+ * Used by descriptor duplication, which names a target slot rather than
+ * requesting any free one.
+ *
+ * @param stream Stream whose slot is claimed. Standard streams are ignored.
+ */
+static void wcrt_claim_stream(FILE *stream)
+{
+    int index = wcrt_stream_index(stream);
+
+    if (index < 0 || __wcrt_lock_acquire(&wcrt_stream_lock) != 0) {
+        return;
+    }
+    wcrt_stream_used[index] = 1;
+    __wcrt_lock_release(&wcrt_stream_lock);
+}
+
+/**
+ * @brief Returns the slot holding @p stream to the free pool.
+ *
+ * The caller shall have finished with the stream, because the slot may be
+ * claimed by another thread as soon as this function returns.
+ *
+ * @param stream Stream whose slot is released. Standard streams are ignored.
+ */
+static void wcrt_release_stream(FILE *stream)
+{
+    int index = wcrt_stream_index(stream);
+
+    if (index < 0 || __wcrt_lock_acquire(&wcrt_stream_lock) != 0) {
+        return;
+    }
+    wcrt_stream_used[index] = 0;
+    __wcrt_lock_release(&wcrt_stream_lock);
 }
 
 /** @brief Resolves an open WCRT descriptor to its shared stream slot. */
@@ -139,7 +221,11 @@ FILE *tmpfile(void)
 FILE *fopen(const char *path, const char *mode)
 {
     FILE *stream = wcrt_allocate_stream();
-    if (stream == NULL || __wcrt_file_open(stream, path, mode) != 0) {
+    if (stream == NULL) {
+        return NULL;
+    }
+    if (__wcrt_file_open(stream, path, mode) != 0) {
+        wcrt_release_stream(stream);
         return NULL;
     }
     stream->descriptor = (int)(stream - wcrt_streams) + 3;
@@ -170,6 +256,7 @@ FILE *freopen(const char *path, const char *mode, FILE *stream)
     descriptor = stream->descriptor;
     __wcrt_file_close(stream);
     if (__wcrt_file_open(stream, path, mode) != 0) {
+        wcrt_release_stream(stream);
         return NULL;
     }
     stream->descriptor = descriptor;
@@ -178,11 +265,14 @@ FILE *freopen(const char *path, const char *mode, FILE *stream)
 
 int fclose(FILE *stream)
 {
+    int result;
     if (stream == NULL) {
         return EOF;
     }
     __wcrt_prepare_stream(stream);
-    return __wcrt_file_close(stream) == 0 ? 0 : EOF;
+    result = __wcrt_file_close(stream);
+    wcrt_release_stream(stream);
+    return result == 0 ? 0 : EOF;
 }
 
 int _fileno(FILE *stream)
@@ -222,7 +312,10 @@ int _open(const char *path, int flags, ...)
         errno = EMFILE;
         return -1;
     }
-    if (__wcrt_file_open_flags(stream, path, flags) != 0) return -1;
+    if (__wcrt_file_open_flags(stream, path, flags) != 0) {
+        wcrt_release_stream(stream);
+        return -1;
+    }
     stream->descriptor = (int)(stream - wcrt_streams) + 3;
     return stream->descriptor;
 }
@@ -239,7 +332,10 @@ int __wcrt_open_directory_descriptor(const char *path)
         errno = EMFILE;
         return -1;
     }
-    if (__wcrt_file_open_directory(stream, path) != 0) return -1;
+    if (__wcrt_file_open_directory(stream, path) != 0) {
+        wcrt_release_stream(stream);
+        return -1;
+    }
     stream->descriptor = (int)(stream - wcrt_streams) + 3;
     return stream->descriptor;
 }
@@ -421,7 +517,11 @@ int _dup2(int descriptor, int target)
         return -1;
     }
     if (descriptor == target) return 0;
-    if (__wcrt_file_duplicate(source, destination) != 0) return -1;
+    wcrt_claim_stream(destination);
+    if (__wcrt_file_duplicate(source, destination) != 0) {
+        wcrt_release_stream(destination);
+        return -1;
+    }
     destination->descriptor = target;
     return 0;
 }
@@ -461,20 +561,31 @@ int _pipe(int descriptors[2], unsigned int size, int text_mode)
         errno = EINVAL;
         return -1;
     }
+    if (__wcrt_lock_acquire(&wcrt_stream_lock) != 0) {
+        errno = EMFILE;
+        return -1;
+    }
     for (index = 0; index < FOPEN_MAX; ++index) {
-        if (wcrt_streams[index].handle != NULL) continue;
+        if (wcrt_stream_used[index]) continue;
+        wcrt_stream_used[index] = 1;
         if (reader == NULL) reader = &wcrt_streams[index];
         else {
             writer = &wcrt_streams[index];
             break;
         }
     }
+    __wcrt_lock_release(&wcrt_stream_lock);
     if (writer == NULL) {
+        if (reader != NULL) wcrt_release_stream(reader);
         errno = EMFILE;
         return -1;
     }
     if (__wcrt_file_create_pipe(reader, writer, size,
-        (text_mode & _O_BINARY) != 0) != 0) return -1;
+        (text_mode & _O_BINARY) != 0) != 0) {
+        wcrt_release_stream(reader);
+        wcrt_release_stream(writer);
+        return -1;
+    }
     reader->descriptor = (int)(reader - wcrt_streams) + 3;
     writer->descriptor = (int)(writer - wcrt_streams) + 3;
     descriptors[0] = reader->descriptor;

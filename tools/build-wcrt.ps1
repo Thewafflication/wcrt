@@ -11,7 +11,7 @@ param(
     [Parameter(Mandatory = $true)]
     [string]$TinyCc,
 
-    [string]$Version = '0.0.0',
+    [string]$Version,
 
     [string]$ResourceCompiler,
 
@@ -120,6 +120,7 @@ $sources = @(
     'src/platform/windows/directory.c',
     'src/platform/windows/dirent.c',
     'src/platform/windows/file.c', 'src/platform/windows/heap.c',
+    'src/platform/windows/lock.c',
     'src/platform/windows/mman.c',
     'src/platform/windows/popen.c', 'src/platform/windows/posix_files.c',
     'src/platform/windows/process.c', 'src/platform/windows/pthread.c',

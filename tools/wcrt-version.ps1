@@ -1,10 +1,35 @@
+function Get-WcrtNearestReleaseTag {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$RepositoryRoot
+    )
+
+    # Only version-shaped tags are considered, so an unrelated tag closer to
+    # HEAD cannot mask the release it was cut from.
+    $tag = (& git -C $RepositoryRoot describe --tags --abbrev=0 `
+        --match 'v[0-9]*.[0-9]*.[0-9]*' --match '[0-9]*.[0-9]*.[0-9]*' `
+        2>$null | Select-Object -First 1)
+    if ($LASTEXITCODE -ne 0 -or $null -eq $tag) {
+        return '0.0.0'
+    }
+    ($tag).ToString().Trim()
+}
+
 function Get-WcrtVersion {
     param(
         [Parameter(Mandatory = $true)]
         [string]$RepositoryRoot,
 
-        [string]$SourceVersion = '0.0.0'
+        [string]$SourceVersion
     )
+
+    # An explicit version always wins, so release builds stay deterministic.
+    # With no version supplied, fall back to the nearest release tag rather
+    # than stamping 0.0.0 over a tagged revision.
+    if ([string]::IsNullOrWhiteSpace($SourceVersion)) {
+        $SourceVersion = Get-WcrtNearestReleaseTag `
+            -RepositoryRoot $RepositoryRoot
+    }
 
     $sourceVersion = $SourceVersion -replace '^v', ''
     if ($sourceVersion -notmatch '^([0-9]+)\.([0-9]+)\.([0-9]+)(.*)$') {
@@ -33,8 +58,13 @@ function Get-WcrtVersion {
     } else {
         $exactTag.ToString().Trim()
     }
+    # WSP-WINRES-0004 requires the string version to preserve the source
+    # revision needed for traceability. A modified tree is therefore not
+    # the release it was tagged from, and keeps its commit identifier.
+    $isDirty = $gitDescribe.EndsWith('-dirty')
     $isExactReleaseTag = $exactTagResult -eq 0 -and
-        (($exactTagText -replace '^v', '') -eq $sourceVersion)
+        (($exactTagText -replace '^v', '') -eq $sourceVersion) -and
+        -not $isDirty
 
     $distance = 0
     if ($gitDescribe -match '-([0-9]+)-g[0-9A-Fa-f]+(?:-dirty)?$') {
@@ -54,7 +84,7 @@ function Get-WcrtVersion {
     if (-not $isExactReleaseTag) {
         $packageVersion += "+$gitHash"
     }
-    if ($gitDescribe.EndsWith('-dirty')) {
+    if ($isDirty) {
         $packageVersion += '.dirty'
     }
 
