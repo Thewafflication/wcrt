@@ -17,6 +17,7 @@
 #define WCRT_WAIT_OBJECT_0 0UL
 #define WCRT_LOCK_READY 2L
 
+/** @cond WCRT_WINDOWS_IMPORTS */
 __declspec(dllimport) void WCRT_WINAPI InitializeCriticalSection(void *section);
 __declspec(dllimport) void WCRT_WINAPI EnterCriticalSection(void *section);
 __declspec(dllimport) void WCRT_WINAPI LeaveCriticalSection(void *section);
@@ -27,6 +28,7 @@ __declspec(dllimport) unsigned long WCRT_WINAPI WaitForSingleObject(
     void *handle, unsigned long milliseconds);
 __declspec(dllimport) int WCRT_WINAPI CloseHandle(void *handle);
 __declspec(dllimport) unsigned long WCRT_WINAPI GetCurrentProcessId(void);
+/** @endcond */
 
 /**
  * @brief Writes the process-scoped initialization mutex name into @p name.
@@ -94,7 +96,6 @@ static void wcrt_lock_drop_initializer(void *guard)
     CloseHandle(guard);
 }
 
-/** @copydoc __wcrt_lock_acquire */
 int __wcrt_lock_acquire(struct wcrt_lock *lock)
 {
     void *guard;
@@ -117,7 +118,6 @@ int __wcrt_lock_acquire(struct wcrt_lock *lock)
     return 0;
 }
 
-/** @copydoc __wcrt_lock_release */
 void __wcrt_lock_release(struct wcrt_lock *lock)
 {
     if (lock == NULL || lock->state != WCRT_LOCK_READY) {
