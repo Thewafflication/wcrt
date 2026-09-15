@@ -49,6 +49,7 @@ $sources = @(
     'src/ctype.c', 'src/errno.c', 'src/locale.c', 'src/stdio.c',
     'src/stdio_format.c', 'src/stdio_scan.c', 'src/stdlib.c', 'src/string.c',
     'src/time.c', 'src/platform/windows/clock.c',
+    'src/platform/windows/lock.c',
     'src/platform/windows/file.c', 'src/platform/windows/heap.c',
     'src/platform/windows/process.c'
 )

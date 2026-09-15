@@ -19,6 +19,7 @@ $sources = @(
     'src\wchar_string.c', 'src\wchar_time.c', 'src\wctype.c',
     'src\platform\windows\clock.c',
     'src\platform\windows\heap.c', 'src\platform\windows\process.c',
+    'src\platform\windows\lock.c',
     'src\platform\windows\file.c', 'tests\c89\stdio.c'
 ) | ForEach-Object { Join-Path $repoRoot $_ }
 $arguments = @('-std=c89', '-Wall', '-Werror', '-I',
@@ -29,6 +30,7 @@ if ($LASTEXITCODE -ne 0) {
 }
 $stdinSources = @(
     'src\errno.c', 'src\string.c', 'src\stdio.c',
+    'src\platform\windows\lock.c',
     'src\platform\windows\file.c',
     'tests\c89\stdio_stdin.c'
 ) | ForEach-Object { Join-Path $repoRoot $_ }

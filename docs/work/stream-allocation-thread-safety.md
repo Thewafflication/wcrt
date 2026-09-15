@@ -243,3 +243,22 @@ their results in the verification evidence above.
 - [ADR-0003](../adr-0003-c99-wide-character-and-stream-abi.md)
 - [1.1.0 roadmap](../WCRT-1.1.0-ROADMAP.md)
 - [Project process](../PROJECT-PROCESS.md)
+
+## 2026-09-15 Release Integration Correction
+
+CI run `34931422597` exposed STR-D008: the explicit source inventories in
+seven focused test scripts omitted `src/platform/windows/lock.c`. The C89
+stdio test and nine extension tests failed to link the two internal lock
+functions. The earlier statement that every test runner globs was incorrect.
+All explicit stdio inventories, including the stdin-only and ARM64 cross
+builds, now include the lock source. No public ABI or runtime behavior changes.
+
+Local TinyCC `0.9.28-rc.1446+07318c25` x64 verification passes all 15 C89
+tests and all 55 extension tests, including TC-0074. CI must still verify
+x86 and native ARM64 and the remaining release gates before tagging 1.2.4.
+The existing tests reproduce the omitted dependency and verify its repair.
+
+Release scope also includes the prior version-resource correction: implicit
+build versions resolve the nearest release tag, while dirty builds retain
+source identity. Explicit release versions remain authoritative. This affects
+build metadata and package identity, with no public C interface change.
