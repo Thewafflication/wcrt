@@ -36,6 +36,9 @@ Notable limits:
 - `<pthread.h>` provides mutexes, condition variables, lifecycle operations,
   one-time initialization, and thread-specific storage. It is not the complete
   pthread API.
+- Dynamic stream allocation is safe across threads. Each `FILE` object,
+  including the standard streams, still requires caller-provided locking when
+  shared. See [the stream concurrency contract](docs/req-0074-thread-safe-streams.md).
 - `<sys/mman.h>` supports read-only file mappings. Writable, anonymous, fixed,
   and executable mappings are rejected.
 - Microsoft compatibility is source-oriented and selected; WCRT is not a

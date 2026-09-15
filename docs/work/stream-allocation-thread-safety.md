@@ -11,8 +11,8 @@ closeout record
 
 **Owner:** WCRT maintainer
 
-**Status:** Local implementation and personal review complete; TinyCC execution
-of TC-0074, independent review, and CI pending
+**Status:** Implementation and native Debug CI verified; see the dated release
+integration and publication evidence below. Historical pending cells are retained.
 
 **Approval:** Review and merge of this work package
 
@@ -262,3 +262,40 @@ Release scope also includes the prior version-resource correction: implicit
 build versions resolve the nearest release tag, while dirty builds retain
 source identity. Explicit release versions remain authoritative. This affects
 build metadata and package identity, with no public C interface change.
+
+## 2026-09-15 Candidate Verification and Follow-up
+
+Candidate `8e35b16` passes [CI run 35009561630](https://github.com/Thewafflication/wcrt/actions/runs/35009561630):
+source quality, requirements traceability, x86/x64/native ARM64 Debug builds,
+C89 and extension aggregates, native diagnostics, static/DLL consumers,
+startup checks, the x86 legacy-import audit, and Debug package assembly.
+This supersedes the historical execution-pending entries above. No separate
+independent reviewer result is claimed by this update.
+
+The maintainer requested release and continued work on 2026-09-15. Tag 1.2.4
+identifies that exact candidate; its optimized builds and publication are
+tracked by [run 35010196148](https://github.com/Thewafflication/wcrt/actions/runs/35010196148).
+
+Post-release documentation work exposes REQ-0074's sharing boundary in the
+README. Concurrent allocation does not serialize access to a shared `FILE`.
+Future behavior work should extend TC-0074 beyond concurrent `fopen`/`fclose`
+to failed-open reclamation, table exhaustion, and descriptor-adapter claim
+paths. Those scenarios remain follow-up coverage, not evidence supplied by
+the current four-worker test. Any such change should first state its expected
+error, cleanup, and reuse behavior in the controlled test specification.
+
+Process lesson: whenever an internal dependency is introduced, search both
+recursive source collectors and explicit source arrays, including reduced
+stdin-only and cross-build inventories. A successful library link alone does
+not establish that focused tests still link.
+
+### Publication Result
+
+[WCRT 1.2.4](https://github.com/Thewafflication/wcrt/releases/tag/1.2.4)
+is published. Tagged run `35010196148` completed successfully, including all
+three optimized Release targets, WPM signature and packaged-DLL verification,
+the four PDFs and offline documentation archive, Pages deployment, and GitHub
+publication. The release contains all nine expected assets: the WPM package,
+four PDFs, documentation ZIP, index, checksum list, and public verification key.
+Authenticode and Defender remain deferred under the existing release policy.
+The roadmap status note now reflects the published version.

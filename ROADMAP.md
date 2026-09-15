@@ -1,6 +1,6 @@
 # WCRT Roadmap
 
-> **Status note (September 2026):** WCRT releases through 1.2.2 have been
+> **Status note (September 2026):** WCRT releases through 1.2.4 have been
 > published. This document preserves the long-range standards and compatibility
 > plan; its unchecked items are not a current release inventory. Use the
 > [requirements index](docs/REQUIREMENTS.md) and executable test manifests for
