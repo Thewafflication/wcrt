@@ -28,3 +28,9 @@ TC-0074 verifies that concurrent workers receive distinct streams and
 descriptors, that each stream carries only its own data, and that entries are
 returned for reuse after closure. The unchanged stream representation remains
 covered by the compatibility ABI checks of REQ-0042.
+
+TC-0074 also verifies reclamation after failed `fopen`, `freopen`, and `_open`,
+full-table `EMFILE` results without damaging held descriptors, rollback of a
+pipe allocation with only one free slot, and reservation and reuse of `_dup`
+and `_dup2` targets. These checks use WCRT's bounded dynamic stream table;
+they do not claim that arbitrary concurrent use of one descriptor is safe.

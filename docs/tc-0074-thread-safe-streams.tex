@@ -1,8 +1,9 @@
 \def\TCID{TC-0074}
 \def\TCRequirement{REQ-0074}
 \def\TCTitle{Thread-safe stream allocation}
-\def\TCObjective{Verify that concurrent callers receive distinct streams and that closed entries are reused.}
+\def\TCObjective{Verify distinct concurrent streams, failed-open reclamation, table exhaustion, and descriptor-slot reuse.}
 \def\TCPreconditions{A supported TinyCC Windows compiler and Windows host are available.}
-\def\TCMethod{Run four workers through 64 rounds, each opening its own stream, holding every stream open at a rendezvous while distinctness is checked, writing and reading back a per-worker pattern, and closing.}
-\def\TCPassCriteria{No two concurrently held streams share a pointer or descriptor, every descriptor is a dynamic descriptor, every read matches the writer's pattern, and no round exhausts the table.}\def\TCPostConditions{Every stream is closed, every temporary file is removed, and every worker is joined.}
+\def\TCMethod{First repeat failed stream and descriptor opens beyond table capacity, then fill the dynamic table and check EMFILE without disturbing held descriptors. With one free slot, reject a pipe and verify rollback; with two free slots, create a usable pipe. Duplicate into a closed descriptor, verify the target remains reserved, and reclaim every slot. Then run four workers through 64 rounds, each opening its own stream, holding every stream open at a rendezvous while distinctness is checked, writing and reading back a per-worker pattern, and closing.}
+\def\TCPassCriteria{Failed opens and failed reopen release their slots. Full-table fopen, descriptor open, and duplication report EMFILE, and held descriptors remain readable. A failed pipe leaves its output array unchanged and its partial reservation reusable. Successful pipes transfer data, duplicate targets remain reserved and readable after the source closes, and all capacity is recovered. No two concurrently held streams share a pointer or descriptor, every read matches the writer's pattern, and no concurrent round exhausts the table.}
+\def\TCPostConditions{On success every stream is closed, every temporary file is removed, and every worker is joined. Failure exit codes identify the failing stage; process termination closes remaining handles and files may remain for diagnosis.}
 \input{test-case-template.tex}

@@ -299,3 +299,52 @@ publication. The release contains all nine expected assets: the WPM package,
 four PDFs, documentation ZIP, index, checksum list, and public verification key.
 Authenticode and Defender remain deferred under the existing release policy.
 The roadmap status note now reflects the published version.
+
+## 2026-09-15 Stream Capacity and Failure-Path Follow-up
+
+### Scope, Design, and Impact
+
+The continued stream work extends TC-0074 with a separate deterministic
+`stdio_slots.c` executable before the existing concurrent worker test. It
+covers failed `fopen`, `_open`, and `freopen` reclamation; full-table errors;
+pipe partial-reservation rollback; and `_dup`/`_dup2` target ownership. The
+runner compiles each executable immediately before running it, retaining a
+separate binary and a stage-specific failure message. The requirement,
+controlled test specification, and WCRT manifest describe both sources.
+
+The oracle uses WCRT's FOPEN_MAX dynamic slots, verifies live descriptor
+uniqueness and contents, then proves complete capacity recovery. Missing-file
+`fopen` checks require failure and cleanup without imposing a new errno
+contract. `_open` checks retain its ENOENT contract. Error assertions execute
+before worker creation because errno remains process-global. No per-stream
+concurrency, public ABI, import, or supported-platform change is introduced.
+
+### Defect and Review Record
+
+STR-D009: the first exhaustion run failed with code 12. `fopen` returned NULL
+with stale errno because the shared allocator did not report EMFILE, contrary
+to REQ-0074. The allocator now sets EMFILE when its locked scan finds no free
+entry. Existing descriptor adapters already report EMFILE. The same test
+passes after the three-line correction, providing a failing-before and
+passing-after regression case.
+
+Personal review checked reservation/release accounting, readable descriptors
+after exhaustion, duplicate lifetime after source close, unchanged pipe output
+on failure, failed-reopen cleanup, and recovery of all slots. The test is
+specific to the documented WCRT table, not a portable POSIX capacity claim.
+Failure exits retain the numeric stage and may leave test files for diagnosis;
+success closes every descriptor and removes the test file.
+
+No advance effort estimate or token measurement was recorded. This is one
+bounded requirement/test slice. Native ARM64 execution and independent review
+remain outstanding; local cross-compilation is not runtime evidence.
+
+### Verification Result
+
+TinyCC `0.9.28-rc.1446+07318c25`: all 15 C89 and 55 extension cases pass
+locally on both x86 and x64, including both TC-0074 executables. The two
+TC-0074 sources also compile and link for ARM64 with the packaged cross
+compiler. TC-0016 source quality passes with zero violations, requirements
+traceability passes, and `git diff --check` is clean. Native ARM64 execution
+and CI remain pending for this uncommitted follow-up. Evidence is retained in
+`output/test-results/{x86,x64}` and the TC-0074 build directory.

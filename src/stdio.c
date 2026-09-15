@@ -118,6 +118,9 @@ static FILE *wcrt_allocate_stream(void)
         }
     }
     __wcrt_lock_release(&wcrt_stream_lock);
+    if (stream == NULL) {
+        errno = EMFILE;
+    }
     return stream;
 }
 
