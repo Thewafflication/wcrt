@@ -24,7 +24,7 @@ when it has a requirement, an implementation, and a passing test. The
 | ISO C | Hosted C89/C90 baseline and the documented C99 library profile |
 | Microsoft compatibility | Selected low-level I/O, file metadata, secure I/O/string helpers, string and integer extensions, command streams, and underscore aliases |
 | POSIX compatibility | Selected descriptors, files, directories, paths, strings, time, process identity, option parsing, filename matching, command streams, threads, and read-only file mapping |
-| WCRT extensions | Fixed-size worker thread pools with submission, draining, shutdown, and destruction |
+| WCRT extensions | Fixed-size worker thread pools and processor capability/count queries |
 | Platforms | x86, x64, and ARM64 Windows; Windows 2000 compatibility is an x86 guarantee |
 
 The POSIX layer is a bounded Windows portability profile, not a complete POSIX
@@ -50,6 +50,25 @@ See the [documentation guide](docs/README.md) for the conformance profile,
 platform model, requirements, tests, and release policy.
 Tagged releases publish the generated API reference to
 [GitHub Pages](https://thewafflication.github.io/wcrt/).
+
+## Processor information
+
+Processor queries are available through `<wcrt/cpu.h>`:
+
+```c
+#include <wcrt/cpu.h>
+
+int supports_avx2(void)
+{
+    return wcrt_cpu_has_features(WCRT_CPU_AVX2);
+}
+```
+
+WCRT console/GUI startup initializes cached
+capabilities before application entry; other consumers initialize on first
+query. Count queries are fresh snapshots and return zero if unknown. Available
+count covers process affinity on single-group systems; core count requires
+modern Windows topology support. See the [CPU API contract](docs/req-0075-cpu-information.md).
 
 ## Install with WPM
 

@@ -4,6 +4,7 @@
  */
 
 #include <stdlib.h>
+#include <wcrt/cpu.h>
 
 #if defined(__TINYC__) || defined(__GNUC__)
 #define WCRT_WINAPI __attribute__((stdcall))
@@ -63,6 +64,7 @@ void _start(void)
     int show_command;
     int status;
 
+    if (wcrt_cpu_get_info() == NULL) exit(127);
     GetStartupInfoA(&startup);
     show_command = (startup.flags & WCRT_STARTF_USESHOWWINDOW) != 0
         ? (int)startup.show_window : WCRT_SW_SHOWDEFAULT;

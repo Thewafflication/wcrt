@@ -117,6 +117,7 @@ $sources = @(
     'src/wchar_format.c', 'src/wchar_io.c', 'src/wchar_scan.c',
     'src/wchar_string.c', 'src/wchar_time.c', 'src/wctype.c',
     'src/platform/windows/clock.c',
+    'src/platform/windows/cpu.c',
     'src/platform/windows/directory.c',
     'src/platform/windows/dirent.c',
     'src/platform/windows/file.c', 'src/platform/windows/heap.c',

@@ -1,0 +1,9 @@
+\def\TCID{TC-0075}
+\def\TCRequirement{REQ-0075}
+\def\TCTitle{Processor capabilities and counts}
+\def\TCObjective{Verify initialized capabilities, usable instruction masks and fresh processor counts.}
+\def\TCPreconditions{A supported TinyCC Windows compiler is available.}
+\def\TCMethod{Race sixteen first queries and compare their immediate snapshots, restrict and restore process affinity, and simulate old Windows and malformed topology responses. Test instruction decoding against synthetic OS state. Substitute a counting initializer to prove console and GUI startup invoke it before application entry.}
+\def\TCPassCriteria{Queries publish one immutable result, instruction masks honor OS state, affinity changes are visible, all-group totals are requested, and unavailable or malformed topology returns zero.}
+\def\TCPostConditions{Workers are joined, affinity restored and test allocations released.}
+\input{test-case-template.tex}

@@ -29,7 +29,15 @@ Write-WspInfo (
 New-Item -ItemType Directory -Force -Path $smokeDirectory | Out-Null
 Set-Content -LiteralPath $source -Encoding ascii -Value @(
     '#include <string.h>'
-    'int main(void) { return strlen("wcrt") == 4 ? 0 : 1; }'
+    '#include <wcrt/cpu.h>'
+    'int main(void) {'
+    '    const struct wcrt_cpu_info *cpu = wcrt_cpu_get_info();'
+    '    return strlen("wcrt") == 4 && cpu != 0 &&'
+    '        wcrt_cpu_logical_count() != 0 &&'
+    '        !wcrt_cpu_has_features(0) &&'
+    '        wcrt_cpu_core_count() <= wcrt_cpu_logical_count() &&'
+    '        wcrt_cpu_available_count() <= wcrt_cpu_logical_count() ? 0 : 1;'
+    '}'
 )
 Set-Content -LiteralPath $posixSource -Encoding ascii -Value @(
     '#define WCRT_POSIX 1'

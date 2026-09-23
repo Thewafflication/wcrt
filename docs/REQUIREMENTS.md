@@ -124,6 +124,12 @@ conforms to POSIX.1-2017.
 | [REQ-0073](req-0073-thread-pool.md) | [TC-0073](tc-0073-thread-pool.tex) | `<wcrt/thread_pool.h>` | WCRT extension | Fixed worker pool, drain, and shutdown |
 | [REQ-0074](req-0074-thread-safe-streams.md) | [TC-0074](tc-0074-thread-safe-streams.tex) | `<stdio.h>`, `<io.h>`, `<unistd.h>` | WCRT extension | Thread-safe stream allocation and release |
 
+## Processor information extension
+
+| Requirement | Test case | Header | Source | Scope |
+| --- | --- | --- | --- | --- |
+| [REQ-0075](req-0075-cpu-information.md) | [TC-0075](tc-0075-cpu-information.tex) | `<wcrt/cpu.h>` | WCRT extension | Startup-initialized capabilities and fresh processor counts |
+
 ## Shared acceptance gates
 
 Every requirement is complete only when its header and implementation files

@@ -6,6 +6,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include <wcrt/cpu.h>
 
 #if defined(__TINYC__) || defined(__GNUC__)
 #define WCRT_WINAPI __attribute__((stdcall))
@@ -41,6 +42,7 @@ void _start(void)
     int count = 0;
     int index = 0;
 
+    if (wcrt_cpu_get_info() == NULL) exit(127);
     length = strlen(command_line);
     storage = (char *)malloc(length + 1);
     if (storage == NULL) {
