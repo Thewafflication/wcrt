@@ -66,3 +66,12 @@ tests and records are additional. Focused effort was not timed reliably across
 the session interruption, so no actual-hours claim is made. Process improvement:
 use distinct console/GUI entry definitions and explicit argument arrays in
 future startup harnesses. Release acceptance still requires native ARM64 CI.
+
+## Release preparation
+
+The first remote matrix (run 35823572743) exposed a startup-test harness path
+bug on every architecture: the aggregate passes a diagnostic compiler wrapper,
+so resolving support libraries beside that wrapper selected `tests/lib`.
+Resolve library paths from `WCRT_TEST_TINYCC` when using the known wrapper,
+while keeping compiler invocations wrapped. Reproduce with the diagnostic
+wrapper locally before rerunning the complete remote matrix for release 1.3.0.

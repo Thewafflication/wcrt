@@ -27,7 +27,11 @@ foreach ($test in 'cpu', 'cpu_fallback') {
 $description = (& $TinyCc -v 2>&1 | Select-Object -First 1).ToString()
 $architecture = if ($description -match 'AArch64') { 'arm64' }
     elseif ($description -match 'x86_64') { 'x64' } else { 'x86' }
-$toolchain = Get-WcrtStartupToolchain $TinyCc $architecture
+$toolchainCompiler = $TinyCc
+if ((Split-Path -Leaf $TinyCc) -eq 'tcc-diagnostic-wrapper.cmd') {
+    $toolchainCompiler = (Resolve-Path -LiteralPath $env:WCRT_TEST_TINYCC).Path
+}
+$toolchain = Get-WcrtStartupToolchain $toolchainCompiler $architecture
 foreach ($subsystem in 'console', 'gui') {
     $startup = Join-Path $build "$subsystem.o"
     & $TinyCc -std=c89 -Wall -Werror -I (Join-Path $root 'include') -c `
