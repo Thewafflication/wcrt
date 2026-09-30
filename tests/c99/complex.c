@@ -234,13 +234,24 @@ static int wcrt_check_symmetry(void)
 
 static int wcrt_check_precisions(void)
 {
-    float complex single = wcrt_make(0.25, -0.5);
+    /* Construct the input at its tested precision. TinyCC x86 can duplicate
+     * the real component when narrowing a returned double complex value.
+     */
+    union {
+        float complex value;
+        float part[2];
+    } fixture;
+    float complex single;
+    fixture.part[0] = 0.25F;
+    fixture.part[1] = -0.5F;
+    single = fixture.value;
     long double complex extended = (long double complex)single;
     float complex single_result = cexpf(single);
     long double complex long_result = cexpl(extended);
     float complex single_product = single * single;
     long double complex long_product = extended * extended;
 
+    if (crealf(single) != 0.25F || cimagf(single) != -0.5F) return 99;
     if (!wcrt_near(crealf(single_result), 1.1268383, 1e-5) ||
         !wcrt_near(cimagf(single_result), -0.6155946, 1e-5)) return 90;
     if (!wcrt_near((double)creall(long_result), 1.1268383147091814,
