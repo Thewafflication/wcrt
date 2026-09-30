@@ -790,6 +790,40 @@ size_t fread(void *destination, size_t size, size_t count, FILE *stream)
         return 0;
     }
     total = size * count;
+    if (total == 0 || stream == NULL) return 0;
+    __wcrt_prepare_stream(stream);
+    if (__wcrt_require_orientation(stream, WCRT_ORIENTATION_BYTE) != 0) {
+        return 0;
+    }
+    if (!(stream->flags & WCRT_FILE_READ)) {
+        stream->error = 1;
+        return 0;
+    }
+    if (stream->flags & WCRT_FILE_BINARY) {
+        index = 0;
+        if (stream->pushback != EOF) {
+            output[index++] = (unsigned char)stream->pushback;
+            stream->pushback = EOF;
+        }
+        /* Read directly into the caller's buffer without reading ahead.
+         * The backend caps each request to the Windows DWORD limit.
+         * Retry short reads until the request, EOF, or an error is reached.
+         */
+        while (index < total) {
+            size_t transferred;
+            if (__wcrt_file_read(stream, output + index, total - index,
+                &transferred) != 0) {
+                stream->error = 1;
+                break;
+            }
+            if (transferred == 0) {
+                stream->end_of_file = 1;
+                break;
+            }
+            index += transferred;
+        }
+        return index / size;
+    }
     for (index = 0; index < total; ++index) {
         int character = fgetc(stream);
         if (character == EOF) {

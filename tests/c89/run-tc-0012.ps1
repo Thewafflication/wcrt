@@ -6,6 +6,7 @@ $repoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 $buildDirectory = Join-Path $repoRoot 'build\tests\c89\tc-0012'
 $executable = Join-Path $buildDirectory 'stdio-test.exe'
 $stdinExecutable = Join-Path $buildDirectory 'stdio-stdin-test.exe'
+$bulkExecutable = Join-Path $buildDirectory 'stdio-bulk-test.exe'
 if ([string]::IsNullOrWhiteSpace($TinyCc)) {
     $TinyCc = Join-Path (Split-Path -Parent $repoRoot) `
         'tcc_package\out\build\x64-debug\package\tcc.exe'
@@ -34,6 +35,14 @@ $stdinSources = @(
     'src\platform\windows\file.c',
     'tests\c89\stdio_stdin.c'
 ) | ForEach-Object { Join-Path $repoRoot $_ }
+$bulkSources = @($sources | Select-Object -SkipLast 1) +
+    @(Join-Path $repoRoot 'tests\c89\stdio_bulk.c')
+$bulkArguments = @('-std=c89', '-Wall', '-Werror', '-I',
+    (Join-Path $repoRoot 'include')) + $bulkSources + @('-o', $bulkExecutable)
+$bulkOutput = & $TinyCc @bulkArguments 2>&1
+if ($LASTEXITCODE -ne 0) {
+    throw "TC-0012 bulk-read build failed:`n$($bulkOutput | Out-String)"
+}
 $stdinArguments = @('-std=c89', '-Wall', '-Werror', '-I',
     (Join-Path $repoRoot 'include')) + $stdinSources + @('-o', $stdinExecutable)
 $stdinOutput = & $TinyCc @stdinArguments 2>&1
@@ -46,6 +55,10 @@ try {
     $absoluteSecond = Join-Path $buildDirectory 'wcrt-tc-0012-b.tmp'
     & $executable $absoluteFirst $absoluteSecond
     $exitCode = $LASTEXITCODE
+    & $bulkExecutable
+    if ($LASTEXITCODE -ne 0) {
+        throw "TC-0012 bulk-read regression failed with code $LASTEXITCODE."
+    }
 } finally {
     Pop-Location
 }
@@ -78,6 +91,7 @@ if ($LASTEXITCODE -ne 0) {
     FilesAndTemporaryFiles = 'Pass'
     RelativeAndDriveQualifiedPaths = 'Pass'
     CharacterAndDirectIo = 'Pass'
+    BulkBinaryReadOperationsAndState = 'Pass'
     PositionAndIndicators = 'Pass'
     FormattedOutput = 'Pass'
     FormattedInput = 'Pass'

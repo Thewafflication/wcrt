@@ -11,7 +11,7 @@ indicators, formatting, and scanning.}
 \def\TCFeatureRef{\texttt{include/stdio.h}; \texttt{src/stdio.c};
 \texttt{src/stdio\_format.c}; \texttt{src/stdio\_scan.c};\par
 \texttt{src/platform/windows/file.c}; \texttt{tests/c89/stdio.c};
-\texttt{tests/c89/stdio\_stdin.c}.}
+\texttt{tests/c89/stdio\_stdin.c}; \texttt{tests/c89/stdio\_bulk.c}.}
 \def\TCTestTechnique{Equivalence partitioning, boundary-value analysis, and state-transition testing across streams, files, buffering, formatting, and scanning.}
 \def\TCPreconditions{TinyCC and WCRT ctype, errno, string, and stdlib are
 available.}
@@ -34,6 +34,13 @@ handle, write exact \texttt{n\textbackslash r\textbackslash n} and
 \texttt{fgets}, EOF, and error indicators.
 \item Exercise \texttt{fgets} using a genuine Windows console input handle.
 \item Exercise formatted output, input, suppression, scansets, and counts.
+\item Read a 1 MiB plus seven-byte binary fixture in 64 KiB chunks under
+default, full, line, and unbuffered modes, including null and caller-owned
+full buffers. Require no more than 64 native process read operations per
+pass, using Windows process I/O counters, and verify every byte.
+\item Check zero and overflowing requests, partial elements, empty files,
+pushback before data and at EOF, seeking, byte/wide orientation, write-only
+streams, injected invalid-handle errors, recovery, and CR-LF translation.
 \item Cross-link the complete subsystem as PE/COFF ARM64.
 \end{enumerate}}
 \def\TCExpectedResult{All 41 WCRT functions pass behavioral checks and the
