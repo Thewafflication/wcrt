@@ -51,6 +51,34 @@ platform model, requirements, tests, and release policy.
 Tagged releases publish the generated API reference to
 [GitHub Pages](https://thewafflication.github.io/wcrt/).
 
+## Native file handles and streams
+
+Use `_open_osfhandle` from `<io.h>` to transfer an exclusively owned Windows
+handle into a WCRT descriptor, then `_fdopen` from `<stdio.h>` to obtain its
+`FILE *` interface:
+
+```c
+#include <fcntl.h>
+#include <io.h>
+#include <stdio.h>
+
+FILE *stream_from_owned_handle(__wcrt_intptr_t handle)
+{
+    int descriptor = _open_osfhandle(handle, _O_RDWR | _O_BINARY);
+    FILE *stream;
+    if (descriptor == -1) return NULL;
+    stream = _fdopen(descriptor, "r+b");
+    if (stream == NULL) _close(descriptor);
+    return stream;
+}
+```
+
+The example requires a handle with read/write access. Failed adoption leaves
+the handle with the caller; successful adoption transfers ownership, and
+`fclose` closes the descriptor and native handle. Duplicate borrowed handles
+with Windows `DuplicateHandle` before adopting them. See the
+[native-handle contract](docs/req-0090-ms-native-handle-adoption.md).
+
 ## Explicit 32-bit file status
 
 An x86 source consumer can opt into the narrow status record before its first

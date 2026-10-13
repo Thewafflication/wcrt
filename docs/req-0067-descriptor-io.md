@@ -23,6 +23,9 @@ descriptor status is specified by REQ-0049 and REQ-0051.
 - `<io.h>` shall declare `_close`, `_read`, `_write`, `_lseek`, `_tell`,
   `_commit`, `_isatty`, `_fdopen`, `_dup`, and `_dup2` with
   Microsoft-compatible signatures.
+- `<stdio.h>` alone shall also declare `_fdopen`, without POSIX selection.
+  Invalid or closed descriptors return NULL with EBADF before inspecting the
+  mode pointer; invalid modes on live descriptors return NULL with EINVAL.
 - `<io.h>` shall declare `_pipe`; `<unistd.h>` shall declare selected `pipe`.
   Each shall return independently closeable read and write descriptors backed
   by one Windows anonymous pipe. POSIX endpoints shall be binary.
