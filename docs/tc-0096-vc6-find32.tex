@@ -1,0 +1,20 @@
+% TC-0096 controlled narrow filename enumeration fragment.
+\def\TCID{TC-0096}
+\def\TCTitle{Explicit narrow filename enumeration}
+\def\TCPurpose{Verify REQ-0096 records, errors and handle ownership.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0096}
+\def\TCDesignRef{Narrow enumeration work record.}
+\def\TCFeatureRef{io.h; ms\_find32.c; run-tc-0096.ps1.}
+\def\TCTestTechnique{ABI, owned filesystem and deterministic provider tests.}
+\def\TCPreconditions{Matched runtime package/compiler.}
+\def\TCEnvironment{Windows x86/x64 native; ARM64 compile/link.}
+\def\TCAssumptions{ANSI native wildcard matching and enumeration order.}
+\def\TCInputData{Boundary timestamps/sizes, malformed names, invalid handles.}
+\def\TCInitialState{Output guards and errno seeded; fixtures owned by test.}
+\def\TCProcedure{Compile layouts/source aliases; search native fixtures;
+inject conversion/errors and verify close counts and preserved guards.}
+\def\TCExpectedResult{Checked complete records; failed-next retention;
+documented errors and cleanup.}
+\def\TCPostConditions{Owned fixtures removed and successful searches closed.}
+\TCTemplate

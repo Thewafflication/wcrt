@@ -1,0 +1,25 @@
+% TC-0090 controlled native-handle adoption fragment.
+\def\TCID{TC-0090}
+\def\TCTitle{Microsoft native-handle adoption}
+\def\TCPurpose{Verify REQ-0090 pointer width and ownership transfer.}
+\def\TCPriority{\TCPriorityCritical}
+\def\TCRequirementRef{REQ-0090}
+\def\TCDesignRef{Native-handle adoption work record and shared stream table.}
+\def\TCFeatureRef{\texttt{include/io.h}; \texttt{src/ms\_handle.c};
+shared stream ownership and Windows backend;
+\texttt{tests/mscompat/native-handle.c};
+\texttt{tests/mscompat/run-tc-0090.ps1}.}
+\def\TCTestTechnique{Owned handle lifecycle, access and capacity partitions.}
+\def\TCPreconditions{Matched TinyCC; owned small file and native handles.}
+\def\TCEnvironment{Windows x86/x64; ARM64 cross-links where nonnative.}
+\def\TCAssumptions{Caller exclusively owns transferred handles.}
+\def\TCInputData{Disk and pipe handles, invalid flags/handles, translation,
+append, native duplicates, FILE close and full descriptor table.}
+\def\TCInitialState{Owned native handles, no ownership transferred.}
+\def\TCProcedure{Check declaration/width; reject flags without closing;
+adopt and exercise native-backed I/O; verify close ownership; fill the table,
+verify failure preserves the native handle and recover a released slot.}
+\def\TCExpectedResult{Pointer bits retained; transfer only on success; selected
+access/translation/append behavior; precise errors and no leaked capacity.}
+\def\TCPostConditions{Owned descriptors/handles closed; owned file removed.}
+\TCTemplate

@@ -22,7 +22,10 @@ function Invoke-WcrtCompatibilityTest {
         [Parameter(Mandatory)][string]$PresenceSource,
         [Parameter(Mandatory)][string]$BehaviorSource,
         [string[]]$Arguments = @(),
-        [string]$LanguageMode = 'c89'
+        [string]$LanguageMode = 'c89',
+        [string[]]$ExcludedSources = @(),
+        [string[]]$AdditionalSources = @(),
+        [switch]$CompileOnly
     )
     $buildDirectory = Join-Path $RepositoryRoot `
         "build\tests\mscompat\$($TestCase.ToLowerInvariant())"
@@ -36,17 +39,70 @@ function Invoke-WcrtCompatibilityTest {
     }
     $sources = Get-ChildItem (Join-Path $RepositoryRoot 'src') -Recurse `
         -Filter '*.c' | Where-Object {
-            $_.Name -notin 'startup_console.c', 'startup_gui.c', 'complex.c'
+            $_.Name -notin 'startup_console.c', 'startup_gui.c', 'complex.c' -and
+                $_.Name -notin $ExcludedSources
         } | Select-Object -ExpandProperty FullName
     $executable = Join-Path $buildDirectory 'test.exe'
-    $lines = @(& $TinyCc @common @sources $BehaviorSource `
+    $lines = @(& $TinyCc @common @sources @AdditionalSources $BehaviorSource `
         -o $executable 2>&1)
     if ($LASTEXITCODE -ne 0) {
         throw "$TestCase behavior build failed:`n$($lines -join "`n")"
     }
-    & $executable @Arguments
-    if ($LASTEXITCODE -ne 0) {
-        throw "$TestCase behavior failed with code $LASTEXITCODE."
+    if (-not $CompileOnly) {
+        & $executable @Arguments
+        if ($LASTEXITCODE -ne 0) {
+            throw "$TestCase behavior failed with code $LASTEXITCODE."
+        }
     }
-    [PSCustomObject]@{ TestCase = $TestCase; ExitCode = 0 }
+    [PSCustomObject]@{
+        TestCase = $TestCase
+        ExitCode = $(if ($CompileOnly) { $null } else { 0 })
+        Execution = $(if ($CompileOnly) { 'Not run (compile/link only)' }
+            else { 'Pass' })
+    }
+}
+
+function Invoke-WcrtPackagedCompatibilityTest {
+    param(
+        [Parameter(Mandatory)][string]$TestCase,
+        [Parameter(Mandatory)][string]$RepositoryRoot,
+        [Parameter(Mandatory)][string]$TinyCc,
+        [Parameter(Mandatory)][string]$RuntimeDirectory,
+        [Parameter(Mandatory)][string]$BehaviorSource,
+        [string[]]$Arguments = @(),
+        [switch]$CompileOnly
+    )
+    . (Join-Path $RepositoryRoot 'tests/c89/startup-test-lib.ps1')
+    $description = (& $TinyCc -v 2>&1 | Select-Object -First 1).ToString()
+    $architecture = if ($description -match 'AArch64') { 'arm64' }
+        elseif ($description -match 'x86_64') { 'x64' } else { 'x86' }
+    $compiler = $TinyCc
+    if ((Split-Path -Leaf $TinyCc) -eq 'tcc-diagnostic-wrapper.cmd') {
+        $compiler = (Resolve-Path -LiteralPath $env:WCRT_TEST_TINYCC).Path
+    }
+    $support = Get-WcrtStartupToolchain $compiler $architecture
+    foreach ($kind in 'static', 'dll') {
+        $library = Join-Path $RuntimeDirectory $(if ($kind -eq 'static') {
+            'libwcrt.a'
+        } else { 'wcrt.def' })
+        $options = @()
+        if ($kind -eq 'dll') { $options += '-DWCRT_DLL=1' }
+        $executable = Join-Path $RuntimeDirectory "$TestCase-$kind.exe"
+        & $TinyCc -std=c89 -Wall -Werror -nostdlib '-Wl,-nostdlib' `
+            '-Wl,-subsystem=console' @options `
+            -I (Join-Path $RuntimeDirectory 'include') `
+            (Join-Path $RuntimeDirectory 'wcrt-startup-console.o') `
+            $BehaviorSource $library $support.CompilerSupport `
+            $support.KernelDefinition -o $executable
+        if ($LASTEXITCODE -ne 0) { throw "$TestCase $kind package link failed." }
+        if ((Get-WcrtPeInformation $executable).HostCrtImport) {
+            throw "$TestCase $kind package imported a host CRT."
+        }
+        if (-not $CompileOnly) {
+            & $executable @Arguments
+            if ($LASTEXITCODE -ne 0) {
+                throw "$TestCase $kind package failed with $LASTEXITCODE."
+            }
+        }
+    }
 }

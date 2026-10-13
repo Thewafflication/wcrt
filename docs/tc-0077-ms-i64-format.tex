@@ -1,0 +1,24 @@
+% TC-0077 controlled Microsoft format fragment.
+\def\TCID{TC-0077}
+\def\TCTitle{Microsoft I64 integer formatted I/O}
+\def\TCPurpose{Verify REQ-0077 exact-width output and input compatibility.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0077}
+\def\TCDesignRef{Selected VC6-era Microsoft format profile.}
+\def\TCFeatureRef{\texttt{src/stdio\_format.c}; \texttt{src/stdio\_scan.c};
+\texttt{tests/mscompat/i64-format.c};
+\texttt{tests/mscompat/presence/i64-format.c};
+\texttt{tests/mscompat/run-tc-0077.ps1}.}
+\def\TCTestTechnique{Boundary, vararg ABI, interface and stream testing.}
+\def\TCPreconditions{Architecture-matched TinyCC and WCRT headers/sources.}
+\def\TCEnvironment{Native x86/x64 and ARM64 where available.}
+\def\TCAssumptions{Genuine VC6 qualification remains a separate Unknown gate.}
+\def\TCInputData{64-bit extrema, every integer radix, width and precision,
+counts, suppressed fields, matching failures and incomplete directives.}
+\def\TCInitialState{Sentinel values and guarded bounded-output buffer.}
+\def\TCProcedure{Compile typed addresses; execute output/input partitions;
+verify trailing varargs and retained lookahead; run ISO and legacy regression.}
+\def\TCExpectedResult{Exact 64-bit values and output; no adjacent argument
+displacement; existing truncation, counts and return behavior retained.}
+\def\TCPostConditions{Temporary stream closed.}
+\TCTemplate

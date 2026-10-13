@@ -3,8 +3,18 @@
 #ifndef WCRT_SYS_STAT_H
 #define WCRT_SYS_STAT_H
 
-#if defined(WCRT_POSIX)
+#include <wcrt/ms_types.h>
 #include <sys/types.h>
+
+#if defined(WCRT_VC6_STAT32)
+#if !defined(__i386__) && !defined(_M_IX86)
+#error WCRT_VC6_STAT32 requires an x86 consumer
+#endif
+#define _stat wcrt_stat32
+#define _fstat wcrt_fstat32
+#endif
+
+#if defined(WCRT_POSIX)
 #include <time.h>
 #endif
 
@@ -15,6 +25,20 @@
 #define _S_IEXEC 0x0040 /**< Owner execute/search permission. */
 
 #pragma pack(push, 8)
+/** @brief Explicit WCRT file status with signed 32-bit size and times. */
+struct wcrt_stat32 {
+    unsigned int st_dev;   /**< Windows volume serial. */
+    unsigned short st_ino; /**< Low inode bits. */
+    unsigned short st_mode; /**< File type and permission bits. */
+    short st_nlink;        /**< Narrow link count. */
+    short st_uid;          /**< Zero user placeholder. */
+    short st_gid;          /**< Zero group placeholder. */
+    unsigned int st_rdev;  /**< Windows volume serial. */
+    long st_size;          /**< Signed 32-bit file size. */
+    long st_atime;         /**< Signed 32-bit access timestamp. */
+    long st_mtime;         /**< Signed 32-bit modification timestamp. */
+    long st_ctime;         /**< Signed 32-bit creation timestamp. */
+};
 /** @brief Microsoft file status with 64-bit size and timestamps. */
 struct _stat64 {
     unsigned int st_dev;   /**< Drive identifier. */
@@ -24,10 +48,10 @@ struct _stat64 {
     short st_uid;          /**< User identifier placeholder. */
     short st_gid;          /**< Group identifier placeholder. */
     unsigned int st_rdev;  /**< Special-device identifier. */
-    long long st_size;     /**< File size in bytes. */
-    long long st_atime;    /**< Last-access Unix timestamp. */
-    long long st_mtime;    /**< Last-modification Unix timestamp. */
-    long long st_ctime;    /**< Creation Unix timestamp. */
+    wcrt_ms_int64 st_size;  /**< File size in bytes. */
+    wcrt_ms_int64 st_atime; /**< Last-access Unix timestamp. */
+    wcrt_ms_int64 st_mtime; /**< Last-modification Unix timestamp. */
+    wcrt_ms_int64 st_ctime; /**< Creation Unix timestamp. */
 };
 #pragma pack(pop)
 
@@ -87,9 +111,13 @@ extern "C" {
 int __cdecl _stat64(const char *path, struct _stat64 *result);
 /** @brief Obtains 64-bit status for an open descriptor. */
 int __cdecl _fstat64(int descriptor, struct _stat64 *result);
+/** @brief Obtains metadata through the explicit 32-bit WCRT ABI. */
+int __cdecl wcrt_stat32(const char *path, struct wcrt_stat32 *result);
+/** @brief Obtains descriptor metadata through the 32-bit WCRT ABI. */
+int __cdecl wcrt_fstat32(int descriptor, struct wcrt_stat32 *result);
 /** @brief Maps write permission to the Windows read-only attribute. */
 int __cdecl _chmod(const char *path, int mode);
-#if defined(__i386__) || defined(_M_IX86)
+#if (defined(__i386__) || defined(_M_IX86)) && !defined(WCRT_VC6_STAT32)
 /** @brief Provides TinyCC's linker-compatible x86 status alias. */
 int __cdecl _stat(const char *path, struct _stat64 *result);
 /** @brief Provides TinyCC's linker-compatible x86 descriptor-status alias. */

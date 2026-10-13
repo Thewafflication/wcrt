@@ -1,0 +1,25 @@
+% TC-0091 controlled narrow file-time source-route fragment.
+\def\TCID{TC-0091}
+\def\TCTitle{Explicit legacy-width file-time source route}
+\def\TCPurpose{Verify REQ-0091 selection, layout and preserved wide APIs.}
+\def\TCPriority{\TCPriorityCritical}
+\def\TCRequirementRef{REQ-0091}
+\def\TCDesignRef{File-time source-route work record; REQ-0048/0086.}
+\def\TCFeatureRef{\texttt{include/sys/utime.h};
+\texttt{tests/mscompat/vc6-utime32.c}; default/selected fixtures;
+\texttt{tests/mscompat/run-tc-0091.ps1}.}
+\def\TCTestTechnique{Default isolation, exact layout, guards and round trips.}
+\def\TCPreconditions{Matched TinyCC; owned temporary file; optional MS tools;
+current creation time lies within the selected signed-32-bit timestamp range.}
+\def\TCEnvironment{Windows x86; x64/ARM64 rejection; explicit APIs retained.}
+\def\TCAssumptions{Filesystem preserves submitted Windows timestamps.}
+\def\TCInputData{Legacy tags/function pointers, narrow times, null-current
+update, explicit wide times and status, default and wrong-target profiles.}
+\def\TCInitialState{Selection before inclusion; guarded eight-byte input.}
+\def\TCProcedure{Compile default/selected fixtures; run guarded legacy calls,
+status round trips and preserved explicit wide calls; reject wrong-target
+selection; run x86 static/DLL and Microsoft /Od-/O2 consumers.}
+\def\TCExpectedResult{Eight-byte narrow record; correct selected behavior;
+unchanged input guards and generic time_t; no binary legacy symbol implied.}
+\def\TCPostConditions{Only verification artifacts remain; owned file removed.}
+\TCTemplate

@@ -4,6 +4,7 @@
  */
 
 #include <string.h>
+#include <errno.h>
 #include <time.h>
 
 #include "internal/time.h"
@@ -143,7 +144,8 @@ struct tm *localtime(const time_t *timer)
     return wcrt_break_down(__wcrt_utc_to_local(*timer));
 }
 
-time_t mktime(struct tm *broken_down)
+/** @brief Normalizes calendar arithmetic before timezone conversion. */
+static time_t wcrt_local_calendar_seconds(const struct tm *broken_down)
 {
     long long total_months;
     long long year;
@@ -151,13 +153,7 @@ time_t mktime(struct tm *broken_down)
     long long seconds;
     long long days;
     time_t local_value;
-    time_t utc_value;
-    struct tm normalized;
-
-    if (broken_down == NULL) {
-        return (time_t)-1;
-    }
-    total_months = (long long)(broken_down->tm_year + 1900) * 12LL +
+    total_months = ((long long)broken_down->tm_year + 1900LL) * 12LL +
         broken_down->tm_mon;
     year = wcrt_floor_div(total_months, 12LL);
     month = (int)(total_months - year * 12LL) + 1;
@@ -168,6 +164,16 @@ time_t mktime(struct tm *broken_down)
     days += wcrt_floor_div(seconds, 86400LL);
     seconds -= wcrt_floor_div(seconds, 86400LL) * 86400LL;
     local_value = (time_t)(days * 86400LL + seconds);
+    return local_value;
+}
+
+time_t mktime(struct tm *broken_down)
+{
+    time_t local_value;
+    time_t utc_value;
+    struct tm normalized;
+    if (broken_down == NULL) return (time_t)-1;
+    local_value = wcrt_local_calendar_seconds(broken_down);
     utc_value = __wcrt_local_to_utc(local_value);
     if (utc_value == (time_t)-1) {
         return (time_t)-1;
@@ -175,6 +181,72 @@ time_t mktime(struct tm *broken_down)
     normalized = *localtime(&utc_value);
     *broken_down = normalized;
     return utc_value;
+}
+
+/** @brief Narrows a calendar result within the selected nonnegative range. */
+static long wcrt_narrow_calendar(time_t value)
+{
+    if (value < 0 || value > 2147483647LL) {
+        errno = EINVAL;
+        return -1;
+    }
+    return (long)value;
+}
+
+long __cdecl wcrt_time32(long *destination)
+{
+    long value = wcrt_narrow_calendar(time(NULL));
+    if (destination != NULL) *destination = value;
+    return value;
+}
+
+double __cdecl wcrt_difftime32(long end, long beginning)
+{
+    return (double)end - (double)beginning;
+}
+
+long __cdecl wcrt_mktime32(struct tm *broken_down)
+{
+    struct tm copy;
+    time_t local_value;
+    time_t result;
+    long narrowed;
+    if (broken_down == NULL) { errno = EINVAL; return -1; }
+    copy = *broken_down;
+    local_value = wcrt_local_calendar_seconds(&copy);
+    if (local_value < -11644473600LL || local_value > 32535215999LL) {
+        errno = EINVAL;
+        return -1;
+    }
+    result = mktime(&copy);
+    narrowed = wcrt_narrow_calendar(result);
+    if (narrowed < 0) return -1;
+    *broken_down = copy;
+    return narrowed;
+}
+
+struct tm *__cdecl wcrt_gmtime32(const long *timer)
+{
+    time_t wide;
+    if (timer == NULL || *timer < 0) { errno = EINVAL; return NULL; }
+    wide = *timer;
+    return gmtime(&wide);
+}
+
+struct tm *__cdecl wcrt_localtime32(const long *timer)
+{
+    time_t wide;
+    if (timer == NULL || *timer < 0) { errno = EINVAL; return NULL; }
+    wide = *timer;
+    return localtime(&wide);
+}
+
+char *__cdecl wcrt_ctime32(const long *timer)
+{
+    time_t wide;
+    if (timer == NULL || *timer < 0) { errno = EINVAL; return NULL; }
+    wide = *timer;
+    return ctime(&wide);
 }
 
 /** @brief Writes exactly two decimal digits. */

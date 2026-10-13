@@ -35,9 +35,23 @@ $output = @(& $TinyCc -std=c89 -Wall -Werror -I $include @sources `
 if ($LASTEXITCODE -ne 0) {
     throw "TC-0067 behavior build failed:`n$($output -join "`n")"
 }
-& $executable (Join-Path $build 'microsoft.bin') `
-    (Join-Path $build 'posix.bin')
-if ($LASTEXITCODE -ne 0) {
-    throw "TC-0067 behavior failed with code $LASTEXITCODE."
+$fixtureId = [guid]::NewGuid().ToString('N')
+$paths = @((Join-Path $build "microsoft-$fixtureId.bin"),
+    (Join-Path $build "posix-$fixtureId.bin"))
+try {
+    & $executable @paths
+    if ($LASTEXITCODE -ne 0) {
+        throw "TC-0067 behavior failed with code $LASTEXITCODE."
+    }
+} finally {
+    foreach ($path in $paths) {
+        if (Test-Path -LiteralPath $path) {
+            Remove-Item -LiteralPath $path -Force
+        }
+    }
 }
+Invoke-WcrtCompatibilityTest -TestCase TC-0067 -RepositoryRoot $root `
+    -TinyCc $TinyCc -PresenceSource (Join-Path $root `
+    'tests/mscompat/presence/lowio.c') -BehaviorSource (Join-Path $root `
+    'tests/mscompat/seek-errors.c') -ExcludedSources @('file.c') | Out-Null
 [PSCustomObject]@{TestCase='TC-0067'; Requirement='REQ-0067'; Status='Pass'}

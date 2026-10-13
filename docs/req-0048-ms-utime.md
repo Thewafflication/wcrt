@@ -16,6 +16,10 @@ This requirement provides `_utime32`, `_utime64`, `struct __utimbuf32`, and
 `struct __utimbuf64` in `<sys/utime.h>`. Generic-time, wide-path, and
 descriptor-based variants are excluded.
 
+REQ-0093 separately adds explicit descriptor variants and shares checked time
+conversion. Path error precedence, ownership and existing declarations remain
+unchanged; TC-0048 provider/native regressions cover the shared-helper change.
+
 ## Requirement
 
 - WCRT shall declare the explicit-width structures and functions with
@@ -61,3 +65,20 @@ The explicit-width narrow-path variants apply on every supported architecture.
 `include/sys/utime.h` defines the explicit-width ABI and
 `src/platform/windows/utime.c` uses baseline Windows file APIs with checked
 ranges and error mapping. TC-0048 passes on x86 and x64 TinyCC.
+
+The 2026-10-01 current-time correction validates the clock-selected whole
+Unix second against zero through 2147483647 for _utime32 and zero through
+32535215999 for _utime64 before opening or modifying a file. A current time
+outside those bounds returns -1/EINVAL, including a clock before the epoch;
+representable current times retain their fractional FILETIME ticks. Explicit
+inputs, path error precedence, ABI, exports and Windows imports are unchanged.
+TC-0048 adds deterministic clock/provider boundaries and cleanup, with native,
+packaged and cross-link evidence recorded in the work log. No system-clock
+change or large-file allocation is used. Genuine VC6 qualification is Unknown.
+
+Provider-contract review adds independent access/modification FILETIME capture,
+attribute-only Windows opens with read/write/delete sharing, unchanged creation
+time, both invalid timestamp fields and no-close/no-write on failed opens.
+Missing-path errors retain precedence over invalid times, and failed updates
+capture the native error before closing. This verification-only addition changes
+no runtime behavior, ABI, imports or target scope; see the provider work record.

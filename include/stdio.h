@@ -10,9 +10,10 @@
 #include <stdarg.h>
 #include <errno.h>
 #include <wcrt/restrict.h>
+#include <wcrt/ms_types.h>
 
 typedef struct wcrt_file FILE;
-typedef long long fpos_t;
+typedef wcrt_ms_int64 fpos_t;
 
 #define EOF (-1)
 #define FOPEN_MAX 32
@@ -27,9 +28,15 @@ typedef long long fpos_t;
 #define TMP_MAX 32767
 #define L_tmpnam 260
 
+#if defined(WCRT_DLL)
+__declspec(dllimport) extern FILE __wcrt_stdin;
+__declspec(dllimport) extern FILE __wcrt_stdout;
+__declspec(dllimport) extern FILE __wcrt_stderr;
+#else
 extern FILE __wcrt_stdin;
 extern FILE __wcrt_stdout;
 extern FILE __wcrt_stderr;
+#endif
 #define stdin (&__wcrt_stdin)
 #define stdout (&__wcrt_stdout)
 #define stderr (&__wcrt_stderr)
@@ -46,6 +53,8 @@ int fclose(FILE *stream);
 int fflush(FILE *stream);
 FILE *fopen(const char *WCRT_RESTRICT path,
     const char *WCRT_RESTRICT mode);
+/** @brief Opens a stream with an explicit Microsoft file-sharing mode. */
+FILE *_fsopen(const char *path, const char *mode, int sharing);
 /** @brief Opens a file through the Microsoft secure-CRT contract. */
 errno_t fopen_s(FILE **stream, const char *path, const char *mode);
 FILE *freopen(const char *WCRT_RESTRICT path,

@@ -71,3 +71,23 @@ Individual low-level I/O routines require separate behavioral requirements.
 grows only with controlled descriptor requirements. TC-0043 verifies
 repeatable inclusion, isolation, and rejection of interfaces that remain
 deferred after REQ-0067.
+
+REQ-0082/0083 add controlled _setmode and _sopen declarations. TC-0043 now
+checks the explicit approved declaration inventory in both directions rather
+than retaining an obsolete _setmode absence assertion. Behavioral verification
+remains with each owning requirement. This changes the header audit only;
+runtime, ISO isolation and existing API contracts are unchanged.
+
+REQ-0088 adds _lseeki64/_telli64/_filelength/_filelengthi64 to the controlled
+inventory after implementation and behavioral fixtures. TC-0043 checks their
+presence; TC-0088 owns size, position, narrowing and error semantics.
+REQ-0089 adds _eof with physical-query behavior verified by TC-0089.
+REQ-0090 adds _open_osfhandle; TC-0090 owns its native ownership/access tests.
+REQ-0094 adds _chsize and REQ-0096 adds the three versioned search APIs.
+TC-0043 audits both underscore and WCRT-prefixed declarations; owning tests
+verify resize and enumeration behavior. Existing descriptor ABI is unchanged.
+REQ-0098 adds _locking; TC-0098 owns mode/range/retry and state tests.
+REQ-0099 adds _creat; TC-0099 owns creation/truncation and forwarding tests.
+REQ-0100 adds both versioned narrow-time/wide-size search declarations;
+TC-0100 verifies their record layout, boundaries, ownership and retention.
+REQ-0101 adds _umask; TC-0101 owns mask values and new-file permission effects.

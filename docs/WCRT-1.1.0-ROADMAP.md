@@ -8,6 +8,9 @@
 > [requirements index](REQUIREMENTS.md), the
 > [POSIX test manifest](../tests/posix/manifest.md), and the
 > [Microsoft test manifest](../tests/mscompat/manifest.md) for current coverage.
+> The [VC6 working inventory](vc6-coverage.md) distinguishes selected WCRT
+> contracts, supplementary Microsoft compiler evidence and remaining genuine
+> VC6 qualification/ABI gaps.
 
 **Theme:** VC6-era Microsoft C compatibility and a practical POSIX source
 compatibility profile for Windows

@@ -1,5 +1,11 @@
 # REQ-0035 — C99 real mathematics
 
+The 2026-10-01 FLT_MAX compiler-portability correction also gives HUGE_VALF
+the exact binary32 maximum decimal spelling. Its numeric value/type remain
+unchanged. TC-0024 checks representation and agreement with FLT_MAX;
+TC-0035 remains the real-math regression gate. See REQ-0004/0079 for the
+Microsoft consumer diagnostic and expanded macro evidence.
+
 **Content type:** Project requirement
 
 **Status:** T6 fused-operation correction implemented; exact-revision native

@@ -197,7 +197,7 @@ long strtol(const char *string, char **end_pointer, int base)
 }
 
 /** @brief Writes an unsigned magnitude with an optional minus sign. */
-static char *wcrt_ultoa_core(unsigned long value, char *buffer, int radix,
+static char *wcrt_ultoa_core(unsigned long long value, char *buffer, int radix,
     int negative)
 {
     static const char digits[] = "0123456789abcdefghijklmnopqrstuvwxyz";
@@ -209,8 +209,8 @@ static char *wcrt_ultoa_core(unsigned long value, char *buffer, int radix,
         return NULL;
     }
     do {
-        buffer[length++] = digits[value % (unsigned long)radix];
-        value /= (unsigned long)radix;
+        buffer[length++] = digits[value % (unsigned long long)radix];
+        value /= (unsigned long long)radix;
     } while (value != 0);
     if (negative) {
         buffer[length++] = '-';
@@ -251,6 +251,48 @@ char *_ltoa(long value, char *buffer, int radix)
 char *_ultoa(unsigned long value, char *buffer, int radix)
 {
     return wcrt_ultoa_core(value, buffer, radix, 0);
+}
+
+char *_i64toa(wcrt_ms_int64 value, char *buffer, int radix)
+{
+    unsigned long long magnitude = (unsigned long long)value;
+    int negative = radix == 10 && value < 0;
+    if (negative) magnitude = 0ULL - magnitude;
+    return wcrt_ultoa_core(magnitude, buffer, radix, negative);
+}
+
+char *_ui64toa(wcrt_ms_uint64 value, char *buffer, int radix)
+{
+    return wcrt_ultoa_core(value, buffer, radix, 0);
+}
+
+/** @brief Rejects invalid Microsoft integer conversion arguments. */
+static int wcrt_ms_integer_input(const char *string, char **end_pointer,
+    int base)
+{
+    if (string == NULL || (base != 0 && (base < 2 || base > 36))) {
+        if (end_pointer != NULL) *end_pointer = (char *)string;
+        errno = EINVAL;
+        return 0;
+    }
+    return 1;
+}
+
+wcrt_ms_int64 _strtoi64(const char *string, char **end_pointer, int base)
+{
+    if (!wcrt_ms_integer_input(string, end_pointer, base)) return 0;
+    return strtoll(string, end_pointer, base);
+}
+
+wcrt_ms_uint64 _strtoui64(const char *string, char **end_pointer, int base)
+{
+    if (!wcrt_ms_integer_input(string, end_pointer, base)) return 0;
+    return strtoull(string, end_pointer, base);
+}
+
+wcrt_ms_int64 _atoi64(const char *string)
+{
+    return _strtoi64(string, NULL, 10);
 }
 
 /** @brief Scales a decimal significand while limiting intermediate rounding. */
@@ -1018,4 +1060,19 @@ size_t wcstombs(char *destination, const wchar_t *source, size_t count)
         destination[length] = '\0';
     }
     return length;
+}
+/** @brief Copies complete byte pairs, including exact in-place operation. */
+void __cdecl _swab(char *source, char *destination, int count)
+{
+    int index;
+    if (!source || !destination || count < 0) {
+        errno = EINVAL;
+        return;
+    }
+    for (index = 0; index < count - 1; index += 2) {
+        char first = source[index];
+        char second = source[index + 1];
+        destination[index] = second;
+        destination[index + 1] = first;
+    }
 }

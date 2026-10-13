@@ -3,6 +3,7 @@
  * @brief Exercises C99 floating-point model declarations.
  */
 #include <float.h>
+#include <math.h>
 
 /** @brief Runs floating-model consistency checks. */
 int main(void)
@@ -11,6 +12,9 @@ int main(void)
     volatile double one_double = 1.0;
     volatile double half_double_epsilon = DBL_EPSILON / 2.0;
     volatile long double one_long_double = 1.0L;
+    float maximum = FLT_MAX;
+    float huge = HUGE_VALF;
+    const unsigned char *representation = (const unsigned char *)&maximum;
 
     if (DECIMAL_DIG != 17) return 1;
     if (FLT_EVAL_METHOD != 0) return 2;
@@ -20,5 +24,8 @@ int main(void)
     if (one_double + DBL_EPSILON == one_double) return 6;
     if (one_long_double + LDBL_EPSILON == one_long_double) return 7;
     if (one_double + half_double_epsilon != one_double) return 8;
+    if (huge != maximum || sizeof(maximum) != 4 ||
+        representation[0] != 0xff || representation[1] != 0xff ||
+        representation[2] != 0x7f || representation[3] != 0x7f) return 9;
     return 0;
 }

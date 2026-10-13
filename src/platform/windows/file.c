@@ -7,7 +7,10 @@
 
 #include <errno.h>
 #include <fcntl.h>
+#include <share.h>
 #include <string.h>
+#include <stdlib.h>
+#include <sys/stat.h>
 
 #include "../../internal/file.h"
 
@@ -27,6 +30,8 @@
 #define WCRT_OPEN_ALWAYS 4UL
 #define WCRT_TRUNCATE_EXISTING 5UL
 #define WCRT_NORMAL_ATTRIBUTE 0x80UL
+#define WCRT_READONLY_ATTRIBUTE 1UL
+#define WCRT_INVALID_ATTRIBUTES 0xffffffffUL
 #define WCRT_BACKUP_SEMANTICS 0x02000000UL
 #define WCRT_INVALID_HANDLE ((void *)(long long)-1)
 #define WCRT_INVALID_POSITION 0xffffffffUL
@@ -37,6 +42,8 @@
 #define WCRT_ERROR_NOT_ENOUGH_MEMORY 8UL
 #define WCRT_ERROR_SHARING_VIOLATION 32UL
 #define WCRT_ERROR_FILE_EXISTS 80UL
+#define WCRT_ERROR_INVALID_PARAMETER 87UL
+#define WCRT_ERROR_NEGATIVE_SEEK 131UL
 #define WCRT_ERROR_BROKEN_PIPE 109UL
 #define WCRT_ERROR_DISK_FULL 112UL
 #define WCRT_ERROR_ALREADY_EXISTS 183UL
@@ -55,6 +62,10 @@ __declspec(dllimport) int WCRT_WINAPI WriteFile(void *handle,
 __declspec(dllimport) unsigned long WCRT_WINAPI SetFilePointer(void *handle,
     long low, long *high, unsigned long origin);
 __declspec(dllimport) int WCRT_WINAPI DeleteFileA(const char *path);
+__declspec(dllimport) unsigned long WCRT_WINAPI GetFileAttributesA(
+    const char *path);
+__declspec(dllimport) int WCRT_WINAPI SetFileAttributesA(const char *path,
+    unsigned long attributes);
 __declspec(dllimport) int WCRT_WINAPI MoveFileA(const char *old_path,
     const char *new_path);
 __declspec(dllimport) unsigned long WCRT_WINAPI GetTempPathA(
@@ -63,7 +74,9 @@ __declspec(dllimport) unsigned int WCRT_WINAPI GetTempFileNameA(
     const char *path, const char *prefix, unsigned int unique, char *name);
 __declspec(dllimport) void *WCRT_WINAPI GetStdHandle(unsigned long selector);
 __declspec(dllimport) unsigned long WCRT_WINAPI GetLastError(void);
+__declspec(dllimport) unsigned long WCRT_WINAPI GetFileType(void *handle);
 __declspec(dllimport) int WCRT_WINAPI FlushFileBuffers(void *handle);
+__declspec(dllimport) int WCRT_WINAPI SetEndOfFile(void *handle);
 __declspec(dllimport) int WCRT_WINAPI GetConsoleMode(void *handle,
     unsigned long *mode);
 __declspec(dllimport) int WCRT_WINAPI CreatePipe(void **reader, void **writer,
@@ -90,16 +103,55 @@ static void wcrt_file_error(unsigned long error)
     else errno = EIO;
 }
 
-int __wcrt_file_open(FILE *stream, const char *path, const char *mode)
+/** @brief Captures and validates the default without changing open streams. */
+static int wcrt_default_translation(void)
 {
-    unsigned long access = 0;
-    unsigned long creation;
-    unsigned int flags = WCRT_FILE_OWNED;
-    char first;
-
-    if (stream == NULL || path == NULL || mode == NULL || *mode == '\0') {
+    int mode = _fmode;
+    if (mode != _O_TEXT && mode != _O_BINARY) {
+        errno = EINVAL;
         return -1;
     }
+    return mode;
+}
+
+int __wcrt_file_open(FILE *stream, const char *path, const char *mode)
+{
+    return __wcrt_file_open_shared(stream, path, mode, _SH_DENYNO);
+}
+
+/** @brief Validates a deny mode and translates its Windows sharing bits. */
+static int wcrt_file_sharing(int sharing, unsigned long *share_mode)
+{
+    if (sharing == _SH_DENYRW) *share_mode = 0;
+    else if (sharing == _SH_DENYWR) *share_mode = WCRT_SHARE_READ;
+    else if (sharing == _SH_DENYRD) *share_mode = WCRT_SHARE_WRITE;
+    else if (sharing == _SH_DENYNO) {
+        *share_mode = WCRT_SHARE_READ | WCRT_SHARE_WRITE;
+    } else {
+        errno = EINVAL;
+        return -1;
+    }
+    return 0;
+}
+
+int __wcrt_file_open_shared(FILE *stream, const char *path, const char *mode,
+    int sharing)
+{
+    unsigned long access = 0;
+    unsigned long share_mode;
+    unsigned long creation;
+    unsigned int flags = WCRT_FILE_OWNED;
+    const char *part;
+    int update = 0;
+    int translation = 0;
+    char first;
+
+    if (stream == NULL || path == NULL || *path == '\0' ||
+        mode == NULL || *mode == '\0') {
+        errno = EINVAL;
+        return -1;
+    }
+    if (wcrt_file_sharing(sharing, &share_mode) != 0) return -1;
     first = *mode;
     if (first == 'r') {
         access = WCRT_GENERIC_READ;
@@ -114,20 +166,36 @@ int __wcrt_file_open(FILE *stream, const char *path, const char *mode)
         creation = WCRT_OPEN_ALWAYS;
         flags |= WCRT_FILE_WRITE | WCRT_FILE_APPEND;
     } else {
+        errno = EINVAL;
         return -1;
     }
-    if (strchr(mode, '+') != NULL) {
+    for (part = mode + 1; *part != '\0'; ++part) {
+        if (*part == '+' && !update) update = 1;
+        else if ((*part == 'b' || *part == 't') && !translation) {
+            translation = *part;
+        } else {
+            errno = EINVAL;
+            return -1;
+        }
+    }
+    if (update) {
         access = WCRT_GENERIC_READ | WCRT_GENERIC_WRITE;
         flags |= WCRT_FILE_READ | WCRT_FILE_WRITE;
     }
-    if (strchr(mode, 'b') != NULL) {
+    if (!translation) {
+        int mode_value = wcrt_default_translation();
+        if (mode_value < 0) return -1;
+        translation = mode_value == _O_BINARY ? 'b' : 't';
+    }
+    if (translation == 'b') {
         flags |= WCRT_FILE_BINARY;
     }
-    stream->handle = CreateFileA(path, access,
-        WCRT_SHARE_READ | WCRT_SHARE_WRITE, NULL, creation,
+    stream->handle = CreateFileA(path, access, share_mode, NULL, creation,
         WCRT_NORMAL_ATTRIBUTE, NULL);
     if (stream->handle == WCRT_INVALID_HANDLE) {
+        unsigned long error = GetLastError();
         stream->handle = NULL;
+        wcrt_file_error(error);
         return -1;
     }
     stream->flags = flags;
@@ -152,7 +220,16 @@ int __wcrt_file_open(FILE *stream, const char *path, const char *mode)
 
 int __wcrt_file_open_flags(FILE *stream, const char *path, int open_flags)
 {
+    return __wcrt_file_open_shared_flags(stream, path, open_flags,
+        _SH_DENYNO, _S_IREAD | _S_IWRITE);
+}
+
+int __wcrt_file_open_shared_flags(FILE *stream, const char *path,
+    int open_flags, int sharing, int permissions)
+{
     unsigned long access;
+    unsigned long share_mode;
+    unsigned long open_error;
     unsigned long creation = WCRT_OPEN_EXISTING;
     unsigned int flags = WCRT_FILE_OWNED;
     int access_mode = open_flags & 3;
@@ -160,10 +237,20 @@ int __wcrt_file_open_flags(FILE *stream, const char *path, int open_flags)
         _O_EXCL | _O_TEXT | _O_BINARY;
     if (stream == NULL || path == NULL || access_mode == 3 ||
         (open_flags & ~supported) != 0 ||
-        ((open_flags & _O_TEXT) && (open_flags & _O_BINARY))) {
+        ((open_flags & _O_TEXT) && (open_flags & _O_BINARY)) ||
+        ((open_flags & _O_CREAT) &&
+        (permissions & ~(_S_IREAD | _S_IWRITE)))) {
         errno = EINVAL;
         return -1;
     }
+    if (wcrt_file_sharing(sharing, &share_mode) != 0) return -1;
+    if (!(open_flags & (_O_TEXT | _O_BINARY))) {
+        int mode_value = wcrt_default_translation();
+        if (mode_value < 0) return -1;
+        open_flags |= mode_value;
+    }
+    if (open_flags & _O_CREAT)
+        permissions &= ~__wcrt_file_creation_mask();
     if (access_mode == _O_RDONLY) {
         access = WCRT_GENERIC_READ;
         flags |= WCRT_FILE_READ;
@@ -182,14 +269,26 @@ int __wcrt_file_open_flags(FILE *stream, const char *path, int open_flags)
     }
     if (open_flags & _O_APPEND) flags |= WCRT_FILE_APPEND;
     if (open_flags & _O_BINARY) flags |= WCRT_FILE_BINARY;
-    stream->handle = CreateFileA(path, access,
-        WCRT_SHARE_READ | WCRT_SHARE_WRITE, NULL, creation,
+    stream->handle = CreateFileA(path, access, share_mode, NULL, creation,
         WCRT_NORMAL_ATTRIBUTE, NULL);
+    open_error = GetLastError();
     if (stream->handle == WCRT_INVALID_HANDLE) {
-        unsigned long error = GetLastError();
         stream->handle = NULL;
-        wcrt_file_error(error);
+        wcrt_file_error(open_error);
         return -1;
+    }
+    if ((open_flags & _O_CREAT) && !(permissions & _S_IWRITE) &&
+        (creation == WCRT_CREATE_NEW ||
+        open_error != WCRT_ERROR_ALREADY_EXISTS)) {
+        unsigned long attributes = GetFileAttributesA(path);
+        if (attributes == WCRT_INVALID_ATTRIBUTES ||
+            !SetFileAttributesA(path, attributes | WCRT_READONLY_ATTRIBUTE)) {
+            unsigned long error = GetLastError();
+            CloseHandle(stream->handle);
+            stream->handle = NULL;
+            wcrt_file_error(error);
+            return -1;
+        }
     }
     stream->flags = flags;
     stream->end_of_file = 0;
@@ -304,15 +403,96 @@ int __wcrt_file_seek(FILE *stream, long long offset, int origin,
     long long *position)
 {
     long high = (long)(offset >> 32);
-    unsigned long low = SetFilePointer(stream->handle, (long)offset, &high,
-        (unsigned long)origin);
-    if (low == WCRT_INVALID_POSITION && high == -1) {
+    unsigned long low;
+    unsigned long type;
+    if (origin != SEEK_SET && origin != SEEK_CUR && origin != SEEK_END) {
+        errno = EINVAL;
         return -1;
     }
+    type = GetFileType(stream->handle);
+    if (type != 1UL) {
+        if (type == 0) wcrt_file_error(GetLastError());
+        else errno = ESPIPE;
+        return -1;
+    }
+    low = SetFilePointer(stream->handle, (long)offset, &high,
+        (unsigned long)origin);
+    if (low == WCRT_INVALID_POSITION) {
+        unsigned long error = GetLastError();
+        if (error != 0) {
+            if (error == WCRT_ERROR_INVALID_PARAMETER ||
+                error == WCRT_ERROR_NEGATIVE_SEEK) errno = EINVAL;
+            else wcrt_file_error(error);
+            return -1;
+        }
+    }
     if (position != NULL) {
-        *position = ((long long)high << 32) | low;
+        *position = (long long)(((unsigned long long)(unsigned long)high
+            << 32) | low);
     }
     return 0;
+}
+
+/** @brief Performs raw checked resizing and restores the borrowed position. */
+int __wcrt_file_resize(FILE *stream, long size)
+{
+    struct _stat64 status;
+    long long original_position;
+    long long remaining;
+    unsigned char zeros[512];
+    unsigned long request;
+    unsigned long amount;
+    int original_errno = errno;
+    int result = 0;
+    int mutation_errno = 0;
+    if (size < 0) { errno = EINVAL; return -1; }
+    if (!(stream->flags & WCRT_FILE_WRITE)) {
+        errno = EACCES;
+        return -1;
+    }
+    if (_fstat64(stream->descriptor, &status) != 0) return -1;
+    if ((status.st_mode & S_IFMT) != S_IFREG) {
+        errno = EINVAL;
+        return -1;
+    }
+    if (status.st_size < 0) { errno = EIO; return -1; }
+    if (__wcrt_file_seek(stream, 0, SEEK_CUR, &original_position) != 0)
+        return -1;
+    if (status.st_size == size) { errno = original_errno; return 0; }
+    if (__wcrt_file_seek(stream, status.st_size < size ? status.st_size : size,
+        SEEK_SET, NULL) != 0) return -1;
+    if (status.st_size > size) {
+        if (!SetEndOfFile(stream->handle)) {
+            wcrt_file_error(GetLastError());
+            result = -1;
+        }
+    } else {
+        memset(zeros, 0, sizeof(zeros));
+        remaining = (long long)size - status.st_size;
+        while (remaining > 0) {
+            request = remaining > sizeof(zeros) ? sizeof(zeros) :
+                (unsigned long)remaining;
+            amount = 0;
+            if (!WriteFile(stream->handle, zeros, request, &amount, NULL)) {
+                wcrt_file_error(GetLastError());
+                result = -1;
+                break;
+            }
+            if (amount == 0 || amount > request) {
+                errno = amount == 0 ? ENOSPC : EIO;
+                result = -1;
+                break;
+            }
+            remaining -= amount;
+        }
+    }
+    if (result != 0) mutation_errno = errno;
+    if (__wcrt_file_seek(stream, original_position, SEEK_SET, NULL) != 0) {
+        if (result != 0) errno = mutation_errno;
+        return -1;
+    }
+    errno = result == 0 ? original_errno : mutation_errno;
+    return result;
 }
 
 int __wcrt_file_flush(FILE *stream)
@@ -326,6 +506,18 @@ int __wcrt_file_is_terminal(FILE *stream)
 {
     unsigned long mode;
     return GetConsoleMode(stream->handle, &mode) ? 1 : 0;
+}
+
+/** @brief Validates a native disk, character or pipe handle before adoption. */
+int __wcrt_file_handle_type(void *handle)
+{
+    unsigned long type;
+    if (handle != NULL && handle != WCRT_INVALID_HANDLE) {
+        type = GetFileType(handle);
+        if (type == 1UL || type == 2UL || type == 3UL) return (int)type;
+    }
+    errno = EBADF;
+    return 0;
 }
 
 int __wcrt_file_duplicate(FILE *source, FILE *target)

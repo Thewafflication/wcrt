@@ -8,11 +8,19 @@
 
 #include <stddef.h>
 #include <wcrt/restrict.h>
+#include <wcrt/ms_types.h>
 
 #define EXIT_SUCCESS 0
 #define EXIT_FAILURE 1
 #define RAND_MAX 32767
 #define MB_CUR_MAX ((size_t)1)
+
+/** @brief Microsoft narrow path and component buffer sizes. */
+#define _MAX_PATH 260
+#define _MAX_DRIVE 3
+#define _MAX_DIR 256
+#define _MAX_FNAME 256
+#define _MAX_EXT 256
 
 /** @brief Quotient and remainder from integer division. */
 typedef struct { int quot; int rem; } div_t;
@@ -27,6 +35,13 @@ typedef struct { long long quot; long long rem; } lldiv_t;
 
 #ifdef __cplusplus
 extern "C" {
+#endif
+
+/** @brief Default translation for future opens without an explicit mode. */
+#if defined(WCRT_DLL)
+__declspec(dllimport) extern int _fmode;
+#else
+extern int _fmode;
 #endif
 
 double atof(const char *string);
@@ -44,8 +59,20 @@ char *_itoa(int value, char *buffer, int radix);
 char *_ltoa(long value, char *buffer, int radix);
 /** @brief Converts an unsigned long to a Microsoft radix string. */
 char *_ultoa(unsigned long value, char *buffer, int radix);
+/** @brief Converts a signed 64-bit integer to a Microsoft radix string. */
+char *_i64toa(wcrt_ms_int64 value, char *buffer, int radix);
+/** @brief Converts an unsigned 64-bit integer to a Microsoft radix string. */
+char *_ui64toa(wcrt_ms_uint64 value, char *buffer, int radix);
+/** @brief Converts a decimal string to a Microsoft 64-bit integer. */
+wcrt_ms_int64 _atoi64(const char *string);
+/** @brief Parses a signed Microsoft 64-bit integer with a stopping pointer. */
+wcrt_ms_int64 _strtoi64(const char *string, char **end_pointer, int base);
+/** @brief Parses an unsigned Microsoft 64-bit integer. */
+wcrt_ms_uint64 _strtoui64(const char *string, char **end_pointer, int base);
 int rand(void);
 void srand(unsigned int seed);
+/** @brief Copies swapped byte pairs, leaving an odd trailing byte untouched. */
+void __cdecl _swab(char *source, char *destination, int count);
 void *calloc(size_t count, size_t size);
 void free(void *memory);
 void *malloc(size_t size);
@@ -56,6 +83,12 @@ void exit(int status);
 char *getenv(const char *name);
 /** @brief Resolves a narrow path to an absolute Windows path. */
 char *_fullpath(char *absolute, const char *relative, size_t size);
+/** @brief Constructs a narrow path in a caller-sized buffer. */
+void _makepath(char *path, const char *drive, const char *directory,
+    const char *filename, const char *extension);
+/** @brief Separates a narrow path into optional component buffers. */
+void _splitpath(const char *path, char *drive, char *directory,
+    char *filename, char *extension);
 #if defined(WCRT_POSIX)
 /** @brief Resolves an existing path to a selected absolute representation. */
 char *realpath(const char *path, char *resolved);

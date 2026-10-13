@@ -21,7 +21,8 @@ $sources = @(
     'src\platform\windows\clock.c',
     'src\platform\windows\heap.c', 'src\platform\windows\process.c',
     'src\platform\windows\lock.c',
-    'src\platform\windows\file.c', 'tests\c89\stdio.c'
+    'src\platform\windows\file.c', 'src\ms_umask.c', 'src\ms_fmode.c',
+    'tests\c89\stdio.c'
 ) | ForEach-Object { Join-Path $repoRoot $_ }
 $arguments = @('-std=c89', '-Wall', '-Werror', '-I',
     (Join-Path $repoRoot 'include')) + $sources + @('-o', $executable)
@@ -32,7 +33,7 @@ if ($LASTEXITCODE -ne 0) {
 $stdinSources = @(
     'src\errno.c', 'src\string.c', 'src\stdio.c',
     'src\platform\windows\lock.c',
-    'src\platform\windows\file.c',
+    'src\platform\windows\file.c', 'src\ms_umask.c', 'src\ms_fmode.c',
     'tests\c89\stdio_stdin.c'
 ) | ForEach-Object { Join-Path $repoRoot $_ }
 $bulkSources = @($sources | Select-Object -SkipLast 1) +

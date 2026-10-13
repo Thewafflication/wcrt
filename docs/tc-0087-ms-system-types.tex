@@ -1,0 +1,24 @@
+% TC-0087 controlled Microsoft system-type header fragment.
+\def\TCID{TC-0087}
+\def\TCTitle{Microsoft system-type spellings}
+\def\TCPurpose{Verify REQ-0087 type identity and POSIX isolation.}
+\def\TCPriority{\TCPriorityCritical}
+\def\TCRequirementRef{REQ-0087}
+\def\TCDesignRef{Microsoft system-type work record.}
+\def\TCFeatureRef{\texttt{include/sys/types.h}; \texttt{include/sys/stat.h};
+\texttt{tests/mscompat/system-types.c};
+\texttt{tests/mscompat/presence/system-types.c};
+\texttt{tests/mscompat/run-tc-0087.ps1}.}
+\def\TCTestTechnique{Type identity, widths and profile/include-order matrix.}
+\def\TCPreconditions{Matched TinyCC; optional Microsoft x86 consumer tools.}
+\def\TCEnvironment{Windows x86/x64; ARM64 cross-compilation.}
+\def\TCAssumptions{Windows long is signed 32-bit.}
+\def\TCInputData{Underscored/nonunderscored aliases, both profiles and orders.}
+\def\TCInitialState{WCRT\_MS\_TYPES\_ALIASES/profile chosen before inclusion.}
+\def\TCProcedure{Compile repeated standalone types and status headers in both
+orders and profiles; verify assignments between pointers to compatible types;
+check signedness and sizes; run native/package and Microsoft consumers.}
+\def\TCExpectedResult{Microsoft widths are 4/2/4 bytes; POSIX inode/offset
+remain 8 bytes; compatible types compile without warnings; layouts preserved.}
+\def\TCPostConditions{No OS state or external files changed.}
+\TCTemplate

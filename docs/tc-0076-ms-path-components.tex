@@ -1,0 +1,26 @@
+% TC-0076 controlled fragment for Microsoft compatibility reports.
+\def\TCID{TC-0076}
+\def\TCTitle{Microsoft narrow path components}
+\def\TCPurpose{Verify REQ-0076 declarations, constants and lexical behavior.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0076}
+\def\TCDesignRef{Selected VC6-era Microsoft path compatibility profile.}
+\def\TCFeatureRef{\texttt{include/stdlib.h}; \texttt{src/ms\_path.c};
+\texttt{tests/mscompat/path-components.c};
+\texttt{tests/mscompat/presence/path-components.c};
+\texttt{tests/mscompat/run-tc-0076.ps1}.}
+\def\TCTestTechnique{Interface, equivalence-class and boundary testing.}
+\def\TCPreconditions{Architecture-matched TinyCC and WCRT sources.}
+\def\TCEnvironment{Native x86/x64; ARM64 native execution where available.}
+\def\TCAssumptions{Caller buffers fit outputs; no overlapping buffers;
+byte-oriented C locale. Genuine VC6 qualification is a separate Unknown gate.}
+\def\TCInputData{Drive-relative, rooted, UNC, mixed separators, empty paths,
+leading and trailing periods, multiple periods, null components and long names.}
+\def\TCInitialState{Guarded buffers and seeded errno.}
+\def\TCProcedure{Compile repeated-header and typed-address fixtures; run
+construction and splitting partitions; check terminators, output guards,
+omitted outputs, errno preservation and null-argument errors.}
+\def\TCExpectedResult{Exact specified component bytes and construction;
+unchanged guards and errno on success; deterministic EINVAL on invalid input.}
+\def\TCPostConditions{No files created or process state changed.}
+\TCTemplate

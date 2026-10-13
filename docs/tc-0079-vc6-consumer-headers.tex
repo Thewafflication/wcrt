@@ -1,0 +1,33 @@
+% TC-0079 controlled VC6 consumer header fragment.
+\def\TCID{TC-0079}
+\def\TCTitle{VC6 x86 C consumer header foundation}
+\def\TCPurpose{Verify REQ-0079 compiler selection and WCRT consumer ABI.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0079}
+\def\TCDesignRef{Selected VC6 x86 C consumer branch.}
+\def\TCFeatureRef{\texttt{tests/mscompat/vc6-headers.c};
+\texttt{tests/mscompat/vc6-startup.c};
+\texttt{tests/mscompat/vc6-stat32.c};
+\texttt{tests/mscompat/vc6-macros.c};
+\texttt{tests/mscompat/vc6-utime32.c};
+\texttt{tests/mscompat/vc6-c89-calls.c};
+\texttt{tests/mscompat/run-tc-0079.ps1}; selected public C89/MS headers.}
+\def\TCTestTechnique{Header self-containment, ABI and packaged DLL consumer.}
+\def\TCPreconditions{TinyCC; optional Microsoft x86 tools and built runtime.}
+\def\TCEnvironment{Windows x86 C consumer; other targets retain TinyCC checks.}
+\def\TCAssumptions{Default cdecl; no C++ or VC6 32-bit time/stat ABI claim.}
+\def\TCInputData{Repeated/independent headers, type widths/offsets,
+promoted scalars, 64-bit integers, pointers, aggregate and trailing argument;
+path/conversion helpers and owned directory, stream and descriptor fixtures.}
+\def\TCInitialState{Fresh compiler objects and import library.}
+\def\TCProcedure{Compile headers with no host search; optionally compile
+Microsoft consumer with /Od and /O2, create import library, link without
+default libraries,
+inspect CRT imports and execute mixed varargs, va-list forwarding and the
+selected added Microsoft interfaces; restore cwd and remove owned fixtures.}
+\def\TCExpectedResult{Selected headers and ABI checks pass; no host CRT;
+genuine VC6 result remains Unknown when only newer-MSVC evidence exists.}
+\def\TCPostConditions{Only verification artifacts remain. Supplied Microsoft
+tools retain JSON tool/input/executable hashes, identity/options and import/
+execution results; inputs/tools must remain unchanged during verification.}
+\TCTemplate

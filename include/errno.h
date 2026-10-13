@@ -36,6 +36,9 @@
 /** @brief A resource is busy. */
 #define EBUSY 16
 
+/** @brief Blocking Microsoft range-lock attempts were exhausted. */
+#define EDEADLOCK 36
+
 /** @brief A path component is not a directory. */
 #define ENOTDIR 20
 
@@ -57,6 +60,14 @@
 /** @brief A directory cannot be removed because it is not empty. */
 #define ENOTEMPTY 41
 
+#if defined(WCRT_POSIX) || defined(WCRT_MS_ERRNO)
+/** @brief A low-level input/output error occurred. */
+#define EIO 5
+
+/** @brief The file or requested file size was too large. */
+#define EFBIG 27
+#endif
+
 #if defined(WCRT_POSIX)
 /** @brief Operation was not permitted. */
 #define EPERM 1
@@ -64,17 +75,11 @@
 /** @brief An operation was interrupted. */
 #define EINTR 4
 
-/** @brief A low-level input/output error occurred. */
-#define EIO 5
-
 /** @brief The requested device or address was unavailable. */
 #define ENXIO 6
 
 /** @brief The operation should be attempted again. */
 #define EAGAIN 11
-
-/** @brief The file or requested file size was too large. */
-#define EFBIG 27
 
 /** @brief The requested operation is not implemented. */
 #define ENOSYS 40
@@ -84,7 +89,11 @@
 typedef int errno_t;
 
 /** @brief Process-global C89 error indicator storage. */
+#if defined(WCRT_DLL)
+__declspec(dllimport) extern int wcrt_errno;
+#else
 extern int wcrt_errno;
+#endif
 
 /** @brief Modifiable lvalue containing the current error indicator. */
 #define errno wcrt_errno

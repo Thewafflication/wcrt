@@ -22,6 +22,15 @@
 
 No public function is introduced by this header.
 
+DLL consumers shall define `WCRT_DLL=1` to select `dllimport` linkage for
+`wcrt_errno`. Static consumers and runtime builds leave it undefined. This
+additive selector preserves the existing storage symbol and lvalue ABI while
+making DLL data references linkable with TinyCC. TC-0076 packaged DLL tests
+verify shared reads and writes through path operations; TC-0003 retains the
+static contract. No new Windows import or storage model is introduced.
+REQ-0092 adds explicit WCRT_MS_ERRNO vocabulary for existing EIO/EFBIG codes,
+preserving the default strict/POSIX selection and this lvalue/storage ABI.
+
 ## Requirement
 
 - `EDOM` and `ERANGE` shall be distinct.

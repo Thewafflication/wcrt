@@ -1,0 +1,19 @@
+% TC-0102 controlled default translation-mode fragment.
+\def\TCID{TC-0102}
+\def\TCTitle{Microsoft default translation-mode data}
+\def\TCPurpose{Verify REQ-0102 defaults, explicit overrides and imported data.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0102}
+\def\TCDesignRef{Default translation-mode work record.}
+\def\TCFeatureRef{stdlib.h; ms\_fmode.c; Windows file backend.}
+\def\TCTestTechnique{DLL data ABI, physical-byte and provider tests.}
+\def\TCPreconditions{Matched package/compiler and owned pathname.}
+\def\TCEnvironment{Windows x86/x64 native; ARM64 compile/link only.}
+\def\TCAssumptions{No concurrent default mode writes/open transactions.}
+\def\TCInputData{Text/binary/invalid defaults and implicit/explicit requests.}
+\def\TCInitialState{Default saved; standard/open stream flags copied.}
+\def\TCProcedure{Write defaults, open paths and inspect physical CRLF bytes;
+check existing modes, invalid-default isolation and captured provider snapshots.}
+\def\TCExpectedResult{Correct defaults/overrides, imported data and retained state.}
+\def\TCPostConditions{Default restored; owned handles/files cleaned up.}
+\TCTemplate

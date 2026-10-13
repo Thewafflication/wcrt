@@ -1,0 +1,25 @@
+% TC-0084 controlled Microsoft drive-query fragment.
+\def\TCID{TC-0084}
+\def\TCTitle{Microsoft drive queries}
+\def\TCPurpose{Verify REQ-0084 drive numbers, masks and query errors.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0084}
+\def\TCDesignRef{Existing current-directory and logical-drive providers.}
+\def\TCFeatureRef{\texttt{include/direct.h}; Windows directory backend;
+\texttt{tests/mscompat/drive-query.c};
+\texttt{tests/mscompat/drive-query-errors.c};
+\texttt{tests/mscompat/presence/drive-query.c};
+\texttt{tests/mscompat/run-tc-0084.ps1}.}
+\def\TCTestTechnique{Native agreement, prefix/mask and buffer partitions.}
+\def\TCPreconditions{Matched TinyCC and stable current-directory/drive state.}
+\def\TCEnvironment{Windows x86/x64; ARM64 native where available.}
+\def\TCAssumptions{No concurrent cwd mutation or drive availability change.}
+\def\TCInputData{All upper/lowercase drive letters, individual mask bits,
+UNC/non-letter paths, OS failure and exact MAX\_PATH buffer boundaries.}
+\def\TCInitialState{Current directory captured; errno seeded.}
+\def\TCProcedure{Compare native query results with providers and unchanged
+cwd; run deterministic prefix, mask and error partitions; cross-link packages.}
+\def\TCExpectedResult{Drive numbers/masks and errors match the selected
+contract; cwd and errno are preserved on successful queries.}
+\def\TCPostConditions{No directory or drive state changed.}
+\TCTemplate

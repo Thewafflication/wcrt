@@ -1,0 +1,26 @@
+% TC-0086 controlled explicit stat32 source-route fragment.
+\def\TCID{TC-0086}
+\def\TCTitle{Explicit 32-bit file-status source route}
+\def\TCPurpose{Verify REQ-0086 layout, narrowing and ABI-preserving selection.}
+\def\TCPriority{\TCPriorityCritical}
+\def\TCRequirementRef{REQ-0086}
+\def\TCDesignRef{ADR-0008 explicit stat32 source route.}
+\def\TCFeatureRef{\texttt{include/sys/stat.h}; \texttt{src/ms\_stat32.c};
+\texttt{tests/mscompat/presence/stat32.c}; native/error/selected fixtures;
+\texttt{tests/mscompat/vc6-stat32.c};
+\texttt{tests/mscompat/run-tc-0086.ps1}.}
+\def\TCTestTechnique{Layout, packing, guarded ABI and conversion boundaries.}
+\def\TCPreconditions{Matched TinyCC; owned file; optional Microsoft x86 tools.}
+\def\TCEnvironment{Windows x86/x64; ARM64 cross-links and native where available.}
+\def\TCAssumptions{Default C calling convention; stable owned fixture.}
+\def\TCInputData{All record offsets, explicit and selected function pointers,
+size/time extrema and overflow, provider failures and wrong-target selector.}
+\def\TCInitialState{No fixture; output/guard bytes seeded.}
+\def\TCProcedure{Check layout/packing; compare path and descriptor metadata;
+inject each narrowing error and verify fully zero output; run selected x86
+source/tag/function-pointer fixture; reject selection on other targets;
+cross-link packages and execute supplementary Microsoft DLL fixture.}
+\def\TCExpectedResult{36-byte selected record, preserved 56-byte explicit/default
+ABI, unchanged guards, atomic conversion, correct errors and no host CRT imports.}
+\def\TCPostConditions{Owned files removed; descriptors closed.}
+\TCTemplate

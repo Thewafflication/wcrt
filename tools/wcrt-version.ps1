@@ -6,13 +6,14 @@ function Get-WcrtNearestReleaseTag {
 
     # Only version-shaped tags are considered, so an unrelated tag closer to
     # HEAD cannot mask the release it was cut from.
-    $tag = (& git -C $RepositoryRoot describe --tags --abbrev=0 `
+    $tagLines = @(& git -C $RepositoryRoot describe --tags --abbrev=0 `
         --match 'v[0-9]*.[0-9]*.[0-9]*' --match '[0-9]*.[0-9]*.[0-9]*' `
-        2>$null | Select-Object -First 1)
-    if ($LASTEXITCODE -ne 0 -or $null -eq $tag) {
+        2>$null)
+    $tagExitCode = $LASTEXITCODE
+    if ($tagExitCode -ne 0 -or $tagLines.Count -eq 0) {
         return '0.0.0'
     }
-    ($tag).ToString().Trim()
+    $tagLines[0].ToString().Trim()
 }
 
 function Get-WcrtVersion {
@@ -50,13 +51,13 @@ function Get-WcrtVersion {
     }
     $gitDescribe = ($gitDescribe | Select-Object -First 1).ToString().Trim()
     $gitHash = ($gitHash | Select-Object -First 1).ToString().Trim()
-    $exactTag = (& git -C $RepositoryRoot describe --tags --exact-match HEAD `
-        2>$null | Select-Object -First 1)
+    $exactTagLines = @(& git -C $RepositoryRoot describe --tags `
+        --exact-match HEAD 2>$null)
     $exactTagResult = $LASTEXITCODE
-    $exactTagText = if ($null -eq $exactTag) {
+    $exactTagText = if ($exactTagLines.Count -eq 0) {
         ''
     } else {
-        $exactTag.ToString().Trim()
+        $exactTagLines[0].ToString().Trim()
     }
     # WSP-WINRES-0004 requires the string version to preserve the source
     # revision needed for traceability. A modified tree is therefore not

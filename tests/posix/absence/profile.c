@@ -14,6 +14,9 @@
 #ifdef EIO
 #error EIO leaked into the strict WCRT profile
 #endif
+#ifdef EFBIG
+#error EFBIG leaked into the strict WCRT profile
+#endif
 #ifdef ENXIO
 #error ENXIO leaked into the strict WCRT profile
 #endif

@@ -12,6 +12,12 @@ WPM TinyCC compatibility inventory
 
 ## Scope
 
+REQ-0086 adds explicit wcrt_stat32/wcrt_fstat32 interfaces and an opt-in x86
+source selector. The shipped _stat/_fstat alias symbols and default headers
+retain this requirement's _stat64 ABI. TC-0049 remains their regression gate;
+the selected source route has separate layout/behavior/migration tests and
+does not change time_t or reinterpret any existing binary's status record.
+
 This requirement provides `struct _stat64`, path and descriptor status,
 `_chmod`, and the linker-required x86 aliases used by WPM's TinyCC build.
 Other structure width variants and wide-path variants are excluded.

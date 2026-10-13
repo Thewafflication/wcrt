@@ -1,0 +1,19 @@
+% TC-0100 controlled narrow-time, wide-size enumeration fragment.
+\def\TCID{TC-0100}
+\def\TCTitle{Narrow-time enumeration with wide file sizes}
+\def\TCPurpose{Verify REQ-0100 wide records and failed-next retention.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0100}
+\def\TCDesignRef{ADR-0010; narrow-time wide-size enumeration work record.}
+\def\TCFeatureRef{io.h; ms\_find32.c; run-tc-0100.ps1.}
+\def\TCTestTechnique{ABI/source, owned native and deterministic provider tests.}
+\def\TCPreconditions{Matched compiler/runtime package.}
+\def\TCEnvironment{Windows x86/x64 native; ARM64 compile/link only.}
+\def\TCAssumptions{REQ-0096 matching, timestamps and owned search handles.}
+\def\TCInputData{Small files, UINT32\_MAX+1, INT64\_MAX and overflow sizes.}
+\def\TCInitialState{Records copied, guards/errno seeded and search acquired.}
+\def\TCProcedure{Check source/layout; compare both records; mix next forms;
+inject conversion/OS failures and verify complete-record retention/ownership.}
+\def\TCExpectedResult{Signed wide sizes, safe records and unchanged failed next.}
+\def\TCPostConditions{Owned search handles closed and fixture removed.}
+\TCTemplate

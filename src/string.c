@@ -23,6 +23,22 @@ void *memcpy(void *destination, const void *source, size_t count)
     return destination;
 }
 
+/** @brief Copies through the first selected unsigned byte or count limit. */
+void *_memccpy(void *destination, const void *source, int sentinel,
+    size_t count)
+{
+    unsigned char *output = (unsigned char *)destination;
+    const unsigned char *input = (const unsigned char *)source;
+    unsigned char match = (unsigned char)sentinel;
+    while (count) {
+        unsigned char value = *input++;
+        *output++ = value;
+        if (value == match) return output;
+        --count;
+    }
+    return NULL;
+}
+
 void *memmove(void *destination, const void *source, size_t count)
 {
     unsigned char *output = (unsigned char *)destination;

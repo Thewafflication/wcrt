@@ -21,7 +21,8 @@ be public.}
 and alongside ISO C headers.}
 \def\TCInitialState{No project header has been included.}
 \def\TCProcedure{Compile the header inclusion partitions; inspect the public
-tokens; verify unimplemented MS2 declarations are absent; compile ISO header
+tokens against the approved declaration inventory in both directions;
+verify unimplemented MS2 declarations are absent; compile ISO header
 isolation checks.}
 \def\TCExpectedResult{The header is available and repeatable in C and C++,
 does not expose unimplemented interfaces, and does not alter ISO declarations.}

@@ -1,0 +1,23 @@
+% TC-0094 controlled descriptor resize fragment.
+\def\TCID{TC-0094}
+\def\TCTitle{Selected Microsoft descriptor resize}
+\def\TCPurpose{Verify REQ-0094 physical resize and failure preservation.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0094}
+\def\TCDesignRef{Descriptor resize work record; existing descriptor backend.}
+\def\TCFeatureRef{\texttt{include/io.h}; private Windows resize backend;
+\texttt{tests/mscompat/run-tc-0094.ps1}.}
+\def\TCTestTechnique{Declaration, filesystem, boundary and provider tests.}
+\def\TCPreconditions{Owned writable file; matching compiler/package target.}
+\def\TCEnvironment{Windows x86/x64; ARM64 compile/link where nonnative.}
+\def\TCAssumptions{No concurrent operation on the tested shared descriptor.}
+\def\TCInputData{Small content, requested lengths, text/append flags, wide
+physical positions, invalid inputs and controlled native failures.}
+\def\TCInitialState{Known file bytes, position and FILE snapshot; errno seeded.}
+\def\TCProcedure{Compile pointers; resize and verify bytes/size/position/state;
+test duplicates and failures; inject short/zero writes, disk-full and failed
+restoration; inspect packages and baseline imports.}
+\def\TCExpectedResult{Zero-filled extension/truncation, preserved state/position
+on success, documented partial failures and error precedence.}
+\def\TCPostConditions{Owned descriptors closed and fixture removed.}
+\TCTemplate

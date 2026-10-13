@@ -110,7 +110,13 @@ $complexCapability | ConvertTo-Json -Depth 4 |
 
 $sources = @(
     'src/assert.c', 'src/ctype.c', 'src/errno.c', 'src/fenv.c', 'src/locale.c',
-    'src/math.c', 'src/popen.c', 'src/setjmp.c', 'src/signal.c', 'src/stdio.c',
+    'src/math.c', 'src/ms_creat.c', 'src/ms_eof.c', 'src/ms_find32.c',
+    'src/ms_handle.c', 'src/ms_fmode.c',
+    'src/ms_locking.c', 'src/ms_path.c', 'src/ms_umask.c',
+    'src/ms_stat32.c',
+    'src/popen.c',
+    'src/setjmp.c',
+    'src/signal.c', 'src/stdio.c',
     'src/stdio_format.c', 'src/stdio_scan.c', 'src/stdlib.c',
     'src/thread_pool.c',
     'src/string.c', 'src/time.c', 'src/wchar_convert.c',

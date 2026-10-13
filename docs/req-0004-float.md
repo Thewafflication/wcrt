@@ -15,6 +15,14 @@
 
 No runtime source file or public function is required by this header.
 
+The 2026-10-01 Microsoft consumer macro probe found that the rounded FLT_MAX
+decimal spelling was rejected as too large by MSVC major 16. The exact
+binary32 maximum decimal spelling replaces it without changing its float
+representation. TC-0004 now checks the Windows binary32 bytes, and TC-0079
+expands the constant through Microsoft C call sites. TC-0024 checks the same
+value and matching HUGE_VALF. Numeric values, types and runtime ABI are
+unchanged; this is a compiler-portability correction.
+
 ### Required macros
 
 - Model: `FLT_RADIX`, `FLT_ROUNDS`.

@@ -29,11 +29,24 @@ $presence = & $TinyCc @common -c `
 if ($LASTEXITCODE -ne 0) {
     throw "TC-0043 presence build failed:`n$($presence | Out-String)"
 }
-$unimplemented = @('_setmode')
+$controlled = @('_unlink', '_access', '_get_osfhandle', '_close', '_sopen',
+    '_read', '_write', '_lseek', '_tell', '_commit', '_isatty', '_setmode',
+    '_fdopen', '_dup', '_dup2', '_pipe', '_lseeki64', '_telli64',
+    '_filelength', '_filelengthi64', '_eof', '_open_osfhandle', '_chsize',
+    'wcrt_findfirst32', 'wcrt_findnext32', 'wcrt_findclose', '_locking', '_creat',
+    'wcrt_findfirst32i64', 'wcrt_findnext32i64', '_umask')
 $headerText = Get-Content -LiteralPath $header -Raw
-foreach ($name in $unimplemented) {
-    if ($headerText -match "(?<![A-Za-z0-9_])$name(?![A-Za-z0-9_])") {
-        throw "TC-0043 exposed unimplemented interface $name."
+$declarations = @([regex]::Matches($headerText,
+    '(?m)^[^#\r\n;{}]*\b((?:_|wcrt_)[A-Za-z0-9_]+)\s*\(') |
+    ForEach-Object { $_.Groups[1].Value })
+foreach ($name in $declarations) {
+    if ($name -notin $controlled) {
+        throw "TC-0043 exposed uncontrolled interface $name."
+    }
+}
+foreach ($name in $controlled) {
+    if ($name -notin $declarations) {
+        throw "TC-0043 controlled interface disappeared: $name."
     }
 }
 [PSCustomObject]@{

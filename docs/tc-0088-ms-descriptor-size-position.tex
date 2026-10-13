@@ -1,0 +1,24 @@
+% TC-0088 controlled descriptor size/position fragment.
+\def\TCID{TC-0088}
+\def\TCTitle{Microsoft descriptor size and 64-bit position}
+\def\TCPurpose{Verify REQ-0088 physical queries and wide positioning.}
+\def\TCPriority{\TCPriorityCritical}
+\def\TCRequirementRef{REQ-0088}
+\def\TCDesignRef{Descriptor size/position work record; existing shared backends.}
+\def\TCFeatureRef{\texttt{include/io.h}; \texttt{src/stdio.c};
+\texttt{tests/mscompat/descriptor-size-position.c}; metadata-error fixture;
+\texttt{tests/mscompat/run-tc-0088.ps1}.}
+\def\TCTestTechnique{Type, position/state, native and injected boundary matrix.}
+\def\TCPreconditions{Matched TinyCC; owned small file; optional MS x86 tools.}
+\def\TCEnvironment{Windows x86/x64; ARM64 compile/link only where nonnative.}
+\def\TCAssumptions{No concurrent mutation of owned file/descriptor.}
+\def\TCInputData{Empty/text/binary file, duplicate, pipes, invalid handles,
+positions above 4 GiB, signed size limits, provider failures and FILE state.}
+\def\TCInitialState{Unique owned file; seeded errno and stream state.}
+\def\TCProcedure{Verify pointer signatures; query and reposition; compare
+physical size/position and stream state; inject metadata limits/errors; run
+package/static/DLL and supplementary Microsoft fixtures.}
+\def\TCExpectedResult{Accurate sizes and wide positions; unchanged state on
+queries; specified narrowing/errors; no host CRT import or large-file writes.}
+\def\TCPostConditions{Descriptors closed; only owned fixture removed.}
+\TCTemplate

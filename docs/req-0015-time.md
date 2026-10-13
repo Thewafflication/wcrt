@@ -88,3 +88,16 @@ C99 conversion delta, including ISO week/year and the C-locale `E`/`O`
 modifiers, before `wcsftime` applies the same results with wide format and
 destination buffer-length rules. Narrow time regressions and TC-0031 pass on
 x86/x64 and compile/link for ARM64.
+
+## Explicit narrow source route impact
+
+REQ-0095/ADR-0009 adds six bounded WCRT adapters and an opt-in x86 source
+selector while preserving default time_t and existing wide binary symbols.
+Calendar normalization is factored into a shared helper, widening tm_year before
+adding 1900. FILETIME wall/local/UTC conversion now divides the absolute ticks
+before signed Unix-epoch subtraction, correcting pre-epoch unsigned wrapping.
+Deterministic provider tests reproduce the old failure and validate both sides
+of the epoch and narrow current-time bounds. No clock/timezone mutation, new
+Windows import or default struct tm/clock_t/formatter ABI change is introduced.
+Selected source consumers must rebuild; POSIX layouts remain wide and reject
+the selector. Existing wide time and POSIX regressions remain required.

@@ -50,7 +50,8 @@ $sources = @(
     'src/stdio_format.c', 'src/stdio_scan.c', 'src/stdlib.c', 'src/string.c',
     'src/time.c', 'src/platform/windows/clock.c',
     'src/platform/windows/lock.c',
-    'src/platform/windows/file.c', 'src/platform/windows/heap.c',
+    'src/platform/windows/file.c', 'src/ms_umask.c', 'src/ms_fmode.c',
+    'src/platform/windows/heap.c',
     'src/platform/windows/process.c'
 )
 if ($TestCase -eq 'TC-0033') {

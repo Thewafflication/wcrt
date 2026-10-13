@@ -1,0 +1,26 @@
+% TC-0083 controlled Microsoft shared-descriptor fragment.
+\def\TCID{TC-0083}
+\def\TCTitle{Microsoft shared descriptor opening}
+\def\TCPurpose{Verify REQ-0083 sharing and creation permissions.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0083}
+\def\TCDesignRef{Existing allocator and shared Windows file backend.}
+\def\TCFeatureRef{\texttt{include/io.h}; \texttt{src/stdio.c};
+Windows file backend; \texttt{tests/mscompat/shared-descriptor.c};
+\texttt{tests/mscompat/shared-descriptor-errors.c};
+\texttt{tests/mscompat/presence/shared-descriptor.c};
+\texttt{tests/mscompat/run-tc-0083.ps1}.}
+\def\TCTestTechnique{Interface, sharing matrix, lifecycle and error partitions.}
+\def\TCPreconditions{Matched TinyCC and unique owned fixture file.}
+\def\TCEnvironment{Windows x86/x64; ARM64 native where available.}
+\def\TCAssumptions{No external mutation of the owned path namespace.}
+\def\TCInputData{Four sharing modes, access/create/truncate/append/translation
+flags, permission bits, duplicates, invalid arguments and OS substitutes.}
+\def\TCInitialState{No fixture; errno seeded for success checks.}
+\def\TCProcedure{Exercise sharing/access matrix and duplicate lifetime; repeat
+failed opens; check content and permissions for existing versus new files;
+use OS substitutes to check creation classification and attribute cleanup.}
+\def\TCExpectedResult{Sharing, contents, permissions, errors and slot/handle
+lifetime match the selected contract; invalid opens do not truncate the file.}
+\def\TCPostConditions{Owned attributes restored; file removed; handles closed.}
+\TCTemplate

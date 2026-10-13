@@ -1,0 +1,25 @@
+% TC-0080 controlled Microsoft directory fragment.
+\def\TCID{TC-0080}
+\def\TCTitle{Microsoft narrow directory change and removal}
+\def\TCPurpose{Verify REQ-0080 directory behavior and deterministic errors.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0080}
+\def\TCDesignRef{Selected Microsoft directory compatibility profile.}
+\def\TCFeatureRef{\texttt{include/direct.h}; Windows directory backend;
+\texttt{tests/mscompat/directory-change.c};
+\texttt{tests/mscompat/directory-errors.c};
+\texttt{tests/mscompat/presence/directory-change.c};
+\texttt{tests/mscompat/run-tc-0080.ps1}.}
+\def\TCTestTechnique{Interface, filesystem partitions and state restoration.}
+\def\TCPreconditions{Unique owned temporary fixture and matched TinyCC.}
+\def\TCEnvironment{Native Windows x86/x64; ARM64 native where available.}
+\def\TCAssumptions{Legacy MAX\_PATH; no concurrent cwd changes.}
+\def\TCInputData{Owned directory, child, file and absent path; null input;
+dot segments and current/nonempty directories; seeded errno.}
+\def\TCInitialState{Original cwd retained; fixture does not exist.}
+\def\TCProcedure{Create fixture, change cwd, create/remove child, test
+invalid/nonempty/current/file inputs; restore cwd and remove only owned data.}
+\def\TCExpectedResult{Exact returns/errno; existing state retained on failure;
+success preserves errno; current directory protected from removal.}
+\def\TCPostConditions{Original cwd restored; owned fixture removed.}
+\TCTemplate

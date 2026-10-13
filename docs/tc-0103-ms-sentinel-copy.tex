@@ -1,0 +1,19 @@
+% TC-0103 controlled sentinel-copy fragment.
+\def\TCID{TC-0103}
+\def\TCTitle{Microsoft bounded sentinel copying}
+\def\TCPurpose{Verify REQ-0103 copied boundaries and returned pointers.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0103}
+\def\TCDesignRef{Sentinel-copy work record.}
+\def\TCFeatureRef{string.h; memory.h; string.c; run-tc-0103.ps1.}
+\def\TCTestTechnique{Function-pointer ABI and exhaustive byte partitions.}
+\def\TCPreconditions{Matched runtime/compiler and disjoint valid buffers.}
+\def\TCEnvironment{Windows x86/x64 native; ARM64 compile/link only.}
+\def\TCAssumptions{Invalid nonzero buffers and overlap excluded.}
+\def\TCInputData{All byte values, sentinel positions and count boundaries.}
+\def\TCInitialState{Guarded source/destination and seeded errno.}
+\def\TCProcedure{Copy through pointer; check exact return, bytes, source,
+guards, absent sentinel, converted int sentinel and zero-count NULL inputs.}
+\def\TCExpectedResult{Only selected bytes copied and errno retained.}
+\def\TCPostConditions{No allocation or external state changed.}
+\TCTemplate

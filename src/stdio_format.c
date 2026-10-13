@@ -505,6 +505,10 @@ static int wcrt_format(struct wcrt_output *output, const char *format,
         } else if (*format == 'l') {
             length = WCRT_LENGTH_L;
             ++format;
+        } else if (format[0] == 'I' && format[1] == '6' &&
+            format[2] == '4') {
+            length = WCRT_LENGTH_LL;
+            format += 3;
         } else if (*format == 'j') {
             length = WCRT_LENGTH_J;
             ++format;

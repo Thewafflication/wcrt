@@ -1,0 +1,23 @@
+% TC-0089 controlled physical descriptor EOF fragment.
+\def\TCID{TC-0089}
+\def\TCTitle{Microsoft physical descriptor EOF query}
+\def\TCPurpose{Verify REQ-0089 physical equality and retained stream state.}
+\def\TCPriority{\TCPriorityCritical}
+\def\TCRequirementRef{REQ-0089}
+\def\TCDesignRef{Descriptor EOF work record and REQ-0088 queries.}
+\def\TCFeatureRef{\texttt{include/io.h}; \texttt{src/ms\_eof.c};
+\texttt{tests/mscompat/descriptor-eof.c}; query-error fixture;
+\texttt{tests/mscompat/run-tc-0089.ps1}.}
+\def\TCTestTechnique{Position partitions, state snapshots and injected errors.}
+\def\TCPreconditions{Matched TinyCC; unique owned small file.}
+\def\TCEnvironment{Windows x86/x64; ARM64 cross-links where nonnative.}
+\def\TCAssumptions{No concurrent mutation of owned file/descriptor.}
+\def\TCInputData{Empty/text/binary files, before/at/beyond end, duplicate,
+FILE EOF/error/pushback state, pipe/invalid handles and query errors.}
+\def\TCInitialState{Fresh owned file; errno seeded; stream state snapshotted.}
+\def\TCProcedure{Check declaration, physical equality and state retention;
+inject size/position failures; run native/package and Microsoft consumers.}
+\def\TCExpectedResult{One only at exact physical end; unchanged FILE/position;
+controlled errors and no host CRT import or large-file mutation.}
+\def\TCPostConditions{Descriptors closed and only owned fixture removed.}
+\TCTemplate

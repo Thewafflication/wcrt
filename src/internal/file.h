@@ -38,7 +38,11 @@ struct wcrt_file {
 };
 
 int __wcrt_file_open(FILE *stream, const char *path, const char *mode);
+int __wcrt_file_open_shared(FILE *stream, const char *path, const char *mode,
+    int sharing);
 int __wcrt_file_open_flags(FILE *stream, const char *path, int flags);
+int __wcrt_file_open_shared_flags(FILE *stream, const char *path, int flags,
+    int sharing, int permissions);
 int __wcrt_file_open_directory(FILE *stream, const char *path);
 int __wcrt_file_create_pipe(FILE *reader, FILE *writer,
     unsigned int size, int binary);
@@ -50,7 +54,11 @@ int __wcrt_file_write(FILE *stream, const void *buffer, size_t count,
 int __wcrt_file_seek(FILE *stream, long long offset, int origin,
     long long *position);
 int __wcrt_file_flush(FILE *stream);
+int __wcrt_file_resize(FILE *stream, long size);
+/** @brief Returns one snapshot of the process low-level creation mask. */
+int __wcrt_file_creation_mask(void);
 int __wcrt_file_is_terminal(FILE *stream);
+int __wcrt_file_handle_type(void *handle);
 int __wcrt_file_duplicate(FILE *source, FILE *target);
 int __wcrt_file_remove(const char *path);
 int __wcrt_file_rename(const char *old_path, const char *new_path);

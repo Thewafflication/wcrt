@@ -79,3 +79,7 @@ shared Microsoft-compatible filesystem and descriptor names, and
 `include/time.h` publishes the interoperation guard after `time_t`.
 `include/ctype.h` gates `isascii` while retaining `_isascii` for Microsoft
 compatibility.
+
+REQ-0092 additionally exposes only EIO/EFBIG through explicit WCRT_MS_ERRNO,
+without selecting other POSIX names. Default strict isolation remains intact;
+TC-0050 now explicitly guards EFBIG absence alongside EIO.

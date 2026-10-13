@@ -584,6 +584,10 @@ static int wcrt_scan(struct wcrt_input *input, const char *format,
         } else if (*format == 'l') {
             length = WCRT_SCAN_L;
             ++format;
+        } else if (format[0] == 'I' && format[1] == '6' &&
+            format[2] == '4') {
+            length = WCRT_SCAN_LL;
+            format += 3;
         } else if (*format == 'j') {
             length = WCRT_SCAN_J;
             ++format;

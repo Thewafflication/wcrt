@@ -1,0 +1,24 @@
+% TC-0092 controlled selected Microsoft errno-name fragment.
+\def\TCID{TC-0092}
+\def\TCTitle{Selected Microsoft low-I/O error names}
+\def\TCPurpose{Verify REQ-0092 vocabulary and unchanged errno interaction.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0092}
+\def\TCDesignRef{Microsoft error-name work record; existing low-I/O codes.}
+\def\TCFeatureRef{\texttt{include/errno.h};
+\texttt{tests/mscompat/vc6-ms-errors.c};
+\texttt{tests/mscompat/ms-errors.c};
+\texttt{tests/mscompat/run-tc-0092.ps1}.}
+\def\TCTestTechnique{Compile-time names, isolation and runtime error interaction.}
+\def\TCPreconditions{Matched TinyCC; owned small file; optional MS tools.}
+\def\TCEnvironment{Windows x86/x64; ARM64 compile/link where nonnative.}
+\def\TCAssumptions{Selectors precede first header inclusion.}
+\def\TCInputData{Strict/POSIX/MS/combined modes; invalid handle; wide position.}
+\def\TCInitialState{No extended MS names unless selected; errno seeded.}
+\def\TCProcedure{Compile repeated headers and constant expressions; preserve
+strict/POSIX gates; query a position beyond 32 bits and compare EFBIG through
+the public name; check shared DLL errno; run optional Microsoft consumers.}
+\def\TCExpectedResult{Codes 5/27 are usable in the selected MS profile; other
+POSIX names remain absent; errno storage and file contents unchanged.}
+\def\TCPostConditions{Owned descriptors closed and fixture removed.}
+\TCTemplate

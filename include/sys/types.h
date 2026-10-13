@@ -1,10 +1,26 @@
 /**
  * @file sys/types.h
- * @brief Declares types for the selected POSIX compatibility profile.
+ * @brief Declares Microsoft and selected POSIX system types.
  */
 
 #ifndef WCRT_SYS_TYPES_H
 #define WCRT_SYS_TYPES_H
+
+/** @brief Microsoft unsigned device identifier. */
+typedef unsigned int _dev_t;
+/** @brief Microsoft unsigned file serial number. */
+typedef unsigned short _ino_t;
+/** @brief Microsoft signed 32-bit file offset. */
+typedef long _off_t;
+
+#if defined(WCRT_MS_TYPES_ALIASES) && !defined(WCRT_POSIX)
+/** @brief Microsoft device identifier without the underscore spelling. */
+typedef _dev_t dev_t;
+/** @brief Microsoft file serial without the underscore spelling. */
+typedef _ino_t ino_t;
+/** @brief Microsoft file offset without the underscore spelling. */
+typedef _off_t off_t;
+#endif
 
 #if defined(WCRT_POSIX)
 /** @brief Windows device identifier used by POSIX adapters. */

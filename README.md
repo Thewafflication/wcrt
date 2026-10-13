@@ -51,6 +51,46 @@ platform model, requirements, tests, and release policy.
 Tagged releases publish the generated API reference to
 [GitHub Pages](https://thewafflication.github.io/wcrt/).
 
+## Explicit 32-bit file status
+
+An x86 source consumer can opt into the narrow status record before its first
+`<sys/stat.h>` inclusion:
+
+```c
+#define WCRT_VC6_STAT32 1
+#include <sys/stat.h>
+
+int inspect_file(const char *path)
+{
+    struct _stat status;
+    return _stat(path, &status);
+}
+```
+
+This routes source calls to the versioned `wcrt_stat32`/`wcrt_fstat32` ABI.
+Default consumers retain the shipped 64-bit status aliases. The narrow record
+rejects sizes/timestamps outside its signed 32-bit range; `time_t` stays 64-bit,
+so copy a narrow timestamp into a `time_t` before using a calendar-time API.
+Device/inode fields retain WCRT mappings. See the
+[migration decision](docs/adr-0008-explicit-stat32-source-route.md) and
+[VC6 working inventory](docs/vc6-coverage.md) for the remaining reference gaps.
+
+`<sys/types.h>` provides Microsoft `_dev_t`, `_ino_t` and `_off_t` spellings.
+Define `WCRT_MS_TYPES_ALIASES` before including it to also select `dev_t`,
+`ino_t` and `off_t` with Microsoft widths. If `WCRT_POSIX` is selected,
+its existing wider inode/offset types take precedence. This selector does
+not change `time_t` or the selected file-status ABI.
+
+For legacy file-time source spellings on x86, define `WCRT_VC6_UTIME32`
+before including `<sys/utime.h>`. It routes `_utime` and `struct _utimbuf`
+to the existing eight-byte 32-bit timestamp interface. Explicit `_utime64`
+and generic `time_t` keep their existing ABI. This is a source selector;
+it does not add a binary `_utime` export.
+
+Define `WCRT_MS_ERRNO` before `<errno.h>` to name the existing `EIO` and
+`EFBIG` low-I/O errors without selecting the POSIX profile. Error storage and
+numeric values retain their existing contracts.
+
 ## Processor information
 
 Processor queries are available through `<wcrt/cpu.h>`:
@@ -141,8 +181,11 @@ include/                 Public headers
 
 Link against the DLL import definition:
 
+Define `WCRT_DLL=1` when accessing runtime data such as `errno` through the
+DLL. Static-library consumers leave this selector undefined.
+
 ```powershell
-tcc program.c $env:WCRT_HOME/x64/lib/wcrt.def -o program.exe
+tcc -DWCRT_DLL=1 program.c $env:WCRT_HOME/x64/lib/wcrt.def -o program.exe
 ```
 
 Or link the static runtime:

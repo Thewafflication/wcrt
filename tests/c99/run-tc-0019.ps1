@@ -31,7 +31,8 @@ $sources = @(
     'src\stdio.c', 'src\stdio_format.c', 'src\stdio_scan.c',
     'src\platform\windows\heap.c', 'src\platform\windows\process.c',
     'src\platform\windows\lock.c',
-    'src\platform\windows\file.c', 'tests\c99\stdio.c'
+    'src\platform\windows\file.c', 'src\ms_umask.c', 'src\ms_fmode.c',
+    'tests\c99\stdio.c'
 ) | ForEach-Object { Join-Path $repoRoot $_ }
 $output = & $TinyCc @common @sources -o $executable 2>&1
 if ($LASTEXITCODE -ne 0) {

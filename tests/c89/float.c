@@ -20,6 +20,8 @@ int main(void)
     volatile float float_sum;
     volatile double double_sum;
     volatile long double long_sum;
+    float maximum = FLT_MAX;
+    const unsigned char *representation = (const unsigned char *)&maximum;
 
     if (FLT_RADIX < 2 || FLT_ROUNDS < -1 || FLT_ROUNDS > 3) return 1;
     if (FLT_MANT_DIG < 6 || DBL_MANT_DIG < 10) return 2;
@@ -49,5 +51,12 @@ int main(void)
     if (LDBL_MIN_10_EXP >= 0) return 20;
     if (FLT_MAX_10_EXP <= 0 || DBL_MAX_10_EXP <= 0) return 21;
     if (LDBL_MAX_10_EXP <= 0) return 22;
+#if defined(_WIN32)
+    if (sizeof(maximum) != 4 || representation[0] != 0xff ||
+        representation[1] != 0xff || representation[2] != 0x7f ||
+        representation[3] != 0x7f) return 23;
+#else
+    (void)representation;
+#endif
     return 0;
 }

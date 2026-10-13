@@ -24,6 +24,8 @@ WPM packages. Developer-only exploratory checks are not release evidence.
 | C99 interface and isolation | Compile-time, behavioral, C89-isolation, numeric-boundary, and ABI testing | `TC-0019`, `TC-0021`–`TC-0033`, `TC-0035`–`TC-0042`, `tests/c99/` |
 | POSIX compatibility and isolation | Selected/strict compile-time and Windows behavioral testing | `TC-0050`–`TC-0052`, `tests/posix/` |
 | Compiler and data model | Targeted compile-only capability and width assertions | `tests/c99/capabilities/`, `docs/c99-platform-model.md` |
+| VC6-era Microsoft interfaces | Header presence, boundary behavior, sharing/lifecycle and packaged consumers | `TC-0076`–`TC-0086`, `tests/mscompat/` |
+| Microsoft x86 consumer headers | Standalone header compilation and optional Microsoft DLL consumer | `TC-0079` |
 | Library integration | DLL and static-library consumer builds and execution | `tools/test-built-libraries.ps1` |
 | Legacy import compatibility | Repository-owned PE import parsing and Windows 2000 x86 allowlist | `tools/test-windows-2000-imports.ps1` |
 | Compatibility comparison | Equivalent test input against Microsoft UCRT | `tools/run-c89-comparison.ps1` |
@@ -52,6 +54,20 @@ CI provisions TinyCC and cv2pdb from their signed WPM repositories. Test
 runners receive the target architecture and compiler path explicitly. Outputs
 are isolated below `output/` and build intermediates below `build/` or `tmp/`;
 runners shall not reuse prior-run results as current evidence.
+
+Run architecture aggregates serially in a shared checkout. Individual runners
+use common `build/tests/` executable paths; concurrent architecture runs can
+overwrite or lock each other's fixtures and invalidate their results.
+
+The VC6-era interface runners accept an optional RuntimeDirectory to verify
+the built static library and DLL with explicit WCRT startup and no host CRT
+imports. CompileOnly produces cross-link evidence without native execution.
+TC-0079 can additionally consume configured Microsoft compiler, librarian and
+linker paths. Compiler major version 12 identifies genuine VC6 consumer
+evidence; other versions exercise the selected VC6 header branch as
+supplementary evidence and leave genuine VC6 qualification Unknown. Header
+adaptation does not establish legacy VC6 time/stat layouts or full CRT ABI
+compatibility. ARM64 cross-links likewise do not replace native results.
 
 The C89, C99, and Microsoft-compatibility aggregates route ordinary TinyCC
 test-executable links through `tests/tcc-diagnostic-wrapper.cmd`. The wrapper

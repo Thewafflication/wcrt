@@ -1,0 +1,19 @@
+% TC-0099 controlled create/truncate descriptor fragment.
+\def\TCID{TC-0099}
+\def\TCTitle{Microsoft descriptor creation adapter}
+\def\TCPurpose{Verify REQ-0099 forwarding and native creation behavior.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0099}
+\def\TCDesignRef{Descriptor create/truncate work record.}
+\def\TCFeatureRef{io.h; ms\_creat.c; run-tc-0099.ps1.}
+\def\TCTestTechnique{Provider forwarding and owned filesystem partitions.}
+\def\TCPreconditions{Matched runtime/compiler and unique owned pathname.}
+\def\TCEnvironment{Windows x86/x64 native; ARM64 compile/link only.}
+\def\TCAssumptions{Fixed creation mask zero and selected text default.}
+\def\TCInputData{New/existing/readonly paths and selected/invalid modes.}
+\def\TCInitialState{Caller errno seeded and previous content retained.}
+\def\TCProcedure{Create/write/read/share/truncate; check modes and permissions;
+inject forwarding failures and compare readonly file content.}
+\def\TCExpectedResult{Correct descriptor behavior with existing error contract.}
+\def\TCPostConditions{Owned descriptors closed and fixture removed.}
+\TCTemplate

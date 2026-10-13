@@ -1,0 +1,19 @@
+% TC-0098 controlled descriptor range-locking fragment.
+\def\TCID{TC-0098}
+\def\TCTitle{Microsoft descriptor range locking}
+\def\TCPurpose{Verify REQ-0098 ranges, retries and unchanged descriptor state.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0098}
+\def\TCDesignRef{Descriptor range-locking work record.}
+\def\TCFeatureRef{io.h; sys/locking.h; ms\_locking.c; run-tc-0098.ps1.}
+\def\TCTestTechnique{Native two-handle behavior and deterministic providers.}
+\def\TCPreconditions{Matched runtime/compiler and owned regular-file fixture.}
+\def\TCEnvironment{Windows x86/x64 native; ARM64 compile/link only.}
+\def\TCAssumptions{No concurrent position changes on one descriptor.}
+\def\TCInputData{Five modes, wide offsets, invalid descriptors/types/counts.}
+\def\TCInitialState{Position/FILE state/size saved; provider counters seeded.}
+\def\TCProcedure{Lock/unlock native regions; inject contention and errors;
+check exact retry/wait counts and preserved position/stream state.}
+\def\TCExpectedResult{Correct ranges, selected errors, no seek or file mutation.}
+\def\TCPostConditions{Owned locks released and files closed/removed.}
+\TCTemplate

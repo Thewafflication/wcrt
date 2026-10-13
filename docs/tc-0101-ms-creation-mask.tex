@@ -1,0 +1,19 @@
+% TC-0101 controlled process creation-mask fragment.
+\def\TCID{TC-0101}
+\def\TCTitle{Microsoft process creation mask}
+\def\TCPurpose{Verify REQ-0101 previous masks and new-file permission effects.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0101}
+\def\TCDesignRef{Process creation-mask work record.}
+\def\TCFeatureRef{io.h; ms\_umask.c; Windows shared-open backend.}
+\def\TCTestTechnique{Mode partitions and deterministic creation providers.}
+\def\TCPreconditions{Matched runtime/compiler; owned fixture pathname.}
+\def\TCEnvironment{Windows x86/x64 native; ARM64 compile/link only.}
+\def\TCAssumptions{No concurrent mask updates or position changes.}
+\def\TCInputData{All mask/mode combinations, negative and unsupported bits.}
+\def\TCInitialState{Mask saved, errno seeded and fixtures uniquely owned.}
+\def\TCProcedure{Set/query masks, create/open existing files and inspect modes;
+inject backend errors and count snapshots without modifying mask itself.}
+\def\TCExpectedResult{Correct previous values and selected new-file permissions.}
+\def\TCPostConditions{Mask restored; owned descriptors and files cleaned up.}
+\TCTemplate

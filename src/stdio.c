@@ -10,6 +10,7 @@
 #include <io.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 #include "internal/file.h"
@@ -235,6 +236,21 @@ FILE *fopen(const char *path, const char *mode)
     return stream;
 }
 
+FILE *_fsopen(const char *path, const char *mode, int sharing)
+{
+    FILE *stream = wcrt_allocate_stream();
+    if (stream == NULL) {
+        errno = EMFILE;
+        return NULL;
+    }
+    if (__wcrt_file_open_shared(stream, path, mode, sharing) != 0) {
+        wcrt_release_stream(stream);
+        return NULL;
+    }
+    stream->descriptor = (int)(stream - wcrt_streams) + 3;
+    return stream;
+}
+
 errno_t fopen_s(FILE **stream, const char *path, const char *mode)
 {
     if (stream == NULL || path == NULL || mode == NULL) {
@@ -316,6 +332,34 @@ int _open(const char *path, int flags, ...)
         return -1;
     }
     if (__wcrt_file_open_flags(stream, path, flags) != 0) {
+        wcrt_release_stream(stream);
+        return -1;
+    }
+    stream->descriptor = (int)(stream - wcrt_streams) + 3;
+    return stream->descriptor;
+}
+
+int _sopen(const char *path, int flags, int sharing, ...)
+{
+    FILE *stream;
+    int permissions = _S_IREAD | _S_IWRITE;
+    if (path == NULL || *path == '\0') {
+        errno = EINVAL;
+        return -1;
+    }
+    if (flags & _O_CREAT) {
+        va_list arguments;
+        va_start(arguments, sharing);
+        permissions = va_arg(arguments, int);
+        va_end(arguments);
+    }
+    stream = wcrt_allocate_stream();
+    if (stream == NULL) {
+        errno = EMFILE;
+        return -1;
+    }
+    if (__wcrt_file_open_shared_flags(stream, path, flags, sharing,
+        permissions) != 0) {
         wcrt_release_stream(stream);
         return -1;
     }
@@ -454,6 +498,60 @@ long _lseek(int descriptor, long offset, int origin)
 
 long _tell(int descriptor) { return _lseek(descriptor, 0, SEEK_CUR); }
 
+/** @brief Uses the shared seek path for the Microsoft 64-bit interface. */
+wcrt_ms_int64 _lseeki64(int descriptor, wcrt_ms_int64 offset, int origin)
+{
+    return wcrt_descriptor_seek(descriptor, offset, origin);
+}
+
+/** @brief Queries the native position while retaining stream state. */
+wcrt_ms_int64 _telli64(int descriptor)
+{
+    FILE *stream = wcrt_descriptor_stream(descriptor);
+    long long position;
+    if (stream == NULL) {
+        errno = EBADF;
+        return -1;
+    }
+    if (__wcrt_file_seek(stream, 0, SEEK_CUR, &position) != 0) return -1;
+    return position;
+}
+
+/** @brief Obtains size through metadata without seeking or reading bytes. */
+wcrt_ms_int64 _filelengthi64(int descriptor)
+{
+    struct _stat64 status;
+    if (_fstat64(descriptor, &status) != 0) return -1;
+    if ((status.st_mode & S_IFMT) != S_IFREG) {
+        errno = ESPIPE;
+        return -1;
+    }
+    if (status.st_size < 0) {
+        errno = EIO;
+        return -1;
+    }
+    return status.st_size;
+}
+
+/** @brief Resizes a live descriptor through the raw Windows backend. */
+int _chsize(int descriptor, long size)
+{
+    FILE *stream = wcrt_descriptor_stream(descriptor);
+    if (stream == NULL) { errno = EBADF; return -1; }
+    return __wcrt_file_resize(stream, size);
+}
+
+/** @brief Rejects regular-file sizes outside the signed 32-bit return range. */
+long _filelength(int descriptor)
+{
+    wcrt_ms_int64 size = _filelengthi64(descriptor);
+    if (size > 2147483647LL) {
+        errno = EFBIG;
+        return -1;
+    }
+    return (long)size;
+}
+
 off_t lseek(int descriptor, off_t offset, int origin)
 {
     return (off_t)wcrt_descriptor_seek(descriptor, offset, origin);
@@ -482,6 +580,24 @@ int _isatty(int descriptor)
 }
 
 int isatty(int descriptor) { return _isatty(descriptor); }
+
+int _setmode(int descriptor, int mode)
+{
+    FILE *stream = wcrt_descriptor_stream(descriptor);
+    int previous;
+    if (stream == NULL) {
+        errno = EBADF;
+        return -1;
+    }
+    if (mode != _O_TEXT && mode != _O_BINARY) {
+        errno = EINVAL;
+        return -1;
+    }
+    previous = (stream->flags & WCRT_FILE_BINARY) ? _O_BINARY : _O_TEXT;
+    if (mode == _O_BINARY) stream->flags |= WCRT_FILE_BINARY;
+    else stream->flags &= ~WCRT_FILE_BINARY;
+    return previous;
+}
 
 FILE *_fdopen(int descriptor, const char *mode)
 {

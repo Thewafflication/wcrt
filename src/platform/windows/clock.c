@@ -53,8 +53,7 @@ time_t __wcrt_wall_time(void)
 {
     struct wcrt_file_time value;
     GetSystemTimeAsFileTime(&value);
-    return (time_t)((wcrt_file_ticks(&value) - WCRT_EPOCH_TICKS) /
-        10000000ULL);
+    return (time_t)(wcrt_file_ticks(&value) / 10000000ULL) - 11644473600LL;
 }
 
 int gettimeofday(struct timeval *time_value, void *timezone)
@@ -101,8 +100,7 @@ time_t __wcrt_utc_to_local(time_t utc)
     if (!FileTimeToLocalFileTime(&input, &output)) {
         return utc;
     }
-    return (time_t)((wcrt_file_ticks(&output) - WCRT_EPOCH_TICKS) /
-        10000000ULL);
+    return (time_t)(wcrt_file_ticks(&output) / 10000000ULL) - 11644473600LL;
 }
 
 time_t __wcrt_local_to_utc(time_t local)
@@ -115,6 +113,5 @@ time_t __wcrt_local_to_utc(time_t local)
     if (!LocalFileTimeToFileTime(&input, &output)) {
         return (time_t)-1;
     }
-    return (time_t)((wcrt_file_ticks(&output) - WCRT_EPOCH_TICKS) /
-        10000000ULL);
+    return (time_t)(wcrt_file_ticks(&output) / 10000000ULL) - 11644473600LL;
 }

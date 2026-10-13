@@ -1,0 +1,25 @@
+% TC-0095 controlled narrow calendar-time source route fragment.
+\def\TCID{TC-0095}
+\def\TCTitle{Explicit narrow calendar-time source route}
+\def\TCPurpose{Verify REQ-0095 ABI routing, boundaries and storage guards.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0095}
+\def\TCDesignRef{ADR-0009; calendar-time32 work record.}
+\def\TCFeatureRef{\texttt{include/time.h}; narrow calendar adapters;
+\texttt{tests/mscompat/run-tc-0095.ps1}.}
+\def\TCTestTechnique{Header/ABI, guarded data, boundary and provider tests.}
+\def\TCPreconditions{Matched package/compiler; stable native clock/timezone.}
+\def\TCEnvironment{Windows x86 source route; x64 explicit adapters;
+ARM64 compile/link; supplementary Microsoft x86 consumers.}
+\def\TCAssumptions{Selectors precede first header inclusion; default runtime
+retains wide time_t; no actual clock/timezone mutation is used.}
+\def\TCInputData{Epoch, 2038 maximum, negative/null inputs, guarded output,
+normalized/invalid calendars, numeric extremes and future provider clocks.}
+\def\TCInitialState{Caller guards and errno seeded; input calendar copied.}
+\def\TCProcedure{Compile selected/default/profile headers and pointers;
+exercise all adapters/storage; test local round trips and provider boundaries;
+preserve wide ABI and reject incompatible target/POSIX selection.}
+\def\TCExpectedResult{Four-byte source times safely route to explicit adapters;
+checked range/no-mutation rules and signed epoch reconstruction hold.}
+\def\TCPostConditions{Caller guards intact; system clock/timezone unchanged.}
+\TCTemplate

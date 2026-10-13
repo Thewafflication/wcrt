@@ -33,6 +33,9 @@ typedef size_t rsize_t;
 void *memcpy(void *WCRT_RESTRICT destination,
     const void *WCRT_RESTRICT source, size_t count);
 void *memmove(void *destination, const void *source, size_t count);
+/** @brief Copies through a sentinel byte within the bounded count. */
+void *_memccpy(void *destination, const void *source, int sentinel,
+    size_t count);
 char *strcpy(char *WCRT_RESTRICT destination,
     const char *WCRT_RESTRICT source);
 char *strncpy(char *WCRT_RESTRICT destination,

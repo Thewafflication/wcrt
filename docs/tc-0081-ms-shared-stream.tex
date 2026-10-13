@@ -1,0 +1,26 @@
+% TC-0081 controlled Microsoft shared-stream fragment.
+\def\TCID{TC-0081}
+\def\TCTitle{Microsoft shared stream opening}
+\def\TCPurpose{Verify REQ-0081 sharing modes, interaction and errors.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0081}
+\def\TCDesignRef{Selected Microsoft Win32 sharing profile.}
+\def\TCFeatureRef{\texttt{include/share.h}; \texttt{include/stdio.h};
+\texttt{src/stdio.c}; Windows file backend;
+\texttt{tests/mscompat/shared-stream.c};
+\texttt{tests/mscompat/presence/shared-stream.c};
+\texttt{tests/mscompat/run-tc-0081.ps1}.}
+\def\TCTestTechnique{Interface, access/sharing matrix and handle lifecycle.}
+\def\TCPreconditions{Matched TinyCC and unique owned fixture file.}
+\def\TCEnvironment{Windows x86/x64; ARM64 native where available.}
+\def\TCAssumptions{No external namespace mutation of the owned fixture.}
+\def\TCInputData{All four deny modes, descriptor access modes, duplicates,
+ordinary streams, append/update/binary modes, null and invalid arguments.}
+\def\TCInitialState{No fixture; errno seeded for success checks.}
+\def\TCProcedure{Create file; exercise sharing/access matrix; duplicate and
+close original; verify restriction persists; close duplicate; test repeated
+failures and mode/content behavior; remove only owned file.}
+\def\TCExpectedResult{Windows sharing restrictions, errno and stream lifetime
+match the selected contract; invalid opens do not exhaust stream slots.}
+\def\TCPostConditions{Owned file removed; streams/descriptors closed.}
+\TCTemplate

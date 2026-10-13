@@ -1,5 +1,6 @@
 /** @file utime.c @brief Tests Microsoft explicit-width file times. */
 #include <stdio.h>
+#include <errno.h>
 #include <sys/utime.h>
 #include <windows.h>
 
@@ -42,6 +43,19 @@ int main(int argc, char **argv)
     if (_utime64(argv[1], &time64) != 0) return 7;
     if (!GetFileAttributesExA(argv[1], GetFileExInfoStandard, &data)) return 8;
     if (file_seconds(data.ftLastWriteTime) != time64.modtime) return 9;
+    time32.actime = -1;
+    time32.modtime = 0;
+    errno = EDOM;
+    if (_utime32(argv[1], &time32) != -1 || errno != EINVAL) return 12;
+    if (!GetFileAttributesExA(argv[1], GetFileExInfoStandard, &data) ||
+        file_seconds(data.ftLastWriteTime) != time64.modtime) return 13;
+    time64.actime = 32535216000LL;
+    time64.modtime = 0;
+    if (_utime64(argv[1], &time64) != -1 || errno != EINVAL) return 14;
+    if (!GetFileAttributesExA(argv[1], GetFileExInfoStandard, &data) ||
+        file_seconds(data.ftLastWriteTime) != 2208988900LL) return 15;
+    errno = EDOM;
+    if (_utime32(argv[1], NULL) != 0 || errno != EDOM) return 16;
     if (_utime64(argv[1], NULL) != 0) return 10;
     if (remove(argv[1]) != 0) return 11;
     return 0;

@@ -1,0 +1,26 @@
+% TC-0085 controlled Microsoft drive-directory fragment.
+\def\TCID{TC-0085}
+\def\TCTitle{Microsoft drive directory adapters}
+\def\TCPurpose{Verify REQ-0085 drive selection and directory queries.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0085}
+\def\TCDesignRef{Selected Windows-provided drive-relative state.}
+\def\TCFeatureRef{\texttt{include/direct.h}; Windows directory backend;
+\texttt{tests/mscompat/drive-directory.c};
+\texttt{tests/mscompat/drive-directory-errors.c};
+\texttt{tests/mscompat/presence/drive-directory.c};
+\texttt{tests/mscompat/run-tc-0085.ps1}.}
+\def\TCTestTechnique{Interface, owned current-drive and OS error partitions.}
+\def\TCPreconditions{Matched TinyCC and unique owned fixture directory.}
+\def\TCEnvironment{Windows x86/x64; ARM64 native where available.}
+\def\TCAssumptions{No concurrent cwd mutation; inherited Windows drive state.}
+\def\TCInputData{Current/default and simulated alternate drives, caller and
+allocated buffers, exact sizes, invalid drives/sizes and OS/allocation errors.}
+\def\TCInitialState{Captured cwd; no fixture; errno seeded.}
+\def\TCProcedure{Create owned directory; query/select current drive; inspect
+buffers/errors; restore cwd and remove fixture; simulate alternate resolution,
+change failures and allocation errors without accessing real alternate drives.}
+\def\TCExpectedResult{Queries preserve cwd, switches use the requested Windows
+drive path, and return/error/buffer behavior matches the selected contract.}
+\def\TCPostConditions{Cwd restored; owned directory removed.}
+\TCTemplate

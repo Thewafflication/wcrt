@@ -62,7 +62,8 @@ $tests = @(
         'src\platform\windows\heap.c',
         'src\platform\windows\process.c',
         'src\platform\windows\lock.c',
-        'src\platform\windows\file.c', 'tests\c89\stdio.c') },
+        'src\platform\windows\file.c', 'src\ms_umask.c', 'src\ms_fmode.c',
+        'tests\c89\stdio.c') },
     @{ Id = '0013'; Name = 'stdlib'; Sources = @(
         'src\ctype.c', 'src\errno.c', 'src\string.c', 'src\stdlib.c',
         'src\platform\windows\heap.c',

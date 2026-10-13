@@ -171,10 +171,98 @@ $tests = @(
         'tests\posix\run-tc-0074.ps1'),
     @('TC-0075', 'REQ-0075', 'WCRT extensions',
         'Processor capabilities and counts',
-        'tests\wcrt\run-tc-0075.ps1')
+        'tests\wcrt\run-tc-0075.ps1'),
+    @('TC-0076', 'REQ-0076', 'Microsoft compatibility',
+        'Narrow path construction and decomposition',
+        'tests\mscompat\run-tc-0076.ps1'),
+    @('TC-0077', 'REQ-0077', 'Microsoft compatibility',
+        'I64 integer formatted input and output',
+        'tests\mscompat\run-tc-0077.ps1'),
+    @('TC-0078', 'REQ-0078', 'Microsoft compatibility',
+        'Narrow 64-bit integer conversions',
+        'tests\mscompat\run-tc-0078.ps1'),
+    @('TC-0079', 'REQ-0079', 'Microsoft compatibility',
+        'VC6 consumer header foundation',
+        'tests\mscompat\run-tc-0079.ps1'),
+    @('TC-0080', 'REQ-0080', 'Microsoft compatibility',
+        'Narrow directory change and removal',
+        'tests\mscompat\run-tc-0080.ps1'),
+    @('TC-0082', 'REQ-0082', 'Microsoft compatibility',
+        'Descriptor translation mode', 'tests\mscompat\run-tc-0082.ps1'),
+    @('TC-0083', 'REQ-0083', 'Microsoft compatibility',
+        'Shared descriptor opening', 'tests\mscompat\run-tc-0083.ps1'),
+    @('TC-0084', 'REQ-0084', 'Microsoft compatibility',
+        'Drive queries', 'tests\mscompat\run-tc-0084.ps1'),
+    @('TC-0085', 'REQ-0085', 'Microsoft compatibility',
+        'Drive directory adapters', 'tests\mscompat\run-tc-0085.ps1'),
+    @('TC-0095', 'REQ-0095', 'Microsoft compatibility',
+        'Explicit calendar-time32 source route', 'tests\mscompat\run-tc-0095.ps1'),
+    @('TC-0096', 'REQ-0096', 'Microsoft compatibility',
+        'Explicit narrow filename enumeration', 'tests\mscompat\run-tc-0096.ps1'),
+    @('TC-0097', 'REQ-0097', 'Microsoft compatibility',
+        'Byte-pair copying', 'tests\mscompat\run-tc-0097.ps1'),
+    @('TC-0098', 'REQ-0098', 'Microsoft compatibility',
+        'Descriptor range locking', 'tests\mscompat\run-tc-0098.ps1'),
+    @('TC-0099', 'REQ-0099', 'Microsoft compatibility',
+        'Descriptor create/truncate', 'tests\mscompat\run-tc-0099.ps1'),
+    @('TC-0100', 'REQ-0100', 'Microsoft compatibility',
+        'Narrow-time wide-size enumeration', 'tests\mscompat\run-tc-0100.ps1'),
+    @('TC-0101', 'REQ-0101', 'Microsoft compatibility',
+        'Process creation mask', 'tests\mscompat\run-tc-0101.ps1'),
+    @('TC-0102', 'REQ-0102', 'Microsoft compatibility',
+        'Default translation-mode data', 'tests\mscompat\run-tc-0102.ps1'),
+    @('TC-0103', 'REQ-0103', 'Microsoft compatibility',
+        'Bounded sentinel copying', 'tests\mscompat\run-tc-0103.ps1'),
+    @('TC-0094', 'REQ-0094', 'Microsoft compatibility',
+        'Descriptor resize', 'tests\mscompat\run-tc-0094.ps1'),
+    @('TC-0093', 'REQ-0093', 'Microsoft compatibility',
+        'Descriptor file-time updates', 'tests\mscompat\run-tc-0093.ps1'),
+    @('TC-0092', 'REQ-0092', 'Microsoft compatibility',
+        'Selected Microsoft error names', 'tests\mscompat\run-tc-0092.ps1'),
+    @('TC-0091', 'REQ-0091', 'Microsoft compatibility',
+        'Explicit utime32 source route', 'tests\mscompat\run-tc-0091.ps1'),
+    @('TC-0090', 'REQ-0090', 'Microsoft compatibility',
+        'Native handle adoption', 'tests\mscompat\run-tc-0090.ps1'),
+    @('TC-0089', 'REQ-0089', 'Microsoft compatibility',
+        'Physical descriptor EOF', 'tests\mscompat\run-tc-0089.ps1'),
+    @('TC-0088', 'REQ-0088', 'Microsoft compatibility',
+        'Descriptor sizes and wide positions',
+        'tests\mscompat\run-tc-0088.ps1'),
+    @('TC-0087', 'REQ-0087', 'Microsoft compatibility',
+        'Microsoft system-type spellings',
+        'tests\mscompat\run-tc-0087.ps1'),
+    @('TC-0086', 'REQ-0086', 'Microsoft compatibility',
+        'Explicit stat32 source route', 'tests\mscompat\run-tc-0086.ps1'),
+    @('TC-0081', 'REQ-0081', 'Microsoft compatibility',
+        'Shared stream opening',
+        'tests\mscompat\run-tc-0081.ps1')
 )
 
 $manifest = Join-Path $repoRoot 'tests\c99\manifest.md'
+$duplicates = @($tests | Group-Object { $_[0] } |
+    Where-Object Count -ne 1)
+if ($duplicates.Count -ne 0) {
+    throw ('Duplicate aggregate cases: ' + ($duplicates.Name -join ', '))
+}
+$msManifest = Join-Path $repoRoot 'tests\mscompat\manifest.md'
+$controlledMicrosoft = @(
+    Select-String -LiteralPath $msManifest -Pattern '\[TC-(\d{4})\]' `
+        -AllMatches |
+        ForEach-Object { $_.Matches } |
+        ForEach-Object { "TC-$($_.Groups[1].Value)" } | Sort-Object -Unique
+)
+$aggregateMicrosoft = @(
+    $tests | Where-Object {
+        $_[2] -eq 'Microsoft compatibility' -or $_[0] -in $controlledMicrosoft
+    } | ForEach-Object { $_[0] } | Sort-Object -Unique
+)
+$msDifference = @(Compare-Object $controlledMicrosoft $aggregateMicrosoft)
+if ($msDifference.Count -ne 0) {
+    throw ('Aggregate Microsoft inventory differs from the manifest: ' +
+        (($msDifference | ForEach-Object {
+            "$($_.InputObject) $($_.SideIndicator)"
+        }) -join ', '))
+}
 $controlledC99 = @(
     Select-String -LiteralPath $manifest -Pattern '\[TC-(\d{4})\]' -AllMatches |
         ForEach-Object { $_.Matches } |

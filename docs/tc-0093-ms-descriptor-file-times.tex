@@ -1,0 +1,25 @@
+% TC-0093 controlled descriptor file-time fragment.
+\def\TCID{TC-0093}
+\def\TCTitle{Selected descriptor file-time updates}
+\def\TCPurpose{Verify REQ-0093 ABI, conversion and borrowed-handle behavior.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0093}
+\def\TCDesignRef{Descriptor file-time work record; REQ-0048 conversion.}
+\def\TCFeatureRef{\texttt{include/sys/utime.h};
+\texttt{src/platform/windows/utime.c};
+\texttt{tests/mscompat/run-tc-0093.ps1}.}
+\def\TCTestTechnique{Declaration, boundary, native metadata and provider tests.}
+\def\TCPreconditions{Owned writable file; matching TinyCC/package architecture.}
+\def\TCEnvironment{Windows x86/x64; ARM64 compile/link where nonnative.}
+\def\TCAssumptions{Owned filesystem preserves second-resolution timestamps;
+native current time fits signed 32 bits, with future clocks tested by providers.}
+\def\TCInputData{Distinct timestamps, current time, invalid ranges/descriptors,
+read-only native handle, pipes, duplicates and controlled provider errors.}
+\def\TCInitialState{Known content/position/FILE state; errno seeded.}
+\def\TCProcedure{Compile function pointers and source selection; apply times
+and inspect metadata/state; test failures and retained handle ownership;
+cross-link packages and run supplementary Microsoft calls.}
+\def\TCExpectedResult{Checked times and errors; no position, FILE state or
+ownership change; only baseline Windows imports.}
+\def\TCPostConditions{Owned handles closed and fixture removed.}
+\TCTemplate

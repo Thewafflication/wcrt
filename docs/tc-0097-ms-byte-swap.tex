@@ -1,0 +1,19 @@
+% TC-0097 controlled byte-pair copy fragment.
+\def\TCID{TC-0097}
+\def\TCTitle{Microsoft byte-pair copying}
+\def\TCPurpose{Verify REQ-0097 swapped copies and untouched byte boundaries.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0097}
+\def\TCDesignRef{Byte-pair copying work record.}
+\def\TCFeatureRef{stdlib.h; stdlib.c; run-tc-0097.ps1.}
+\def\TCTestTechnique{Function-pointer ABI and guarded byte-boundary tests.}
+\def\TCPreconditions{Matched runtime package/compiler.}
+\def\TCEnvironment{Windows x86/x64 native; ARM64 compile/link only.}
+\def\TCAssumptions{Disjoint buffers or exact in-place copy.}
+\def\TCInputData{Every byte value, embedded zero, odd/even and invalid counts.}
+\def\TCInitialState{Buffers/guards copied and errno seeded.}
+\def\TCProcedure{Copy pairs via pointer; check guards, source and odd tail;
+repeat in place and verify invalid inputs leave memory unchanged.}
+\def\TCExpectedResult{Correct pairs, retained tails and selected errno behavior.}
+\def\TCPostConditions{No allocations or external state changed.}
+\TCTemplate

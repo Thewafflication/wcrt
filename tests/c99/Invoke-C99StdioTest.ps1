@@ -62,7 +62,8 @@ $sources = @(
     'src/stdio.c', 'src/stdio_format.c', 'src/stdio_scan.c',
     'src/platform/windows/heap.c', 'src/platform/windows/process.c',
     'src/platform/windows/lock.c',
-    'src/platform/windows/file.c', $BehaviorSource
+    'src/platform/windows/file.c', 'src/ms_umask.c', 'src/ms_fmode.c',
+    $BehaviorSource
 ) | ForEach-Object { Join-Path $repoRoot $_ }
 $behaviorOutput = & $TinyCc @c99Arguments @sources -o $executable 2>&1
 if ($LASTEXITCODE -ne 0) {

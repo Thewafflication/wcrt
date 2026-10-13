@@ -1,0 +1,25 @@
+% TC-0082 controlled Microsoft descriptor-mode fragment.
+\def\TCID{TC-0082}
+\def\TCTitle{Microsoft descriptor translation mode}
+\def\TCPurpose{Verify REQ-0082 mode returns and narrow translation.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0082}
+\def\TCDesignRef{Existing WCRT descriptor and narrow stream engine.}
+\def\TCFeatureRef{\texttt{include/io.h}; \texttt{src/stdio.c};
+\texttt{tests/mscompat/descriptor-mode.c};
+\texttt{tests/mscompat/presence/descriptor-mode.c};
+\texttt{tests/mscompat/run-tc-0082.ps1}.}
+\def\TCTestTechnique{Interface, physical-byte and state-transition testing.}
+\def\TCPreconditions{Matched TinyCC and unique owned fixture file.}
+\def\TCEnvironment{Windows x86/x64; ARM64 native where available.}
+\def\TCAssumptions{No concurrent I/O on the same descriptor.}
+\def\TCInputData{Text/binary modes, invalid modes and descriptors, duplicate,
+FILE, pipe and available standard descriptors.}
+\def\TCInitialState{No fixture; errno seeded for success checks.}
+\def\TCProcedure{Switch modes; inspect physical and translated bytes; verify
+position, duplicate independence and append/access preservation; test errors,
+pipe and standard descriptors; restore standard modes and remove fixture.}
+\def\TCExpectedResult{Previous modes, byte translation and error values match
+the contract; unrelated descriptor state and standard modes are preserved.}
+\def\TCPostConditions{Owned file removed; streams/descriptors closed.}
+\TCTemplate

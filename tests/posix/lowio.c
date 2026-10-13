@@ -19,6 +19,12 @@ static int test_microsoft(const char *path)
     if (_write(descriptor, "shared", 6) != 6 || _tell(descriptor) != 6)
         return 3;
     if (_lseek(descriptor, 0, SEEK_SET) != 0) return 4;
+    errno = EDOM;
+    if (_lseek(descriptor, -1, SEEK_SET) != -1 || errno != EINVAL ||
+        _tell(descriptor) != 0) return 50;
+    errno = EDOM;
+    if (_lseek(descriptor, 0, 99) != -1 || errno != EINVAL ||
+        _tell(descriptor) != 0) return 51;
     if (_read(descriptor, buffer, 6) != 6 || strcmp(buffer, "shared") != 0)
         return 5;
     duplicate = _dup(descriptor);
@@ -51,6 +57,12 @@ static int test_posix(const char *path)
     if (descriptor < 3) return 20;
     if (write(descriptor, "portable", 8) != 8) return 21;
     if (lseek(descriptor, 0, SEEK_SET) != 0) return 22;
+    errno = EDOM;
+    if (lseek(descriptor, 4294967295LL, SEEK_SET) != 4294967295LL ||
+        errno != EDOM || lseek(descriptor, 0, SEEK_CUR) != 4294967295LL ||
+        lseek(descriptor, 8589934591LL, SEEK_SET) != 8589934591LL ||
+        lseek(descriptor, 0, SEEK_END) != 8 ||
+        lseek(descriptor, 0, SEEK_SET) != 0) return 52;
     if (read(descriptor, buffer, 8) != 8 ||
         memcmp(buffer, "portable", 8) != 0) return 23;
     duplicate = dup(descriptor);
@@ -76,6 +88,9 @@ static int test_pipes(void)
     int descriptors[2];
     char buffer[5] = {0};
     if (_pipe(descriptors, 128, _O_BINARY) != 0) return 40;
+    errno = EDOM;
+    if (_lseek(descriptors[0], 0, SEEK_CUR) != -1 || errno != ESPIPE)
+        return 53;
     if (_write(descriptors[1], "pipe", 4) != 4 ||
         _read(descriptors[0], buffer, 4) != 4 ||
         memcmp(buffer, "pipe", 4) != 0) return 41;

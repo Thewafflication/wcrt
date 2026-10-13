@@ -45,6 +45,18 @@
 #define ULONG_MAX 4294967295UL
 /** @} */
 
+/** @name Microsoft 64-bit integer limits */
+/** @{ */
+#if defined(_MSC_VER)
+#define _I64_MAX 9223372036854775807i64
+#define _UI64_MAX 18446744073709551615ui64
+#else
+#define _I64_MAX 9223372036854775807LL
+#define _UI64_MAX 18446744073709551615ULL
+#endif
+#define _I64_MIN (-_I64_MAX - 1)
+/** @} */
+
 #if !defined(WCRT_C89) && defined(__STDC_VERSION__) && \
     __STDC_VERSION__ >= 199901L
 /** @name C99 long-long limits */

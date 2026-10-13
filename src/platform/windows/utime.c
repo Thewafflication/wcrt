@@ -1,6 +1,8 @@
 /** @file utime.c @brief Implements Microsoft file-time updates on Windows. */
 
 #include <errno.h>
+#include <io.h>
+#include <sys/stat.h>
 #include <sys/utime.h>
 #include <windows.h>
 
@@ -34,9 +36,35 @@ static int wcrt_utime_error(unsigned long error)
     return EACCES;
 }
 
-/** @brief Applies already validated timestamps to a path. */
+/** @brief Converts explicit/current times within the selected range. */
+static int wcrt_time_values(long long access_time, long long modification_time,
+    int use_current, long long maximum, FILETIME *access_value,
+    FILETIME *modification_value)
+{
+    if (use_current) {
+        ULARGE_INTEGER current;
+        GetSystemTimeAsFileTime(access_value);
+        current.LowPart = access_value->dwLowDateTime;
+        current.HighPart = access_value->dwHighDateTime;
+        if (current.QuadPart < 116444736000000000ULL ||
+            current.QuadPart / 10000000ULL - 11644473600ULL >
+            (unsigned long long)maximum) {
+            errno = EINVAL;
+            return -1;
+        }
+        *modification_value = *access_value;
+    } else if (access_time > maximum || modification_time > maximum ||
+        !wcrt_file_time(access_time, access_value) ||
+        !wcrt_file_time(modification_time, modification_value)) {
+        errno = EINVAL;
+        return -1;
+    }
+    return 0;
+}
+
+/** @brief Applies checked timestamps to a named regular file. */
 static int wcrt_set_times(const char *path, long long access_time,
-    long long modification_time, int use_current)
+    long long modification_time, int use_current, long long maximum)
 {
     WIN32_FILE_ATTRIBUTE_DATA attributes;
     FILETIME access_value;
@@ -56,14 +84,8 @@ static int wcrt_set_times(const char *path, long long access_time,
         errno = EACCES;
         return -1;
     }
-    if (use_current) {
-        GetSystemTimeAsFileTime(&access_value);
-        modification_value = access_value;
-    } else if (!wcrt_file_time(access_time, &access_value) ||
-        !wcrt_file_time(modification_time, &modification_value)) {
-        errno = EINVAL;
-        return -1;
-    }
+    if (wcrt_time_values(access_time, modification_time, use_current, maximum,
+        &access_value, &modification_value) != 0) return -1;
     file = CreateFileA(path, FILE_WRITE_ATTRIBUTES,
         FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL,
         OPEN_EXISTING, 0, NULL);
@@ -84,11 +106,60 @@ static int wcrt_set_times(const char *path, long long access_time,
 int __cdecl _utime32(const char *path, struct __utimbuf32 *times)
 {
     return wcrt_set_times(path, times == NULL ? 0 : times->actime,
-        times == NULL ? 0 : times->modtime, times == NULL);
+        times == NULL ? 0 : times->modtime, times == NULL, 2147483647LL);
 }
 
 int __cdecl _utime64(const char *path, struct __utimbuf64 *times)
 {
     return wcrt_set_times(path, times == NULL ? 0 : times->actime,
-        times == NULL ? 0 : times->modtime, times == NULL);
+        times == NULL ? 0 : times->modtime, times == NULL, WCRT_UTIME64_MAX);
+}
+
+/** @brief Updates a borrowed disk handle without changing descriptor state. */
+static int wcrt_set_descriptor_times(int descriptor, long long access_time,
+    long long modification_time, int use_current, long long maximum)
+{
+    __wcrt_intptr_t native = _get_osfhandle(descriptor);
+    FILETIME access_value;
+    FILETIME modification_value;
+    int type;
+    struct _stat64 status;
+    if (native == (__wcrt_intptr_t)-1) return -1;
+    type = (int)GetFileType((HANDLE)native);
+    if (type != FILE_TYPE_DISK && type != FILE_TYPE_CHAR &&
+        type != FILE_TYPE_PIPE) {
+        errno = EBADF;
+        return -1;
+    }
+    if (type != FILE_TYPE_DISK) {
+        errno = EINVAL;
+        return -1;
+    }
+    if (_fstat64(descriptor, &status) != 0) return -1;
+    if ((status.st_mode & 0xf000U) != _S_IFREG) {
+        errno = EINVAL;
+        return -1;
+    }
+    if (wcrt_time_values(access_time, modification_time, use_current, maximum,
+        &access_value, &modification_value) != 0) return -1;
+    if (!SetFileTime((HANDLE)native, NULL, &access_value,
+        &modification_value)) {
+        errno = wcrt_utime_error(GetLastError());
+        return -1;
+    }
+    return 0;
+}
+
+int __cdecl _futime32(int descriptor, struct __utimbuf32 *times)
+{
+    return wcrt_set_descriptor_times(descriptor,
+        times == NULL ? 0 : times->actime,
+        times == NULL ? 0 : times->modtime, times == NULL, 2147483647LL);
+}
+
+int __cdecl _futime64(int descriptor, struct __utimbuf64 *times)
+{
+    return wcrt_set_descriptor_times(descriptor,
+        times == NULL ? 0 : times->actime,
+        times == NULL ? 0 : times->modtime, times == NULL, WCRT_UTIME64_MAX);
 }

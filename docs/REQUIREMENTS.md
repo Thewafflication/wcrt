@@ -130,6 +130,28 @@ conforms to POSIX.1-2017.
 | --- | --- | --- | --- | --- |
 | [REQ-0075](req-0075-cpu-information.md) | [TC-0075](tc-0075-cpu-information.tex) | `<wcrt/cpu.h>` | WCRT extension | Startup-initialized capabilities and fresh processor counts |
 
+## Additional VC6-era Microsoft compatibility
+
+| Requirement | Test | Header | Profile | Coverage |
+| --- | --- | --- | --- | --- |
+| [REQ-0076](req-0076-ms-path-components.md) | [TC-0076](tc-0076-ms-path-components.tex) | `<stdlib.h>` | Microsoft compatibility | Narrow path construction, splitting and buffer constants; genuine VC6 qualification Unknown |
+| [REQ-0077](req-0077-ms-i64-format.md) | [TC-0077](tc-0077-ms-i64-format.tex) | `<stdio.h>` | Microsoft compatibility | I64 integer output/input; genuine VC6 qualification Unknown |
+| [REQ-0078](req-0078-ms-integer64.md) | [TC-0078](tc-0078-ms-integer64.tex) | `<stdlib.h>`, `<limits.h>` | Microsoft compatibility | Narrow 64-bit conversions and limits; genuine VC6 qualification Unknown |
+| [REQ-0079](req-0079-vc6-consumer-headers.md) | [TC-0079](tc-0079-vc6-consumer-headers.tex) | Selected C89/MS headers | VC6 C consumer | Header/compiler adaptation and optional DLL consumer; legacy VC6 time/stat ABI excluded |
+| [REQ-0080](req-0080-ms-directory-change.md) | [TC-0080](tc-0080-ms-directory-change.tex) | `<direct.h>` | Microsoft compatibility | Narrow directory change/removal and errors |
+| [REQ-0081](req-0081-ms-shared-stream.md) | [TC-0081](tc-0081-ms-shared-stream.tex) | `<stdio.h>`, `<share.h>` | Microsoft compatibility | Shared streams and deny-mode constants |
+| [REQ-0082](req-0082-ms-descriptor-mode.md) | [TC-0082](tc-0082-ms-descriptor-mode.tex) | `<io.h>` | Microsoft compatibility | Descriptor text/binary mode transitions |
+| [REQ-0083](req-0083-ms-shared-descriptor.md) | [TC-0083](tc-0083-ms-shared-descriptor.tex) | `<io.h>` | Microsoft compatibility | Shared descriptor opens and selected creation permissions |
+| [REQ-0084](req-0084-ms-drive-query.md) | [TC-0084](tc-0084-ms-drive-query.tex) | `<direct.h>` | Microsoft compatibility | Current drive number and logical-drive mask |
+| [REQ-0085](req-0085-ms-drive-directory.md) | [TC-0085](tc-0085-ms-drive-directory.tex) | `<direct.h>` | Microsoft compatibility | Selected drive change and drive-directory queries |
+| [REQ-0086](req-0086-ms-stat32-route.md) | [TC-0086](tc-0086-ms-stat32-route.tex) | `<sys/stat.h>` | Explicit stat32 source route | Versioned 32-bit metadata and x86 legacy spelling selector |
+| [REQ-0087](req-0087-ms-system-types.md) | [TC-0087](tc-0087-ms-system-types.tex) | `<sys/types.h>`, `<sys/stat.h>` | Microsoft system types | Underscored types and explicit aliases with strict/POSIX isolation |
+| [REQ-0088](req-0088-ms-descriptor-size-position.md) | [TC-0088](tc-0088-ms-descriptor-size-position.tex) | `<io.h>` | Microsoft compatibility | Wide positioning and physical regular-file size queries |
+| [REQ-0089](req-0089-ms-descriptor-eof.md) | [TC-0089](tc-0089-ms-descriptor-eof.tex) | `<io.h>` | Microsoft compatibility | Physical descriptor position/end equality |
+| [REQ-0090](req-0090-ms-native-handle-adoption.md) | [TC-0090](tc-0090-ms-native-handle-adoption.tex) | `<io.h>` | Microsoft compatibility | Pointer-sized native-handle ownership transfer |
+| [REQ-0091](req-0091-ms-utime32-route.md) | [TC-0091](tc-0091-ms-utime32-route.tex) | `<sys/utime.h>` | Explicit narrow source route | Legacy timestamp spellings mapped to existing 32-bit interfaces |
+| [REQ-0092](req-0092-ms-error-names.md) | [TC-0092](tc-0092-ms-error-names.tex) | `<errno.h>` | Selected Microsoft names | EIO/EFBIG vocabulary without POSIX surface selection |
+
 ## Shared acceptance gates
 
 Every requirement is complete only when its header and implementation files

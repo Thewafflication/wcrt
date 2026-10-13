@@ -49,6 +49,12 @@ descriptor status is specified by REQ-0049 and REQ-0051.
   reader closure shall fail with `EPIPE`; invalid output arrays or text-mode
   combinations shall fail with `EINVAL`.
 - The implementation shall add only Windows 2000-compatible imports.
+- Seek origins shall be SEEK_SET, SEEK_CUR or SEEK_END; invalid origins and
+  negative resulting positions fail with EINVAL. Nonseeking devices fail with
+  ESPIPE. A failed native seek shall not change position or stream indicators.
+  Selected POSIX lseek supports nonnegative 64-bit positions, including those
+  with a low word of 0xffffffff; seeking past EOF does not extend the file.
+  Microsoft _lseek retains its signed 32-bit result and EFBIG overflow behavior.
 
 ## Verification
 
@@ -78,3 +84,10 @@ inheritable pipe controls require a later shared-state extension.
 backend performs flag opens, handle duplication, flushing, terminal detection,
 error translation, and native I/O. TC-0067 passes locally on x64; all
 architectures remain CI gates.
+
+The 2026-10-01 seek correction replaces an incorrect high-word failure test
+with GetLastError inspection for the sentinel low word. It affects the common
+stdio/Microsoft/POSIX backend and error reporting; no public types, imports or
+minimum OS versions change. TC-0067 adds negative/origin/pipe and large-position
+regressions plus deterministic Windows failure partitions. Other successful
+I/O remains unchanged; callers still coordinate shared native positions.

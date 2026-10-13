@@ -1,0 +1,27 @@
+% TC-0078 controlled Microsoft conversion fragment.
+\def\TCID{TC-0078}
+\def\TCTitle{Microsoft narrow 64-bit conversions}
+\def\TCPurpose{Verify REQ-0078 declarations, limits and conversion behavior.}
+\def\TCPriority{\TCPriorityHigh}
+\def\TCRequirementRef{REQ-0078}
+\def\TCDesignRef{Selected Microsoft numeric compatibility profile.}
+\def\TCFeatureRef{\texttt{include/stdlib.h}; \texttt{include/limits.h};
+\texttt{include/wcrt/ms\_types.h}; \texttt{src/stdlib.c};
+\texttt{tests/mscompat/integer64.c};
+\texttt{tests/mscompat/presence/integer64.c};
+\texttt{tests/mscompat/run-tc-0078.ps1}.}
+\def\TCTestTechnique{Interface, mathematical vectors and boundary tests.}
+\def\TCPreconditions{Architecture-matched TinyCC and WCRT headers/sources.}
+\def\TCEnvironment{Native x86/x64; ARM64 native where available.}
+\def\TCAssumptions{Caller-owned output capacity; no overlap;
+genuine VC6 qualification is a separate Unknown gate.}
+\def\TCInputData{Exact unsigned-maximum digit vectors for every base 2-36,
+signed extrema, overflow, no digits, prefixes, signs and invalid arguments.}
+\def\TCInitialState{Guarded output and seeded errno.}
+\def\TCProcedure{Compile typed addresses and limit checks; run every radix;
+check exact strings, identities, terminators, guards, stopping pointers, limits
+and errno; rerun 32-bit and ISO conversion regressions.}
+\def\TCExpectedResult{Exact specified representation and range behavior;
+no signed-overflow conversion of the minimum; unchanged earlier interfaces.}
+\def\TCPostConditions{No allocated resources or files.}
+\TCTemplate
