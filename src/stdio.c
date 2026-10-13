@@ -486,7 +486,10 @@ int isatty(int descriptor) { return _isatty(descriptor); }
 FILE *_fdopen(int descriptor, const char *mode)
 {
     FILE *stream = wcrt_descriptor_stream(descriptor);
-    if (stream == NULL) errno = EBADF;
+    if (stream == NULL) {
+        errno = EBADF;
+        return NULL;
+    }
     else if (mode == NULL || *mode == '\0' ||
         ((*mode == 'r') && (stream->flags & WCRT_FILE_READ) == 0) ||
         ((*mode == 'w' || *mode == 'a') &&

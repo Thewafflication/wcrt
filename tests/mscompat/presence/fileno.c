@@ -4,6 +4,9 @@
  */
 
 #include <stdio.h>
+typedef FILE *(*wcrt_ms_fdopen_fn)(int, const char *);
+/** Forces type checking from stdio.h alone before io.h is included. */
+static wcrt_ms_fdopen_fn wcrt_ms_fdopen_address = (_fdopen);
 #include <io.h>
 
 typedef int (*wcrt_ms_fileno_fn)(FILE *);

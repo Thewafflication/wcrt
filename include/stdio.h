@@ -93,6 +93,8 @@ int _vsnprintf(char *destination, size_t size, const char *format,
     va_list arguments);
 /** @brief Returns the descriptor associated with an open stream. */
 int _fileno(FILE *stream);
+/** @brief Associates a stream interface with an open descriptor. */
+FILE *_fdopen(int descriptor, const char *mode);
 #if defined(WCRT_POSIX)
 /** @brief Returns the descriptor associated with an open stream. */
 int fileno(FILE *stream);
