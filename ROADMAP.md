@@ -6,7 +6,8 @@
 > [requirements index](docs/REQUIREMENTS.md) and executable test manifests for
 > implemented status.
 
-This roadmap is ordered by dependency and conformance level. Dates are omitted
+The WFC compatibility priority below takes precedence over the remaining
+backlog, which is ordered by dependency and conformance level. Dates are omitted
 until measured tranche history establishes reliable forecasts. The controlled
 C99-to-1.0.0 estimates and quality plan are in
 [`docs/C99-1.0-WORK-PLAN.md`](docs/C99-1.0-WORK-PLAN.md). A checked item means
@@ -19,6 +20,29 @@ and acceptance criteria are defined in the
 [`WCRT 1.1.0 Compatibility Roadmap`](docs/WCRT-1.1.0-ROADMAP.md). That release
 selected a finite subset from the longer Microsoft track below; it did not
 require completion of MS0--MS6 or advance the ISO C11 milestone.
+
+## Priority #1 — C++ library compatibility for every WFC import
+
+- [ ] Inventory every import required by WFC and its C++ library dependencies,
+      recording the required symbols, target architectures, calling conventions,
+      and ABI contracts in a compatibility matrix.
+- [ ] Add compatibility for every required import, including the C++ library
+      and runtime support identified by that inventory. Track compiler-provided
+      and OS-provided imports explicitly and verify that they resolve correctly.
+- [ ] Assess TinyCC's suitability for the required compilation and ABI contracts.
+      If TinyCC is insufficient, prefer GCC/G++ for the C/C++ toolchain; document
+      compiler/runtime interoperability and any remaining ABI gaps.
+- [ ] Keep this work on the dedicated `codex/wfc-cpp-library-compatibility`
+      branch, including any required C++ compiler and build integration.
+- [ ] Verify complete import resolution and build, link, and run representative
+      WFC consumers against WCRT, with regression coverage and the applicable
+      Windows 2000 import and architecture gates.
+
+**Exit condition:** every import required by WFC has documented compatibility
+and passing evidence, and WFC consumers build, link, and run with the selected
+toolchain. This priority explicitly includes WFC-required C++ support beyond
+the historical Microsoft C compatibility scope; it does not claim general
+C++ ABI compatibility.
 
 ## Release gates for every milestone
 
@@ -301,7 +325,8 @@ The target is a documented, versioned source-compatibility profile—not a
 drop-in replacement for `msvcrt.dll`, `ucrtbase.dll`, or private Visual C++
 runtime internals. C++ runtime, compiler exception machinery, undocumented
 symbols, and bug-for-bug compatibility remain out of scope unless separately
-approved.
+approved. The Priority #1 WFC work above is the approved exception for the
+C++ library and runtime support required by WFC imports.
 
 ### MS0 — Compatibility contract and inventory
 
