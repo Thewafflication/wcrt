@@ -79,7 +79,7 @@ $tests = @(
 )
 $results = @($tests | ForEach-Object { Invoke-TestCase $_[0] $_[1] })
 $results | ConvertTo-Json -Depth 4 |
-    Set-Content -LiteralPath $jsonPath -Encoding utf8NoBOM
+    Set-Content -LiteralPath $jsonPath -Encoding UTF8
 
 $rows = foreach ($result in $results) {
     "$(ConvertTo-TexText $result.TestCase) & $(ConvertTo-TexText $result.Description) & $(ConvertTo-TexText $result.Status) \\"
@@ -98,7 +98,7 @@ $document = @(
     '\end{longtable}'
     '\end{document}'
 )
-Set-Content -LiteralPath $texPath -Value $document -Encoding utf8NoBOM
+Set-Content -LiteralPath $texPath -Value $document -Encoding UTF8
 
 $results | Format-Table TestCase, Description, Status
 if ($results.Status -contains 'Fail') {

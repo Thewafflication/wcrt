@@ -174,11 +174,11 @@ function Invoke-WcrtFailureDebugger {
             Transcript = $retainedTranscript
         }
         $debuggerOutput | Set-Content -LiteralPath `
-            (Join-Path $diagnosticDirectory 'gdb.txt') -Encoding utf8NoBOM
+            (Join-Path $diagnosticDirectory 'gdb.txt') -Encoding UTF8
     }
     $record | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath `
         (Join-Path $diagnosticDirectory 'diagnostic.json') `
-        -Encoding utf8NoBOM
+        -Encoding UTF8
     $record
 }
 
@@ -259,7 +259,7 @@ function Invoke-WcrtTestRunnerWithDiagnostics {
         }
         $diagnostics | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath `
             (Join-Path $diagnosticDirectory 'diagnostic.json') `
-            -Encoding utf8NoBOM
+            -Encoding UTF8
     }
     $capturedText = @($capturedOutput | ForEach-Object {
         $_.ToString()
@@ -267,7 +267,7 @@ function Invoke-WcrtTestRunnerWithDiagnostics {
     if (-not [string]::IsNullOrWhiteSpace($capturedText)) {
         $capturedText | Set-Content -LiteralPath `
             (Join-Path $diagnosticDirectory 'captured-output.txt') `
-            -Encoding utf8NoBOM
+            -Encoding UTF8
     }
     $transcript = if (Test-Path -LiteralPath $transcriptPath) {
         Get-Content -LiteralPath $transcriptPath -Raw
